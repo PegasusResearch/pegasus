@@ -85,3 +85,5 @@ Changing the Wifi SSID and Password
      style="float: left; margin-right: 10px;" />
 
 Thanks to `Ray's blog <https://rays-blog.de/2016/10/21/224/adding-wi-fi-telemetry-to-pixhawk-flight-controller-with-esp8266-module/>`__ which was the source for some of this page's advice.
+
+sudo tcpdump -n -i any
