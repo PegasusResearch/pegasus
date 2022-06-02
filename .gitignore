@@ -21,6 +21,12 @@ devel_isolated/
 /cfg/cpp/
 /cfg/*.py
 
+#MAC Stuff
+.DS_Store
+
+# VSCode stuff
+.vscode
+
 # Ignore generated docs
 *.dox
 *.wikidoc

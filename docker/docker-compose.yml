@@ -1,0 +1,12 @@
+version: '2'
+services:
+  dev_pegasus:
+    build:
+      context: .
+      args:
+        ros_version: foxy   # ROS 2 version
+   # working_dir: /home/pegasus/
+    volumes: 
+      - ./../pegasus_ws:/home/pegasus/pegasus_ws
+    command: /bin/bash
+    
