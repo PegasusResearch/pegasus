@@ -1,3 +1,15 @@
+/*
+ * Copyright 2022 Marcelo Jacinto.
+ *
+ * This file is part of the pegasus package and subject to the license terms
+ * in the top-level LICENSE file of the pegasus repository.
+ */
+/**
+ * @brief MAVLink Node
+ * @file mavlink_node.cpp
+ * @author Marcelo Jacinto <marcelo.jacinto@tecnico.ulisboa.pt>
+ */
+
 #include <memory>
 #include <mavsdk/mavsdk.h>
 #include "rclcpp/rclcpp.hpp"
@@ -8,18 +20,20 @@ MAVLinkNode::MAVLinkNode() : Node("mavlink_node") {
     
     // Initialize the MAVSDK object and try to connect to the vehicle
     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Adding Vehicle Connection at udp://:14550");
-    mavsdk::ConnectionResult connection_result = this->mavsdk_.add_any_connection("udp://:14550");
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Connection added");
 
-    // Check if connection failed
-    if (connection_result != mavsdk::ConnectionResult::Success) {
+    // Try to connect to the specified ip address
+    mavsdk::ConnectionResult connection_result;
+    do {
+        connection_result = this->mavsdk_.add_any_connection("udp://:14550");
         std::cerr << "Connection failed: " << connection_result << '\n';
-        //return 1;
-    }
+    } while(connection_result != mavsdk::ConnectionResult::Success);
+
 
     // Get a pointer to the current vehicle or just terminate the program
-    std::shared_ptr<mavsdk::System> system = this->get_system();
-    //if (!system) return 1;
+    std::shared_ptr<mavsdk::System> system = nullptr;
+    do {
+        system = this->get_system();
+    } while(!system);
 
     std::cout << "Vehicle detected" << std::endl;
 }
@@ -71,6 +85,7 @@ int main(int argc, char ** argv) {
 
     // Create a node to send and receive data between MAVLink and ROS2
     rclcpp::spin(std::make_shared<MAVLinkNode>());
+    
     rclcpp::shutdown();
     return 0;
 }

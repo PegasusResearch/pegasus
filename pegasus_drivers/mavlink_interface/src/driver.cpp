@@ -15,10 +15,6 @@ void initialize_mavlink_subscribers(mavsdk::Telemetry& telemetry)
     // Subscribe to the battery level state
     telemetry.subscribe_battery([](mavsdk::Telemetry::Battery bat) {std::cout << bat << std::endl; });
 
-    // Subscribe to the GPS state of the vehicle
-    telemetry.subscribe_gps_info([](mavsdk::Telemetry::GpsInfo gps_info) {std::cout << gps_info << std::endl; });
-    telemetry.subscribe_ground_truth([](mavsdk::Telemetry::GroundTruth gps_data) {std::cout << gps_data << std::endl; });
-
     // Subscribe to the raw data from the imu
     telemetry.subscribe_imu([](mavsdk::Telemetry::Imu imu) {std::cout << imu << std::endl; });
 
