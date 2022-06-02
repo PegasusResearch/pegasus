@@ -36,6 +36,12 @@ void initialize_mavlink_subscribers(mavsdk::Telemetry& telemetry)
 
 int main(int argc, char ** argv) {
 
+    // Initialize the MAVSDK object and try to connect to the vehicle
+    mavsdk::Mavsdk mavsdk;
+    std::cout << "Adding Connection" << std::endl;
+    mavsdk::ConnectionResult connection_result = mavsdk.add_any_connection("udp://:14550");
+    std::cout << "Connection added" << std::endl;
+
     // Check if connection failed
     if (connection_result != mavsdk::ConnectionResult::Success) {
         std::cerr << "Connection failed: " << connection_result << '\n';
