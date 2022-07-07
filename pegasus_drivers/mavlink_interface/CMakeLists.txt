@@ -1,32 +1,65 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(mavlink_interface)
 
+# Default to C++17 and compiler flags to give all warnings
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic -O3)
+endif()
+if(MSVC)
+  add_compile_options(-WX -W2)
 endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(pegasus_msgs REQUIRED)
 find_package(MAVSDK REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 # Include directories for the code
-include_directories(include)
+include_directories(
+  include/mavlink_interface
+  ${EIGEN3_INCLUDE_DIR}
+)
 
 # Define the executable
-add_executable(${PROJECT_NAME}_node src/mavlink_node.cpp)
+add_executable(${PROJECT_NAME} 
+  # The main ROS2 node implementation
+  src/mavlink_node.cpp
+  # Subscribe to mavlink sensor topics
+  src/sensors/sensors.cpp
+  # Send control commands to mavlink
+  src/control/control.cpp
+  # Services for the vehicle
+  src/services/services.cpp
+  # Actions for arming, taking off and landing
+  src/actions/actions.cpp
+  src/actions/take_off.cpp
+  src/actions/land.cpp
+  src/actions/arm.cpp
+  # Receive MOCAP data via ROS and send to MAVLINK
+  src/mocap/mocap.cpp
+)
 
 # Add the ROS2 packages to link against
-ament_target_dependencies(${PROJECT_NAME}_node
+ament_target_dependencies(${PROJECT_NAME}
     rclcpp 
+    rclcpp_action
     std_msgs
+    sensor_msgs
+    geometry_msgs
+    pegasus_msgs
 )
 
 # External link libraries
-target_link_libraries(${PROJECT_NAME}_node
+target_link_libraries(${PROJECT_NAME}
     MAVSDK::mavsdk
 )
 
@@ -42,8 +75,10 @@ if(BUILD_TESTING)
 endif()
 
 # Specify where to install the compiled code
-install(TARGETS
-    ${PROJECT_NAME}_node
-    DESTINATION lib/${PROJECT_NAME})
+install(TARGETS ${PROJECT_NAME} DESTINATION lib/${PROJECT_NAME})
+
+# Specify where to install the launch files
+install(DIRECTORY config DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 
 ament_package()

@@ -1,0 +1,7 @@
+# Request
+bool arm
+---
+# Result
+uint8 success
+---
+# Feedback

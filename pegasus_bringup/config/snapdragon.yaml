@@ -1,0 +1,9 @@
+/**:
+  ros__parameters:
+    drone:
+      mass: 0.600 #Kg
+      thrust_curve:
+        type: 'quadratic'
+        a: 0.0
+        b: 0.0
+        c: 0.0

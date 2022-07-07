@@ -1,0 +1,36 @@
+/**:
+  ros__parameters:
+    subscribers:
+      control:
+        # High-level control (position, body velocity and inertial acceleration)
+        position: "control/position"
+        # Control the vehicle body velocity
+        body_velocity: "control/body_velocity"
+        inertial_acceleration: "control/inertial_acceleration"
+        # Low-level control (attitude and attitude-rate control + thrust)
+        attitude_thrust: "control/attitude_thrust"
+        attitude_rate_thrust: "control/attitude_rate_thrust"
+        # "Bare-metal" control (control each individual thruster)
+        actuator_control: "control/actuator_control"
+      # External vision or mocap sensor input (in ENU frame of reference)
+      external_sensors:
+        mocap_enu: "snap6/mocap/pose_enu"
+    services:
+      kill_switch: "kill"
+    actions:
+      # High-level operation of the vehicle
+      arm: "arm"
+      takeoff: "takeoff"
+      land: "land"
+    publishers:
+      # Current status of the vehicle (battery, operation mode, etc.)
+      status: "status"
+      # Sensor data received from micro-controller
+      sensors:
+        imu:
+          vel_and_accel: "sensors/imu/vel_and_accel"
+          magnetic_field: "sensors/imu/magnetic_field" 
+      # Data received from the micro-controller internal EKF
+      nav:
+        # Current state of the vehicle
+        state: "nav/state"

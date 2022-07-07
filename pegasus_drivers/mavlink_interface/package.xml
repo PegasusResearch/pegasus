@@ -4,12 +4,21 @@
  <name>mavlink_interface</name>
  <version>1.0.0</version>
  <description>Interface that converts mavlink data to ROS2 messages and TFs</description>
+ <author email="marcelo.jacinto@tecnico.ulisboa.pt">Marcelo Jacinto</author>
  <maintainer email="marcelo.jacinto@tecnico.ulisboa.pt">Marcelo Jacinto</maintainer>
- <license>MIT</license>
+ <license>BSD 3-Clause License</license>
 
  <buildtool_depend>ament_cmake</buildtool_depend>
 
+ <!-- Packages Dependencies -->
+ <depend>rclcpp</depend>
+ <depend>rclcpp_action</depend>
+ <depend>std_msgs</depend>
+ <depend>geometry_msgs</depend>
+ <depend>pegasus_msgs</depend>
+
  <test_depend>ament_lint_auto</test_depend>
+ <test_depend>ament_cmake_copyright</test_depend>
  <test_depend>ament_lint_common</test_depend>
 
  <export>

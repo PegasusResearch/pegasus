@@ -1,0 +1,11 @@
+/**:
+  ros__parameters:
+    drone:
+      mass: 1.500 #Kg
+      thrust_curve:
+        # Formula T(N) = a * input^2 + b*input + c
+        # with input = [0.0, 1.0]
+        type: 'quadratic'
+        a: 34.03
+        b: 7.151
+        c: -0.012

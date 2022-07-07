@@ -8,9 +8,22 @@ sudo apt-get update && \
      apt-get install -y --no-install-recommends \
      git \
      wget \
-     pip3 \
+     python3-pip \
      && rm -rf /var/lib/apt/lists/*
 
+# -----------------------------------------
+# Install MAVSDK for interface with mavlink
+# -----------------------------------------
+git clone --recursive https://github.com/mavlink/MAVSDK.git && \
+cd MAVSDK && \
+cmake -Bbuild/default -DCMAKE_BUILD_TYPE=Release -H. && \
+sudo cmake --build build/default --target install && \
+cd .. && \
+rm -r -f MAVSDK
+
+# -----------------------------------------
+# Install Mathematics Libraries
+# -----------------------------------------
 
 # Install Eigen version 3.4.0 (C++ equivalent of numpy in python):
 wget -q https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz && \
