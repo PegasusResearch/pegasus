@@ -76,17 +76,17 @@ class PIDNode(Node):
     def initialize_subscribers(self):
         
         # Subscribe to the state of the vehicle
-        self.state_sub = self.create_subscription(State, '/drone6/nav/state', self.state_callback, 1)
+        self.state_sub = self.create_subscription(State, '/drone1/nav/state', self.state_callback, 1)
 
         # Client for arming/disarming the vehicle
-        self.arm_client = ActionClient(self, VehicleArm, '/drone6/arm')
+        self.arm_client = ActionClient(self, VehicleArm, '/drone1/arm')
         
-        self.takeoff_client = ActionClient(self, VehicleTakeOff, '/drone6/takeoff')
+        self.takeoff_client = ActionClient(self, VehicleTakeOff, '/drone1/takeoff')
         
-        self.land_client = ActionClient(self, VehicleLand, '/drone6/land')
+        self.land_client = ActionClient(self, VehicleLand, '/drone1/land')
     
     def initialize_publishers(self):
-        self.control_pub = self.create_publisher(AttitudeThrustControl, '/drone6/control/attitude_thrust', 1)
+        self.control_pub = self.create_publisher(AttitudeThrustControl, '/drone1/control/attitude_thrust', 1)
     
     def arm(self):
         """
@@ -198,7 +198,7 @@ class PIDNode(Node):
         att, T = controller(u, self.mass, yaw=deg_to_rad(yaw_ref))
         
         # Compute the normalized thrust between 0 - 100%
-        T = np.maximum(np.minimum(thrust_curve_snap(T), 100.0), 0.0)
+        T = np.maximum(np.minimum(thrust_curve_iris(T), 100.0), 0.0)
 		
         self.integral += (self.p-p_ref) * dt
         self.integral = np.maximum(np.minimum(self.integral, 2.0), -2.0)
