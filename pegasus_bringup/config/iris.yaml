@@ -1,11 +1,10 @@
 /**:
   ros__parameters:
-    drone:
+    dynamics:
       mass: 1.500 #Kg
       thrust_curve:
         # Formula T(N) = a * input^2 + b*input + c
-        # with input = [0.0, 1.0]
-        type: 'quadratic'
-        a: 34.03
-        b: 7.151
-        c: -0.012
+        # with input = [0.0, 1.0], hence we need to scale by 100.0
+        identifier: 'Quadratic'
+        parameter_names: ["a", "b", "c", "scale"]
+        parameters: [34.03, 7.151, -0.012, 100.0]

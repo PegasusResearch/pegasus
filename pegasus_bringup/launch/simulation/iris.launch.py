@@ -20,6 +20,9 @@ def generate_launch_description():
     # Define the drone MAVLINK IP and PORT
     mav_connection_arg = DeclareLaunchArgument('connection', default_value='udp://:14540', description='The interface used to connect to the vehicle')
     
+    # Define the drone MAVLINK forward ips and ports (by default in simulation we do not need to forward mavlink connections)
+    mavlink_forward_arg = DeclareLaunchArgument('mavlink_forward', default_value="['']", description='A list of ips where to forward mavlink messages')
+
     # Define which file to use for the drone parameters
     drone_params_file_arg = DeclareLaunchArgument(
         'drone_params', 
@@ -31,15 +34,16 @@ def generate_launch_description():
     # ----------------------------------------
     
     # Call MAVLINK interface package launch file 
-    mavlink_interface_launch_file = IncludeLaunchDescription(
+    mavlink_driver_launch_file = IncludeLaunchDescription(
         # Grab the launch file for the mavlink interface
-        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('mavlink_interface'), 'launch/mavlink_interface.launch.py')),
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('mavlink_driver'), 'launch/mavlink_driver.launch.py')),
         # Define costume launch arguments/parameters used for the mavlink interface
         launch_arguments={
             'id': LaunchConfiguration('vehicle_id'), 
             'namespace': LaunchConfiguration('vehicle_ns'),
             'drone_params': LaunchConfiguration('drone_params'),
-            'connection': LaunchConfiguration('connection')
+            'connection': LaunchConfiguration('connection'),
+            'mavlink_forward': LaunchConfiguration('mavlink_forward')
         }.items(),
     )
 
@@ -51,7 +55,8 @@ def generate_launch_description():
         id_arg, 
         namespace_arg, 
         mav_connection_arg,
+        mavlink_forward_arg,
         drone_params_file_arg,
         # Launch files
-        mavlink_interface_launch_file
+        mavlink_driver_launch_file
     ])

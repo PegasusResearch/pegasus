@@ -6,6 +6,9 @@ import tkinter as tk
 from tkinter import *
 from tkinter import ttk
 
+# Use numpy for mathematical computations
+import numpy as np
+
 # Use matplotlib with tkinter module for live plots
 import matplotlib
 matplotlib.use("TkAgg")
@@ -39,6 +42,9 @@ class MissionControlROS(Node):
         self.initialize_actions()
         self.initialize_subscribers()
         
+        # State of the vehicle
+        self.pos = np.zeros((3,))
+        
     def initialize_actions(self):
         """
         Action clients to arm and land the vehicle
@@ -59,7 +65,9 @@ class MissionControlROS(Node):
         """
         Callback to get the updated state of the vehicle
         """
-        print(msg.pose.pose.position.x)
+        self.pos[0] = msg.pose.pose.position.x
+        self.pos[1] = msg.pose.pose.position.y
+        self.pos[2] = msg.pose.pose.position.z
 
 class InitializeUI:
     
@@ -141,7 +149,12 @@ class MainUI:
         thread.start()
         
         # Load the UI
+        self.plot_frame = None
+        self.figure = Figure(figsize=(5,5), dpi=100)
+        self.subplot = self.figure.add_subplot(111)
         self.load_control_buttons_ui()
+        self.load_plots()
+        self.ani = animation.FuncAnimation(self.figure, lambda i: self.animate(self.subplot, self.ros_vehicle_nodes, i), interval=1000, blit=False)
         
     def load_vehicles(self):
         
@@ -167,12 +180,31 @@ class MainUI:
             ttk.Button(self.frame, text="Autoland", command=lambda:self.autoland_callback(self.ros_vehicle_nodes[i])).grid(column=2, row=i)
             
             # Kill Switch
-            ttk.Button(self.frame, text="Kill Switch", command=self.killswitch_callback(self.ros_vehicle_nodes[i])).grid(column=3, row=i)
+            ttk.Button(self.frame, text="Kill Switch", command=lambda:self.killswitch_callback(self.ros_vehicle_nodes[i])).grid(column=3, row=i)
             
         # Make a new column for all the vehicles
         if self.number_vehicles != 1:
-            tk.Label(self.frame, text="All vehicles").grid(column=0, row=i+1)
+            tk.Label(self.frame, text="All vehicles")
             ttk.Button(self.frame, text="Arm/Disarm", command=self.arm_callback).grid(column=1, row=i+1)
+
+    def load_plots(self):
+        
+        # Create a new sub-frame only for the canvas
+        self.plot_frame = ttk.Frame(self.frame, padding=10)
+        self.plot_frame.grid()
+        
+        canvas = FigureCanvasTkAgg(self.figure, self.plot_frame)
+        canvas.get_tk_widget().grid(column=0, row=0)
+        
+        toolbar = NavigationToolbar2Tk(canvas, self.plot_frame, pack_toolbar=False)
+        toolbar.update()
+        
+    @staticmethod
+    def animate(plot, vehicle_nodes, i):
+        
+        # Plot XY position of each vehicle in the network
+        for vehicle_node in vehicle_nodes:
+            plot.scatter(vehicle_node.pos[0], vehicle_node.pos[1])
 
     @staticmethod
     def arm_callback(vehicle_node: MissionControlROS):

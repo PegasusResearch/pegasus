@@ -31,6 +31,10 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "action/VehicleArm.action"
   # Services
   "srv/KillSwitch.srv"
+  "srv/Arm.srv"
+  "srv/Land.srv"
+  "srv/Reboot.srv"
+  "srv/ThrustCurve.srv"
   # Messages
   "msg/Status.msg"
   "msg/Health.msg"

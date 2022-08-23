@@ -32,10 +32,9 @@ def generate_launch_description():
     
     # Define the drone MAVLINK IP and PORT
     mav_connection_arg = DeclareLaunchArgument('connection', default_value='udp://:' + str(15000 + vehicle_id), description='The interface used to connect to the vehicle')
-    # Other possible connection values
-    #connection: "udp://:15006"    # snapdragon 6
-    #connection: "udp://:15000"
-    #connection: "serial:///dev/ttyACM0:57600"
+
+    # Define the drone MAVLINK forward ips and ports
+    mavlink_forward_arg = DeclareLaunchArgument('mavlink_forward', default_value="['udp://127.0.0.1:14550']", description='A list of ips where to forward mavlink messages')
     
     # Define which file to use for the drone parameters
     drone_params_file_arg = DeclareLaunchArgument(
@@ -59,7 +58,8 @@ def generate_launch_description():
             'id': LaunchConfiguration('vehicle_id'), 
             'namespace': LaunchConfiguration('vehicle_ns'),
             'drone_params': LaunchConfiguration('drone_params'),
-            'connection': LaunchConfiguration('connection')
+            'connection': LaunchConfiguration('connection'),
+            'mavlink_forward': LaunchConfiguration('mavlink_forward')
         }.items()
     )
     
@@ -83,6 +83,7 @@ def generate_launch_description():
         id_arg, 
         namespace_arg, 
         mav_connection_arg,
+        mavlink_forward_arg,
         drone_params_file_arg,
         mocap_connect_arg,
         # Launch files

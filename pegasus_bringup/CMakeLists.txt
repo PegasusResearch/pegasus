@@ -12,6 +12,7 @@ if(BUILD_TESTING)
 endif()
 
 # Specify where to install the launch files
+install(DIRECTORY config DESTINATION share/${PROJECT_NAME})
 install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
 
 ament_auto_package()

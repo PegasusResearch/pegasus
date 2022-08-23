@@ -3,7 +3,9 @@
     drone:
       mass: 0.600 #Kg
       thrust_curve:
-        type: 'quadratic'
-        a: 0.0
-        b: 0.0
-        c: 0.0
+        type: 'LinearExponential'
+        a: 0.1377
+        b: 0.02976
+        c: 0.003759
+        d: -0.05973
+        scale: 66.67  # SNAP-6 0.23 / 0.345 * 100.0 
