@@ -46,6 +46,9 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/InertialAccelerationControl.msg"
   "msg/RPY.msg"
   "msg/State.msg"
+  "msg/Path.msg"
+  "msg/PidStatistic.msg"
+  "msg/PidStatistics.msg"
   # Depedencies for generating the messages, services and actions
   DEPENDENCIES 
   builtin_interfaces 
