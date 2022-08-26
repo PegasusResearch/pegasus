@@ -10,9 +10,9 @@ class Lemniscate : public Section {
 
 public:
 
-    using SharedPtr = std::shared_ptr<Circle>;
-    using UniquePtr = std::unique_ptr<Circle>;
-    using WeakPtr = std::weak_ptr<Circle>;
+    using SharedPtr = std::shared_ptr<Lemniscate>;
+    using UniquePtr = std::unique_ptr<Lemniscate>;
+    using WeakPtr = std::weak_ptr<Lemniscate>;
 
     /**
      * @brief Constructor for a new Lemniscate path section
@@ -53,13 +53,6 @@ public:
      */
     virtual Eigen::Vector3d dd_pd(double gamma) override;
 
-    /** 
-     * @brief Override and just returns 0.0
-     * @param gamma The path parameter
-     * @return A double with the line curvature  = 0
-     */
-    virtual double curvature(double gamma) override;
-
 private:
 
     /**
@@ -85,11 +78,6 @@ private:
      * @brief The radius of the circle
      */
     double radius_;
-
-    /**
-     * @brief The curvature of the circle
-     */
-    double curvature_;
 
 };
 }
