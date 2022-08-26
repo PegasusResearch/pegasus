@@ -14,8 +14,24 @@ public:
     using UniquePtr = std::unique_ptr<Arc>;
     using WeakPtr = std::weak_ptr<Arc>;
 
-    Arc(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector3d & start, const Eigen::Vector3d & end) : 
-        Section(vehicle_speed, 0.0, 1.0), start_(start), end_(end) {}
+    /**
+     * @brief Construct a new Arc section object
+     * @param vehicle_speed The vehicle speed object
+     * @param start The starting point where the arc is defined
+     * @param center The center point of the arc
+     * @param The normal vector that defines the plane where the 2D arc will be placed
+     * @param clockwise_direction Whether the arc should be performed in clock or anti-clockwise direction (default=true)
+     */
+    Arc(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector3d & start, const Eigen::Vector3d & center, const Eigen::Vector3d & normal, const bool clockwise_direction=true);
+
+    /**
+     * @brief Construct a new Arc section object
+     * @param vehicle_speed The vehicle speed object
+     * @param start The starting point where the arc is defined
+     * @param center The center point of the arc
+     * @param clockwise_direction Whether the arc should be performed in clock or anti-clockwise direction (default=false)
+     */
+    Arc(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector3d & start, const Eigen::Vector3d & center, const bool clockwise_direction=true);
 
     /**
      * @brief The section parametric equation 
@@ -53,14 +69,14 @@ private:
     Eigen::Vector3d start_;
 
     /**
-     * @brief The ending point of the arc
+     * @brief The center point of the arc
      */
-    Eigen::Vector3d end_;
+    Eigen::Vector3d center_;
 
     /**
      * @brief The direction of the arc - clockwise our anti-clockwise
      */
-    bool clockwise_direction_{false};
+    double clockwise_direction_{1.0};
 
     /**
      * @brief The radius of the arc
@@ -68,8 +84,28 @@ private:
     double radius_;
 
     /**
+     * @brief The curvature of the arc
+     */
+    double curvature_;
+
+    /**
      * @brief The angle of the circle corresponding to the initial position
      */
     double init_angle_;
+
+    /**
+     * @brief The normal vector of the plane where the circle will be located. By default
+     * the circle will be in the xy-plane located in z=center[2], without any fancy rotation
+     * applied to it. If the normal vector has some other value, then a rotation will be applied
+     * to the plane
+     */
+    Eigen::Vector3d normal_{0.0, 0.0, 1.0};
+
+    /**
+     * @brief The rotation matrix to apply based on the normal vector to the plane where the circle
+     * should be inscribed. By default, this is the identity matrix
+     */
+    Eigen::Matrix3d rotation_{Eigen::Matrix3d::Identity()};
+
 };
 }
