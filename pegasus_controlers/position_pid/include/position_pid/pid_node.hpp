@@ -87,6 +87,11 @@ private:
     void update_reference_for_hold_position();
 
     /**
+     * @brief Method that is called by the "timer_callback" to fill the PID statistics for the x, y and z position pids
+     */
+    void update_statistics_msg();
+
+    /**
      * @brief The rate at which the timer will call the timer_callback, expressed in Hz
      */
     double timer_rate_;

@@ -91,7 +91,11 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn PidNod
 
     // Initialize the publisher for the desired vehicle attitude and thrust
     declare_parameter<std::string>("pid_node.topics.publishers.control", "control/attitude_force");
-    control_pub_ = this->create_publisher<pegasus_msgs::msg::AttitudeThrustControl>(get_parameter("pid_node.topics.publishers.control").as_string(), 1);
+    control_pub_ = create_publisher<pegasus_msgs::msg::AttitudeThrustControl>(get_parameter("pid_node.topics.publishers.control").as_string(), 1);
+
+    // Initialize the publisher for the statistics of the PID controller
+    declare_parameter<std::string>("pid_node.topics.publishers.statistics", "statistics/pid");
+    statistics_pub_ = create_publisher<pegasus_msgs::msg::PidStatistics>(get_parameter("pid_node.topics.publishers.statistics").as_string(), 1);
 
     // Cleanup the PID controllers if they were used before
     for(unsigned int i=0; i < 3; i++) {
@@ -134,7 +138,8 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn PidNod
     path_sub_.reset();
 
     // Stop the publisher for the control law
-    control_pub_.reset();    
+    control_pub_.reset();   
+    statistics_pub_.reset(); 
 
     // Reset the initialization variables
     state_initialized_ = false;
@@ -184,6 +189,10 @@ void PidNode::timer_callback() {
     attitude_thrust_msg_.attitude[2] = Pegasus::Rotations::rad_to_deg(attitude_thrust[2]);
     attitude_thrust_msg_.thrust = attitude_thrust[3];
     control_pub_->publish(attitude_thrust_msg_);
+
+    // Publish the statistics message
+    update_statistics_msg();
+    statistics_pub_->publish(statistics_msg_);
 
     // Update the prev_time variable
     prev_time_ = get_clock()->now();
@@ -256,4 +265,36 @@ void PidNode::update_reference_for_hold_position() {
 
     // Update the desired yaw reference for the vehicle
     desired_yaw_ = current_yaw_;
+}
+
+/**
+ * @brief Method that is called by the "timer_callback" to fill the PID statistics for the x, y and z position pids
+ */
+void PidNode::update_statistics_msg() {
+
+    // For each PID control [x, y, z]
+    for(unsigned int i = 0; i < 3; i++) {
+
+        // Get the statistics from the controller object
+        Pegasus::Pid::Statistics stats = controllers_[i]->get_statistics();
+
+        statistics_msg_.statistics[i].dt = stats.dt;
+        // Fill the feedback errors
+        statistics_msg_.statistics[i].error_p = stats.error_p;
+        statistics_msg_.statistics[i].error_d = stats.error_d;
+        statistics_msg_.statistics[i].integral = stats.integral;
+        statistics_msg_.statistics[i].ff_ref = stats.ff_ref;
+
+        // Fill the errors scaled by the gains
+        statistics_msg_.statistics[i].p_term = stats.p_term;
+        statistics_msg_.statistics[i].d_term = stats.d_term;
+        statistics_msg_.statistics[i].i_term = stats.i_term;
+        statistics_msg_.statistics[i].ff_term = stats.ff_term;
+
+        // Fill the outputs of the controller
+        statistics_msg_.statistics[i].anti_windup_discharge = stats.anti_windup_discharge;
+        statistics_msg_.statistics[i].output_pre_sat = stats.output_pre_sat;
+        statistics_msg_.statistics[i].output = stats.output;
+    }
+    
 }
