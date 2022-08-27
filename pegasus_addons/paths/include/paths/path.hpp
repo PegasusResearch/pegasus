@@ -17,7 +17,7 @@ public:
     /**
      * @brief Construct a new Path object
      */
-    Path();
+    Path() = default;
 
     /**
      * @brief Destroy the Path object
@@ -44,7 +44,7 @@ public:
      * @param gamma The parametric value
      * @return unsigned int The index inside the section vector
      */
-    virtual unsigned int get_section_index(double gamma);
+    virtual std::optional<unsigned int> get_section_index(double gamma);
 
     /**
      * @brief Get the string which describes the type of path section that is setored for a particular
@@ -52,12 +52,24 @@ public:
      * @param gamma The parametric value
      * @return std::string A description of the path section type
      */
-    virtual std::string get_section_type(double gamma);
+    virtual std::optional<std::string> get_section_type(double gamma);
 
     /**
      * @brief Clear the path (removes all segments if any were added)
      */
     virtual void clear();
+
+    /**
+     * @brief Check whether the path is empty or contains any section
+     * @return bool True if the path is empty
+     */
+    virtual inline bool empty() { return sections_.empty(); }
+
+    /**
+     * @brief Check the number of sections that the path contains
+     * @return unsigned int The number of sections inside the path
+     */
+    virtual inline unsigned int size() { return sections_.size(); };
 
     /**
      * @brief The section parametric equation 
@@ -137,6 +149,15 @@ public:
     virtual std::optional<double> d_vd(double gamma) const;
 
 protected:
+
+    /**
+     * @brief Method that outputs a bound parametric value between minimum and the maximum
+     * parametric value that a path can achieve based on the maximum number of sections it contains
+     * at any given time.
+     * @param gamma The path parameter
+     * @return double The bounded path parameter
+     */
+    virtual double bound_gamma(double gamma);
 
     /**
      * @brief Vector of parametric curves parameterized between 0 and 1

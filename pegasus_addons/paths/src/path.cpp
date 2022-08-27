@@ -39,8 +39,9 @@ Section::SharedPtr Path::get_section(double gamma) {
  * @param gamma The parametric value
  * @return unsigned int The index inside the section vector
  */
-unsigned int Path::get_section_index(double gamma) {
-
+std::optional<unsigned int> Path::get_section_index(double gamma) {
+    
+    return (!empty()) ? std::optional<unsigned int>(std::floor(gamma)) : std::nullopt;
 }
 
 /**
@@ -49,8 +50,7 @@ unsigned int Path::get_section_index(double gamma) {
  * @param gamma The parametric value
  * @return std::string A description of the path section type
  */
-std::string Path::get_section_type(double gamma) {
-
+std::optional<std::string> Path::get_section_type(double gamma) {
 }
 
 /**
@@ -156,4 +156,18 @@ std::optional<double> Path::vd(double gamma) const {
 std::optional<double> Path::d_vd(double gamma) const {
 
 }
+
+/**
+ * @brief Method that outputs a bound parametric value between minimum and the maximum
+ * parametric value that a path can achieve based on the maximum number of sections it contains
+ * at any given time.
+ * @param gamma The path parameter
+ * @return double The bounded path parameter
+ */
+double Path::bound_gamma(double gamma) {
+    // With substract a very small number because we can only access the vector
+    // at the elements [0, number_sections[
+    return std::min(std::max(0.0, gamma), (double) sections_.size() - 0.0000000001);
+}
+
 }
