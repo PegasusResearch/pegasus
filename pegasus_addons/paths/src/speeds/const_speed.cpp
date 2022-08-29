@@ -1,5 +1,5 @@
 #include "paths/speeds/const_speed.hpp"
-#include "section.hpp"
+#include "paths/section.hpp"
 
 namespace Pegasus::Paths {
 
@@ -9,7 +9,7 @@ namespace Pegasus::Paths {
  * @param section A reference to a section the speed is associated with
  * @return double The desired speed progression for the path parametric value
  */
-double ConstSpeed::get_vd(double gamma, Section & section) {
+double ConstSpeed::get_vd(double gamma, Pegasus::Paths::Section & section) {
     
     // Define a zero velocity variable to start
     double vd = 0.0;
@@ -32,7 +32,9 @@ double ConstSpeed::get_vd(double gamma, Section & section) {
  * @param section A reference to a section the speed is associated with
  * @return double The desired acceleration progression for the path parametric value
  */
-double ConstSpeed::get_d_vd(double gamma, Section & section) {
+double ConstSpeed::get_d_vd(double gamma, Pegasus::Paths::Section & section) {
+    (void) gamma;
+    (void) section;
     return 0.0;
 }
 
@@ -42,7 +44,9 @@ double ConstSpeed::get_d_vd(double gamma, Section & section) {
  * @param section A reference to a section the speed is associated with
  * @return double The desired acceleration progression for the path parametric value
  */
-double ConstSpeed::get_vehicle_speed(double gamma, Section & section) {
+double ConstSpeed::get_vehicle_speed(double gamma, Pegasus::Paths::Section & section) {
+    (void) gamma;
+    (void) section;
     return vehicle_speed_;
 }
 }

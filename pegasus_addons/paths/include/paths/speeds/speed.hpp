@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include "./section.fwd.hpp"
+#include "./../section.fwd.hpp"
 
 namespace Pegasus::Paths {
 

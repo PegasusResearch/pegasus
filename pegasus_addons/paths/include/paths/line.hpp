@@ -21,7 +21,7 @@ public:
      * @param end A 3D vector with the ending point for the line
      */
     Line(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector3d & start, const Eigen::Vector3d & end) : 
-        Section(vehicle_speed, 0.0, 1.0), start_(start), end_(end) {
+        Section(vehicle_speed, "line", 0.0, 1.0), start_(start), end_(end) {
             slope_ = end_ - start_;
         }
 

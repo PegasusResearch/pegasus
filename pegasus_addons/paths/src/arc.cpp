@@ -1,3 +1,4 @@
+#include <Eigen/Dense>
 #include "paths/arc.hpp"
 
 namespace Pegasus::Paths {
@@ -16,6 +17,7 @@ Arc::Arc(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector3d & sta
     // Initialize the rotation matrix with the rotation 
     // information encoded in the normal vector
     // -----------------------
+    normal_ = normal;
     
     // Step 1 - Check that the normal vector != [0, 0, 1] and [0,0, -1] otherwize we would not need to rotate
     // and the rotation matrix would be hill-posed using the following method
@@ -27,8 +29,8 @@ Arc::Arc(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector3d & sta
 
         // Step 2 - Now that we know that the vector is valid, then compute the rotation matrix
         Eigen::Vector3d u3 = normal_.normalized();
-        Eigen::Vector3d u1 = (u3.cross3(base_normal)).normalized();
-        Eigen::Vector3d u2 = (u3.cross3(u1)).normalized();
+        Eigen::Vector3d u1 = (u3.cross(base_normal)).normalized();
+        Eigen::Vector3d u2 = (u3.cross(u1)).normalized();
 
         // Step 3 - assign the normalized vectors to the columns of the rotation matrix
         rotation_.col(0) = u1;
@@ -45,7 +47,7 @@ Arc::Arc(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector3d & sta
  * @param center The center point of the arc
  * @param clockwise_direction Whether the arc should be performed in clock or anti-clockwise direction
  */
-Arc::Arc(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector3d & start, const Eigen::Vector3d & center, const bool clockwise_direction) : Section(vehicle_speed, 0.0, 1.0), start_(start), center_(center) {
+Arc::Arc(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector3d & start, const Eigen::Vector3d & center, const bool clockwise_direction) : Section(vehicle_speed, "arc", 0.0, 1.0), start_(start), center_(center) {
 
     // Set the clockwise direction variable to be -1 or 1
     clockwise_direction_ = (clockwise_direction) ? 1.0 : -1.0;
@@ -147,6 +149,7 @@ Eigen::Vector3d Arc::dd_pd(double gamma) {
  * @return A double with the arc curvature
  */
 double Arc::curvature(double gamma) {
+    (void) gamma;
     return curvature_;
 }
 

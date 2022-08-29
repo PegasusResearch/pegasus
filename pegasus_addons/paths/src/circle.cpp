@@ -1,4 +1,5 @@
 #include "paths/circle.hpp"
+#include <Eigen/Dense>
 
 namespace Pegasus::Paths {
 
@@ -10,7 +11,7 @@ namespace Pegasus::Paths {
  * @param radius The radius of the circle in meters (m)
  */
 Circle::Circle(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector3d & center, const Eigen::Vector3d & normal, const double radius) : 
-    Section(vehicle_speed, 0.0, 1.0), center_(center), normal_(normal), radius_(radius), curvature_(1.0 / radius) { 
+    Section(vehicle_speed, "circle", 0.0, 1.0), center_(center), normal_(normal), radius_(radius), curvature_(1.0 / radius) { 
 
     // ------------------------
     // Initialize the rotation matrix with the rotation 
@@ -27,8 +28,8 @@ Circle::Circle(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector3d
 
         // Step 2 - Now that we know that the vector is valid, then compute the rotation matrix
         Eigen::Vector3d u3 = normal_.normalized();
-        Eigen::Vector3d u1 = (u3.cross3(base_normal)).normalized();
-        Eigen::Vector3d u2 = (u3.cross3(u1)).normalized();
+        Eigen::Vector3d u1 = (u3.cross(base_normal)).normalized();
+        Eigen::Vector3d u2 = (u3.cross(u1)).normalized();
 
         // Step 3 - assign the normalized vectors to the columns of the rotation matrix
         rotation_.col(0) = u1;
@@ -45,7 +46,7 @@ Circle::Circle(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector3d
  * @param radius The radius of the circle in meters (m)
  */
 Circle::Circle(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector3d & center, const double radius) : 
-    Section(vehicle_speed, 0.0, 1.0), center_(center), radius_(radius), curvature_(1.0 / radius) { }
+    Section(vehicle_speed, "circle", 0.0, 1.0), center_(center), radius_(radius), curvature_(1.0 / radius) { }
 
 /**
  * @brief The section parametric equation 
@@ -119,6 +120,7 @@ Eigen::Vector3d Circle::dd_pd(double gamma) {
  * @return A double with the line curvature  = 0
  */
 double Circle::curvature(double gamma) {
+    (void) gamma;
     return curvature_;
 }
 

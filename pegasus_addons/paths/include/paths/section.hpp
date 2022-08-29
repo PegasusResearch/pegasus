@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <Eigen/Core>
-#include "speeds/speed.fwd.hpp"
+#include "speeds/speed.hpp"
 
 namespace Pegasus::Paths {
 
@@ -106,15 +106,24 @@ public:
         return std::max(min_gamma_, std::min(max_gamma_, gamma));
     }
 
+    /**
+     * @brief Get a string which describes the section type
+     * @return std::string A string with the section type
+     */
+    virtual inline std::string get_section_type() {
+        return section_type_;
+    }
+
 protected:
 
     /**
      * @brief Construct a new Section object
      * @param vehicle_speed The vehicle speed progression along the path object (shared pointer)
+     * @param section_type A string which describes the type of section implemented
      * @param min_gamma The minimum parametric value that::SharedPtr encodes a valid portion of the path section (default=0.0)
      * @param max_gamma The maximum parametric value that encodes a valid portion of the path section (default=1.0)
      */
-    Section(const std::shared_ptr<Speed> vehicle_speed, double min_gamma=0.0, double max_gamma=1.0) : vehicle_speed_(vehicle_speed), min_gamma_(min_gamma), max_gamma_(max_gamma) {}
+    Section(const std::shared_ptr<Speed> vehicle_speed, const std::string & section_type, double min_gamma=0.0, double max_gamma=1.0) : vehicle_speed_(vehicle_speed), section_type_(section_type), min_gamma_(min_gamma), max_gamma_(max_gamma) {}
 
 private:
 
@@ -122,6 +131,11 @@ private:
      * @brief The desired vehicle speed along the path object
      */
     std::shared_ptr<Speed> vehicle_speed_;
+
+    /**
+     * @brief A string which describes the type of section being used
+     */
+    std::string section_type_{""};
 
     /**
      * @brief The minimum parametric value that encodes a valid portion of the path section equation

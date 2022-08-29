@@ -20,9 +20,7 @@ Eigen::Vector3d Line::pd(double gamma) {
  * @return An Eigen::Vector3d with the first derivative of the path equation with respect to the path parameter
  */
 Eigen::Vector3d Line::d_pd(double gamma) {
-    
-    // Bound the parametric value
-    double t = limit_gamma(gamma);
+    (void) gamma;
     return slope_;
 }
 
@@ -32,6 +30,7 @@ Eigen::Vector3d Line::d_pd(double gamma) {
  * @return An Eigen::Vector3d with the second derivative of the path equation with respect to the path paramter
  */
 Eigen::Vector3d Line::dd_pd(double gamma) {
+    (void) gamma;
     return dd_pd_;
 }
 
@@ -41,6 +40,7 @@ Eigen::Vector3d Line::dd_pd(double gamma) {
  * @return A double with the line curvature  = 0
  */
 double Line::curvature(double gamma) {
+    (void) gamma;
     return 0.0;
 }
 

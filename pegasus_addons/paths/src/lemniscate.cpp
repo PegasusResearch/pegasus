@@ -1,3 +1,4 @@
+#include <Eigen/Dense>
 #include "paths/lemniscate.hpp"
 
 namespace Pegasus::Paths {
@@ -10,7 +11,7 @@ namespace Pegasus::Paths {
  * @param radius The radius of the lemniscate in meters (m)
  */
 Lemniscate::Lemniscate(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector3d & center, const Eigen::Vector3d & normal, const double radius) : 
-    Section(vehicle_speed, 0.0, 1.0), center_(center), normal_(normal), radius_(radius) { 
+    Section(vehicle_speed, "lemniscate", 0.0, 1.0), center_(center), normal_(normal), radius_(radius) { 
 
     // ------------------------
     // Initialize the rotation matrix with the rotation 
@@ -27,8 +28,8 @@ Lemniscate::Lemniscate(const std::shared_ptr<Speed> vehicle_speed, const Eigen::
 
         // Step 2 - Now that we know that the vector is valid, then compute the rotation matrix
         Eigen::Vector3d u3 = normal_.normalized();
-        Eigen::Vector3d u1 = (u3.cross3(base_normal)).normalized();
-        Eigen::Vector3d u2 = (u3.cross3(u1)).normalized();
+        Eigen::Vector3d u1 = (u3.cross(base_normal)).normalized();
+        Eigen::Vector3d u2 = (u3.cross(u1)).normalized();
 
         // Step 3 - assign the normalized vectors to the columns of the rotation matrix
         rotation_.col(0) = u1;
@@ -45,7 +46,7 @@ Lemniscate::Lemniscate(const std::shared_ptr<Speed> vehicle_speed, const Eigen::
  * @param radius The radius of the lemniscate in meters (m)
  */
 Lemniscate::Lemniscate(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector3d & center, const double radius) : 
-    Section(vehicle_speed, 0.0, 1.0), center_(center), radius_(radius) { }
+    Section(vehicle_speed, "lemniscate", 0.0, 1.0), center_(center), radius_(radius) { }
 
 /**
  * @brief The section parametric equation 

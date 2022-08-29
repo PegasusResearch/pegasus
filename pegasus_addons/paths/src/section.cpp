@@ -1,6 +1,6 @@
 #include <cmath>
-#include "paths/section.hpp"
 #include "paths/speeds/speed.hpp"
+#include "paths/section.hpp"
 
 namespace Pegasus::Paths {
 
@@ -33,6 +33,7 @@ double Section::curvature(double gamma) {
  */
 double Section::torsion(double gamma) {
     //TODO
+    (void) gamma;
     return 0.0;
 }
 
@@ -92,7 +93,7 @@ double Section::vd(double gamma) {
     double t = this->limit_gamma(gamma);
     
     // Return the desired speed for the parametric value
-    return vehicle_speed_->get_vd(gamma, *this);
+    return vehicle_speed_->get_vd(t, *this);
 }
 
 /**
@@ -107,6 +108,6 @@ double Section::d_vd(double gamma) {
     double t = this->limit_gamma(gamma);
     
     // Return the desired acceleration for the parametric value
-    return vehicle_speed_->get_d_vd(gamma, *this);
+    return vehicle_speed_->get_d_vd(t, *this);
 }
 }
