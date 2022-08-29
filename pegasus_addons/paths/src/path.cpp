@@ -21,7 +21,7 @@ Path::Path() {
  * @return bool returns true if the section is successfully added or false if not
  */
 bool Path::push_back(const Section::SharedPtr section) {
-    
+    sections_.push_back(section);
 }
 
 /**
@@ -30,7 +30,8 @@ bool Path::push_back(const Section::SharedPtr section) {
  * @return Section::SharedPtr 
  */
 Section::SharedPtr Path::get_section(double gamma) {
-
+    // Check if there is a section for the given gamma. If so return a shared pointer to it, otherwise return null
+    return (std::optional<unsigned int> index = get_section_index(gamma)) ? sections_[index] : nullptr;
 }
 
 /**
@@ -40,7 +41,10 @@ Section::SharedPtr Path::get_section(double gamma) {
  * @return unsigned int The index inside the section vector
  */
 std::optional<unsigned int> Path::get_section_index(double gamma) {
-    
+    // Given that each section is normalized between 0 and 1, then if we floor a given gamma, let's say gamma = 0.5
+    // then we know that it belongs to section of index=0.
+    // If we got gamma = 5.9, then it belonged to the section of index=5 and we could peak its properties
+    // if we query section of index=5 with gamma=0.9
     return (!empty()) ? std::optional<unsigned int>(std::floor(gamma)) : std::nullopt;
 }
 
@@ -51,13 +55,16 @@ std::optional<unsigned int> Path::get_section_index(double gamma) {
  * @return std::string A description of the path section type
  */
 std::optional<std::string> Path::get_section_type(double gamma) {
+    // If there is a section for the given gamma, then access it and get its type (can be a line, circle, arc, lemniscate, ...)
+    return (std::optional<unsigned int> index = get_section_index(gamma)) ? sections_[index]->get_section_type() : std::nullopt;
 }
 
 /**
  * @brief Clear the path (removes all segments if any were added)
  */
 void Path::clear() {
-
+    // Empty the sections vector
+    sections_.clear();
 }
 
 /**
@@ -67,6 +74,11 @@ void Path::clear() {
  */
 std::optional<Eigen::Vector3d> Path::pd(double gamma) const {
 
+    // Make the gamma vary between 0 and 1 for a given path section
+    double normalized_gamma = gamma - std::floor(gamma);
+
+    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
+    return (std::optional<unsigned int> index = get_section_index(gamma)) ? sections_[index]->pd(normalized_gamma) : std::nullopt;
 }
 
 /**
@@ -75,6 +87,11 @@ std::optional<Eigen::Vector3d> Path::pd(double gamma) const {
  * @return std::optional<Eigen::Vector3d> The second derivative of the path equation evaluated at the path parameter gamma
  */
 std::optional<Eigen::Vector3d> Path::d_pd(double gamma) const {
+    // Make the gamma vary between 0 and 1 for a given path section
+    double normalized_gamma = gamma - std::floor(gamma);
+
+    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
+    return (std::optional<unsigned int> index = get_section_index(gamma)) ? sections_[index]->d_pd(normalized_gamma) : std::nullopt;
 
 }
 
@@ -84,6 +101,11 @@ std::optional<Eigen::Vector3d> Path::d_pd(double gamma) const {
  * @return std::optional<double> The second derivative of the path equation evaluated at the path parameter gamma
  */
 std::optional<Eigen::Vector3d> Path::dd_pd(double gamma) const {
+    // Make the gamma vary between 0 and 1 for a given path section
+    double normalized_gamma = gamma - std::floor(gamma);
+
+    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
+    return (std::optional<unsigned int> index = get_section_index(gamma)) ? sections_[index]->dd_pd(normalized_gamma) : std::nullopt;
 
 }
 
@@ -95,6 +117,11 @@ std::optional<Eigen::Vector3d> Path::dd_pd(double gamma) const {
  * @return std::optional<double> The path curvature 
  */
 std::optional<double> Path::curvature(double gamma) const {
+    // Make the gamma vary between 0 and 1 for a given path section
+    double normalized_gamma = gamma - std::floor(gamma);
+
+    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
+    return (std::optional<unsigned int> index = get_section_index(gamma)) ? sections_[index]->curvature(normalized_gamma) : std::nullopt;
 
 }
 
@@ -106,7 +133,11 @@ std::optional<double> Path::curvature(double gamma) const {
  * @return std::optional<double> The path torsion
  */
 std::optional<double> Path::torsion(double gamma) const {
+    // Make the gamma vary between 0 and 1 for a given path section
+    double normalized_gamma = gamma - std::floor(gamma);
 
+    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
+    return (std::optional<unsigned int> index = get_section_index(gamma)) ? sections_[index]->torsion(normalized_gamma) : std::nullopt;
 }
 
 /**
@@ -115,7 +146,11 @@ std::optional<double> Path::torsion(double gamma) const {
  * @return std::optional<double> The angle of the tangent to the path expressed in radians
  */
 std::optional<double> Path::tangent_angle(double gamma) const {
+    // Make the gamma vary between 0 and 1 for a given path section
+    double normalized_gamma = gamma - std::floor(gamma);
 
+    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
+    return (std::optional<unsigned int> index = get_section_index(gamma)) ? sections_[index]->tangent_angle(normalized_gamma) : std::nullopt;
 }
 
 /**
@@ -124,7 +159,11 @@ std::optional<double> Path::tangent_angle(double gamma) const {
  * @return std::optional<double> The norm of the derivative of the path position pd
  */
 std::optional<double> Path::derivative_norm(double gamma) const {
+    // Make the gamma vary between 0 and 1 for a given path section
+    double normalized_gamma = gamma - std::floor(gamma);
 
+    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
+    return (std::optional<unsigned int> index = get_section_index(gamma)) ? sections_[index]->derivative_norm(normalized_gamma) : std::nullopt;
 }
 
 /**
@@ -134,7 +173,11 @@ std::optional<double> Path::derivative_norm(double gamma) const {
  * @return std::optional<double> The desired vehicle speed (in m/s)
  */
 std::optional<double> vehicle_speed(double gamma) const {
+    // Make the gamma vary between 0 and 1 for a given path section
+    double normalized_gamma = gamma - std::floor(gamma);
 
+    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
+    return (std::optional<unsigned int> index = get_section_index(gamma)) ? sections_[index]->vehicle_speed(normalized_gamma) : std::nullopt;
 }
 
 /**
@@ -144,7 +187,11 @@ std::optional<double> vehicle_speed(double gamma) const {
  * @return std::optional<double> The desired speed progression of the parametric variable
  */
 std::optional<double> Path::vd(double gamma) const {
+    // Make the gamma vary between 0 and 1 for a given path section
+    double normalized_gamma = gamma - std::floor(gamma);
 
+    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
+    return (std::optional<unsigned int> index = get_section_index(gamma)) ? sections_[index]->vd(normalized_gamma) : std::nullopt;
 }
 
 /**
@@ -154,7 +201,11 @@ std::optional<double> Path::vd(double gamma) const {
  * @return std::optional<double> The speed progression of the parametric variable
  */
 std::optional<double> Path::d_vd(double gamma) const {
+    // Make the gamma vary between 0 and 1 for a given path section
+    double normalized_gamma = gamma - std::floor(gamma);
 
+    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
+    return (std::optional<unsigned int> index = get_section_index(gamma)) ? sections_[index]->d_vd(normalized_gamma) : std::nullopt;
 }
 
 /**
