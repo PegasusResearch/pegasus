@@ -1,0 +1,8 @@
+# The start position for the line
+float64[3] start
+# The end position for the line
+float64[3] end
+# The type of speed assignment
+pegasus_msgs/Speed speed
+---
+bool success

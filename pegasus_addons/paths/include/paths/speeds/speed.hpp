@@ -42,7 +42,7 @@ public:
      * such that inherited classes do not invoke this destructor when invoking
      * the delete keyword using a BaseClass pointer
      */
-    virtual ~Speed() = 0;
+    virtual ~Speed() {}
 
 protected:
 
@@ -50,7 +50,7 @@ protected:
      * @brief Empty Constructor for a base Speed. This method cannot be invoked
      * externally, which means it can only be invoked by the constructor of other derived classes
      */
-    Speed() {};
+    Speed() {}
 };
 
 }

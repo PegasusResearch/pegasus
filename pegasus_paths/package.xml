@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+ <name>pegasus_paths</name>
+ <version>1.0.0</version>
+ <description>A basic implementation of a Paths server</description>
+ <author email="marcelo.jacinto@tecnico.ulisboa.pt">Marcelo Jacinto</author>
+ <maintainer email="marcelo.jacinto@tecnico.ulisboa.pt">Marcelo Jacinto</maintainer>
+ <license>BSD 3-Clause License</license>
+
+ <buildtool_depend>ament_cmake</buildtool_depend>
+
+ <!-- Packages Dependencies -->
+ <depend>rclcpp</depend>
+ <depend>pegasus_msgs</depend>
+ <depend>nav_msgs</depend>
+ <depend>paths</depend>
+
+ <test_depend>ament_lint_auto</test_depend>
+ <test_depend>ament_cmake_copyright</test_depend>
+ <test_depend>ament_lint_common</test_depend>
+
+ <export>
+   <build_type>ament_cmake</build_type>
+ </export>
+ 
+</package>

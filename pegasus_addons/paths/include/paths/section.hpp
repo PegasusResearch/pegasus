@@ -95,7 +95,7 @@ public:
      * such that inherited classes do not invoke this destructor when invoking
      * the delete keyword using a BaseClass pointer
      */
-    virtual ~Section() = 0;
+    virtual ~Section() {}
 
     /**
      * @brief Method that limits the path parametric value within the section bounds

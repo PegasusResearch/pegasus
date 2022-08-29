@@ -1,0 +1,10 @@
+# The center position of the lemniscate
+float64[3] center
+# The radius of the lemniscate
+float64 radius
+# The normal vector the plane where the lemniscate will be placed
+float64[3] normal
+# The type of speed assignment
+pegasus_msgs/Speed speed
+---
+bool success

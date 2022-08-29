@@ -35,6 +35,13 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/Land.srv"
   "srv/Reboot.srv"
   "srv/ThrustCurve.srv"
+  # Paths services/messages
+  "srv/paths/Speed.msg"
+  "srv/paths/AddArc.srv"
+  "srv/paths/AddLine.srv"
+  "srv/paths/AddCircle.srv"
+  "srv/paths/AddLemniscate.srv"
+  "srv/paths/ResetPath.srv"
   # Messages
   "msg/Status.msg"
   "msg/Health.msg"
