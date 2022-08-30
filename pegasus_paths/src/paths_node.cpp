@@ -9,7 +9,7 @@ PathsNode::PathsNode(const std::string & node_name, bool intra_process_comms) :
     rclcpp_lifecycle::LifecycleNode(node_name, rclcpp::NodeOptions().use_intra_process_comms(intra_process_comms)) {
 
     // Read the rate at which the node will operate from the parameter server
-    declare_parameter<double>("paths_node.rate", 10.0);
+    declare_parameter<double>("paths_node.rate", 1.0);
     timer_rate_ = get_parameter("paths_node.rate").as_double();
 
     // Read the sample step for obtaining the points that describe the path from the parameter server
