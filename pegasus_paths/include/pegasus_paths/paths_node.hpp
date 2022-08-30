@@ -202,6 +202,12 @@ private:
     nav_msgs::msg::Path path_points_msg_;
 
     /**
+     * @brief The sample step of the parametric values used to get a list of points that
+     * describes the path
+     */
+    double sample_step_;
+
+    /**
      * @brief The message that will be published by "path_pub_" and will contain all control
      * data of the path evaluated at a given parametric value gamma
      */
@@ -267,6 +273,12 @@ private:
      * @brief Service server to add a waypoint to the path
      */
     rclcpp::Service<pegasus_msgs::srv::AddWaypoint>::SharedPtr add_waypoint_service_{nullptr};
+
+    /**
+     * @brief Auxiliar method that should be called by the services to add a new section to the path
+     * @param section A shared pointer to a path section
+     */
+    void add_section_to_path(const Pegasus::Paths::Section::SharedPtr section);
 
     /**
      * @brief Timer used to make the controller run at a constant rate

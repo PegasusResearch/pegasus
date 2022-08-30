@@ -114,6 +114,14 @@ public:
         return section_type_;
     }
 
+    /**
+     * @brief Method to get a set of sampled points from the path
+     * @param step_size The step size to increment the parametric value gamma for sampling purposes. Smaller
+     * gammas yield a finner result but also more points
+     * @return std::vector<Eigen::Vector3d> A vector of 3d points
+     */
+    virtual std::vector<Eigen::Vector3d> get_samples(double step_size);
+
 protected:
 
     /**

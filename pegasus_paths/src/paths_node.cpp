@@ -8,7 +8,13 @@
 PathsNode::PathsNode(const std::string & node_name, bool intra_process_comms) : 
     rclcpp_lifecycle::LifecycleNode(node_name, rclcpp::NodeOptions().use_intra_process_comms(intra_process_comms)) {
 
-    
+    // Read the rate at which the node will operate from the parameter server
+    declare_parameter<double>("paths_node.rate", 10.0);
+    timer_rate_ = get_parameter("paths_node.rate").as_double();
+
+    // Read the sample step for obtaining the points that describe the path from the parameter server
+    declare_parameter<double>("paths_node.sample_step", 0.0001);
+    sample_step_ = get_parameter("paths_node.sample_step").as_double();
 }
 
 /**
@@ -44,6 +50,9 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn PathsN
     init_subscribers();
     init_services();
 
+    // Initialize the periodic timer
+    timer_ = create_wall_timer(std::chrono::duration<double>(1.0 / timer_rate_), std::bind(&PathsNode::timer_callback, this));
+
     // Return success
     return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
@@ -63,6 +72,10 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn PathsN
     
     // Call the default on_activate method
     LifecycleNode::on_deactivate(state);
+
+    // Reset the timer that calls the control law periodically
+    timer_->cancel();
+    timer_->reset();
 
     // Stop the publishers
     points_pub_.reset();
@@ -176,7 +189,6 @@ void PathsNode::init_services() {
  * @brief Method that is called periodically by "timer_" when active at a rate "timer_rate_"
  */
 void PathsNode::timer_callback() {
-
 }
 
 /**
@@ -192,7 +204,19 @@ void PathsNode::timer_callback() {
  */
 void PathsNode::reset_callback(const pegasus_msgs::srv::ResetPath::Request::SharedPtr request, const pegasus_msgs::srv::ResetPath::Response::SharedPtr response) {
     (void) *request; // do nothing with the empty request and avoid compilation warnings from unused argument
+    
+    // Clear the path
     path_.clear();
+
+    // Reset the path points message
+    path_points_msg_.header.frame_id = "world_ned";
+    path_points_msg_.header.stamp = get_clock()->now();
+
+    // Clear the points message vector (such that RVIZ shows a clear path)
+    path_points_msg_.poses.clear();
+    points_pub_->publish(path_points_msg_);
+
+    // Make the response of this service to true
     response->success = true;
 }
 
@@ -210,12 +234,12 @@ void PathsNode::add_arc_callback(const pegasus_msgs::srv::AddArc::Request::Share
     auto arc = std::make_shared<Pegasus::Paths::Arc>(speed, Eigen::Vector3d(request->start.data()), Eigen::Vector3d(request->center.data()), Eigen::Vector3d(request->normal.data()), request->clockwise_direction);
 
     // Add the new arc to the path
-    path_.push_back(arc);
+    add_section_to_path(arc);
 
     // Update the response
     response->success = true;
 }
-
+ 
 /**
  * @brief TODO
  * @param request 
@@ -230,7 +254,7 @@ void PathsNode::add_line_callback(const pegasus_msgs::srv::AddLine::Request::Sha
     auto line = std::make_shared<Pegasus::Paths::Line>(speed, Eigen::Vector3d(request->start.data()), Eigen::Vector3d(request->end.data()));
 
     // Add the new line to the path
-    path_.push_back(line);
+    add_section_to_path(line);
 
     // Update the response
     response->success = true;
@@ -250,7 +274,7 @@ void PathsNode::add_circle_callback(const pegasus_msgs::srv::AddCircle::Request:
     auto circle = std::make_shared<Pegasus::Paths::Circle>(speed, Eigen::Vector3d(request->center.data()), Eigen::Vector3d(request->normal.data()), request->radius);
 
     // Add the new circle to the path
-    path_.push_back(circle);
+    add_section_to_path(circle);
 
     // Update the response
     response->success = true;
@@ -270,7 +294,7 @@ void PathsNode::add_lemniscate_callback(const pegasus_msgs::srv::AddLemniscate::
     auto lemniscate = std::make_shared<Pegasus::Paths::Lemniscate>(speed, Eigen::Vector3d(request->center.data()), Eigen::Vector3d(request->normal.data()), request->radius);
 
     // Add the new circle to the path
-    path_.push_back(lemniscate);
+    add_section_to_path(lemniscate);
 
     // Update the response
     response->success = true;
@@ -302,12 +326,51 @@ void PathsNode::add_waypoint_callback(const pegasus_msgs::srv::AddWaypoint::Requ
     }
 
     // Add the new line to the path
-    path_.push_back(line);
+    add_section_to_path(line);
 
     // Update the response
     response->success = true;
 }
 
+/**
+ * @brief Auxiliar method that should be called by the services to add a new section to the path
+ * @param section A shared pointer to a path section
+ */
+void PathsNode::add_section_to_path(const Pegasus::Paths::Section::SharedPtr section) {
+    
+    // Add the new section to the path
+    path_.push_back(section);
+
+    // Update the samples of the path
+    auto path_samples = path_.get_samples(sample_step_);
+
+    // If the path samples optional is not null, update the message that describes the path
+    if(path_samples.has_value()) {
+
+        // Set the header of the message
+        path_points_msg_.header.frame_id = "world_ned";
+        path_points_msg_.header.stamp = get_clock()->now();
+
+        // Clear the points message vector
+        path_points_msg_.poses.clear();
+
+        // Create a new vector with new samples
+        for (auto & sample: path_samples.value()) {
+            
+            // Create a pose message object
+            geometry_msgs::msg::PoseStamped pose;
+            pose.pose.position.x = sample[0];
+            pose.pose.position.y = sample[1];
+            pose.pose.position.z = sample[2];
+
+            // Add it to the list of points message
+            path_points_msg_.poses.push_back(pose);
+        }   
+
+        // Publish the points message
+        points_pub_->publish(path_points_msg_);
+    }
+}
 
 /**
  * @defgroup subscriberCallbacks

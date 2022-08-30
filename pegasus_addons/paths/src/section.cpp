@@ -110,4 +110,29 @@ double Section::d_vd(double gamma) {
     // Return the desired acceleration for the parametric value
     return vehicle_speed_->get_d_vd(t, *this);
 }
+
+/**
+ * @brief Method to get a set of sampled points from the path
+ * @param step_size The step size to increment the parametric value gamma for sampling purposes. Smaller
+ * gammas yield a finner result but also more points
+ * @return std::vector<Eigen::Vector3d> A vector of 3d points
+ */
+std::vector<Eigen::Vector3d> Section::get_samples(double step_size) {
+
+    // Get the number of samples we will produce
+    int num_samples = (max_gamma_ - min_gamma_) / step_size;
+
+    // Create an empty vector of samples with the desired size
+    std::vector<Eigen::Vector3d> samples(num_samples);
+
+    // Generate the samples and return 
+    double curr_gamma = min_gamma_;
+    for(int i = 0; i < num_samples; i++) {
+        samples[i] = pd(curr_gamma);
+        curr_gamma += step_size;
+    }
+
+    return samples;
+}
+
 }

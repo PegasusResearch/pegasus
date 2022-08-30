@@ -20,7 +20,20 @@ Path::~Path() {
  * @param section A shared pointer to a generic path section
  */
 void Path::push_back(const Section::SharedPtr section) {
+
+    // Add a new section to the path
     sections_.push_back(section);
+
+    // If we already had samples in the samples vector, then add this new one as well
+    // otherwise, wait for lazy initialization
+    if(!samples_.empty()) {
+
+        // Get the section samples
+        auto section_samples = section->get_samples(sample_step_size_);
+
+        // Add them to the samples_ vector by reference instead of copy
+        samples_.insert(samples_.end(), std::make_move_iterator(section_samples.begin()), std::make_move_iterator(section_samples.end()));
+    }
 }
 
 /**
@@ -72,6 +85,9 @@ std::optional<std::string> Path::get_section_type(double gamma) {
 void Path::clear() {
     // Empty the sections vector
     sections_.clear();
+    
+    //Empty the samples vector
+    samples_.clear();
 }
 
 /**
@@ -315,6 +331,47 @@ double Path::bound_gamma(double gamma) {
     // With substract a very small number because we can only access the vector
     // at the elements [0, number_sections[
     return std::min(std::max(0.0, gamma), (double) sections_.size() - 0.0000000001);
+}
+
+/**
+ * @brief Method to get a set of sampled points from the path
+ * @param step_size The step size to increment the parametric value gamma for sampling purposes. Smaller
+ * gammas yield a finner result but also more points
+ * @return std::vector<Eigen::Vector3d> A vector of 3d points
+ */
+ std::optional<std::vector<Eigen::Vector3d>> Path::get_samples(double step_size) {
+    
+    // If the path is empty, just return a nullopt
+    if(sections_.empty()) return std::nullopt;
+
+    // Check if the used step size used for previous sampling was the same as the request one
+    bool step_size_is_equal = std::abs(sample_step_size_ - step_size) < 0.0000000001;
+
+    // If the previous step size used for sampling is different then the current one, clear all the samples we previously had
+    if(!step_size_is_equal) samples_.clear();
+
+    // Check if the path is not empty, but the samples have not been initialized
+    bool samples_initialized = samples_.empty(); 
+
+    // Obtain new samples if either the samples vector was not initialized or 
+    // the previous requested step size is different
+    // NOTE: we are doing lazy initialization!
+    if(samples_initialized == false || step_size_is_equal == false) {
+
+        // Update the new sample step size used for sampling
+        sample_step_size_ = step_size;
+        
+        for (auto & section: sections_) {
+            // Get the section samples
+            auto section_samples = section->get_samples(sample_step_size_);
+
+            // Add them to the samples_ vector by reference instead of copy
+            samples_.insert(samples_.end(), std::make_move_iterator(section_samples.begin()), std::make_move_iterator(section_samples.end()));
+        }
+    }
+
+    // return the optional containing the vector of points that represent the path
+    return std::make_optional<std::vector<Eigen::Vector3d>>(samples_);
 }
 
 }
