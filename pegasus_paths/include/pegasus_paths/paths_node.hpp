@@ -18,6 +18,7 @@
 #include "pegasus_msgs/srv/add_line.hpp"
 #include "pegasus_msgs/srv/add_circle.hpp"
 #include "pegasus_msgs/srv/add_lemniscate.hpp"
+#include "pegasus_msgs/srv/add_waypoint.hpp"
 
 class PathsNode : public rclcpp_lifecycle::LifecycleNode {
 
@@ -38,6 +39,38 @@ public:
      * @brief Destroy the Paths Node object
      */
     ~PathsNode();
+
+    /**
+     * @defgroup state_machine_callbacks
+     * This section defines all the callbacks that are responsible for transitions in the node state machine
+     */
+
+    /**
+     * @ingroup state_machine_callbacks
+     * @brief on_activate callback is being called when the lifecycle node
+     * enters the "activating" state.
+     * Depending on the return value of this function, the state machine
+     * either invokes a transition to the "active" state or stays
+     * in "inactive".
+     * TRANSITION_CALLBACK_SUCCESS transitions to "active"
+     * TRANSITION_CALLBACK_FAILURE transitions to "inactive"
+     * TRANSITION_CALLBACK_ERROR or any uncaught exceptions to "errorprocessing"
+     */
+    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_activate(const rclcpp_lifecycle::State & state);
+
+    /**
+     * @ingroup state_machine_callbacks
+     * @brief on_deactivate callback is being called when the lifecycle node
+     * enters the "deactivating" state.
+     * Depending on the return value of this function, the state machine
+     * either invokes a transition to the "inactive" state or stays
+     * in "active".
+     * TRANSITION_CALLBACK_SUCCESS transitions to "inactive"
+     * TRANSITION_CALLBACK_FAILURE transitions to "active"
+     * TRANSITION_CALLBACK_ERROR or any uncaught exceptions to "errorprocessing"
+     */
+    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_deactivate(const rclcpp_lifecycle::State & state);
+
 
 private:
 
@@ -66,12 +99,18 @@ private:
     void init_services();
 
     /**
+     * @brief Method that is called periodically by "timer_" when active at a rate "timer_rate_"
+     */
+    void timer_callback();
+
+    /**
      * @defgroup servicesCallbacks
      * This group defines all the service server callbacks,
      * such as arming/disarming the vehicle or auto-landing
      */
 
     /**
+     * @ingroup servicesCallbacks
      * @brief TODO
      * @param request 
      * @param response 
@@ -79,6 +118,7 @@ private:
     void reset_callback(const pegasus_msgs::srv::ResetPath::Request::SharedPtr request, const pegasus_msgs::srv::ResetPath::Response::SharedPtr response);
     
     /**
+     * @ingroup servicesCallbacks
      * @brief TODO
      * @param request 
      * @param response 
@@ -86,6 +126,7 @@ private:
     void add_arc_callback(const pegasus_msgs::srv::AddArc::Request::SharedPtr request, const pegasus_msgs::srv::AddArc::Response::SharedPtr response);
     
     /**
+     * @ingroup servicesCallbacks
      * @brief TODO
      * @param request 
      * @param response 
@@ -93,6 +134,7 @@ private:
     void add_line_callback(const pegasus_msgs::srv::AddLine::Request::SharedPtr request, const pegasus_msgs::srv::AddLine::Response::SharedPtr response);
     
     /**
+     * @ingroup servicesCallbacks
      * @brief TODO
      * @param request 
      * @param response 
@@ -100,11 +142,20 @@ private:
     void add_circle_callback(const pegasus_msgs::srv::AddCircle::Request::SharedPtr request, const pegasus_msgs::srv::AddCircle::Response::SharedPtr response);
     
     /**
+     * @ingroup servicesCallbacks
      * @brief TODO
      * @param request 
      * @param response 
      */
     void add_lemniscate_callback(const pegasus_msgs::srv::AddLemniscate::Request::SharedPtr request, const pegasus_msgs::srv::AddLemniscate::Response::SharedPtr response);
+
+    /**
+     * @ingroup servicesCallbacks
+     * @brief TODO
+     * @param request
+     * @param response
+     */
+    void add_waypoint_callback(const pegasus_msgs::srv::AddWaypoint::Request::SharedPtr request, const pegasus_msgs::srv::AddWaypoint::Response::SharedPtr response);
 
     /**
      * @defgroup subscriberCallbacks
@@ -143,6 +194,18 @@ private:
      * value gamma
      */
     rclcpp::Publisher<pegasus_msgs::msg::Path>::SharedPtr path_pub_{nullptr};
+
+    /**
+     * @brief The message that will be published by "points_pub_" and will contain a set of
+     * points that give a course representation of the parametric path
+     */
+    nav_msgs::msg::Path path_points_msg_;
+
+    /**
+     * @brief The message that will be published by "path_pub_" and will contain all control
+     * data of the path evaluated at a given parametric value gamma
+     */
+    pegasus_msgs::msg::Path path_msg_;
 
     /**
      * @defgroup subscribers ROS2 Subscribers
@@ -198,6 +261,22 @@ private:
      * @brief Service server to add an line to the path
      */
     rclcpp::Service<pegasus_msgs::srv::AddLemniscate>::SharedPtr add_lemniscate_service_{nullptr};
+
+    /**
+     * @ingroup services
+     * @brief Service server to add a waypoint to the path
+     */
+    rclcpp::Service<pegasus_msgs::srv::AddWaypoint>::SharedPtr add_waypoint_service_{nullptr};
+
+    /**
+     * @brief Timer used to make the controller run at a constant rate
+     */
+    rclcpp::TimerBase::SharedPtr timer_;
+
+    /**
+     * @brief The rate at which the timer will call the timer_callback, expressed in Hz
+     */
+    double timer_rate_;
 
     /**
      * @brief A path object where each section will be saved

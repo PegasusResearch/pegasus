@@ -37,6 +37,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/ThrustCurve.srv"
   # Paths services/messages
   "srv/paths/Speed.msg"
+  "srv/paths/AddWaypoint.srv"
   "srv/paths/AddArc.srv"
   "srv/paths/AddLine.srv"
   "srv/paths/AddCircle.srv"

@@ -16,6 +16,29 @@ public:
     using UniquePtr = std::unique_ptr<Path>;
     using WeakPtr = std::weak_ptr<Path>;
 
+    struct Data {
+        
+        /* The desired position, velocity and acceleration in a parallel transport frame */
+        Eigen::Vector3d pd; /** <@brief The desired position */
+        Eigen::Vector3d d_pd; /** <@brief The desired velocity */
+        Eigen::Vector3d dd_pd; /** <@brief The desired acceleration */
+
+        /* Other relevant path information */
+        double curvature; /** <@brief The path curvature at a given gamma */
+        double torsion; /** <@brief The path torsion at a given gamma */
+        double tangent_angle; /** <@brief The path tangent angle in radians */
+        double derivative_norm; /** <@brief The path derivative norm */
+
+        /* Speed assignment for a portion of the path */
+        double vehicle_speed; /** <@brief The desired vehicle speed in m/s */
+        double vd; /** <@brief The desired speed progression for the parametric value gamma */
+        double d_vd; /** <@brief The desired speed acceleration for the parametric value gamma */
+        
+        /* Bounds of the path */
+        unsigned int min_gamma; /** <@brief The minimim valid parametric value of the path */
+        unsigned int max_gamma; /** <@brief The maximum valid parametric value of the path */
+    };
+
     /**
      * @brief Construct a new Path object
      */
@@ -71,6 +94,14 @@ public:
      * @return unsigned int The number of sections inside the path
      */
     virtual inline unsigned int size() { return sections_.size(); };
+
+    /**
+     * @brief Method that given a gamma will return a Path::Data
+     * structure containing all the metrics of the path evaluated at that parametric value
+     * @param gamma The path parameter
+     * @return std::optional<Data>
+     */
+    virtual std::optional<Data> get_all_data(double gamma);
 
     /**
      * @brief The section parametric equation 
@@ -149,6 +180,12 @@ public:
      */
     virtual std::optional<double> d_vd(double gamma);
 
+    /**
+     * @brief Get the end position of the path corresponding to the maximum gamma value
+     * @return std::optional<Eigen::Vector3d> The last pd of the path or std::nullopt
+     */
+    virtual std::optional<Eigen::Vector3d> get_last_pd();
+
 protected:
 
     /**
@@ -164,6 +201,13 @@ protected:
      * @brief Vector of parametric curves parameterized between 0 and 1
      */
     std::vector<Section::SharedPtr> sections_;
+
+private:
+    /**
+     * @brief Structure that will hold the statistics of the path at any given 
+     * gamma. This structure is updated every time the "get_all_data" method is called
+     */
+    Data data_;
 };
 
 }

@@ -75,6 +75,51 @@ void Path::clear() {
 }
 
 /**
+ * @brief Method that given a gamma will return a Path::Data
+ * structure containing all the metrics of the path evaluated at that parametric value
+ * @param gamma The path parameter
+ * @return std::optional<Data>
+ */
+std::optional<Path::Data> Path::get_all_data(double gamma) {
+    
+    // Make the gamma vary between 0 and 1 for a given path section
+    double normalized_gamma = gamma - std::floor(gamma);
+
+    // Get the index of the section in the sections vector
+    std::optional<unsigned int> index = get_section_index(gamma);
+
+    if(index.has_value()) {
+        // Get the position, first and second derivatives
+        data_.pd = sections_[index.value()]->pd(normalized_gamma);
+        data_.d_pd = sections_[index.value()]->d_pd(normalized_gamma);
+        data_.dd_pd = sections_[index.value()]->dd_pd(normalized_gamma);
+
+        // Get other statistics
+        data_.curvature = sections_[index.value()]->curvature(normalized_gamma);
+        data_.torsion = sections_[index.value()]->torsion(normalized_gamma);
+        data_.tangent_angle = sections_[index.value()]->tangent_angle(normalized_gamma);
+        data_.derivative_norm = sections_[index.value()]->derivative_norm(normalized_gamma);
+
+        // Get the speed assignments
+        data_.vehicle_speed = sections_[index.value()]->vehicle_speed(normalized_gamma);
+        data_.vd = sections_[index.value()]->vd(normalized_gamma);
+        data_.d_vd = sections_[index.value()]->d_vd(normalized_gamma);
+        
+        // Get the bounds of the path
+        data_.min_gamma = 0;
+        data_.max_gamma = sections_.size();
+
+        // Return an optional containing the reference to this structure
+        return std::make_optional<Path::Data>(data_);
+
+    } else {
+        // Return an empty optional
+        return std::nullopt;
+    }
+    
+}
+
+/**
  * @brief The section parametric equation 
  * @param gamma The path parameter
  * @return std::optional<Eigen::Vector3d> The equation of the path evaluated at the path parameter gamma
@@ -243,6 +288,20 @@ std::optional<double> Path::d_vd(double gamma) {
 
     // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
     return (index.has_value()) ? std::optional<double>(sections_[index.value()]->d_vd(normalized_gamma)) : std::nullopt;
+}
+
+/**
+ * @brief Get the end position of the path corresponding to the maximum gamma value
+ * @return std::optional<Eigen::Vector3d> The last pd of the path or std::nullopt
+ */
+std::optional<Eigen::Vector3d> Path::get_last_pd() {
+
+    // Check if the path is emtpy
+    if(empty()) return std::nullopt;
+
+    // Get the last section of the path and return an optional with pd
+    auto last_section = sections_.back();
+    return std::make_optional<Eigen::Vector3d>(last_section->pd(1.0));
 }
 
 /**
