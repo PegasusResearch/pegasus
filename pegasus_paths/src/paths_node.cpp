@@ -6,7 +6,7 @@
  * @param intra_process_comms Whether to use interprocess communication framework or not (false by default)
  */
 PathsNode::PathsNode(const std::string & node_name, bool intra_process_comms) : 
-    rclcpp_lifecycle::LifecycleNode(node_name, rclcpp::NodeOptions().use_intra_process_comms(intra_process_comms)) {
+    rclcpp::Node(node_name, rclcpp::NodeOptions().use_intra_process_comms(intra_process_comms)) {
 
     // Read the rate at which the node will operate from the parameter server
     declare_parameter<double>("paths_node.rate", 1.0);
@@ -15,35 +15,8 @@ PathsNode::PathsNode(const std::string & node_name, bool intra_process_comms) :
     // Read the sample step for obtaining the points that describe the path from the parameter server
     declare_parameter<double>("paths_node.sample_step", 0.0001);
     sample_step_ = get_parameter("paths_node.sample_step").as_double();
-}
 
-/**
- * @brief Destroy the Paths Node object
- */
-PathsNode::~PathsNode() {
-
-}
-
-/**
- * @defgroup state_machine_callbacks
- * This section defines all the callbacks that are responsible for transitions in the node state machine
- */
-
-/**
- * @ingroup state_machine_callbacks
- * @brief on_activate callback is being called when the lifecycle node
- * enters the "activating" state.
- * Depending on the return value of this function, the state machine
- * either invokes a transition to the "active" state or stays
- * in "inactive".
- * TRANSITION_CALLBACK_SUCCESS transitions to "active"
- * TRANSITION_CALLBACK_FAILURE transitions to "inactive"
- * TRANSITION_CALLBACK_ERROR or any uncaught exceptions to "errorprocessing"
- */
-rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn PathsNode::on_activate(const rclcpp_lifecycle::State & state) {
-    
-    // Call the default on_activate method
-    LifecycleNode::on_activate(state);
+    // TODO -- PASS THE SECTION BELLOW SOLELY TO THE ON_ACTIVATE METHOD
 
     // Initialize the publishers, subscribers and services
     init_publishers();
@@ -53,49 +26,14 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn PathsN
     // Initialize the periodic timer
     timer_ = create_wall_timer(std::chrono::duration<double>(1.0 / timer_rate_), std::bind(&PathsNode::timer_callback, this));
 
-    // Return success
-    return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
 /**
- * @ingroup state_machine_callbacks
- * @brief on_deactivate callback is being called when the lifecycle node
- * enters the "deactivating" state.
- * Depending on the return value of this function, the state machine
- * either invokes a transition to the "inactive" state or stays
- * in "active".
- * TRANSITION_CALLBACK_SUCCESS transitions to "inactive"
- * TRANSITION_CALLBACK_FAILURE transitions to "active"
- * TRANSITION_CALLBACK_ERROR or any uncaught exceptions to "errorprocessing"
+ * @brief Destroy the Paths Node object
  */
-rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn PathsNode::on_deactivate(const rclcpp_lifecycle::State & state) {
-    
-    // Call the default on_activate method
-    LifecycleNode::on_deactivate(state);
+PathsNode::~PathsNode() {
 
-    // Reset the timer that calls the control law periodically
-    timer_->cancel();
-    timer_->reset();
-
-    // Stop the publishers
-    points_pub_.reset();
-    path_pub_.reset();
-
-    // Stop the subscribers
-    state_sub_.reset();
-    gamma_sub_.reset();
-
-    // Stop the services
-    reset_service_.reset();
-    add_arc_service_.reset();
-    add_line_service_.reset();
-    add_circle_service_.reset();
-    add_lemniscate_service_.reset();
-
-    // Return success
-    return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
-
 
 /**
  * @defgroup initFunctions 
@@ -231,7 +169,7 @@ void PathsNode::add_arc_callback(const pegasus_msgs::srv::AddArc::Request::Share
     auto speed = std::make_shared<Pegasus::Paths::ConstSpeed>(request->speed.parameters[0]);
 
     // Create a new Arc object
-    auto arc = std::make_shared<Pegasus::Paths::Arc>(speed, Eigen::Vector3d(request->start.data()), Eigen::Vector3d(request->center.data()), Eigen::Vector3d(request->normal.data()), request->clockwise_direction);
+    auto arc = std::make_shared<Pegasus::Paths::Arc>(speed, Eigen::Vector2d(request->start.data()), Eigen::Vector3d(request->center.data()), Eigen::Vector3d(request->normal.data()), request->clockwise_direction);
 
     // Add the new arc to the path
     add_section_to_path(arc);

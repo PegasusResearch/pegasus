@@ -11,7 +11,7 @@ namespace Pegasus::Paths {
  * @param The normal vector that defines the plane where the 2D arc will be placed
  * @param clockwise_direction Whether the arc should be performed in clock or anti-clockwise direction
  */
-Arc::Arc(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector3d & start, const Eigen::Vector3d & center, const Eigen::Vector3d & normal, const bool clockwise_direction) : Arc(vehicle_speed, start, center, clockwise_direction) {
+Arc::Arc(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector2d & start, const Eigen::Vector3d & center, const Eigen::Vector3d & normal, const bool clockwise_direction) : Arc(vehicle_speed, start, center, clockwise_direction) {
 
     // ------------------------
     // Initialize the rotation matrix with the rotation 
@@ -47,13 +47,14 @@ Arc::Arc(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector3d & sta
  * @param center The center point of the arc
  * @param clockwise_direction Whether the arc should be performed in clock or anti-clockwise direction
  */
-Arc::Arc(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector3d & start, const Eigen::Vector3d & center, const bool clockwise_direction) : Section(vehicle_speed, "arc", 0.0, 1.0), start_(start), center_(center) {
+Arc::Arc(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector2d & start, const Eigen::Vector3d & center, const bool clockwise_direction) : Section(vehicle_speed, "arc", 0.0, 1.0), start_(start), center_(center) {
 
     // Set the clockwise direction variable to be -1 or 1
     clockwise_direction_ = (clockwise_direction) ? 1.0 : -1.0;
 
     // Compute the arc radius
-    radius_ = (center - start).norm();
+    Eigen::Vector2d circle_planar_center(center[0], center[1]);
+    radius_ = (circle_planar_center - start).norm();
 
     // Compute the angle of the starting point in the circle
     init_angle_ = std::atan2(start[1] - center[1], start[0] - center[0]);

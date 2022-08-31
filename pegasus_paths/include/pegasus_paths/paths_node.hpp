@@ -2,7 +2,6 @@
 
 #include "paths/dense.hpp"
 #include "rclcpp/rclcpp.hpp"
-#include "rclcpp_lifecycle/lifecycle_node.hpp"
 
 // Messages for the state of the vehicle and the gamma value
 #include "std_msgs/msg/float64.hpp"
@@ -20,7 +19,7 @@
 #include "pegasus_msgs/srv/add_lemniscate.hpp"
 #include "pegasus_msgs/srv/add_waypoint.hpp"
 
-class PathsNode : public rclcpp_lifecycle::LifecycleNode {
+class PathsNode : public rclcpp::Node { 
 
 public: 
 
@@ -39,38 +38,6 @@ public:
      * @brief Destroy the Paths Node object
      */
     ~PathsNode();
-
-    /**
-     * @defgroup state_machine_callbacks
-     * This section defines all the callbacks that are responsible for transitions in the node state machine
-     */
-
-    /**
-     * @ingroup state_machine_callbacks
-     * @brief on_activate callback is being called when the lifecycle node
-     * enters the "activating" state.
-     * Depending on the return value of this function, the state machine
-     * either invokes a transition to the "active" state or stays
-     * in "inactive".
-     * TRANSITION_CALLBACK_SUCCESS transitions to "active"
-     * TRANSITION_CALLBACK_FAILURE transitions to "inactive"
-     * TRANSITION_CALLBACK_ERROR or any uncaught exceptions to "errorprocessing"
-     */
-    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_activate(const rclcpp_lifecycle::State & state);
-
-    /**
-     * @ingroup state_machine_callbacks
-     * @brief on_deactivate callback is being called when the lifecycle node
-     * enters the "deactivating" state.
-     * Depending on the return value of this function, the state machine
-     * either invokes a transition to the "inactive" state or stays
-     * in "active".
-     * TRANSITION_CALLBACK_SUCCESS transitions to "inactive"
-     * TRANSITION_CALLBACK_FAILURE transitions to "active"
-     * TRANSITION_CALLBACK_ERROR or any uncaught exceptions to "errorprocessing"
-     */
-    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_deactivate(const rclcpp_lifecycle::State & state);
-
 
 private:
 

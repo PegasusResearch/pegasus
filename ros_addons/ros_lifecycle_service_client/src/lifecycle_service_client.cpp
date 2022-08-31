@@ -1,5 +1,7 @@
 #include "ros_lifecycle_service_client/lifecycle_service_client.hpp"
 
+namespace Pegasus::ROS {
+
 /**
  * @brief Construct a new Lifecycle Service Client object
  * @param lifecycle_node_name The name of the node to administrate
@@ -76,4 +78,6 @@ uint8_t LifeCycleServiceClient::get_state(const std::chrono::seconds timeout) {
   auto request = std::make_shared<lifecycle_msgs::srv::GetState::Request>();
   auto result = get_state_.invoke(request, timeout);
   return result->current_state.id;
+}
+
 }

@@ -1,5 +1,5 @@
 # The start position for the line
-float64[3] start
+float64[2] start
 # The center of the circle
 float64[3] center
 # The end position for the line

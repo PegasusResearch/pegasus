@@ -12,6 +12,8 @@
 
  <!-- Packages Dependencies -->
  <depend>rclcpp</depend>
+ <depend>rclcpp_lifecycle</depend>
+ <depend>ros_lifecycle_service_client</depend>
  <depend>pegasus_paths</depend>
  <depend>position_pid</depend>
 

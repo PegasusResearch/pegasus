@@ -21,6 +21,8 @@
 #include "lifecycle_msgs/srv/change_state.hpp"
 #include "lifecycle_msgs/srv/get_state.hpp"
 
+namespace Pegasus::ROS {
+
 class LifeCycleServiceClient {
 
 public:
@@ -71,3 +73,5 @@ private:
      */
     Pegasus::ROS::ServiceClient<lifecycle_msgs::srv::GetState> get_state_;
 };
+
+}

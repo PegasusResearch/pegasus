@@ -39,6 +39,8 @@
 #include "lifecycle_msgs/msg/state.hpp"
 #include "lifecycle_msgs/msg/transition.hpp"
 
+#include "ros_lifecycle_service_client/lifecycle_service_client.hpp"
+
 class ManagerNode: public rclcpp::Node {
 
 public:
@@ -79,10 +81,9 @@ public:
     /**
      * @brief Transition all the nodes to a desired target state
      * @param transition The target transition that enables the desired state
-     * @param hard_transition TODO
      * @return bool Whether the change was successfull or not
      */
-    bool change_state_of_all_nodes(std::uint8_t transition, bool hard_transition=false);
+    bool change_state_of_all_nodes(std::uint8_t transition);
 
 private:
 
@@ -90,6 +91,11 @@ private:
      * @brief Defines if the managed systems should be started automatically
      */
     bool autostart_{true};
+
+    /**
+     * @brief The initial timer used to setup the service clients and call the startup() function
+     */
+    rclcpp::TimerBase::SharedPtr init_timer_;
 
     /**
      * @brief A vector of node names to manage
@@ -109,5 +115,6 @@ private:
     /**
      * @brief A map of all nodes to be controlled
      */
-    std::map<std::string, std::shared_ptr<nav2_util::LifecycleServiceClient>> node_map_;
+    
+    std::map<std::string, std::shared_ptr<Pegasus::ROS::LifeCycleServiceClient>> node_map_;
 };

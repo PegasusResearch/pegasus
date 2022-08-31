@@ -19,6 +19,7 @@ find_package(lifecycle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(position_pid REQUIRED)
 find_package(pegasus_paths REQUIRED)
+find_package(ros_lifecycle_service_client REQUIRED)
 
 # Include directories for the code
 include_directories(
@@ -40,6 +41,7 @@ ament_target_dependencies(${PROJECT_NAME}
     rclcpp_lifecycle
     position_pid
     pegasus_paths
+    ros_lifecycle_service_client
 )
 
 if(BUILD_TESTING)

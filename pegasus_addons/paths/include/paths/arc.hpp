@@ -22,7 +22,7 @@ public:
      * @param The normal vector that defines the plane where the 2D arc will be placed
      * @param clockwise_direction Whether the arc should be performed in clock or anti-clockwise direction (default=true)
      */
-    Arc(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector3d & start, const Eigen::Vector3d & center, const Eigen::Vector3d & normal, const bool clockwise_direction=true);
+    Arc(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector2d & start, const Eigen::Vector3d & center, const Eigen::Vector3d & normal, const bool clockwise_direction=true);
 
     /**
      * @brief Construct a new Arc section object
@@ -31,7 +31,7 @@ public:
      * @param center The center point of the arc
      * @param clockwise_direction Whether the arc should be performed in clock or anti-clockwise direction (default=false)
      */
-    Arc(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector3d & start, const Eigen::Vector3d & center, const bool clockwise_direction=true);
+    Arc(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector2d & start, const Eigen::Vector3d & center, const bool clockwise_direction=true);
 
     /**
      * @brief The section parametric equation 
@@ -66,7 +66,7 @@ private:
     /**
      * @brief The starting point of the arc
      */
-    Eigen::Vector3d start_;
+    Eigen::Vector2d start_;
 
     /**
      * @brief The center point of the arc

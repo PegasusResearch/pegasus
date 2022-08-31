@@ -25,6 +25,10 @@ template<class ServiceT>
 class ServiceClient {
 public:
 
+    using SharedPtr = std::shared_ptr<ServiceClient<ServiceT>>;
+    using UniquePtr = std::unique_ptr<ServiceClient<ServiceT>>;
+    using WeakPtr = std::weak_ptr<ServiceClient<ServiceT>>;
+
     using RequestType = typename ServiceT::Request;
     using ResponseType = typename ServiceT::Response;
   
@@ -35,11 +39,8 @@ public:
      */
     explicit ServiceClient(const std::string & service_name, const rclcpp::Node::SharedPtr & provided_node) : service_name_(service_name), node_(provided_node) {
 
-    // Create an exclusive callback group for this service
-    callback_group_ = node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
-
-    // Create the service client with the default qos service
-    client_ = node_->create_client<ServiceT>(service_name, rmw_qos_profile_services_default, callback_group_);
+        // Create the service client
+        client_ = node_->create_client<ServiceT>(service_name);
     }
 
     /**
@@ -51,8 +52,8 @@ public:
      */
     typename ResponseType::SharedPtr invoke(typename RequestType::SharedPtr & request, const std::chrono::nanoseconds timeout = std::chrono::nanoseconds(-1)) {
         
-        // Wait for the service availability for at most 1 second
-        while (!client_->wait_for_service(std::chrono::seconds(1))) {
+        // Wait for the service availability for at most 2 second
+        while (!client_->wait_for_service(std::chrono::seconds(2))) {
             if (!rclcpp::ok()) {
                 throw std::runtime_error(service_name_ + " service client: interrupted while waiting for service");
             }
@@ -62,16 +63,11 @@ public:
         }
 
         // Send the request asynchronously
-        RCLCPP_DEBUG(node_->get_logger(), "%s service client: send async request", service_name_.c_str());
-        auto future_result = client_->async_send_request(request);
-
-        // Wait until the request result is available and throw exception if we timeout
-        if (callback_group_executor_.spin_until_future_complete(future_result, timeout) != rclcpp::FutureReturnCode::SUCCESS) {
-            throw std::runtime_error(service_name_ + " service client: async_send_request failed");
-        }
+        RCLCPP_INFO(node_->get_logger(), "%s service client: send async request", service_name_.c_str());
+        auto result = client_->async_send_request(request).get();
 
         // return the result of the service
-        return future_result.get();
+        return result;
     }
 
     /**
@@ -84,8 +80,8 @@ public:
      */
     bool invoke(typename RequestType::SharedPtr & request, typename ResponseType::SharedPtr & response) {
 
-        // Wait for the service availability for at most 1 second
-        while (!client_->wait_for_service(std::chrono::seconds(1))) {
+        // Wait for the service availability for at most 2 second
+        while (!client_->wait_for_service(std::chrono::seconds(2))) {
             if (!rclcpp::ok()) {
                 throw std::runtime_error(service_name_ + " service client: interrupted while waiting for service");
             }
@@ -95,17 +91,11 @@ public:
         }
 
         // Send the request asynchronously
-        RCLCPP_DEBUG(node_->get_logger(), "%s service client: send async request", service_name_.c_str());
-        auto future_result = client_->async_send_request(request);
+        RCLCPP_INFO(node_->get_logger(), "%s service client: send async request", service_name_.c_str());
 
-        // Wait until the request result is available infinitely
-        if (callback_group_executor_.spin_until_future_complete(future_result) != rclcpp::FutureReturnCode::SUCCESS) {
-            return false;
-        }
-
-        // return the result of the service
-        response = future_result.get();
-        return response.get();
+        // Wait until the request result is available infinitely and return the response
+        response = client_->async_send_request(request).get();
+        return true;
     }
 
     /**

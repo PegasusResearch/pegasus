@@ -35,9 +35,28 @@ ManagerNode::ManagerNode(const std::string & node_name, bool intra_process_comms
     transition_label_map_[lifecycle_msgs::msg::Transition::TRANSITION_DEACTIVATE] = std::string("Deactivating ");
     transition_label_map_[lifecycle_msgs::msg::Transition::TRANSITION_UNCONFIGURED_SHUTDOWN] = std::string("Shutting down ");
 
-    // For now, just guarantee that every node transitions to the active state
+    // Create Lifecycle service clients. Note, we need to do this with a timer
+    // because we must pass the shared pointer of this base class to the 
+    // service client classes. This is problematic because we are in the constructor
+    // and our node object is not fully built yet, hence we would get a bad_pointer exception
+    // Hence we use the same trick used in nav2 package
+    using namespace std::chrono_literals;
+    
+    init_timer_ = create_wall_timer(
+        0s, 
+        [this]() -> void {
+            // Cancel the timer, so it does not repeat again
+            this->init_timer_->cancel();
 
-}
+            for(auto & node_name : this->node_names_) {
+                this->node_map_[node_name] = std::make_shared<Pegasus::ROS::LifeCycleServiceClient>(node_name, shared_from_this());
+            }
+
+            // Startup and try to change all the managed nodes to active state (for now)
+            this->startup();
+        }
+    );
+}  
 
 /**
  * @brief Destroy the Manager Node object
@@ -57,11 +76,17 @@ ManagerNode::~ManagerNode() {}
  */
 bool ManagerNode::startup() {
 
+    RCLCPP_INFO(get_logger(), "ALL LIFECYCLE NODES ARE UNCONFIGURED");
+
     // Try to change all nodes from unconfigured state to inactive state
     if(!change_state_of_all_nodes(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE)) {
         RCLCPP_ERROR(get_logger(), "FAILED TO CONFIGURE ALL LIFECYCLE NODES TO CONFIGURED STATE. ABORT");
         return false;
     }
+
+    RCLCPP_INFO(get_logger(), "ALL LIFECYCLE NODES ARE INACTIVE");
+    using namespace std::chrono_literals;
+    rclcpp::sleep_for(2s);
 
     // Try to change all nodes from inactive to active state 
     if(!change_state_of_all_nodes(lifecycle_msgs::msg::Transition::TRANSITION_ACTIVATE)) {
@@ -81,28 +106,36 @@ bool ManagerNode::startup() {
  */
 bool ManagerNode::change_state_of_node(const std::string & node, std::uint8_t transition) {
     
-    if (transition == lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE || 
-        transition == lifecycle_msgs::msg::Transition::TRANSITION_ACTIVATE) {
-        
-        // Iterate over all nodes
-        for(auto & node: node_names_) {
-            try {
-                if()
-            } catch (const std::runtime_error & e) {
-
-            }
+    using namespace std::chrono_literals;
+    // Attempt to make the node state transition and check if the transition was done successfully
+    if (!node_map_[node]->change_state(transition, 5s)) {
+        RCLCPP_WARN_STREAM(get_logger(), "CHANGE_STATE_DONE");
+        if(node_map_[node]->get_state() != transition_state_map_[transition]) {
+            RCLCPP_ERROR_STREAM(get_logger(), "Failed to change state for node: " << node << ". Transition: " << transition);
+            RCLCPP_INFO_STREAM(get_logger(), node_map_[node]->get_state());
+            return false;
         }
     }
+
+    return true;
 }
 
 /**
  * @brief Transition all the nodes to a desired target state
  * @param transition The target transition that enables the desired state
- * @param hard_transition TODO
  * @return bool Whether the change was successfull or not
  */
-bool ManagerNode::change_state_of_all_nodes(std::uint8_t transition, bool hard_transition=false) {
+bool ManagerNode::change_state_of_all_nodes(std::uint8_t transition) {
 
+    // Iterate over all node names that we want to transition state
+    for (auto & node_name : node_names_) {
+        try {
+            if (!change_state_of_node(node_name, transition)) return false;
+        } catch (const std::runtime_error & e) {
+            RCLCPP_ERROR_STREAM(get_logger(), "Failed to change state for node: " << node_name << ". Exception: " << e.what());
+            return false;
+        }
+    }
+
+    return true;
 }
-
-void ManagerNode::shutdown_all_nodes();
