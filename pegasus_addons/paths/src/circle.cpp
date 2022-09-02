@@ -1,6 +1,8 @@
 #include "paths/circle.hpp"
 #include <Eigen/Dense>
 
+#include <iostream> // TODO - Remove for debug
+
 namespace Pegasus::Paths {
 
 /**
@@ -32,9 +34,11 @@ Circle::Circle(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector3d
         Eigen::Vector3d u2 = (u3.cross(u1)).normalized();
 
         // Step 3 - assign the normalized vectors to the columns of the rotation matrix
-        rotation_.col(0) = u1;
-        rotation_.col(1) = u2;
-        rotation_.col(2) = u3;
+        for(int i = 0; i < 3; i++) rotation_(0,i) = u1(i);
+        for(int i = 0; i < 3; i++) rotation_(1,i) = u2(i);
+        for(int i = 0; i < 3; i++) rotation_(2,i) = u3(i);
+
+        std::cout << rotation_ << std::endl;
     }
 }
 
