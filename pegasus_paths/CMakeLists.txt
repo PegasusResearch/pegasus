@@ -14,8 +14,6 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp_lifecycle REQUIRED)
-find_package(lifecycle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(pegasus_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
@@ -33,18 +31,18 @@ include_directories(
 add_executable(${PROJECT_NAME} 
   # The main ROS2 node implementation
   src/paths_node.cpp
+  src/pid_controller.cpp
   src/main.cpp
 )
 
 # Add the ROS2 packages to link against
 ament_target_dependencies(${PROJECT_NAME}
   rclcpp
-  lifecycle_msgs
-  rclcpp_lifecycle
   pegasus_msgs
   nav_msgs
   "paths"
   pid
+  pegasus_utils
 )
 
 if(BUILD_TESTING)

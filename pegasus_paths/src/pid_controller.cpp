@@ -11,19 +11,19 @@
 PidController::PidController(const rclcpp::Node::SharedPtr nh, const Pegasus::Paths::Path::SharedPtr path, const double controller_rate) : BaseControllerNode(nh, path, controller_rate) {
 
     // Read from ROS parameter server, the control gains 
-    declare_parameter<std::vector<double>>("pid_node.gains.kp", std::vector<double>());
-    declare_parameter<std::vector<double>>("pid_node.gains.kd", std::vector<double>());
-    declare_parameter<std::vector<double>>("pid_node.gains.ki", std::vector<double>());
-    declare_parameter<std::vector<double>>("pid_node.gains.kff", std::vector<double>());
-    declare_parameter<std::vector<double>>("pid_node.gains.min_output", std::vector<double>());
-    declare_parameter<std::vector<double>>("pid_node.gains.max_output", std::vector<double>());
+    nh_->declare_parameter<std::vector<double>>("pid_node.gains.kp", std::vector<double>());
+    nh_->declare_parameter<std::vector<double>>("pid_node.gains.kd", std::vector<double>());
+    nh_->declare_parameter<std::vector<double>>("pid_node.gains.ki", std::vector<double>());
+    nh_->declare_parameter<std::vector<double>>("pid_node.gains.kff", std::vector<double>());
+    nh_->declare_parameter<std::vector<double>>("pid_node.gains.min_output", std::vector<double>());
+    nh_->declare_parameter<std::vector<double>>("pid_node.gains.max_output", std::vector<double>());
 
-    auto kp = get_parameter("pid_node.gains.kp").as_double_array();
-    auto kd = get_parameter("pid_node.gains.kd").as_double_array();
-    auto ki = get_parameter("pid_node.gains.ki").as_double_array();
-    auto kff = get_parameter("pid_node.gains.kff").as_double_array();
-    auto min_output = get_parameter("pid_node.gains.min_output").as_double_array();
-    auto max_output = get_parameter("pid_node.gains.max_output").as_double_array();
+    auto kp = nh_->get_parameter("pid_node.gains.kp").as_double_array();
+    auto kd = nh_->get_parameter("pid_node.gains.kd").as_double_array();
+    auto ki = nh_->get_parameter("pid_node.gains.ki").as_double_array();
+    auto kff = nh_->get_parameter("pid_node.gains.kff").as_double_array();
+    auto min_output = nh_->get_parameter("pid_node.gains.min_output").as_double_array();
+    auto max_output = nh_->get_parameter("pid_node.gains.max_output").as_double_array();
 
     // Create the 3 PID controllers for x, y and z axis
     for(unsigned int i=0; i < 3; i++) controllers_[i] = std::make_unique<Pegasus::Pid>(kp[i], kd[i], ki[i], kff[i], min_output[i], max_output[i]);
@@ -161,6 +161,5 @@ void PidController::update_statistics_msg() {
         statistics_msg_.statistics[i].anti_windup_discharge = stats.anti_windup_discharge;
         statistics_msg_.statistics[i].output_pre_sat = stats.output_pre_sat;
         statistics_msg_.statistics[i].output = stats.output;
-    }
-    
+    }   
 }
