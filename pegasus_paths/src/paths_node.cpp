@@ -10,22 +10,15 @@ PathsNode::PathsNode(const std::string & node_name, bool intra_process_comms) :
 
     // Read the rate at which the node will operate from the parameter server
     declare_parameter<double>("paths_node.rate", 1.0);
-    timer_rate_ = get_parameter("paths_node.rate").as_double();
 
     // Read the sample step for obtaining the points that describe the path from the parameter server
     declare_parameter<double>("paths_node.sample_step", 0.0001);
     sample_step_ = get_parameter("paths_node.sample_step").as_double();
 
-    // TODO -- PASS THE SECTION BELLOW SOLELY TO THE ON_ACTIVATE METHOD
-
     // Initialize the publishers, subscribers and services
     init_publishers();
     init_subscribers();
     init_services();
-
-    // Initialize the periodic timer
-    timer_ = create_wall_timer(std::chrono::duration<double>(1.0 / timer_rate_), std::bind(&PathsNode::timer_callback, this));
-
 }
 
 /**
@@ -121,12 +114,6 @@ void PathsNode::init_services() {
     // ------------------------------------------------------------------------
     declare_parameter<std::string>("topics.services.waypoint", "path/add_waypoint");
     add_waypoint_service_ = create_service<pegasus_msgs::srv::AddWaypoint>(get_parameter("topics.services.waypoint").as_string(), std::bind(&PathsNode::add_waypoint_callback, this, std::placeholders::_1, std::placeholders::_2));
-}
-
-/**
- * @brief Method that is called periodically by "timer_" when active at a rate "timer_rate_"
- */
-void PathsNode::timer_callback() {
 }
 
 /**

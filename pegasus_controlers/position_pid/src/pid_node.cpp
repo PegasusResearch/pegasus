@@ -9,7 +9,7 @@
  * @param intra_process_comms Whether to use interprocess communication framework or not (false by default)
  */
 PidNode::PidNode(const std::string & node_name, bool intra_process_comms) : 
-    rclcpp_lifecycle::LifecycleNode(node_name, rclcpp::NodeOptions().use_intra_process_comms(intra_process_comms)) {
+    rclcpp::Node(node_name, rclcpp::NodeOptions().use_intra_process_comms(intra_process_comms)) {
 
     // Read the rate at which the node will operate from the parameter server
     declare_parameter<double>("pid_node.rate", 10.0);
@@ -41,46 +41,59 @@ PidNode::PidNode(const std::string & node_name, bool intra_process_comms) :
     declare_parameter<std::string>("pid_node.topics.services.mass", "thrust_curve");
     auto mass_client = create_client<pegasus_msgs::srv::ThrustCurve>(get_parameter("pid_node.topics.services.mass").as_string());
     
-    while(!mass_client->wait_for_service()) {
+    using namespace std::chrono_literals;
+    while(!mass_client->wait_for_service(1s)) {
         if(!rclcpp::ok()) {
             RCLCPP_ERROR(get_logger(), "Interrupted while waiting for mass information service. Exiting.");
         }
     }
 
-    mass_ = mass_client->async_send_request(std::make_shared<pegasus_msgs::srv::ThrustCurve::Request>()).get()->mass;
+    //RCLCPP_INFO_STREAM(get_logger(), "Client available");
+
+    // Get the mass of the vehicle used for computations and lock until the service returns
+    //auto result = mass_client->async_send_request(std::make_shared<pegasus_msgs::srv::ThrustCurve::Request>());
+    
+    //if (rclcpp::spin_until_future_complete(shared, result) = rclcpp::FutureReturnCode::SUCCESS) {
+    //    RCLCPP_INFO(get_logger(), "Mass: %ld", result.get()->mass);
+        //mass_ = result.get()->mass;
+    //} else {
+    //    RCLCPP_ERROR(get_logger(), "Failed to get the mass of the vehicle");
+    //}
+    mass_ = 1.500;
+
+    // Initialize the ROS2 interfaces 
+    init_subscribers();
+    init_publishers();
+    init_services();
 }
 
-
-// --------------------------------------------------
-// In this section we define the methods for managing
-// the state machine transition of the Lifecycle node
-// --------------------------------------------------
-  
-/**
- * @defgroup state_machine_callbacks
- * This section defines all the callbacks that are responsible for transitions in the node state machine
+ /**
+ * @brief Method that initializes the ROS2 publishers
  */
+void PidNode::init_publishers() {
+
+    RCLCPP_INFO_STREAM(get_logger(), "Initializing publishers");
+
+    // ------------------------------------------------------------------------
+    // Initialize the publisher for sending the attitude references and thrust for the inner loop to follow
+    // ------------------------------------------------------------------------
+    declare_parameter("pid_node.topics.publishers.control", "control/attitude_force");
+    control_pub_ = create_publisher<pegasus_msgs::msg::AttitudeThrustControl>(get_parameter("pid_node.topics.publishers.control").as_string(), 1);
+    
+    // ------------------------------------------------------------------------
+    // Initialize the publisher for sending PID statistics for data ploting and analysis
+    // ------------------------------------------------------------------------
+    declare_parameter("pid_node.topics.publishers.statistics", "statistics/pid");
+    statistics_pub_ = create_publisher<pegasus_msgs::msg::PidStatistics>(get_parameter("pid_node.topics.publishers.statistics").as_string(), 1);
+}
 
 /**
- * @ingroup state_machine_callbacks
- * @brief on_activate callback is being called when the lifecycle node
- * enters the "activating" state.
- * Depending on the return value of this function, the state machine
- * either invokes a transition to the "active" state or stays
- * in "inactive".
- * TRANSITION_CALLBACK_SUCCESS transitions to "active"
- * TRANSITION_CALLBACK_FAILURE transitions to "inactive"
- * TRANSITION_CALLBACK_ERROR or any uncaught exceptions to "errorprocessing"
+ * @brief Method that initializes the ROS subscribers
  */
-rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn PidNode::on_activate(const rclcpp_lifecycle::State & state) {
+void PidNode::init_subscribers() {
 
-    // Call the default on_activate method
-    LifecycleNode::on_activate(state);
-
-    // Reset the initialization variables (wait for the subscriptions to set these variables to true)
-    state_initialized_ = false;
-    reference_initialized_ = false;
-
+    RCLCPP_INFO_STREAM(get_logger(), "Initializing subscribers");
+    
     // Initialize the subscriber to the state of the vehicle
     declare_parameter<std::string>("pid_node.topics.subscribers.state", "nav/state");
     state_sub_ = create_subscription<pegasus_msgs::msg::State>(get_parameter("pid_node.topics.subscribers.state").as_string(), 1, std::bind(&PidNode::update_state_callback, this, std::placeholders::_1));
@@ -88,14 +101,35 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn PidNod
     // Initialize the subscriber to the desired reference to follow
     declare_parameter<std::string>("pid_node.topics.subscribers.path", "path");
     path_sub_ = create_subscription<pegasus_msgs::msg::Path>(get_parameter("pid_node.topics.subscribers.path").as_string(), 1, std::bind(&PidNode::update_reference_callback, this, std::placeholders::_1));
+}
 
-    // Initialize the publisher for the desired vehicle attitude and thrust
-    declare_parameter<std::string>("pid_node.topics.publishers.control", "control/attitude_force");
-    control_pub_ = create_publisher<pegasus_msgs::msg::AttitudeThrustControl>(get_parameter("pid_node.topics.publishers.control").as_string(), 1);
+/**
+ * @brief Method that initializes the ROS services
+ */
+void PidNode::init_services() {
 
-    // Initialize the publisher for the statistics of the PID controller
-    declare_parameter<std::string>("pid_node.topics.publishers.statistics", "statistics/pid");
-    statistics_pub_ = create_publisher<pegasus_msgs::msg::PidStatistics>(get_parameter("pid_node.topics.publishers.statistics").as_string(), 1);
+    RCLCPP_INFO_STREAM(get_logger(), "Initializing services");
+
+    // ----------------------------------------------------
+    // Initialize the service server for starting a mission
+    // ----------------------------------------------------
+    declare_parameter("pid_node.topics.services.start_mission", "start_mission");
+    start_mission_srv_ = create_service<pegasus_msgs::srv::StartMission>(get_parameter("pid_node.topics.services.start_mission").as_string(), std::bind(&PidNode::start_mission_callback, this, std::placeholders::_1, std::placeholders::_2));
+}
+
+/**
+ * @brief Callback of the service "start_mission_srv_" which is called to initialize the PID controller
+ * @param request A pointer to the request (unused)
+ * @param response A pointer to the response (unused)
+ */
+void PidNode::start_mission_callback(const pegasus_msgs::srv::StartMission::Request::SharedPtr request, const pegasus_msgs::srv::StartMission::Response::SharedPtr response) {
+    
+    (void) request;
+    (void) response;
+
+    // Reset the initialization variables (wait for the subscriptions to set these variables to true)
+    state_initialized_ = false;
+    reference_initialized_ = false;
 
     // Cleanup the PID controllers if they were used before
     for(unsigned int i=0; i < 3; i++) {
@@ -107,46 +141,8 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn PidNod
 
     // Initialize the periodic timer
     timer_ = create_wall_timer(std::chrono::duration<double>(1.0 / timer_rate_), std::bind(&PidNode::timer_callback, this));
-
-    // Return success
-    return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
-/**
- * @ingroup state_machine_callbacks
- * @brief on_deactivate callback is being called when the lifecycle node
- * enters the "deactivating" state.
- * Depending on the return value of this function, the state machine
- * either invokes a transition to the "inactive" state or stays
- * in "active".
- * TRANSITION_CALLBACK_SUCCESS transitions to "inactive"
- * TRANSITION_CALLBACK_FAILURE transitions to "active"
- * TRANSITION_CALLBACK_ERROR or any uncaught exceptions to "errorprocessing"
- */
-rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn PidNode::on_deactivate(const rclcpp_lifecycle::State & state) {
-    
-    // Call the default on_activate method
-    LifecycleNode::on_deactivate(state);
-
-    // Reset the timer that calls the control law periodically
-    timer_->cancel();
-    timer_->reset();
-
-    // Stop the subscription to the vehicle state (no need for extra overhead when the controller is not running)
-    state_sub_.reset();
-    control_pub_.reset();
-    path_sub_.reset();
-
-    // Stop the publisher for the control law
-    control_pub_.reset();   
-    statistics_pub_.reset(); 
-
-    // Reset the initialization variables
-    state_initialized_ = false;
-    reference_initialized_ = false;
-
-    return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
-}
 
 // --------------------------------------------------
 // In this section we define the methods for actually

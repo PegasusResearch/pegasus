@@ -8,10 +8,10 @@
 #include "pegasus_msgs/msg/path.hpp"
 #include "pegasus_msgs/msg/state.hpp"
 #include "pegasus_msgs/msg/pid_statistics.hpp"
-#include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "pegasus_msgs/msg/attitude_thrust_control.hpp"
+#include "pegasus_msgs/srv/start_mission.hpp"
 
-class PidNode : public rclcpp_lifecycle::LifecycleNode {
+class PidNode : public rclcpp::Node {
 
 public:
 
@@ -27,38 +27,29 @@ public:
      */
     ~PidNode() {}
 
-    /**
-     * @defgroup state_machine_callbacks
-     * This section defines all the callbacks that are responsible for transitions in the node state machine
-     */
-
-    /**
-     * @ingroup state_machine_callbacks
-     * @brief on_activate callback is being called when the lifecycle node
-     * enters the "activating" state.
-     * Depending on the return value of this function, the state machine
-     * either invokes a transition to the "active" state or stays
-     * in "inactive".
-     * TRANSITION_CALLBACK_SUCCESS transitions to "active"
-     * TRANSITION_CALLBACK_FAILURE transitions to "inactive"
-     * TRANSITION_CALLBACK_ERROR or any uncaught exceptions to "errorprocessing"
-     */
-    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_activate(const rclcpp_lifecycle::State & state);
-
-    /**
-     * @ingroup state_machine_callbacks
-     * @brief on_deactivate callback is being called when the lifecycle node
-     * enters the "deactivating" state.
-     * Depending on the return value of this function, the state machine
-     * either invokes a transition to the "inactive" state or stays
-     * in "active".
-     * TRANSITION_CALLBACK_SUCCESS transitions to "inactive"
-     * TRANSITION_CALLBACK_FAILURE transitions to "active"
-     * TRANSITION_CALLBACK_ERROR or any uncaught exceptions to "errorprocessing"
-     */
-    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_deactivate(const rclcpp_lifecycle::State & state);
-
 private:
+
+    /**
+     * @brief Method that initializes the ROS2 publishers
+     */
+    void init_publishers();
+
+    /**
+     * @brief Method that initializes the ROS subscribers
+     */
+    void init_subscribers();
+
+    /**
+     * @brief Method that initializes the ROS services
+     */
+    void init_services();
+
+    /**
+     * @brief Callback of the service "start_mission_srv_" which is called to initialize the PID controller
+     * @param request A pointer to the request (unused)
+     * @param response A pointer to the response (unused)
+     */
+    void start_mission_callback(const pegasus_msgs::srv::StartMission::Request::SharedPtr request, const pegasus_msgs::srv::StartMission::Response::SharedPtr response);
 
     /**
      * @brief Method that is called periodically by "timer_" when active at a rate "timer_rate_"
@@ -100,12 +91,12 @@ private:
      * @brief The publisher for the controller references. By default, a lifecycle publisher is 
      * inactive by creation and has to be activated to publish messages into the ROS world.
      */
-    rclcpp_lifecycle::LifecyclePublisher<pegasus_msgs::msg::AttitudeThrustControl>::SharedPtr control_pub_;
+    rclcpp::Publisher<pegasus_msgs::msg::AttitudeThrustControl>::SharedPtr control_pub_;
 
     /**
      * @brief The publisher for the statistics for measuring the controller performance.
      */
-    rclcpp_lifecycle::LifecyclePublisher<pegasus_msgs::msg::PidStatistics>::SharedPtr statistics_pub_;
+    rclcpp::Publisher<pegasus_msgs::msg::PidStatistics>::SharedPtr statistics_pub_;
 
     /**
      * @brief The subscriber for the current state of the vehicle.
@@ -116,6 +107,11 @@ private:
      * @brief The subscriber for the desired references to follow.
      */
     rclcpp::Subscription<pegasus_msgs::msg::Path>::SharedPtr path_sub_;
+
+    /**
+     * @brief The service server for starting and stoping a path following mission
+     */
+    rclcpp::Service<pegasus_msgs::srv::StartMission>::SharedPtr start_mission_srv_;
 
     /**
      * @brief Control message to be published periodically by the timer_callback() when

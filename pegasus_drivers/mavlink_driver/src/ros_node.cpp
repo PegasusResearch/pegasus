@@ -654,6 +654,8 @@ void ROSNode::reboot_callback(const pegasus_msgs::srv::Reboot::Request::SharedPt
 void ROSNode::thrust_curve_callback(const pegasus_msgs::srv::ThrustCurve::Request::SharedPtr request, const pegasus_msgs::srv::ThrustCurve::Response::SharedPtr response) {
     (void) *request; // do nothing with the empty request and avoid compilation warnings from unused argument
 
+    RCLCPP_INFO_STREAM(nh_->get_logger(), "Request received for vehicle mass and thrust curve");
+
     // Send the mass of the vehicle
     response->mass = mass_;
 

@@ -43,6 +43,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/paths/AddCircle.srv"
   "srv/paths/AddLemniscate.srv"
   "srv/paths/ResetPath.srv"
+  # Controllers services/messages
+  "srv/controllers/StartMission.srv"
   # Messages
   "msg/driver/Status.msg"
   "msg/driver/Health.msg"

@@ -1,7 +1,7 @@
 /**:
   ros__parameters:
     pid_node:
-      rate: 10 # Hz
+      rate: 10.0 # Hz
       topics:
         subscribers:
           state: "nav/state"
@@ -10,6 +10,7 @@
           control: "control/attitude_force"
           statistics: "statistics/pid"
         services:
+          start_mission: "pid/start_mission"
           mass: "thrust_curve"
       gains:
         # Gains for PIDs on [x, y, z]

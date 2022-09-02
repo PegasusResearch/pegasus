@@ -20,6 +20,8 @@ find_package(rclcpp REQUIRED)
 find_package(pegasus_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package("paths" REQUIRED)
+find_package(pid REQUIRED)
+find_package(pegasus_utils REQUIRED)
 
 # Include directories for the code
 include_directories(
@@ -36,12 +38,13 @@ add_executable(${PROJECT_NAME}
 
 # Add the ROS2 packages to link against
 ament_target_dependencies(${PROJECT_NAME}
-    rclcpp
-    lifecycle_msgs
-    rclcpp_lifecycle
-    pegasus_msgs
-    nav_msgs
-    "paths"
+  rclcpp
+  lifecycle_msgs
+  rclcpp_lifecycle
+  pegasus_msgs
+  nav_msgs
+  "paths"
+  pid
 )
 
 if(BUILD_TESTING)

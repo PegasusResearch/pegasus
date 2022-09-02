@@ -38,8 +38,6 @@ add_executable(${PROJECT_NAME}
 # Add the ROS2 packages to link against
 ament_target_dependencies(${PROJECT_NAME}
     rclcpp
-    lifecycle_msgs
-    rclcpp_lifecycle
     pegasus_msgs
     pid
     thrust_curves
