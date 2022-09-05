@@ -9,12 +9,12 @@ PathsNode::PathsNode(const std::string & node_name, bool intra_process_comms) :
     rclcpp::Node(node_name, rclcpp::NodeOptions().use_intra_process_comms(intra_process_comms)) {
 
     // Read the sample step for obtaining the points that describe the path from the parameter server
-    declare_parameter<double>("paths_node.sample_step", 0.0001);
-    sample_step_ = get_parameter("paths_node.sample_step").as_double();
+    declare_parameter<double>("path.sample_step", 0.0001);
+    sample_step_ = get_parameter("path.sample_step").as_double();
 
     // Read the node_rate at which to run the controllers
-    declare_parameter<double>("paths_node.rate", 20.0);
-    control_rate_ = get_parameter("paths_node.rate").as_double();
+    declare_parameter<double>("controllers.rate", 20.0);
+    control_rate_ = get_parameter("controllers.rate").as_double();
 
     // Initialize an empty Path object
     path_ = std::make_shared<Pegasus::Paths::Path>();
@@ -47,8 +47,8 @@ void PathsNode::init_publishers() {
     // ------------------------------------------------------------------------
     // Initialize the publisher for the path points message (used by RVIZ and others)
     // ------------------------------------------------------------------------
-    declare_parameter("topics.publishers.points", "path/points");
-    points_pub_ = create_publisher<nav_msgs::msg::Path>(get_parameter("topics.publishers.points").as_string(), 1);
+    declare_parameter("path.topics.publishers.points", "path/points");
+    points_pub_ = create_publisher<nav_msgs::msg::Path>(get_parameter("path.topics.publishers.points").as_string(), 1);
 }   
 
 /**
@@ -60,14 +60,14 @@ void PathsNode::init_subscribers() {
     // ------------------------------------------------------------------------
     // Initialize the subscriber for the status of the vehicle (check if it is armed and landed)
     // ------------------------------------------------------------------------
-    declare_parameter("topics.subscribers.status", "status");
-    status_sub_ = create_subscription<pegasus_msgs::msg::Status>(get_parameter("topics.subscribers.status").as_string(), 1, std::bind(&PathsNode::status_callback, this, std::placeholders::_1));
+    declare_parameter("path.topics.subscribers.status", "status");
+    status_sub_ = create_subscription<pegasus_msgs::msg::Status>(get_parameter("path.topics.subscribers.status").as_string(), 1, std::bind(&PathsNode::status_callback, this, std::placeholders::_1));
 
     // ------------------------------------------------------------------------
     // Subscribe to the state of the vehicle (usefull when sending waypoints)
     // ------------------------------------------------------------------------
-    declare_parameter<std::string>("topics.subscribers.state", "nav/state");
-    state_sub_ = create_subscription<pegasus_msgs::msg::State>(get_parameter("topics.subscribers.state").as_string(), 1, std::bind(&PathsNode::state_callback, this, std::placeholders::_1));
+    declare_parameter<std::string>("path.topics.subscribers.state", "nav/state");
+    state_sub_ = create_subscription<pegasus_msgs::msg::State>(get_parameter("path.topics.subscribers.state").as_string(), 1, std::bind(&PathsNode::state_callback, this, std::placeholders::_1));
 }
 
 /**
