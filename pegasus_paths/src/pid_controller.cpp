@@ -67,6 +67,7 @@ void PidController::stop() {
  * @param msg A message with the state of the vehicle
  */
 void PidController::update_state_callback(const pegasus_msgs::msg::State::SharedPtr msg) {
+   
     // ----------------------------------------
     // Save the current position of the vehicle
     // ----------------------------------------
@@ -96,11 +97,9 @@ void PidController::controller_update() {
 
     // Get the time difference between the last call and current call
     double dt = (nh_->get_clock()->now() - prev_time_).seconds();
-    
-    // Get the path desired position, velocity and acceleration
-    auto pd = path_->pd(gamma_);
-    auto d_pd = path_->d_pd(gamma_);
-    auto dd_pd = path_->dd_pd(gamma_);
+
+    // Update the position, velocity and acceleration references for the PID to track
+    update_references();
 
     // If the path had a reference, then compute the errors based on that value
     Eigen::Vector3d pos_error, vel_error, accel;
@@ -124,6 +123,11 @@ void PidController::controller_update() {
     attitude_thrust_msg_.attitude[2] = Pegasus::Rotations::rad_to_deg(attitude_thrust[2]);
     attitude_thrust_msg_.thrust = attitude_thrust[3];
     control_pub_->publish(attitude_thrust_msg_);
+
+    // Update the virtual target parametric value (if we have a path)
+    auto vd = path_->vd;
+    if(vd)
+    gamma_ += dt * ;
 
     // Publish the statistics message
     update_statistics_msg();
@@ -162,4 +166,40 @@ void PidController::update_statistics_msg() {
         statistics_msg_.statistics[i].output_pre_sat = stats.output_pre_sat;
         statistics_msg_.statistics[i].output = stats.output;
     }   
+}
+
+/**
+ * @brief Auxiliary function called inside the "controller_update" to update the references that the controller will
+ * track with information from the "path_" object
+ */
+void PidController::update_references() {
+
+    // If the path is empty or is just a nullpointer, do not update the system reference 
+    // and use the last (so that the vehicle holds its position) 
+    if(path_ == nullptr ||  path_->empty() == true) {
+
+        // set the desired references besides the position to zero (HOLD-POSITION)
+        desired_velocity_ << 0.0, 0.0, 0.0;
+        desired_acceleration_ << 0.0, 0.0, 0.0;
+        gamma_dot_ = 0.0;
+        return;
+    }
+    
+    // Updating the references for the PID to track here
+    std::optional<Eigen::Vector3d> pd = path_->pd(gamma_).value_or
+
+    // Get the path desired position, velocity and acceleration
+    std::optional<Eigen::Vector3d> pd = path_->pd(gamma_);
+    Eigen::Vector3d d_pd = path_->d_pd(gamma_).value_or(Eigen::Vector3d(0.0, 0.0, 0.0));
+    Eigen::Vector3d dd_pd = path_->dd_pd(gamma_).value_or(Eigen::Vector3d(0.0, 0.0, 0.0));
+
+    if(!pd.has_value()) {
+        // do not update the reference position of the vehicle and hold
+        // TODO
+    }
+
+    // Update the reference variables for the PID to track
+    desired_position_ = pd.value();
+    desired_velocity_ = d_pd * gamma_dot_;
+    desired_acceleration_ = (dd_pd * gamma_dot_) + (d_pd * gamma_ddot_);
 }

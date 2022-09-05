@@ -57,6 +57,12 @@ private:
     void update_statistics_msg();
 
     /**
+     * @brief Auxiliary function called inside the "controller_update" to update the references that the controller will
+     * track with information from the "path_" object
+     */
+    void update_references();
+
+    /**
      * @defgroup controller_housekeeping
      * This section defines all the actual variables used for the control of the vehicle
      */
@@ -86,10 +92,28 @@ private:
     double current_yaw_{0.0};
 
     /**
-     * @ingroup controller_housekeeping
-     * @brief The desired yaw angle, expressed in rad
+     * @ingroup controller_housekeeping 
+     * @brief The reference position for the PID controller
      */
-    double desired_yaw_;
+    Eigen::Vector3d desired_position_{0.0, 0.0, 0.0};
+
+    /**
+     * @ingroup controller_housekeeping 
+     * @brief The reference velocity vector for the PID controller
+     */
+    Eigen::Vector3d desired_velocity_{0.0, 0.0, 0.0};
+
+    /**
+     * @ingroup controller_housekeeping 
+     * @brief The desired acceleration (used as feed-forward)
+     */
+    Eigen::Vector3d desired_acceleration_{0.0, 0.0, 0.0};
+
+    /**
+     * @ingroup controller_housekeeping 
+     * @brief The desired yaw-angle, expressed in rad
+     */
+    double desired_yaw_{0.0};
 
     /**
      * @ingroup controller_housekeeping
@@ -102,6 +126,12 @@ private:
      * @brief The current parametric value that we are aiming at
      */
     double gamma_{0.0};
+
+    /**
+     * @ingroup controller_housekeeping
+     * @brief The speed progression that we are aiming at
+     */
+    double gamma_dot_{0.0};
 
     /**
      * @defgroup ros_messages_callbacks_publishers Controller ROS2 messages, subscriber callbacks and publishers
