@@ -1,6 +1,6 @@
 #pragma once
 
-#include "controller.hpp"
+#include "base_controller.hpp"
 #include "pegasus_msgs/msg/position_control.hpp"
 
 class OnboardController : public BaseControllerNode {
@@ -33,6 +33,12 @@ public:
      * @brief Method for stoping the path following controller
      */
     void stop();
+
+     /**
+     * @brief Method that is called whenever the reference path to follow object is reset. This method should
+     * make sure that whenever the path is reset, the vehicle DOES NOT FALL and holds it's position
+     */
+    void reset();
 
     /**
      * @brief Method that is called by "state_sub_" to update the variables "current_position_", 
@@ -87,7 +93,7 @@ private:
      * @brief Control message to be published periodically by the timer_callback() when
      * the controller is running
      */
-    pegasus_msgs::msg::PositionController position_msg_;
+    pegasus_msgs::msg::PositionControl position_msg_;
 
     /**
      * @brief Publisher for the desired position references for the onboard controller to track

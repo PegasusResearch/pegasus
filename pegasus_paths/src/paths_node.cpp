@@ -8,12 +8,16 @@
 PathsNode::PathsNode(const std::string & node_name, bool intra_process_comms) : 
     rclcpp::Node(node_name, rclcpp::NodeOptions().use_intra_process_comms(intra_process_comms)) {
 
-    // Read the rate at which the node will operate from the parameter server
-    declare_parameter<double>("paths_node.rate", 1.0);
-
     // Read the sample step for obtaining the points that describe the path from the parameter server
     declare_parameter<double>("paths_node.sample_step", 0.0001);
     sample_step_ = get_parameter("paths_node.sample_step").as_double();
+
+    // Read the node_rate at which to run the controllers
+    declare_parameter<double>("paths_node.rate", 20.0);
+    control_rate_ = get_parameter("paths_node.rate").as_double();
+
+    // Initialize an empty Path object
+    path_ = std::make_shared<Pegasus::Paths::Path>();
 
     // Initialize the publishers, subscribers and services
     init_publishers();
@@ -45,12 +49,6 @@ void PathsNode::init_publishers() {
     // ------------------------------------------------------------------------
     declare_parameter("topics.publishers.points", "path/points");
     points_pub_ = create_publisher<nav_msgs::msg::Path>(get_parameter("topics.publishers.points").as_string(), 1);
-
-    // ------------------------------------------------------------------------
-    // Initialize the publisher for the path data actually used by controllers
-    // ------------------------------------------------------------------------
-    declare_parameter("topics.publishers.reference", "path/reference");
-    path_pub_ = create_publisher<pegasus_msgs::msg::Path>(get_parameter("topics.publishers.reference").as_string(), 1);
 }   
 
 /**
@@ -58,19 +56,18 @@ void PathsNode::init_publishers() {
  * @brief Method used to initialize all the ROS2 subscribers
  */
 void PathsNode::init_subscribers() {
-    
+
+    // ------------------------------------------------------------------------
+    // Initialize the subscriber for the status of the vehicle (check if it is armed and landed)
+    // ------------------------------------------------------------------------
+    declare_parameter("topics.subscribers.status", "status");
+    status_sub_ = create_subscription<pegasus_msgs::msg::Status>(get_parameter("topics.subscribers.status").as_string(), 1, std::bind(&PathsNode::status_callback, this, std::placeholders::_1));
+
     // ------------------------------------------------------------------------
     // Subscribe to the state of the vehicle (usefull when sending waypoints)
     // ------------------------------------------------------------------------
     declare_parameter<std::string>("topics.subscribers.state", "nav/state");
     state_sub_ = create_subscription<pegasus_msgs::msg::State>(get_parameter("topics.subscribers.state").as_string(), 1, std::bind(&PathsNode::state_callback, this, std::placeholders::_1));
-
-    // ------------------------------------------------------------------------
-    // Subscribe to the virtual target state (path parametric value gamma)
-    // ------------------------------------------------------------------------
-    declare_parameter<std::string>("topics.subscribers.gamma", "nav/gamma");
-    gamma_sub_ = create_subscription<std_msgs::msg::Float64>(get_parameter("topics.subscribers.gamma").as_string(), 1, std::bind(&PathsNode::gamma_callback, this, std::placeholders::_1));
-
 }
 
 /**
@@ -114,6 +111,15 @@ void PathsNode::init_services() {
     // ------------------------------------------------------------------------
     declare_parameter<std::string>("topics.services.waypoint", "path/add_waypoint");
     add_waypoint_service_ = create_service<pegasus_msgs::srv::AddWaypoint>(get_parameter("topics.services.waypoint").as_string(), std::bind(&PathsNode::add_waypoint_callback, this, std::placeholders::_1, std::placeholders::_2));
+
+    // ------------------------------------------------------------------------
+    // Initiate the service to start a path following/tracking mission
+    // ------------------------------------------------------------------------
+    declare_parameter<std::string>("topics.services.start_mission", "path/start_mission");
+    start_mission_service_ = create_service<pegasus_msgs::srv::StartMission>(get_parameter("topics.services.start_mission").as_string(), std::bind(&PathsNode::start_mission_callback, this, std::placeholders::_1, std::placeholders::_2));
+
+    // Declare the parameter for arming the vehicle service client
+    declare_parameter<std::string>("topics.services.arm", "arm");
 }
 
 /**
@@ -131,7 +137,10 @@ void PathsNode::reset_callback(const pegasus_msgs::srv::ResetPath::Request::Shar
     (void) *request; // do nothing with the empty request and avoid compilation warnings from unused argument
     
     // Clear the path
-    path_.clear();
+    path_->clear();
+
+    // Call the controller reset function if one is running to signal that the path was cleaned
+    if(controller_) controller_->reset();
 
     // Reset the path points message
     path_points_msg_.header.frame_id = "world_ned";
@@ -240,7 +249,7 @@ void PathsNode::add_waypoint_callback(const pegasus_msgs::srv::AddWaypoint::Requ
     Pegasus::Paths::Line::SharedPtr line;
 
     // Try to get the last position of the current path
-    auto last_path_pos = path_.get_last_pd();
+    auto last_path_pos = path_->get_last_pd();
 
     // If the path is empty, create a waypoint between the current vehicle position and the desired waypoint
     if(!last_path_pos.has_value()) {
@@ -264,10 +273,10 @@ void PathsNode::add_waypoint_callback(const pegasus_msgs::srv::AddWaypoint::Requ
 void PathsNode::add_section_to_path(const Pegasus::Paths::Section::SharedPtr section) {
     
     // Add the new section to the path
-    path_.push_back(section);
+    path_->push_back(section);
 
     // Update the samples of the path
-    auto path_samples = path_.get_samples(sample_step_);
+    auto path_samples = path_->get_samples(sample_step_);
 
     // If the path samples optional is not null, update the message that describes the path
     if(path_samples.has_value()) {
@@ -298,9 +307,60 @@ void PathsNode::add_section_to_path(const Pegasus::Paths::Section::SharedPtr sec
 }
 
 /**
- * @defgroup subscriberCallbacks
- * This group defines all the ROS subscriber callbacks
+ * @ingroup servicesCallbacks
+ * @brief TODO
+ * @param request 
+ * @param response 
  */
+void PathsNode::start_mission_callback(const pegasus_msgs::srv::StartMission::Request::SharedPtr request, const pegasus_msgs::srv::StartMission::Response::SharedPtr response) {
+    
+    // TODO - improve this section and implement a FACTORY PATTERN similar to the THRUST CURVE package
+
+    // Check if the required controller to use is a PID controller
+    if(request->controller_name.compare("pid") == 0) {
+        controller_ = std::make_shared<PidController>(shared_from_this(), path_, control_rate_);
+    // Check if the required controller to use is the actual onboard controller
+    } else if (request->controller_name.compare("onboard") == 0) {
+        controller_ = std::make_shared<OnboardController>(shared_from_this(), path_, control_rate_);
+    }
+
+    // Check if the vehicle is un-armed and arm
+    if(!armed_) {
+        // Create the service client to arm the vehicle
+        rclcpp::Client<pegasus_msgs::srv::Arm>::SharedPtr arm_service_client = create_client<pegasus_msgs::srv::Arm>(get_parameter("topics.services.arm").as_string());
+        
+        // Create the request message
+        auto request = std::make_shared<pegasus_msgs::srv::Arm::Request>();
+        request->arm = true;
+
+        // Send the arm request
+        arm_service_client->async_send_request(request);
+    }
+
+    // Start the controller
+    controller_->start();
+
+    // Do nothing with the response object (and avoid compilation warnings)
+    (void) response;
+}
+
+/**
+ * @defgroup subscribersCallbacks
+ * This group defines all the callbacks used by the ROS2 subscribers
+ */
+
+/**
+ * @brief Method that is called by "status_sub_" and updates the variables "armed_" and "flying_"
+ * @param msg A pegasus status message
+ */
+void PathsNode::status_callback(const pegasus_msgs::msg::Status::SharedPtr msg) {
+
+    // Update the armed state of the vehicle
+    armed_ = msg->armed;
+
+    // Update the flying state of the vehicle - TODO - get this from the driver
+    flying_ = false;
+}
 
 /**
  * @ingroup subscriberCallbacks
@@ -311,55 +371,4 @@ void PathsNode::state_callback(const pegasus_msgs::msg::State::SharedPtr msg) {
     vehicle_pos_[0] = msg->pose.pose.position.x;
     vehicle_pos_[1] = msg->pose.pose.position.y;
     vehicle_pos_[2] = msg->pose.pose.position.z;
-}
-
-/**
- * @ingroup subscriberCallbacks
- * @brief Callback called by "gamma_sub_" used to update the current path parametric value (gamma)
- * @param msg A message with a float with the current value of gamma
- */
-void PathsNode::gamma_callback(const std_msgs::msg::Float64::SharedPtr msg) {
-
-    // Update the current path parametric value
-    gamma_ = (double) msg->data;
-
-    // Evaluate the path at the given gamma
-    auto data = path_.get_all_data(gamma_);
-
-    // If the data is not a null optional, then publish the message with all the data
-    if(data.has_value()) {
-
-       auto data_value = data.value();
-
-        // Get the position, first and second derivatives
-        for(unsigned int i = 0; i < 3; i++) {
-            path_msg_.pd[i] = data_value.pd[i];
-            path_msg_.d_pd[i] = data_value.d_pd[i];
-            path_msg_.dd_pd[i] = data_value.dd_pd[i];
-        }
-
-        // Get other path statistics
-        path_msg_.curvature = data_value.curvature;
-        path_msg_.torsion = data_value.torsion;
-        path_msg_.tangent_angle = data_value.tangent_angle;
-        path_msg_.derivative_norm = data_value.derivative_norm;
-
-        // Get the desired speed assignments
-        path_msg_.vehicle_speed = data_value.vehicle_speed;
-        path_msg_.vd = data_value.vd;
-        path_msg_.d_vd = data_value.d_vd;
-
-        // Get the bounds of the path parametric values
-        path_msg_.gamma_min = data_value.min_gamma;
-        path_msg_.gamma_max = data_value.max_gamma;
-
-        // The parametric value at which this evaluation was made
-        path_msg_.gamma = gamma_;
-
-        // For now, let the desired yaw be the tangent to the path
-        path_msg_.yaw = data_value.tangent_angle;
-
-        // Publish the path information
-        path_pub_->publish(path_msg_);
-    }
 }

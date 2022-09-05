@@ -19,6 +19,7 @@ find_package(pegasus_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package("paths" REQUIRED)
 find_package(pid REQUIRED)
+find_package(thrust_curves REQUIRED)
 find_package(pegasus_utils REQUIRED)
 
 # Include directories for the code
@@ -32,6 +33,7 @@ add_executable(${PROJECT_NAME}
   # The main ROS2 node implementation
   src/paths_node.cpp
   src/pid_controller.cpp
+  src/onboard_controller.cpp
   src/main.cpp
 )
 
@@ -42,6 +44,7 @@ ament_target_dependencies(${PROJECT_NAME}
   nav_msgs
   "paths"
   pid
+  thrust_curves
   pegasus_utils
 )
 

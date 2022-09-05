@@ -1,9 +1,10 @@
 #pragma once
 
 #include "pid/pid.hpp"
-#include "controller.hpp"
+#include "base_controller.hpp"
 #include "pegasus_msgs/msg/pid_statistics.hpp"
 #include "pegasus_msgs/msg/attitude_thrust_control.hpp"
+#include "pegasus_msgs/srv/thrust_curve.hpp"
 
 class PidController : public BaseControllerNode {
 
@@ -32,9 +33,17 @@ public:
     void start();
 
     /**
-     * @brief Method for stoping the path following controller
+     * @brief Method for stoping the path following controller. IF THE VEHICLE IS STILL IN THE AIR WHEN THIS
+     * METHOD IS CALLED, THEN THE CONTROLLER WILL STOP AND THE VEHICLE MAY FALL, UNLESS THE ONBOARD MICROCONTROLLER
+     * HAS SOME SAFETY FEATURE IMPLEMENTED
      */
     void stop();
+
+    /**
+     * @brief Method that is called whenever the reference path to follow object is reset. This method should
+     * make sure that whenever the path is reset, the vehicle DOES NOT FALL and holds it's position
+     */
+    void reset();
 
     /**
      * @brief Method that is called by "state_sub_" to update the variables "current_position_", 
@@ -123,6 +132,12 @@ private:
 
     /**
      * @ingroup controller_housekeeping
+     * @brief The current desired parametric speed progression
+     */
+    double vd_{0.0};
+
+    /**
+     * @ingroup controller_housekeeping
      * @brief The current parametric value that we are aiming at
      */
     double gamma_{0.0};
@@ -132,6 +147,12 @@ private:
      * @brief The speed progression that we are aiming at
      */
     double gamma_dot_{0.0};
+
+    /**
+     * @ingroup controller_housekeeping
+     * @brief The acceleration progression of the parametric value
+     */
+    double gamma_ddot_{0.0};
 
     /**
      * @defgroup ros_messages_callbacks_publishers Controller ROS2 messages, subscriber callbacks and publishers
@@ -150,6 +171,11 @@ private:
      * controller is running 
      */
     pegasus_msgs::msg::PidStatistics statistics_msg_;
+
+    /**
+     * @brief The service server for starting and stoping a path following mission
+     */
+    rclcpp::Client<pegasus_msgs::srv::ThrustCurve>::SharedPtr mass_srv_;
 
     /**
      * @brief Publisher for the attitute and total thrust force (in N) using the "attitude_thrust_msg_"

@@ -28,6 +28,24 @@ PidController::PidController(const rclcpp::Node::SharedPtr nh, const Pegasus::Pa
     // Create the 3 PID controllers for x, y and z axis
     for(unsigned int i=0; i < 3; i++) controllers_[i] = std::make_unique<Pegasus::Pid>(kp[i], kd[i], ki[i], kff[i], min_output[i], max_output[i]);
 
+    // Initialize the service that requests the total mass of the vehicle to the driver
+    nh_->declare_parameter<std::string>("pid_node.topics.services.mass", "thrust_curve");
+    mass_srv_ = nh_->create_client<pegasus_msgs::srv::ThrustCurve>(nh_->get_parameter("pid_node.topics.services.mass").as_string());
+
+    // Send an async request to get the mass of the vehicle
+    auto request_mass = std::make_shared<pegasus_msgs::srv::ThrustCurve::Request>();
+    mass_srv_->async_send_request(request_mass, [this] (rclcpp::Client<pegasus_msgs::srv::ThrustCurve>::SharedFuture future) {
+        
+        // Get the result of the async service
+        auto result = future.get();
+
+        // Update the mass variable asynchronously
+        this->mass_ = result->mass;
+
+        // Notify the user that this initialization was done corretly
+        RCLCPP_DEBUG_STREAM(this->nh_->get_logger(), "Mass of vehicle = " << this->mass_ << " inside PID position tracking controller");
+    });
+
     // Initialize the publisher for the desired vehicle attitude and thrust
     nh_->declare_parameter<std::string>("pid_node.topics.publishers.control", "control/attitude_force");
     control_pub_ = nh_->create_publisher<pegasus_msgs::msg::AttitudeThrustControl>(nh_->get_parameter("pid_node.topics.publishers.control").as_string(), 1);
@@ -41,12 +59,19 @@ PidController::PidController(const rclcpp::Node::SharedPtr nh, const Pegasus::Pa
 /**
  * @brief Destroy the Pid Controller object
  */
-PidController::~PidController() {}
+PidController::~PidController() {
+    // DO NOTHING - NO MEMORY WAS ALLOCATED
+}
 
 /**
  * @brief Method to start the path following controller
  */
 void PidController::start() {
+
+    // Check if the mass has a value that makes sense
+    if(mass_ <= 0.0) {
+        RCLCPP_ERROR_STREAM(nh_->get_logger(), "Mass of the vehicle invalid. Mass = " << mass_<< ". Unable to start the PID position tracking controller");
+    }
 
     // Call the base start function to start the update callback timer
     BaseControllerNode::start();
@@ -59,6 +84,23 @@ void PidController::stop() {
 
     // Call the base stop function to stop the update callback timer
     BaseControllerNode::stop();
+}
+
+/**
+ * @brief Method that is called whenever the reference path to follow object is reset. This method should
+ * make sure that whenever the path is reset, the vehicle DOES NOT FALL and holds it's position
+ */
+void PidController::reset() {
+
+    // Reset the current parametric value, such that if the path get's repopulated, then we will start following
+    // the new references from the begining
+    gamma_ = 0.0;
+    gamma_dot_ = 0.0;
+    gamma_ddot_ = 0.0;
+    vd_ = 0.0;
+
+    // By default we do not need to add any extra logic, because we are always checking at each controller iteration
+    // if we have some reference from the path to follow
 }
 
 /**
@@ -99,16 +141,13 @@ void PidController::controller_update() {
     double dt = (nh_->get_clock()->now() - prev_time_).seconds();
 
     // Update the position, velocity and acceleration references for the PID to track
+    // using the data inside the path, or a hold position value if the path is empty
     update_references();
 
-    // If the path had a reference, then compute the errors based on that value
-    Eigen::Vector3d pos_error, vel_error, accel;
-    if(pd.has_value() && d_pd.has_value() && dd_pd.has_value()) {
-        // Compute the position error and velocity error using the path desired position and velocity
-        pos_error = pd.value() - current_position_;
-        vel_error = d_pd.value() - current_velocity_;
-        accel = dd_pd.value();
-    }
+    // Compute the position error and velocity error using the path desired position and velocity
+    Eigen::Vector3d pos_error = desired_position_ - current_position_;
+    Eigen::Vector3d vel_error = desired_velocity_ - current_velocity_;
+    Eigen::Vector3d accel = desired_acceleration_;
     
     // Compute the desired control output acceleration for each controller
     Eigen::Vector3d u;
@@ -125,9 +164,10 @@ void PidController::controller_update() {
     control_pub_->publish(attitude_thrust_msg_);
 
     // Update the virtual target parametric value (if we have a path)
-    auto vd = path_->vd;
-    if(vd)
-    gamma_ += dt * ;
+    gamma_dot_ = vd_;
+
+    // TODO - diferentiate to obtain the gamma_ddot_ 
+    // for now, since the value is always very small, we aproximate it by zero
 
     // Publish the statistics message
     update_statistics_msg();
@@ -182,24 +222,32 @@ void PidController::update_references() {
         desired_velocity_ << 0.0, 0.0, 0.0;
         desired_acceleration_ << 0.0, 0.0, 0.0;
         gamma_dot_ = 0.0;
+        gamma_ddot_ = 0.0;
+        vd_ = 0.0;
         return;
     }
-    
-    // Updating the references for the PID to track here
-    std::optional<Eigen::Vector3d> pd = path_->pd(gamma_).value_or
 
-    // Get the path desired position, velocity and acceleration
+    // Get the path desired position, velocity and acceleration from the path object
     std::optional<Eigen::Vector3d> pd = path_->pd(gamma_);
     Eigen::Vector3d d_pd = path_->d_pd(gamma_).value_or(Eigen::Vector3d(0.0, 0.0, 0.0));
     Eigen::Vector3d dd_pd = path_->dd_pd(gamma_).value_or(Eigen::Vector3d(0.0, 0.0, 0.0));
 
+    // Update the desired speed progression for the path virtual target
+    vd_ = path_->vd(gamma_).value_or(0.0);
+
+    // Check if the optional contained a position;
     if(!pd.has_value()) {
-        // do not update the reference position of the vehicle and hold
-        // TODO
+        // do not update the reference position of the vehicle and hold the position (HOLD-POSITION)
+        desired_velocity_ << 0.0, 0.0, 0.0;
+        desired_acceleration_ << 0.0, 0.0, 0.0;
+        gamma_dot_ = 0.0;
+        gamma_ddot_ = 0.0;
+        vd_ = 0.0;
+        return;
     }
 
     // Update the reference variables for the PID to track
     desired_position_ = pd.value();
     desired_velocity_ = d_pd * gamma_dot_;
-    desired_acceleration_ = (dd_pd * gamma_dot_) + (d_pd * gamma_ddot_);
+    desired_acceleration_ = (dd_pd * std::pow(gamma_dot_, 2)) + (d_pd * std::pow(gamma_ddot_, 2));
 }

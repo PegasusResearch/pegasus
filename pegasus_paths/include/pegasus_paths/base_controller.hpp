@@ -13,9 +13,9 @@ public:
     using WeakPtr = std::weak_ptr<BaseControllerNode>;
 
     /**
-     * @brief Virtual destructor for the base controller node
+     * @brief Virtual destructor for the base controller node. This does nothing
      */
-    virtual ~BaseControllerNode();
+    virtual ~BaseControllerNode() {}
 
     /**
      * @brief Method that is called periodically by "timer_" when active at a rate "timer_rate_"
@@ -35,13 +35,21 @@ public:
     }
 
     /**
-     * @brief Method for stoping the path following controller
+     * @brief Method for stoping the path following controller. IF THE VEHICLE IS STILL IN THE AIR WHEN THIS
+     * METHOD IS CALLED, THEN THE CONTROLLER WILL STOP AND THE VEHICLE MAY FALL, UNLESS THE ONBOARD MICROCONTROLLER
+     * HAS SOME SAFETY FEATURE IMPLEMENTED
      */
     virtual void stop() {
         // Reset the timer that calls the control law periodically
         timer_->cancel();
         timer_->reset();
     }
+
+    /**
+     * @brief Method that is called whenever the reference path to follow object is reset. This method should
+     * make sure that whenever the path is reset, the vehicle DOES NOT FALL and holds it's position
+     */
+    virtual void reset() = 0;
 
 protected:
     
@@ -80,6 +88,11 @@ protected:
     rclcpp::Subscription<pegasus_msgs::msg::State>::SharedPtr state_sub_;
 
     /**
+     * @brief The path that the controller has to track
+     */
+    Pegasus::Paths::Path::SharedPtr path_{nullptr};
+
+    /**
      * @brief Timer used to make the controller run at a constant rate
      */
     rclcpp::TimerBase::SharedPtr timer_;
@@ -93,11 +106,6 @@ protected:
      * @brief The rate at which the timer will call the timer_callback, expressed in Hz
      */
     double timer_rate_;
-
-    /**
-     * @brief The path that the controller has to track
-     */
-    Pegasus::Paths::Path::SharedPtr path_{nullptr};
 
     /**
      * @brief The current vehicle state
