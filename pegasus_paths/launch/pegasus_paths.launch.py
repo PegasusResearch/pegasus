@@ -19,7 +19,7 @@ def generate_launch_description():
 
     # Get the name of the .yaml configuration file either from the package or an external source
     topics_yaml_arg = DeclareLaunchArgument(
-        'topics_yaml', 
+        'pegasus_paths_topics_yaml', 
         default_value=os.path.join(get_package_share_directory('pegasus_paths'), 'config', 'topics.yaml'),
         description='The topic names assigned inside the mavlink interface')
 
@@ -35,8 +35,7 @@ def generate_launch_description():
         emulate_tty=True,
         parameters=[
             # Pass the file which contains the topics configuration
-            LaunchConfiguration('topics_yaml')
-        ]
+            LaunchConfiguration('pegasus_paths_topics_yaml')]
     )
         
     # Return the node to be launched by ROS2

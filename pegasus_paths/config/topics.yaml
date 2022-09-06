@@ -9,7 +9,7 @@
         subscribers:
           # Subscribe to the vehicle status and state
           status: "status"
-          state: "state"
+          state: "nav/state"
         services:
           # Add/remove trajectories to/from the path
           reset: "path/reset"

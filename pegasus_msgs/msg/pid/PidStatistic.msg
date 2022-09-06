@@ -1,5 +1,6 @@
 # -- The last time step in seconds taken between the current and last iteration
 float64 dt
+float64 reference
 # -- Errors and references not affected by the gains
 float64 error_p # The proportional error fed into the p_term
 float64 error_d # The derivative error fed into the d_term

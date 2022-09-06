@@ -23,13 +23,15 @@ PathsNode::PathsNode(const std::string & node_name, bool intra_process_comms) :
     init_publishers();
     init_subscribers();
     init_services();
+
+    RCLCPP_INFO_STREAM(get_logger(), "Paths node is initialized");
 }
 
 /**
  * @brief Destroy the Paths Node object
  */
 PathsNode::~PathsNode() {
-
+    RCLCPP_INFO_STREAM(get_logger(), "Paths node is destroyed");
 }
 
 /**
@@ -49,6 +51,8 @@ void PathsNode::init_publishers() {
     // ------------------------------------------------------------------------
     declare_parameter("path.topics.publishers.points", "path/points");
     points_pub_ = create_publisher<nav_msgs::msg::Path>(get_parameter("path.topics.publishers.points").as_string(), 1);
+
+    RCLCPP_INFO_STREAM(get_logger(), "Paths node publishers initialized");
 }   
 
 /**
@@ -68,6 +72,8 @@ void PathsNode::init_subscribers() {
     // ------------------------------------------------------------------------
     declare_parameter<std::string>("path.topics.subscribers.state", "nav/state");
     state_sub_ = create_subscription<pegasus_msgs::msg::State>(get_parameter("path.topics.subscribers.state").as_string(), 1, std::bind(&PathsNode::state_callback, this, std::placeholders::_1));
+
+    RCLCPP_INFO_STREAM(get_logger(), "Paths node subscribers initialized");
 }
 
 /**
@@ -120,6 +126,8 @@ void PathsNode::init_services() {
 
     // Declare the parameter for arming the vehicle service client
     declare_parameter<std::string>("topics.services.arm", "arm");
+
+    RCLCPP_INFO_STREAM(get_logger(), "Paths node services initialized");
 }
 
 /**
@@ -152,6 +160,8 @@ void PathsNode::reset_callback(const pegasus_msgs::srv::ResetPath::Request::Shar
 
     // Make the response of this service to true
     response->success = true;
+
+    RCLCPP_INFO_STREAM(get_logger(), "Path reset");
 }
 
 /**
@@ -172,6 +182,8 @@ void PathsNode::add_arc_callback(const pegasus_msgs::srv::AddArc::Request::Share
 
     // Update the response
     response->success = true;
+
+    RCLCPP_INFO_STREAM(get_logger(), "Add arc to path");
 }
  
 /**
@@ -192,6 +204,8 @@ void PathsNode::add_line_callback(const pegasus_msgs::srv::AddLine::Request::Sha
 
     // Update the response
     response->success = true;
+
+    RCLCPP_INFO_STREAM(get_logger(), "Add line to path");
 }
 
 /**
@@ -212,6 +226,8 @@ void PathsNode::add_circle_callback(const pegasus_msgs::srv::AddCircle::Request:
 
     // Update the response
     response->success = true;
+
+    RCLCPP_INFO_STREAM(get_logger(), "Add circle to path");
 }
 
 /**
@@ -232,6 +248,8 @@ void PathsNode::add_lemniscate_callback(const pegasus_msgs::srv::AddLemniscate::
 
     // Update the response
     response->success = true;
+
+    RCLCPP_INFO_STREAM(get_logger(), "Add lemniscate to path");
 }
 
 /**
@@ -264,6 +282,8 @@ void PathsNode::add_waypoint_callback(const pegasus_msgs::srv::AddWaypoint::Requ
 
     // Update the response
     response->success = true;
+
+    RCLCPP_INFO_STREAM(get_logger(), "Add waypoint to path");
 }
 
 /**
@@ -303,6 +323,8 @@ void PathsNode::add_section_to_path(const Pegasus::Paths::Section::SharedPtr sec
 
         // Publish the points message
         points_pub_->publish(path_points_msg_);
+
+        RCLCPP_INFO_STREAM(get_logger(), "Sampled the Path");
     }
 }
 
@@ -315,13 +337,29 @@ void PathsNode::add_section_to_path(const Pegasus::Paths::Section::SharedPtr sec
 void PathsNode::start_mission_callback(const pegasus_msgs::srv::StartMission::Request::SharedPtr request, const pegasus_msgs::srv::StartMission::Response::SharedPtr response) {
     
     // TODO - improve this section and implement a FACTORY PATTERN similar to the THRUST CURVE package
+    RCLCPP_INFO_STREAM(get_logger(), "START MISSION CALLBACK");
 
     // Check if the required controller to use is a PID controller
     if(request->controller_name.compare("pid") == 0) {
-        controller_ = std::make_shared<PidController>(shared_from_this(), path_, control_rate_);
+        
+        try {
+            controller_ = std::make_shared<PidController>(shared_from_this(), path_, control_rate_);
+        } catch (std::runtime_error &error) {
+           RCLCPP_ERROR_STREAM(get_logger(), error.what());
+           return;
+        }
+        RCLCPP_INFO_STREAM(get_logger(), "Created a PID position tracking controller");
+    
     // Check if the required controller to use is the actual onboard controller
     } else if (request->controller_name.compare("onboard") == 0) {
-        controller_ = std::make_shared<OnboardController>(shared_from_this(), path_, control_rate_);
+        
+        try {
+            controller_ = std::make_shared<OnboardController>(shared_from_this(), path_, control_rate_);
+        } catch (std::runtime_error &error) {
+            RCLCPP_ERROR_STREAM(get_logger(), error.what());
+            return;
+        }
+        RCLCPP_INFO_STREAM(get_logger(), "Using the onboard position tracking controller");
     }
 
     // Check if the vehicle is un-armed and arm
@@ -334,10 +372,12 @@ void PathsNode::start_mission_callback(const pegasus_msgs::srv::StartMission::Re
         request->arm = true;
 
         // Send the arm request
+        RCLCPP_INFO_STREAM(get_logger(), "Requesting the vehicle to arm");
         arm_service_client->async_send_request(request);
     }
 
     // Start the controller
+    RCLCPP_INFO_STREAM(get_logger(), "Starting the mission");
     controller_->start();
 
     // Do nothing with the response object (and avoid compilation warnings)

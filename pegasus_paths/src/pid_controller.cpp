@@ -11,48 +11,65 @@
 PidController::PidController(const rclcpp::Node::SharedPtr nh, const Pegasus::Paths::Path::SharedPtr path, const double controller_rate) : BaseControllerNode(nh, path, controller_rate) {
 
     // Read from ROS parameter server, the control gains 
-    nh_->declare_parameter<std::vector<double>>("pid_node.gains.kp", std::vector<double>());
-    nh_->declare_parameter<std::vector<double>>("pid_node.gains.kd", std::vector<double>());
-    nh_->declare_parameter<std::vector<double>>("pid_node.gains.ki", std::vector<double>());
-    nh_->declare_parameter<std::vector<double>>("pid_node.gains.kff", std::vector<double>());
-    nh_->declare_parameter<std::vector<double>>("pid_node.gains.min_output", std::vector<double>());
-    nh_->declare_parameter<std::vector<double>>("pid_node.gains.max_output", std::vector<double>());
+    nh_->declare_parameter<std::vector<double>>("controllers.pid.gains.kp", std::vector<double>());
+    nh_->declare_parameter<std::vector<double>>("controllers.pid.gains.kd", std::vector<double>());
+    nh_->declare_parameter<std::vector<double>>("controllers.pid.gains.ki", std::vector<double>());
+    nh_->declare_parameter<std::vector<double>>("controllers.pid.gains.kff", std::vector<double>());
+    nh_->declare_parameter<std::vector<double>>("controllers.pid.gains.min_output", std::vector<double>());
+    nh_->declare_parameter<std::vector<double>>("controllers.pid.gains.max_output", std::vector<double>());
 
-    auto kp = nh_->get_parameter("pid_node.gains.kp").as_double_array();
-    auto kd = nh_->get_parameter("pid_node.gains.kd").as_double_array();
-    auto ki = nh_->get_parameter("pid_node.gains.ki").as_double_array();
-    auto kff = nh_->get_parameter("pid_node.gains.kff").as_double_array();
-    auto min_output = nh_->get_parameter("pid_node.gains.min_output").as_double_array();
-    auto max_output = nh_->get_parameter("pid_node.gains.max_output").as_double_array();
+    auto kp = nh_->get_parameter("controllers.pid.gains.kp").as_double_array();
+    auto kd = nh_->get_parameter("controllers.pid.gains.kd").as_double_array();
+    auto ki = nh_->get_parameter("controllers.pid.gains.ki").as_double_array();
+    auto kff = nh_->get_parameter("controllers.pid.gains.kff").as_double_array();
+    auto min_output = nh_->get_parameter("controllers.pid.gains.min_output").as_double_array();
+    auto max_output = nh_->get_parameter("controllers.pid.gains.max_output").as_double_array();
+    
+    if(kp.size() == 0 || kd.size() == 0 || ki.size() == 0 || kff.size() == 0 || min_output.size() == 0 || max_output.size() == 0) {
+        RCLCPP_ERROR_STREAM(nh_->get_logger(), "Could not read PID position controller gains correctly from the ROS2 parameter server");
+        throw std::runtime_error("Gains vector was empty");
+    }
+    
+    RCLCPP_INFO_STREAM(nh_->get_logger(), "PID gains read from ROS2 parameter server correctly");
 
     // Create the 3 PID controllers for x, y and z axis
     for(unsigned int i=0; i < 3; i++) controllers_[i] = std::make_unique<Pegasus::Pid>(kp[i], kd[i], ki[i], kff[i], min_output[i], max_output[i]);
 
+    RCLCPP_INFO_STREAM(nh_->get_logger(), "ALLOCATING MEMORY");
+
     // Initialize the service that requests the total mass of the vehicle to the driver
-    nh_->declare_parameter<std::string>("pid_node.topics.services.mass", "thrust_curve");
-    mass_srv_ = nh_->create_client<pegasus_msgs::srv::ThrustCurve>(nh_->get_parameter("pid_node.topics.services.mass").as_string());
+    nh_->declare_parameter<std::string>("controllers.pid.topics.services.mass", "thrust_curve");
+    mass_srv_ = nh_->create_client<pegasus_msgs::srv::ThrustCurve>(nh_->get_parameter("controllers.pid.topics.services.mass").as_string());
+
+    RCLCPP_INFO_STREAM(nh_->get_logger(), "START REQUESTING MASS");
+
+    // TODO - FIX THE MASS SERVICE
+    mass_ = 1.5;
 
     // Send an async request to get the mass of the vehicle
-    auto request_mass = std::make_shared<pegasus_msgs::srv::ThrustCurve::Request>();
-    mass_srv_->async_send_request(request_mass, [this] (rclcpp::Client<pegasus_msgs::srv::ThrustCurve>::SharedFuture future) {
+    // auto request_mass = std::make_shared<pegasus_msgs::srv::ThrustCurve::Request>();
+
+    // mass_srv_->async_send_request(request_mass, [this] (rclcpp::Client<pegasus_msgs::srv::ThrustCurve>::SharedFuture future) {
         
-        // Get the result of the async service
-        auto result = future.get();
+    //     // Get the result of the async service
+    //     auto result = future.get();
 
-        // Update the mass variable asynchronously
-        this->mass_ = result->mass;
+    //     // Update the mass variable asynchronously
+    //     this->mass_ = result->mass;
 
-        // Notify the user that this initialization was done corretly
-        RCLCPP_DEBUG_STREAM(this->nh_->get_logger(), "Mass of vehicle = " << this->mass_ << " inside PID position tracking controller");
-    });
+    //     // Notify the user that this initialization was done corretly
+    //     RCLCPP_INFO_STREAM(this->nh_->get_logger(), "Mass of vehicle = " << this->mass_ << " inside PID position tracking controller");
+    // }).wait();
 
     // Initialize the publisher for the desired vehicle attitude and thrust
-    nh_->declare_parameter<std::string>("pid_node.topics.publishers.control", "control/attitude_force");
-    control_pub_ = nh_->create_publisher<pegasus_msgs::msg::AttitudeThrustControl>(nh_->get_parameter("pid_node.topics.publishers.control").as_string(), 1);
+    nh_->declare_parameter<std::string>("controllers.pid.topics.publishers.control", "control/attitude_force");
+    control_pub_ = nh_->create_publisher<pegasus_msgs::msg::AttitudeThrustControl>(nh_->get_parameter("controllers.pid.topics.publishers.control").as_string(), 1);
 
     // Initialize the publisher for the statistics of the PID controller
-    nh_->declare_parameter<std::string>("pid_node.topics.publishers.statistics", "statistics/pid");
-    statistics_pub_ = nh_->create_publisher<pegasus_msgs::msg::PidStatistics>(nh_->get_parameter("pid_node.topics.publishers.statistics").as_string(), 1);
+    nh_->declare_parameter<std::string>("controllers.pid.topics.publishers.statistics", "statistics/pid");
+    statistics_pub_ = nh_->create_publisher<pegasus_msgs::msg::PidStatistics>(nh_->get_parameter("controllers.pid.topics.publishers.statistics").as_string(), 1);
+
+    RCLCPP_INFO_STREAM(nh_->get_logger(), "PID PUBLISHERS INITIALIZED");
 }
 
 
@@ -61,6 +78,14 @@ PidController::PidController(const rclcpp::Node::SharedPtr nh, const Pegasus::Pa
  */
 PidController::~PidController() {
     // DO NOTHING - NO MEMORY WAS ALLOCATED
+
+    // Undeclare the ros2 parameters
+    nh_->undeclare_parameter("controllers.pid.gains.kp");
+    nh_->undeclare_parameter("controllers.pid.gains.kd");
+    nh_->undeclare_parameter("controllers.pid.gains.ki");
+    nh_->undeclare_parameter("controllers.pid.gains.kff");
+    nh_->undeclare_parameter("controllers.pid.gains.min_output");
+    nh_->undeclare_parameter("controllers.pid.gains.max_output");
 }
 
 /**
@@ -146,6 +171,8 @@ void PidController::controller_update() {
     // using the data inside the path, or a hold position value if the path is empty
     update_references();
 
+    RCLCPP_INFO_STREAM(nh_->get_logger(), "Reference position: " << desired_position_);
+
     // Compute the position error and velocity error using the path desired position and velocity
     Eigen::Vector3d pos_error = desired_position_ - current_position_;
     Eigen::Vector3d vel_error = desired_velocity_ - current_velocity_;
@@ -195,6 +222,7 @@ void PidController::update_statistics_msg() {
         Pegasus::Pid::Statistics stats = controllers_[i]->get_statistics();
 
         statistics_msg_.statistics[i].dt = stats.dt;
+        statistics_msg_.statistics[i].reference = desired_position_[i];
         // Fill the feedback errors
         statistics_msg_.statistics[i].error_p = stats.error_p;
         statistics_msg_.statistics[i].error_d = stats.error_d;
