@@ -98,6 +98,8 @@ void PidController::reset() {
     gamma_dot_ = 0.0;
     gamma_ddot_ = 0.0;
     vd_ = 0.0;
+    min_gamma_ = 0.0;
+    max_gamma_ = 0.0;
 
     // By default we do not need to add any extra logic, because we are always checking at each controller iteration
     // if we have some reference from the path to follow
@@ -165,6 +167,10 @@ void PidController::controller_update() {
 
     // Update the virtual target parametric value (if we have a path)
     gamma_dot_ = vd_;
+    gamma_ += gamma_dot_ * dt;
+
+    // Saturate the value of gamma  between the minimum and maximum values
+    gamma_ = std::min(std::max(min_gamma_, gamma_), max_gamma_);
 
     // TODO - diferentiate to obtain the gamma_ddot_ 
     // for now, since the value is always very small, we aproximate it by zero
@@ -224,6 +230,8 @@ void PidController::update_references() {
         gamma_dot_ = 0.0;
         gamma_ddot_ = 0.0;
         vd_ = 0.0;
+        min_gamma_ = 0.0;
+        max_gamma_ = 0.0;
         return;
     }
 
@@ -243,6 +251,8 @@ void PidController::update_references() {
         gamma_dot_ = 0.0;
         gamma_ddot_ = 0.0;
         vd_ = 0.0;
+        min_gamma_ = 0.0;
+        max_gamma_ = 0.0;
         return;
     }
 
@@ -250,4 +260,8 @@ void PidController::update_references() {
     desired_position_ = pd.value();
     desired_velocity_ = d_pd * gamma_dot_;
     desired_acceleration_ = (dd_pd * std::pow(gamma_dot_, 2)) + (d_pd * std::pow(gamma_ddot_, 2));
+
+    // Update the saturation values for the virtual target
+    min_gamma_ = path_->get_min_gamma();
+    max_gamma_ = path_->get_max_gamma();
 }

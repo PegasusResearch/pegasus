@@ -194,6 +194,18 @@ public:
      */
     virtual std::optional<std::vector<Eigen::Vector3d>> get_samples(double step_size);
 
+    /**
+     * @brief Get the min value accepted for the parametric variable
+     * @return double A double with the minimum value for gamma (tipically its 0.0)
+     */
+    virtual double get_min_gamma();
+
+    /**
+     * @brief Get the max value accepted for the parametric variable
+     * @return double A double with the maximum value for gamma (tipicaly its the number of segments the path containts)
+     */
+    virtual double get_max_gamma();
+
 protected:
 
     /**

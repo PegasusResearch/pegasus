@@ -10,7 +10,7 @@ int main(int argc, char ** argv) {
     PathsNode::SharedPtr paths_node = std::make_shared<PathsNode>("paths_node");
 
     // Going into spin mode and letting the callbacks do all the work
-    rclcpp::spin(paths_node->get_node_base_interface());
+    rclcpp::spin(paths_node);
 
     // Shutdown the ROS node
     rclcpp::shutdown();

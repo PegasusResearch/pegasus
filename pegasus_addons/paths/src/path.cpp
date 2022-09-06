@@ -374,4 +374,20 @@ double Path::bound_gamma(double gamma) {
     return std::make_optional<std::vector<Eigen::Vector3d>>(samples_);
 }
 
+/**
+ * @brief Get the min value accepted for the parametric variable
+ * @return double A double with the minimum value for gamma (tipically its 0.0)
+ */
+double Path::get_min_gamma() {
+    return 0.0;
+}
+
+/**
+ * @brief Get the max value accepted for the parametric variable
+ * @return double A double with the maximum value for gamma (tipicaly its the number of segments the path containts)
+ */
+double Path::get_max_gamma() {
+    return (sections_.empty()) ? 0.0 : (double) sections_.size();
+}
+
 }

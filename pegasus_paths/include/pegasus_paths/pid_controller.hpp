@@ -155,6 +155,19 @@ private:
     double gamma_ddot_{0.0};
 
     /**
+     * @ingroup controller_housekeeping
+     * @brief The minimum value that the gamma parametric variable can assume
+     */
+    double min_gamma_{0.0};
+
+    /**
+     * @ingroup controller_housekeeping
+     * @brief The maximum value that the gamma parametric variable can assume
+     * 
+     */
+    double max_gamma_{0.0};
+
+    /**
      * @defgroup ros_messages_callbacks_publishers Controller ROS2 messages, subscriber callbacks and publishers
      */
 
