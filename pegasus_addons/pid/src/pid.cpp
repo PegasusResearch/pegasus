@@ -42,18 +42,18 @@ double Pid::compute_output(double error_p, double error_d, double feed_forward_r
 
     // Compute the output and saturate it
     double output = p_term + d_term + i_term + ff_term;
-    double saturated_ouput = std::max(min_output_, std::max(output, max_output_));
+    double saturated_ouput = std::max(min_output_, std::min(output, max_output_));
 
     // Add anti-windup to the integral term (discharge the integral if our output is being saturated)
     double discharge_rate = 0.0;
-    //if(output > max_output_ || output < min_output_) {
+    if(output > max_output_ || output < min_output_) {
 
         // Compute the anti-windup discharge rate
-    //    discharge_rate = ki_ * (saturated_ouput - output);
+        discharge_rate = ki_ * (saturated_ouput - output);
 
         // Anti-windup effect (discharge the integral)
-    //    error_i_ += discharge_rate;
-    //}
+        error_i_ += discharge_rate;
+    }
 
     // Update the prev error variable
     prev_error_p_ = error_p;

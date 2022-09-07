@@ -178,10 +178,8 @@ void PidController::controller_update() {
     
     // Compute the desired control output acceleration for each controller
     Eigen::Vector3d u;
-    for(unsigned int i=0; i < 3; i++) u[i] = controllers_[i]->compute_output(pos_error[i], vel_error[i], accel[i] * mass_, dt);
-    
-    // Subtract the gravity in the Z-axis
-    u[2] -= 9.8;
+    const Eigen::Vector3d g(0.0, 0.0, 9.8);
+    for(unsigned int i=0; i < 3; i++) u[i] = controllers_[i]->compute_output(pos_error[i], vel_error[i], (accel[i] * mass_) - g[i], dt);
 
     // Convert the acceleration to attitude and thrust
     Eigen::Vector4d attitude_thrust = get_attitude_thrust_from_acceleration(u, mass_, desired_yaw_);
