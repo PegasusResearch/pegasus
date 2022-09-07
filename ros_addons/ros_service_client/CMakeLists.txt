@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.2)
-project(thrust_curves)
+project(ros_service_client)
 
 # Default to C++17 and compiler flags to give all warnings
 set(CMAKE_CXX_STANDARD 17)
@@ -12,27 +12,20 @@ if(MSVC)
   add_compile_options(-WX -W2)
 endif()
 
-# find dependencies
-find_package(Eigen3 REQUIRED)
+# Find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
 
-# Create the package with source code
-add_library(
-    ${PROJECT_NAME}
-    src/thrust_curves.cpp
+# Create the package as a header-only library
+add_library(${PROJECT_NAME} INTERFACE)
+
+target_include_directories(${PROJECT_NAME} INTERFACE
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include>"
 )
-
-# Add the include directories
-target_include_directories(${PROJECT_NAME} PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
-)
-
-# TODO - Add necessary linking libraries here if needed
-#target_link_libraries(${PROJECT_NAME} INTERFACE OpenSSL::SSL)
 
 install(TARGETS ${PROJECT_NAME}
-  EXPORT "${PROJECT_NAME}Targets"
+  EXPORT "export_${PROJECT_NAME}"
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib
@@ -56,9 +49,9 @@ endif()
 
 # Inform ament compile system that this ROS2 package depends on Eigen3
 ament_export_dependencies(
-  Eigen3
+  rclcpp
 )
 
 # Specify the export targets for the header only libraries
-ament_export_targets("${PROJECT_NAME}Targets" HAS_LIBRARY_TARGET)
+ament_export_targets("export_${PROJECT_NAME}")
 ament_package()

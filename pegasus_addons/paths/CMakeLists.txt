@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.2)
-project(thrust_curves)
+project(paths)
 
 # Default to C++17 and compiler flags to give all warnings
 set(CMAKE_CXX_STANDARD 17)
@@ -19,13 +19,24 @@ find_package(ament_cmake REQUIRED)
 # Create the package with source code
 add_library(
     ${PROJECT_NAME}
-    src/thrust_curves.cpp
+    # Speeds source files
+    src/speeds/const_speed.cpp
+    # Sections source files
+    src/section.cpp
+    src/arc.cpp
+    src/circle.cpp
+    src/lemniscate.cpp
+    src/line.cpp
+    # Path source files
+    src/path.cpp
 )
 
 # Add the include directories
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
+    # 3rd party dependencies
+    ${EIGEN3_INCLUDE_DIR}
 )
 
 # TODO - Add necessary linking libraries here if needed
@@ -55,9 +66,7 @@ if(BUILD_TESTING)
 endif()
 
 # Inform ament compile system that this ROS2 package depends on Eigen3
-ament_export_dependencies(
-  Eigen3
-)
+ament_export_dependencies(Eigen3)
 
 # Specify the export targets for the header only libraries
 ament_export_targets("${PROJECT_NAME}Targets" HAS_LIBRARY_TARGET)

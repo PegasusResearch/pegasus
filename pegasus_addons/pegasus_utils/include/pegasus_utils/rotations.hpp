@@ -141,7 +141,7 @@ inline T wrapTopi(T angle) {
  * @return angle in degrees
  */
 template <typename T>
-inline T radToDeg(T angle) {
+inline T rad_to_deg(T angle) {
     return angle * 180 / M_PI;
 }
 
@@ -152,7 +152,7 @@ inline T radToDeg(T angle) {
  * @return angle in radians
  */
 template <typename T>
-inline T degToRad(T angle) {
+inline T deg_to_rad(T angle) {
     return angle * M_PI / 180;
 }
 

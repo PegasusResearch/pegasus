@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.2)
-project(thrust_curves)
+project(pid)
 
 # Default to C++17 and compiler flags to give all warnings
 set(CMAKE_CXX_STANDARD 17)
@@ -13,13 +13,13 @@ if(MSVC)
 endif()
 
 # find dependencies
-find_package(Eigen3 REQUIRED)
+#find_package(Eigen3 REQUIRED)
 find_package(ament_cmake REQUIRED)
 
 # Create the package with source code
 add_library(
     ${PROJECT_NAME}
-    src/thrust_curves.cpp
+    src/pid.cpp
 )
 
 # Add the include directories
@@ -56,7 +56,7 @@ endif()
 
 # Inform ament compile system that this ROS2 package depends on Eigen3
 ament_export_dependencies(
-  Eigen3
+  #Eigen3
 )
 
 # Specify the export targets for the header only libraries

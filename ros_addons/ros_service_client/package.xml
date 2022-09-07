@@ -1,24 +1,21 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
- <name>mavlink_driver</name>
+ <name>ros_service_client</name>
  <version>1.0.0</version>
- <description>Interface that converts mavlink data to ROS2 messages and TFs</description>
- <author email="marcelo.jacinto@tecnico.ulisboa.pt">Marcelo Jacinto</author>
+ <description>Utilitary class to create a simple Service Client with blocking calls</description>
+
+ <!-- Original authors from nav2 package -->
+ <author email="michael.jeronimo@intel.com">Intel Corporation</author>
+
+ <!-- Current mantainers -->
  <maintainer email="marcelo.jacinto@tecnico.ulisboa.pt">Marcelo Jacinto</maintainer>
- <license>BSD 3-Clause License</license>
+ <license>Apache License, Version 2.0</license>
 
  <buildtool_depend>ament_cmake</buildtool_depend>
+ <depend>rclcpp</depend>
 
  <!-- Packages Dependencies -->
- <depend>rclcpp</depend>
- <depend>rclcpp_action</depend>
- <depend>std_msgs</depend>
- <depend>geometry_msgs</depend>
- <depend>thrust_curves</depend>
- <depend>pegasus_msgs</depend>
- <depend>pegasus_utils</depend>
-
  <test_depend>ament_lint_auto</test_depend>
  <test_depend>ament_cmake_copyright</test_depend>
  <test_depend>ament_lint_common</test_depend>
@@ -26,5 +23,4 @@
  <export>
    <build_type>ament_cmake</build_type>
  </export>
- 
 </package>

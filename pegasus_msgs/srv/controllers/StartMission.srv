@@ -1,0 +1,5 @@
+# Define the type of controller to use
+string controller_name
+# Define whether the vehicle should auto-land when the mission if finished, or just hold it's position
+bool autoland_end
+---
