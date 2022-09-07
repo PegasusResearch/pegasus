@@ -123,7 +123,9 @@ QuadraticThrustCurve::QuadraticThrustCurve(double a, double b, double c, double 
  * @return double The percentage of the total force a vehicle can apply, from 0-100%
  */
 double QuadraticThrustCurve::force_to_percentage(double force) {
-    return std::max(0.0, std::min(100.0, (-b_ + std::sqrt(std::pow(b_, 2) - (4 * a_ * (c_ - force)))) / (2 * a_) * scale_));
+    // Make sure the desired force to apply in Newtons is not bellow zero
+    double f = std::max(0.0, force);
+    return std::max(0.0, std::min(100.0, (-b_ + std::sqrt(std::pow(b_, 2) - (4 * a_ * (c_ - f)))) / (2 * a_) * scale_));
 }
 
 /**
@@ -200,7 +202,9 @@ ThrustCurve::SharedPtr LinearExponentialThrustCurve::create_thrust_curve(std::ma
  * @return double The percentage of the total force a vehicle can apply, from 0-100%
  */
 double LinearExponentialThrustCurve::force_to_percentage(double force) {
-    return std::min(100.0, std::max(0.0, ((a_ * std::exp(b_ * force) * std::sqrt(force)) + (c_ * force) + d_) * scale_));
+    // Make sure the desired force to apply in Newtons is not bellow zero
+    double f = std::max(0.0, force);
+    return std::min(100.0, std::max(0.0, ((a_ * std::exp(b_ * f) * std::sqrt(f)) + (c_ * f) + d_) * scale_));
 }
 
 /**

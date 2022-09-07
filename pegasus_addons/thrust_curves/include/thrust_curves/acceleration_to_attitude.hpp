@@ -33,6 +33,6 @@ inline Eigen::Vector4d get_attitude_thrust_from_acceleration(const Eigen::Vector
     u_bar = RzT * r3d;
 
     /* Compute the actual attitude and setup the desired thrust to apply to the vehicle */
-    attitude_thrust << asin(-u_bar[0]), atan2(u_bar[0], u_bar[2]), yaw, T;
+    attitude_thrust << asin(-u_bar[1]), atan2(u_bar[0], u_bar[2]), yaw, T;
     return attitude_thrust;
 }

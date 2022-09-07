@@ -171,8 +171,6 @@ void PidController::controller_update() {
     // using the data inside the path, or a hold position value if the path is empty
     update_references();
 
-    RCLCPP_INFO_STREAM(nh_->get_logger(), "Reference position: " << desired_position_);
-
     // Compute the position error and velocity error using the path desired position and velocity
     Eigen::Vector3d pos_error = desired_position_ - current_position_;
     Eigen::Vector3d vel_error = desired_velocity_ - current_velocity_;
@@ -181,6 +179,9 @@ void PidController::controller_update() {
     // Compute the desired control output acceleration for each controller
     Eigen::Vector3d u;
     for(unsigned int i=0; i < 3; i++) u[i] = controllers_[i]->compute_output(pos_error[i], vel_error[i], accel[i] * mass_, dt);
+    
+    // Subtract the gravity in the Z-axis
+    u[2] -= 9.8;
 
     // Convert the acceleration to attitude and thrust
     Eigen::Vector4d attitude_thrust = get_attitude_thrust_from_acceleration(u, mass_, desired_yaw_);
