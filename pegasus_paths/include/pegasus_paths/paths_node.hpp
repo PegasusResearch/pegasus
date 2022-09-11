@@ -5,6 +5,7 @@
 
 // Messages for the status of the vehicle/ and other driver services
 #include "pegasus_msgs/srv/arm.hpp"
+#include "pegasus_msgs/srv/land.hpp"
 #include "pegasus_msgs/msg/status.hpp"
 
 // Messages for showing off the path
@@ -21,6 +22,7 @@
 // Services for starting a path following/tracking mission
 #include "dense.hpp"
 #include "pegasus_msgs/srv/start_mission.hpp"
+#include "pegasus_msgs/srv/land_mission.hpp"
 
 class PathsNode : public rclcpp::Node { 
 
@@ -129,6 +131,16 @@ private:
      * @param response 
      */
     void start_mission_callback(const pegasus_msgs::srv::StartMission::Request::SharedPtr request, const pegasus_msgs::srv::StartMission::Response::SharedPtr response);
+
+    /**
+     * @ingroup servicesCallbacks
+     * @brief Service callback responsible for taking action when a landing mission is requested. By default it will always use the onboard
+     * controller for this type of mission
+     * @param request A pointer to the request object (unused)
+     * @param response A pointer to the response object. Contains whether the landing mission will be executed or not, and a string which might contain
+     * or not some information regarding the landing of the vehicle
+     */
+    void land_mission_callback(const pegasus_msgs::srv::LandMission::Request::SharedPtr request, const pegasus_msgs::srv::LandMission::Response::SharedPtr response);
 
     /**
      * @defgroup subscribers ROS2 Subscribers
@@ -242,6 +254,12 @@ private:
      * @brief Service server to start a path following/tracking mission
      */
     rclcpp::Service<pegasus_msgs::srv::StartMission>::SharedPtr start_mission_service_{nullptr};
+
+    /**
+     * @ingroup services
+     * @brief Service server to start a landing mission
+     */
+    rclcpp::Service<pegasus_msgs::srv::LandMission>::SharedPtr land_mission_service_{nullptr};
 
     /**
      * @ingroup services

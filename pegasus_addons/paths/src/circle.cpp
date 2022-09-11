@@ -37,8 +37,6 @@ Circle::Circle(const std::shared_ptr<Speed> vehicle_speed, const Eigen::Vector3d
         for(int i = 0; i < 3; i++) rotation_(0,i) = u1(i);
         for(int i = 0; i < 3; i++) rotation_(1,i) = u2(i);
         for(int i = 0; i < 3; i++) rotation_(2,i) = u3(i);
-
-        std::cout << rotation_ << std::endl;
     }
 }
 

@@ -53,6 +53,13 @@ public:
      */
     void controller_update();
 
+    /**
+     * @brief Get the identifier object Method that should be implemented by a derived class 
+     * that returns a string that uniquely identifies the type of controller
+     * @return std::string A string that uniquely identifies the type of controller
+     */
+    virtual inline std::string get_identifier() { return std::string("onboard"); }
+
 private:
 
     /**

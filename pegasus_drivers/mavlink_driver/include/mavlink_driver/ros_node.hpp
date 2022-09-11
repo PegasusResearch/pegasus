@@ -146,6 +146,19 @@ public:
 
     /**
      * @ingroup publisherMessageUpdate
+     * @brief Method that is called to update the landed_state field in the status_msg. It is an enum, which
+     * can assume the following values:
+     * - 0 - UKNOWN
+     * - 1 - ON_GROUND
+     * - 2 - IN_AIR
+     * - 3 - TAKING_OFF
+     * - 4 - LANDING
+     * @param landed_state A mavsdk structure wich contains the high level state of the vehicle
+     */
+    void update_landed_state(const mavsdk::Telemetry::LandedState &landed_state);
+
+    /**
+     * @ingroup publisherMessageUpdate
      * @brief Method that is called to update the pose and inertial_vel fields in the state_msg. This method
      * publishes the most up to date message to state_pub
      * @param pos_vel_ned A mavsdk structure which contains the position and linear velocity of the vehicle expressed in the inertial frame

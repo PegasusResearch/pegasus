@@ -20,8 +20,12 @@
           waypoint: "path/add_waypoint"
           # Start a mission to follow a given path or hold position
           start_mission: "path/start_mission"
-          # Service for arming the vehicle
+          # Start a mission to land the vehicle
+          land_mission: "path/land_mission"
+          # ----------------------------------
+          # Service clients for arming the vehicle and auto-landing
           arm: "arm"
+          onboard_land: "land"
     # Controllers' gains and topic setup
     controllers:
       rate: 20.0 # Hz

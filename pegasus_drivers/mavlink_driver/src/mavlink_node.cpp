@@ -115,6 +115,9 @@ void MavlinkNode::initialize_telemetry() {
     this->telemetry_->subscribe_battery(std::bind(&MavlinkNode::battery_callback, this, std::placeholders::_1));
     this->telemetry_->subscribe_rc_status(std::bind(&MavlinkNode::rc_status_callback, this, std::placeholders::_1));
     this->telemetry_->subscribe_health(std::bind(&MavlinkNode::health_callback, this, std::placeholders::_1));
+    this->telemetry_->subscribe_landed_state(std::bind(&MavlinkNode::landed_state_callback, this, std::placeholders::_1));
+    this->telemetry_->subscribe_actuator_control_target(std::bind(&MavlinkNode::actuator_reference_callback, this, std::placeholders::_1));
+    this->telemetry_->subscribe_actuator_output_status(std::bind(&MavlinkNode::actuator_output_callback, this, std::placeholders::_1));
 
     // Subscribe to the raw data from the imu
     this->telemetry_->subscribe_imu(std::bind(&MavlinkNode::imu_callback, this, std::placeholders::_1));
@@ -445,6 +448,39 @@ void MavlinkNode::rc_status_callback(mavsdk::Telemetry::RcStatus rc_status) {
  */
 void MavlinkNode::health_callback(mavsdk::Telemetry::Health health) {
     ros_node_->update_heath_state(health);
+}
+
+/**
+ * @ingroup vehicle_state_callbacks
+ * @brief Method that is called periodically to update the current status of the vehicle regarding its operation. It
+ * informs the user if the vehicle is landed, in air, landing, taking off or in an unknown state
+ * @param landed_state A mavsdk structure that contains data regarding the high level operation mode of the vehicle
+ */
+void MavlinkNode::landed_state_callback(mavsdk::Telemetry::LandedState landed_state) {
+    ros_node_->update_landed_state(landed_state);
+}
+
+/**
+ * @ingroup vehicle_state_callbacks
+ * @brief Method that is called periodically to update the reference values (between -1 and 1) that are reaching
+ * the ESCs (Eletronic Speed Controllers) - these can be for thrusters or gimbal
+ * @param actuator_reference A mavsdk structure that contains the actuator group and a vector with the references given
+ * to that group of actuators
+ */
+void MavlinkNode::actuator_reference_callback(mavsdk::Telemetry::ActuatorControlTarget actuator_reference) {
+    (void) actuator_reference;
+    // TODO - nothing for now, but in the future might be nice when flying outside to have this telemetry avaialable
+}
+
+/**
+ * @ingroup vehicle_state_callbacks
+ * @brief Method that is called periodically to update the current output of the actuators.
+ * @param actuator_output A mavsdk structure that contains the number of active actuators and a vector with the 
+ * output of those actuators
+ */
+void MavlinkNode::actuator_output_callback(mavsdk::Telemetry::ActuatorOutputStatus actuator_output) {
+    (void) actuator_output;
+    // TODO - nothing for now, but in the future might be nice when flying outside to have this telemetry avaialable
 }
 
 /**
