@@ -382,8 +382,9 @@ void MavlinkNode::check_switch_offboard_mode() {
     if(ros_node_->get_current_flight_mode() != ros_node_->get_offboard_code_mode() && !starting_offboard_) {
         this->starting_offboard_ = true;
 
-        // Initiate a timer to check 3 seconds later and make the starting offboard variable false
-        offboard_check_timer_ = nh_->create_wall_timer(check_offboard_status_timeout_, [this] () {
+        // Initiate a timer to check 3 seconds later and make theusing std::chrono_literals; starting offboard variable false
+        using namespace std::chrono_literals;
+        offboard_check_timer_ = nh_->create_wall_timer(20s, [this] () {
             starting_offboard_ = false;
             offboard_check_timer_->cancel();
         });

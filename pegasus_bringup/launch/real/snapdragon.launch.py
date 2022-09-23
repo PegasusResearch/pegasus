@@ -39,20 +39,17 @@ def generate_launch_description():
     # Define which file to use for the drone parameters
     drone_params_file_arg = DeclareLaunchArgument(
         'drone_params', 
-        default_value=os.path.join(get_package_share_directory('pegasus_bringup'), 'config', 'snapdragon.yaml'),
+        default_value=os.path.join(get_package_share_directory('pegasus_bringup'), 'config', 'iris.yaml'),
         description='The directory where the drone parameters such as mass, thrust curve, etc. are defined')
     
-    # Define whether to launch the MOCAP interface or not
-    mocap_connect_arg = DeclareLaunchArgument('activate_mocap', default_value='True', description='Boolean that defines whether the mocap driver is launched or not')
-
     # ----------------------------------------
     # ---- DECLARE THE NODES TO LAUNCH -------
     # ----------------------------------------
     
     # Call MAVLINK interface package launch file 
-    mavlink_interface_launch_file = IncludeLaunchDescription(
+    mavlink_driver_launch_file = IncludeLaunchDescription(
         # Grab the launch file for the mavlink interface
-        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('mavlink_interface'), 'launch/mavlink_interface.launch.py')),
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('mavlink_driver'), 'launch/mavlink_driver.launch.py')),
         # Define costume launch arguments/parameters used for the mavlink interface
         launch_arguments={
             'id': LaunchConfiguration('vehicle_id'), 
@@ -60,7 +57,7 @@ def generate_launch_description():
             'drone_params': LaunchConfiguration('drone_params'),
             'connection': LaunchConfiguration('connection'),
             'mavlink_forward': LaunchConfiguration('mavlink_forward')
-        }.items()
+        }.items(),
     )
     
     # Call the MOCAP driver launch file
@@ -85,8 +82,7 @@ def generate_launch_description():
         mav_connection_arg,
         mavlink_forward_arg,
         drone_params_file_arg,
-        mocap_connect_arg,
         # Launch files
-        mavlink_interface_launch_file,
+        mavlink_driver_launch_file,
         mocap_launch_file
     ])
