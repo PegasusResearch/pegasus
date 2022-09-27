@@ -2,6 +2,8 @@
 
 #include <casadi/casadi.hpp>
 #include "base_controller.hpp"
+#include "pegasus_msgs/msg/attitude_rate_thrust_control.hpp"
+#include "pegasus_msgs/srv/thrust_curve.hpp"
 
 class MPCController : public BaseControllerNode {
 
@@ -77,89 +79,63 @@ private:
     void init_dynamics();
 
     /**
-     * @defgroup current_vehicle_state
-     * This group defines all variables that represent the vehicle current state
-     */
-    Eigen::Matrix<double, 10, 1> curr_state_; /*! @brief The current real state of the vehicle @ingroup current_vehicle_state */
-
-    /**
-     * @defgroup system_gains
-     * This section defines the system gains variables
-     */
-
-    double g_{9.81};                        /*! @brief The gravity acceleration constant m/s^2 @ingroup system_gains */
-    Eigen::Matrix<double, 10, 10> Q_goal_;  /*! @brief The cost matrix for tracking the end goal point @ingroup system_gains */
-    Eigen::Matrix<double, 4, 4> Q_action_;  /*! @brief The cost matrix for the action @ingroup system_gains */
-
-    /**
-     * @defgroup initial_conditions
-     * This section defines the initial conditions for the controller
-     */
-    Eigen::Matrix<double, 10, 1> x0_; /*! @brief The initial state of the system @ingroup initial_conditions */
-    Eigen::Matrix<double, 4, 1> u0_;  /*! @brief The initial control input vector @ingroup initial_conditions */
-
-    /**
      * @brief Method used to integrate the system dynamics
-     * @param dt The time diference between function calls
-     * @return casadi::Function A casadi function
      */
-    casadi::Function system_dynamics(double dt);
+    casadi::SX f(const casadi::SX &x, const casadi::SX &u);
+
+    // Time information
+    double T_;          /*! @brief The time horizon of the controllers */
+    double dt_;         /*! @brief The rate at which the controller works */
+    int N_;             /*! @brief The number of input and state samples to generate = (int) T/dt_ */
+    
+    double g_{9.81};    /*! @brief The gravity acceleration constant m/s^2 @ingroup system_gains */
+    
+    // State dimensions
+    int x_dim_{10};     /*! @brief The dimension of the state vector */
+    int u_dim_{4};      /*! @brief The dimension of the input vector */
+
+    // The current state of the quadrotor
+    std::vector<double> curr_state_{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    std::vector<double> ref_state_{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    std::vector<double> parameters_{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    
+    // Quadrotor state bounds
+    std::vector<double> x_min_; 
+    std::vector<double> x_max_; 
+    
+    // Quadrotor input bounds vector
+    std::vector<double> u_min_; 
+    std::vector<double> u_max_; 
+
+    casadi::SX Q_;   /*! @brief The cost matrix for tracking the end goal point */
+    casadi::SX R_;   /*! @brief The cost matrix for the action */
+
+    // Initialization for the CASADi IOPT solver - initial state of the vehicle (warm initialization)
+    std::vector<double> x0_;  /*! @brief The initial state of the system */
+    std::vector<double> u0_;  /*! @brief The initial control input vector */
+    
+    std::vector<double> w0_;    /*! @brief The vector used as a warm-start (guess for the optimization variables) */
+    std::vector<double> v0_;    
+
+    std::vector<double> lbg_;   /*! @brief The lower-bound for the g function vector (i.e. lbg <= g ) */
+    std::vector<double> ubg_;   /*! @brief The upper-bound for the g function vector (i.e. g <= ubg) */
+    std::vector<double> lbx_;   /*! @brief The lower-bound for the x state (i.e. lbx <= x) */
+    std::vector<double> ubx_;   /*! @brief The upper-bound for the x state (i.e. x <= ubx) */
 
     /**
-     * @defgroup input_states
-     * This group defines the input states of the controller
+     * @brief Function that will actually be solved each time
      */
+    casadi::Function solver_;
+    casadi::DMDict solver_args_;
 
     /**
-     * @ingroup input_states
-     * @brief The state vector of the system [px, py, pz, qw, qx, qy, qz, vx, vy, vz]
-     * where pos = [px, py, pz], q = [qw, qx, qy, qz] and v = [vx, vy, vz] (the velocity of the vehicle
-     * in the inertial frame)
+     * @brief Control message to be published periodically by the timer_callback() when
+     * the controller is running
      */
-    Eigen::Matrix<casadi::SX, 10, 1> x_;
-    Eigen::Matrix<casadi::SX, 10, 1> x_dot_;
-    Eigen::Matrix<casadi::SX, 4, 1> u_;
-
-    casadi::SX a;
+    pegasus_msgs::msg::AttitudeRateThrustControl attitude_rate_thrust_msg_;
 
     /**
-     * @brief The function that defines the differential equation of the system and the 
-     * integrated version that returns the state
+     * @brief Publisher for the attitute-rates and total thrust force (in N) using the "attitude_rate_thrust_msg_"
      */
-    casadi::Function f_;
-    casadi::Function F_;
-
-    /**
-     * @brief Cost functions
-     */
-    casadi::Function f_cost_goal_;
-    casadi::Function f_cost_u_;
-
-    double T_; /*! @brief The time horizon of the controllers */
-    double dt_; /*! @brief The rate at which the controller works */
-    int N_; /*! @brief The number of input and state samples to generate = (int) T/dt_ */
-
-    /**
-     * @defgroup loss_function
-     * This group defines the loss function used by the MPC controller
-     */
-
-    /**
-     * @ingroup loss_function
-     * @brief 
-     */
-    //casadi::Function f{"cost_goal", };
-
-    /**
-     * @defgroup system_dynamics
-     * This group defines the system dynamics variables and functions
-     */
-
-    casadi::MX x_dot{casadi::MX::sym("x_dot", 10, 1)};
-
-    /**
-     * @ingroup system_dynamics
-     * @brief 
-     */
-    //casadi::Function f{};
+    rclcpp::Publisher<pegasus_msgs::msg::AttitudeRateThrustControl>::SharedPtr control_pub_{nullptr};
 };

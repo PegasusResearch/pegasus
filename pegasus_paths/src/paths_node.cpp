@@ -367,6 +367,17 @@ void PathsNode::start_mission_callback(const pegasus_msgs::srv::StartMission::Re
 
             RCLCPP_INFO_STREAM(get_logger(), "Created a PID position tracking controller");
         
+        // Check if the required controller to use is MPC controller
+        } else if (request->controller_name.compare("mpc") == 0) {
+            try {
+                controller_ = std::make_shared<MPCController>(shared_from_this(), path_, control_rate_);
+            } catch(std::runtime_error &error) {
+                RCLCPP_ERROR_STREAM(get_logger(), error.what());
+                return;
+            }
+
+            RCLCPP_INFO_STREAM(get_logger(), "Created a MPC position tracking controller");
+
         // Check if the required controller to use is the actual onboard controller
         } else if (request->controller_name.compare("onboard") == 0) {
             
