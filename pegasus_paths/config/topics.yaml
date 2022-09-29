@@ -53,7 +53,7 @@
           publishers:
             control: "control/attitude_rate_force"
         gains:
-          T: 3.0  # The time window for the NMPC (in seconds)
+          T: 2.0  # The time window for the NMPC (in seconds)
           Q: [100.0, 100.0, 100.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0] # Diagonal matrix
           R: [0.1, 0.1, 0.1, 0.1]
           u_min: [ 1.0, -6.0, -6.0, -6.0] #[thrust_min, wx_min, wy_min, wz_min]

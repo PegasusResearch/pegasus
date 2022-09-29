@@ -61,7 +61,7 @@ void MavlinkNode::new_mavlink_system_callback() {
         configuration_ = std::make_shared<mavsdk::Mavsdk::Configuration>(mavsdk::Mavsdk::Configuration::UsageType::CompanionComputer);
         
         // Set the mavsdk to always send hearbeats (if possible)
-        configuration_->set_always_send_heartbeats(true);
+        configuration_->set_always_send_heartbeats(false);
         
         // Update the configuration settings in the mavsdk object
         mavsdk_.set_configuration(*(configuration_.get()));

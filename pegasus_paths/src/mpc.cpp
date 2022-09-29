@@ -1,6 +1,8 @@
 #include "mpc.hpp"
 #include "pegasus_utils/rotations.hpp"
 
+#include <chrono>
+
 /**
  * @brief Construct a new MPC Controller object
  * @param nh The nodehandler shared pointer for the base class that creates the controller object
@@ -15,7 +17,7 @@ MPCController::MPCController(const rclcpp::Node::SharedPtr nh, const Pegasus::Pa
     nh_->declare_parameter<std::vector<double>>("controllers.mpc.gains.R", std::vector<double>({0.1, 0.1, 0.1, 0.1}));
     nh_->declare_parameter<std::vector<double>>("controllers.mpc.gains.u_min", std::vector<double>({1.0, -6.0, -6.0, -6.0}));
     nh_->declare_parameter<std::vector<double>>("controllers.mpc.gains.u_max", std::vector<double>({20.0, 6.0,  6.0,  6.0}));
-    nh_->declare_parameter<std::vector<double>>("controllers.mpc.gains.x_min", std::vector<double>(10, casadi::inf));
+    nh_->declare_parameter<std::vector<double>>("controllers.mpc.gains.x_min", std::vector<double>(10, -casadi::inf));
     nh_->declare_parameter<std::vector<double>>("controllers.mpc.gains.x_max", std::vector<double>(10, casadi::inf));
 
     // Save the rate of the controller to use in the MPC and the time horizon
@@ -114,8 +116,6 @@ void MPCController::update_state_callback(const pegasus_msgs::msg::State::Shared
  */
 void MPCController::controller_update() {
 
-    std::cout << "TEST1" << std::endl;
-
     // Set the reference state manually for testing purposes
     ref_state_[2] = -5.0; // z-pos
     ref_state_[3] = 1.0;  // qw
@@ -126,26 +126,14 @@ void MPCController::controller_update() {
         parameters_[i + x_dim_] = ref_state_[i];
     }
 
-    std::cout << "TEST2" << std::endl;
-
-    std::cout << parameters_ << std::endl;
-
     // Update the initial state to be used in the optimization problem
     solver_args_["p"] = parameters_;
-
-    std::cout << "Test 3" << std::endl;
 
     // Solve the NMPC optimization problem
     casadi::DMDict res = solver_(solver_args_);
 
-    std::cout << "Test 4" << std::endl;
-
     // Get the response
     casadi::DM argmin = res["x"];
-
-    std::cout << "Test 5" << std::endl;
-
-    std::cout << argmin << std::endl;
 
     // Update the x0_ to be used as the warm start of the system
     // w0_ = std::vector<double>();
@@ -173,6 +161,8 @@ void MPCController::update_references() {
  * controller
  */
 void MPCController::init_dynamics() {
+
+    std::cout << "INIT DYNAMICS" << std::endl;
 
     // Define the system input variables, parameters and states
     casadi::SX U = casadi::SX::sym("U", u_dim_, N_);       // Inputs to the system over time [u1, u2, ..., uN]
@@ -267,8 +257,12 @@ void MPCController::init_dynamics() {
     casadi::SXDict nlp_dict = {{"f", obj}, {"x", OPT_variables}, {"p", P}, {"g", casadi::SX::vertcat(g)}};
 
     // Create the solver with basic options, using the interior point method
-    casadi::Dict ipopt_options = {{"verbose", false}, {"ipopt.max_iter", 100}, {"ipopt.warm_start_init_point", "yes"}, {"ipopt.print_level", 0}, {"print_time", false}};
+    casadi::Dict ipopt_options = {{"verbose", false}, {"ipopt.max_iter", 100}, {"ipopt.warm_start_init_point", "yes"}, {"ipopt.print_level", 0}, {"print_time", true}};
     solver_ = casadi::nlpsol("solver", "ipopt", nlp_dict, ipopt_options);
+
+    solver_.generate_dependencies("nmpc.c");
+
+    //auto C = casadi::Importer("nmpc.c", "clang");
 }
 
 
