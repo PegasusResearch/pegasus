@@ -1,0 +1,5 @@
+/**:
+  ros__parameters:
+    publishers:
+      # Current status of the vehicle (battery, operation mode, etc.)
+      camera: "sensors/camera"
