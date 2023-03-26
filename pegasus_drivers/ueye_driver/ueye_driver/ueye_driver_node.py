@@ -5,7 +5,7 @@
 # ROS2 imports
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import Image, CameraInfo
+from sensor_msgs.msg import Image
 
 # Camera driver imports
 from .ueye.camera import Camera
@@ -20,8 +20,14 @@ class UeyeDriverNode(Node):
         
         super().__init__('ueye_driver_node')
 
-        # Create the publisher for the image data
-        self.publisher_ = self.create_publisher(Image, 'image', 1)
+        # Create the publisher for the image data with a custom topic name
+        pub_topic = str(self.get_parameter_or(
+            'publishers.camera_topic', rclpy.Parameter(
+            'str', 
+            rclpy.Parameter.Type.STRING, 
+            'camera/image')).value)
+        
+        self.publisher_ = self.create_publisher(Image, pub_topic, qos_profile=rclpy.qos.qos_profile_sensor_data)
 
         # Create a bridge to convert the image data to OpenCV format
         self.cv_bridge = CvBridge()
