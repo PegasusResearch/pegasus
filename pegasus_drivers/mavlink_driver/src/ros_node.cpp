@@ -479,6 +479,21 @@ void ROSNode::update_heath_state(const mavsdk::Telemetry::Health &health) {
 
 /**
  * @ingroup publisherMessageUpdate
+ * @brief Method that is called to update the landed_state field in the status_msg. It is an enum, which
+ * can assume the following values:
+ * - 0 - UKNOWN
+ * - 1 - ON_GROUND
+ * - 2 - IN_AIR
+ * - 3 - TAKING_OFF
+ * - 4 - LANDING
+ * @param landed_state A mavsdk structure wich contains the high level state of the vehicle
+ */
+void ROSNode::update_landed_state(const mavsdk::Telemetry::LandedState &landed_state) {
+    status_msg_.landed_state = static_cast<uint8_t>(landed_state);
+}
+
+/**
+ * @ingroup publisherMessageUpdate
  * @brief Method that is called to update the pose and inertial_vel fields in the state_msg. This method
  * publishes the most up to date message to state_pub
  * @param pos_vel_ned A mavsdk structure which contains the position and linear velocity of the vehicle expressed in the inertial frame
@@ -638,6 +653,7 @@ void ROSNode::land_callback(const pegasus_msgs::srv::Land::Request::SharedPtr re
  * @param response The response in this service goes empty, as the request id done asynchronously through mavlink
  */
 void ROSNode::reboot_callback(const pegasus_msgs::srv::Reboot::Request::SharedPtr request, const pegasus_msgs::srv::Reboot::Response::SharedPtr response) {
+    RCLCPP_WARN_STREAM(nh_->get_logger(), "Vehicle is autopilot is rebooting");
     mavlink_node_->reboot();
     (void) *request; // do nothing with the empty request and avoid compilation warnings from unused argument
     (void) *response; // do nothing with the empty response and avoid compilation warnings from unused argument

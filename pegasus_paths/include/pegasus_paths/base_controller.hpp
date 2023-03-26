@@ -41,8 +41,10 @@ public:
      */
     virtual void stop() {
         // Reset the timer that calls the control law periodically
-        timer_->cancel();
-        timer_->reset();
+        if(timer_ != nullptr) {
+            timer_->cancel();
+            timer_.reset();
+        }
     }
 
     /**
@@ -50,6 +52,13 @@ public:
      * make sure that whenever the path is reset, the vehicle DOES NOT FALL and holds it's position
      */
     virtual void reset() = 0;
+
+    /**
+     * @brief Get the identifier object Method that should be implemented by a derived class 
+     * that returns a string that uniquely identifies the type of controller
+     * @return std::string A string that uniquely identifies the type of controller
+     */
+    virtual std::string get_identifier() = 0;
 
 protected:
     

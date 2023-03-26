@@ -20,11 +20,15 @@
           waypoint: "path/add_waypoint"
           # Start a mission to follow a given path or hold position
           start_mission: "path/start_mission"
-          # Service for arming the vehicle
+          # Start a mission to land the vehicle
+          land_mission: "path/land_mission"
+          # ----------------------------------
+          # Service clients for arming the vehicle and auto-landing
           arm: "arm"
+          onboard_land: "land"
     # Controllers' gains and topic setup
     controllers:
-      rate: 20.0 # Hz
+      rate: 30.0 # Hz
       # PID controller topics and parameters
       pid:
         topics:
@@ -43,6 +47,17 @@
           kff: [1.0, 1.0, 1.0] # Feed-forward gain
           min_output: [-20.0, -20.0, -20.0] # Minimum output of each PID
           max_output: [20.0, 20.0, 20.0] # Maximum output of each PID
+      # MPC controller topics and parameters
+      mpc:
+        topics:
+          publishers:
+            control: "control/attitude_rate_force"
+        gains:
+          T: 2.0  # The time window for the NMPC (in seconds)
+          Q: [100.0, 100.0, 100.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0] # Diagonal matrix
+          R: [0.1, 0.1, 0.1, 0.1]
+          u_min: [ 1.0, -6.0, -6.0, -6.0] #[thrust_min, wx_min, wy_min, wz_min]
+          u_max: [20.0,  6.0,  6.0,  6.0] #[thrust_max, wx_max, wy_max, wz_max]
       # Onboard controller topics and parameters
       onboard:
         topics:

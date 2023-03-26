@@ -22,6 +22,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(pegasus_msgs REQUIRED)
 find_package(pegasus_utils REQUIRED)
 find_package(thrust_curves REQUIRED)
+find_package(mavsdk_vendor REQUIRED)
 find_package(MAVSDK REQUIRED)
 find_package(Eigen3 REQUIRED)
 
@@ -41,20 +42,19 @@ add_executable(${PROJECT_NAME}
 
 # Add the ROS2 packages to link against
 ament_target_dependencies(${PROJECT_NAME}
-    rclcpp 
-    rclcpp_action
-    std_msgs
-    sensor_msgs
-    geometry_msgs
-    pegasus_msgs
-    pegasus_utils
-    thrust_curves
+  rclcpp 
+  rclcpp_action
+  std_msgs
+  sensor_msgs
+  geometry_msgs
+  pegasus_msgs
+  pegasus_utils
+  thrust_curves
+  mavsdk_vendor
 )
 
 # External link libraries
-target_link_libraries(${PROJECT_NAME}
-    MAVSDK::mavsdk
-)
+target_link_libraries(${PROJECT_NAME} MAVSDK::mavsdk)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

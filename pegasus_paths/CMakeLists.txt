@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic -O3)
+  add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-parameter -Wno-sign-compare -O3)
 endif()
 if(MSVC)
   add_compile_options(-WX -W2)
@@ -21,6 +21,8 @@ find_package("paths" REQUIRED)
 find_package(pid REQUIRED)
 find_package(thrust_curves REQUIRED)
 find_package(pegasus_utils REQUIRED)
+find_package(casadi_vendor REQUIRED)
+find_package(casadi REQUIRED)
 
 # Include directories for the code
 include_directories(
@@ -34,8 +36,12 @@ add_executable(${PROJECT_NAME}
   src/paths_node.cpp
   src/pid_controller.cpp
   src/onboard_controller.cpp
+  src/mpc.cpp
   src/main.cpp
 )
+
+# Add casadi libraries for linking the project
+target_link_libraries(${PROJECT_NAME} casadi)
 
 # Add the ROS2 packages to link against
 ament_target_dependencies(${PROJECT_NAME}
@@ -46,6 +52,7 @@ ament_target_dependencies(${PROJECT_NAME}
   pid
   thrust_curves
   pegasus_utils
+  casadi_vendor
 )
 
 if(BUILD_TESTING)

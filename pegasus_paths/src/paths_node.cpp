@@ -118,14 +118,27 @@ void PathsNode::init_services() {
     declare_parameter<std::string>("topics.services.waypoint", "path/add_waypoint");
     add_waypoint_service_ = create_service<pegasus_msgs::srv::AddWaypoint>(get_parameter("topics.services.waypoint").as_string(), std::bind(&PathsNode::add_waypoint_callback, this, std::placeholders::_1, std::placeholders::_2));
 
+
+    // ------------- MISSION SERVICES --------------
+    
     // ------------------------------------------------------------------------
     // Initiate the service to start a path following/tracking mission
     // ------------------------------------------------------------------------
     declare_parameter<std::string>("topics.services.start_mission", "path/start_mission");
     start_mission_service_ = create_service<pegasus_msgs::srv::StartMission>(get_parameter("topics.services.start_mission").as_string(), std::bind(&PathsNode::start_mission_callback, this, std::placeholders::_1, std::placeholders::_2));
 
+    // ------------------------------------------------------------------------
+    // Initiate the service to start a landing mission
+    // ------------------------------------------------------------------------
+    declare_parameter<std::string>("topics.services.land_mission", "path/land_mission");
+    land_mission_service_ = create_service<pegasus_msgs::srv::LandMission>(get_parameter("topics.services.land_mission").as_string(), std::bind(&PathsNode::land_mission_callback, this, std::placeholders::_1, std::placeholders::_2));
+
     // Declare the parameter for arming the vehicle service client
     declare_parameter<std::string>("topics.services.arm", "arm");
+
+    // Declare the parameter for auto-landing the vehicle service client
+    declare_parameter<std::string>("topics.services.onboard_land", "land");
+
 
     RCLCPP_INFO_STREAM(get_logger(), "Paths node services initialized");
 }
@@ -337,29 +350,47 @@ void PathsNode::add_section_to_path(const Pegasus::Paths::Section::SharedPtr sec
 void PathsNode::start_mission_callback(const pegasus_msgs::srv::StartMission::Request::SharedPtr request, const pegasus_msgs::srv::StartMission::Response::SharedPtr response) {
     
     // TODO - improve this section and implement a FACTORY PATTERN similar to the THRUST CURVE package
+    // TODO - improve the swaping of controllers to make sure the drone does not fall when hot-swapping
     RCLCPP_INFO_STREAM(get_logger(), "START MISSION CALLBACK");
 
-    // Check if the required controller to use is a PID controller
-    if(request->controller_name.compare("pid") == 0) {
+    // If the controller is null || the controller instance is the same as the already requested controller, 
+    // then do not create a new instance. Just check if the drone is armed and carry on
+    if (!(controller_ != nullptr && controller_->get_identifier().compare(request->controller_name) == 0)) {
+
+        // Check if the required controller to use is a PID controller
+        if(request->controller_name.compare("pid") == 0) {
+            
+            try {
+                controller_ = std::make_shared<PidController>(shared_from_this(), path_, control_rate_);
+            } catch (std::runtime_error &error) {
+                RCLCPP_ERROR_STREAM(get_logger(), error.what());
+                return;
+            }
+
+            RCLCPP_INFO_STREAM(get_logger(), "Created a PID position tracking controller");
         
-        try {
-            controller_ = std::make_shared<PidController>(shared_from_this(), path_, control_rate_);
-        } catch (std::runtime_error &error) {
-           RCLCPP_ERROR_STREAM(get_logger(), error.what());
-           return;
+        // Check if the required controller to use is MPC controller
+        } else if (request->controller_name.compare("mpc") == 0) {
+            try {
+                controller_ = std::make_shared<MPCController>(shared_from_this(), path_, control_rate_);
+            } catch(std::runtime_error &error) {
+                RCLCPP_ERROR_STREAM(get_logger(), error.what());
+                return;
+            }
+
+            RCLCPP_INFO_STREAM(get_logger(), "Created a MPC position tracking controller");
+
+        // Check if the required controller to use is the actual onboard controller
+        } else if (request->controller_name.compare("onboard") == 0) {
+            
+            try {
+                controller_ = std::make_shared<OnboardController>(shared_from_this(), path_, control_rate_);
+            } catch (std::runtime_error &error) {
+                RCLCPP_ERROR_STREAM(get_logger(), error.what());
+                return;
+            }
+            RCLCPP_INFO_STREAM(get_logger(), "Using the onboard position tracking controller");
         }
-        RCLCPP_INFO_STREAM(get_logger(), "Created a PID position tracking controller");
-    
-    // Check if the required controller to use is the actual onboard controller
-    } else if (request->controller_name.compare("onboard") == 0) {
-        
-        try {
-            controller_ = std::make_shared<OnboardController>(shared_from_this(), path_, control_rate_);
-        } catch (std::runtime_error &error) {
-            RCLCPP_ERROR_STREAM(get_logger(), error.what());
-            return;
-        }
-        RCLCPP_INFO_STREAM(get_logger(), "Using the onboard position tracking controller");
     }
 
     // Check if the vehicle is un-armed and arm
@@ -385,6 +416,52 @@ void PathsNode::start_mission_callback(const pegasus_msgs::srv::StartMission::Re
 }
 
 /**
+ * @ingroup servicesCallbacks
+ * @brief Service callback responsible for taking action when a landing mission is requested. By default it will always use the onboard
+ * controller for this type of mission
+ * @param request A pointer to the request object (unused)
+ * @param response A pointer to the response object. Contains whether the landing mission will be executed or not, and a string which might contain
+ * or not some information regarding the landing of the vehicle
+ */
+void PathsNode::land_mission_callback(const pegasus_msgs::srv::LandMission::Request::SharedPtr request, const pegasus_msgs::srv::LandMission::Response::SharedPtr response) {
+
+    (void) request; // DO NOTHING, IGNORE THE EMPTY REQUEST OBJECT
+
+    // If the drone is not flying (aka, landed - do nothing and ignore the service)
+    if(!flying_) {
+        response->auto_landing = false;
+        response->comments = std::string("Vehicle already landed");
+        return; 
+    }
+
+    // Create the service client to arm the vehicle
+    rclcpp::Client<pegasus_msgs::srv::Land>::SharedPtr land_service_client = create_client<pegasus_msgs::srv::Land>(get_parameter("topics.services.onboard_land").as_string());
+
+    // Create the request message
+    auto autoland_request = std::make_shared<pegasus_msgs::srv::Land::Request>();
+
+    // Wait 2s for the landind service to be available
+    if(!land_service_client->wait_for_service(std::chrono::seconds(2))) {
+        response->auto_landing = false;
+        response->comments = std::string("Autolanding system not available. Request ignored");
+        RCLCPP_ERROR_STREAM(get_logger(), "Autolanding system not available. Request ignored");
+        return;
+    }
+
+    // TODO - improve the safety of this part
+
+    // Stop the current controller, it it is running
+    if(controller_ != nullptr) controller_->stop();
+
+    // Send the landing request
+    land_service_client->async_send_request(autoland_request);
+
+    response->auto_landing = true;
+    response->comments = std::string("Vehicle auto-landing requested");
+    RCLCPP_WARN_STREAM(get_logger(), "Vehicle auto-landing requested\n");
+}
+
+/**
  * @defgroup subscribersCallbacks
  * This group defines all the callbacks used by the ROS2 subscribers
  */
@@ -399,7 +476,7 @@ void PathsNode::status_callback(const pegasus_msgs::msg::Status::SharedPtr msg) 
     armed_ = msg->armed;
 
     // Update the flying state of the vehicle - TODO - get this from the driver
-    flying_ = false;
+    flying_ = (msg->landed_state == msg->IN_AIR || msg->landed_state == msg->TAKING_OFF) ? true : false;
 }
 
 /**

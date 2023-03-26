@@ -221,6 +221,31 @@ private:
 
     /**
      * @ingroup vehicle_state_callbacks
+     * @brief Method that is called periodically to update the current status of the vehicle regarding its operation. It
+     * informs the user if the vehicle is landed, in air, landing, taking off or in an unknown state
+     * @param landed_state A mavsdk structure that contains data regarding the high level operation mode of the vehicle
+     */
+    void landed_state_callback(mavsdk::Telemetry::LandedState landed_state);
+
+    /**
+     * @ingroup vehicle_state_callbacks
+     * @brief Method that is called periodically to update the reference values (between -1 and 1) that are reaching
+     * the ESCs (Eletronic Speed Controllers) - these can be for thrusters or gimbal
+     * @param actuator_reference A mavsdk structure that contains the actuator group and a vector with the references given
+     * to that group of actuators
+     */
+    void actuator_reference_callback(mavsdk::Telemetry::ActuatorControlTarget actuator_reference);
+
+    /**
+     * @ingroup vehicle_state_callbacks
+     * @brief Method that is called periodically to update the current output of the actuators.
+     * @param actuator_output A mavsdk structure that contains the number of active actuators and a vector with the 
+     * output of those actuators
+     */
+    void actuator_output_callback(mavsdk::Telemetry::ActuatorOutputStatus actuator_output);
+
+    /**
+     * @ingroup vehicle_state_callbacks
      * @brief Method that is called periodically to update the current state of the imu
      * @param imu A mavsdk structure that containts data regarding the angular velocity, linear acceleration and
      * magnetic field (received in Gauss)
