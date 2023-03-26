@@ -15,7 +15,7 @@ setup(
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
         (os.path.join('share', package_name, 'config'), glob('config/*.yaml'))
     ],
-    install_requires=['setuptools'],
+    install_requires=['setuptools', 'numpy', 'cv-bridge', 'pyueye'],
     zip_safe=True,
     maintainer='Marcelo Jacinto',
     maintainer_email='marcelo.jacinto@tecnico.ulisboa.pt',

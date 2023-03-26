@@ -4,8 +4,6 @@ from pyueye import ueye
 from threading import Thread
 import timeit
 
-import rclpy   
-
 def get_bits_per_pixel(color_mode):
     """
     returns the number of bits per pixel for the given color mode
@@ -121,28 +119,21 @@ class FrameThread(Thread):
         cam.set_full_auto()
 
     def run(self):
+
         while self.running:
-
-            rclpy.logging.get_logger("inside:").info("Waiting for image")
-
             img_buffer = ImageBuffer()
             ret = ueye.is_WaitForNextImage(self.cam.handle(),
-                                           self.timeout,
-                                           img_buffer.mem_ptr,
-                                           img_buffer.mem_id)
+                                        self.timeout,
+                                        img_buffer.mem_ptr,
+                                        img_buffer.mem_id)
             if ret == ueye.IS_SUCCESS:
-                rclpy.logging.get_logger("inside:").info("Got image")
                 self.notify(ImageData(self.cam.handle(), img_buffer))
                 t = timeit.default_timer()
                 fps = 1/(t - self.t_old)
-                print(fps, ret)
                 self.t_old = t    
-            #break
 
     def notify(self, image_data): 
-        
-        rclpy.loginfo("Image received")
-
+            
         # Handle the image data here
         for view in self.views:
             view(image_data)
