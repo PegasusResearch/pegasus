@@ -22,6 +22,7 @@ find_package(pid REQUIRED)
 find_package(thrust_curves REQUIRED)
 find_package(pegasus_utils REQUIRED)
 find_package(casadi_vendor REQUIRED)
+find_package(casadi REQUIRED)
 
 # Include directories for the code
 include_directories(
