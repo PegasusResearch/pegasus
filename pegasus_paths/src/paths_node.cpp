@@ -118,8 +118,9 @@ void PathsNode::init_services() {
     declare_parameter<std::string>("topics.services.waypoint", "path/add_waypoint");
     add_waypoint_service_ = create_service<pegasus_msgs::srv::AddWaypoint>(get_parameter("topics.services.waypoint").as_string(), std::bind(&PathsNode::add_waypoint_callback, this, std::placeholders::_1, std::placeholders::_2));
 
-    // ------------- MISSION SERVICES --------------
 
+    // ------------- MISSION SERVICES --------------
+    
     // ------------------------------------------------------------------------
     // Initiate the service to start a path following/tracking mission
     // ------------------------------------------------------------------------
@@ -137,6 +138,7 @@ void PathsNode::init_services() {
 
     // Declare the parameter for auto-landing the vehicle service client
     declare_parameter<std::string>("topics.services.onboard_land", "land");
+
 
     RCLCPP_INFO_STREAM(get_logger(), "Paths node services initialized");
 }
@@ -413,7 +415,6 @@ void PathsNode::start_mission_callback(const pegasus_msgs::srv::StartMission::Re
     (void) response;
 }
 
-
 /**
  * @ingroup servicesCallbacks
  * @brief Service callback responsible for taking action when a landing mission is requested. By default it will always use the onboard
@@ -459,7 +460,6 @@ void PathsNode::land_mission_callback(const pegasus_msgs::srv::LandMission::Requ
     response->comments = std::string("Vehicle auto-landing requested");
     RCLCPP_WARN_STREAM(get_logger(), "Vehicle auto-landing requested\n");
 }
-
 
 /**
  * @defgroup subscribersCallbacks

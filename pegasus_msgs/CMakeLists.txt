@@ -46,6 +46,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   # Controllers services/messages
   "srv/controllers/StartMission.srv"
   "srv/controllers/LandMission.srv"
+
   # Messages
   "msg/driver/Status.msg"
   "msg/driver/Health.msg"
