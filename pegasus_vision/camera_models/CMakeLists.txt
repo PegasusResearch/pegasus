@@ -1,35 +1,64 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.10.2)
 project(camera_models)
 
+# Default to C++17 and compiler flags to give all warnings
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
+  add_compile_options(-Wall -Wextra -Wpedantic -O3)
+endif()
+if(MSVC)
+  add_compile_options(-WX -W2)
 endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(Eigen3 REQUIRED)
 
-add_executable(my_node src/my_node.cpp)
-target_include_directories(my_node PUBLIC
+# Create the package with source code
+add_library(
+  ${PROJECT_NAME}
+  src/camera_factory.cpp
+  src/pinhole_camera.cpp
+  src/fisheye_camera.cpp
+)
+
+# Add the include directories
+target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-target_compile_features(my_node PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+  $<INSTALL_INTERFACE:include>
+  ${EIGEN3_INCLUDE_DIR}
+)
 
-install(TARGETS my_node
-  DESTINATION lib/${PROJECT_NAME})
+install(TARGETS ${PROJECT_NAME}
+  EXPORT "${PROJECT_NAME}Targets"
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION lib
+  INCLUDES DESTINATION include
+)
+
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION include/${PROJECT_NAME}
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
-  # comment the line when a copyright and license is added to all source files
-  set(ament_cmake_copyright_FOUND TRUE)
+  # uncomment the line when a copyright and license is not present in all source files
+  #set(ament_cmake_copyright_FOUND TRUE)
   # the following line skips cpplint (only works in a git repo)
-  # comment the line when this package is in a git repo and when
-  # a copyright and license is added to all source files
-  set(ament_cmake_cpplint_FOUND TRUE)
+  # uncomment the line when this package is not in a git repo
+  #set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+# Inform ament compile system that this ROS2 package depends on Eigen3
+ament_export_dependencies(
+  Eigen3
+)
+
+# Specify the export targets for the header only libraries
+ament_export_targets("${PROJECT_NAME}Targets" HAS_LIBRARY_TARGET)
 ament_package()

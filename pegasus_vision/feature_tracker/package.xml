@@ -10,8 +10,9 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <!-- Packages Dependencies -->
- <depend>rclcpp</depend>
- <depend>opencv_vendor</depend>
+  <depend>rclcpp</depend>
+  <depend>opencv_vendor</depend>
+  <depend>camera_models</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

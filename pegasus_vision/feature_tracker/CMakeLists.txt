@@ -18,6 +18,7 @@ find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(opencv_vendor REQUIRED)
 find_package(OpenCV REQUIRED)
+find_package(camera_models REQUIRED)
 
 # Include directories for the code
 include_directories(
@@ -35,6 +36,7 @@ ament_target_dependencies(${PROJECT_NAME}
   rclcpp
   sensor_msgs
   opencv_vendor
+  camera_models
 )
 
 # External link libraries
