@@ -12,7 +12,6 @@ FeatureTrackerNode::FeatureTrackerNode() : Node("feature_tracker_node") {
 
     // Initialize the subscribers
     initialize_subscribers();
-    
 }
 
 /**
@@ -23,8 +22,8 @@ void FeatureTrackerNode::initialize_subscribers() {
     // ------------------------------------------------------------------------
     // Initialize the subscriber for the image topic
     // ------------------------------------------------------------------------
-    declare_parameter("publishers.image", "image");
-    rclcpp::Parameter image_topic = get_parameter("publishers.status");
+    declare_parameter("subscribers.camera", "image");
+    rclcpp::Parameter image_topic = get_parameter("subscribers.camera");
     image_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
         image_topic.as_string(), 
         rclcpp::SensorDataQoS(), 
@@ -43,6 +42,7 @@ void FeatureTrackerNode::initialize_publishers() {
     // ------------------------------------------------------------------------
     declare_parameter("publishers.pointcloud", "pointcloud");
     rclcpp::Parameter pointcloud_topic = get_parameter("publishers.pointcloud");
+    RCLCPP_INFO(get_logger(), "Publishing pointcloud to topic: %s", pointcloud_topic.as_string().c_str());
     pointcloud_pub_ = this->create_publisher<sensor_msgs::msg::PointCloud>(
         pointcloud_topic.as_string(), 
         rclcpp::SensorDataQoS()

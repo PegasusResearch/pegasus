@@ -31,13 +31,13 @@ def generate_launch_description():
 
     # Get the name of the .yaml configuration file either from the package or an external source
     topics_yaml_arg = DeclareLaunchArgument(
-        'topics_yaml', 
+        'mavlink_topics_yaml', 
         default_value=os.path.join(get_package_share_directory('mavlink_driver'), 'config', 'topics.yaml'),
         description='The topic names assigned inside the mavlink interface')
 
     # Get the name of the .yaml configuration file for the rates
     rates_yaml_arg = DeclareLaunchArgument(
-        'rates_yaml',
+        'mavlink_rates_yaml',
         default_value=os.path.join(get_package_share_directory('mavlink_driver'), 'config', 'rates.yaml'),
         description='Path to the configuration file containing the rates setup for mavlink telemetry'
     )
@@ -54,8 +54,8 @@ def generate_launch_description():
         emulate_tty=True,
         parameters=[
             # Pass the file which contains the topics configuration and rates for telemetry
-            LaunchConfiguration('topics_yaml'), 
-            LaunchConfiguration('rates_yaml'),
+            LaunchConfiguration('mavlink_topics_yaml'), 
+            LaunchConfiguration('mavlink_rates_yaml'),
             LaunchConfiguration('drone_params'),
             # Pass the connection URL (udp, tcp or serial)
             # as well as the mavlink forward ips (for example for operating QGroundControl in parallel)
