@@ -1,6 +1,6 @@
 #pragma once
 
-#include <camera_models/camera.h>
+#include <camera_models/camera.hpp>
 
 namespace Pegasus {
 
