@@ -16,7 +16,7 @@ def generate_launch_description():
     # --------------------------------
     
     # Set the default vehicle id (note: this is a trick due to the parameter reading limitation in ROS2)
-    default_vehicle_id = 5
+    default_vehicle_id = 6
     vehicle_id = default_vehicle_id
     for arg in sys.argv:
         if arg.startswith('vehicle_id:='):
@@ -34,12 +34,12 @@ def generate_launch_description():
     mav_connection_arg = DeclareLaunchArgument('connection', default_value='udp://:' + str(15000 + vehicle_id), description='The interface used to connect to the vehicle')
 
     # Define the drone MAVLINK forward ips and ports
-    mavlink_forward_arg = DeclareLaunchArgument('mavlink_forward', default_value="['udp://127.0.0.1:14550']", description='A list of ips where to forward mavlink messages')
+    mavlink_forward_arg = DeclareLaunchArgument('mavlink_forward', default_value="['udp://192.168.1.112:14550']", description='A list of ips where to forward mavlink messages')
     
     # Define which file to use for the drone parameters
     drone_params_file_arg = DeclareLaunchArgument(
         'drone_params', 
-        default_value=os.path.join(get_package_share_directory('pegasus_bringup'), 'config', 'iris.yaml'),
+        default_value=os.path.join(get_package_share_directory('pegasus_bringup'), 'config', 'snapdragon.yaml'),
         description='The directory where the drone parameters such as mass, thrust curve, etc. are defined')
     
     # ----------------------------------------
@@ -69,7 +69,7 @@ def generate_launch_description():
             'id': LaunchConfiguration('vehicle_id'), 
             'namespace': LaunchConfiguration('vehicle_ns')
         }.items(),
-        condition=LaunchConfigurationEquals('activate_mocap', 'True')
+        #condition=LaunchConfigurationEquals('activate_mocap', 'True')
     )
 
     # Call Path following/Trajectory tracking controllers package launch file
@@ -96,5 +96,5 @@ def generate_launch_description():
         # Launch files
         mavlink_driver_launch_file,
         mocap_launch_file,
-        #paths_launch_file
+        paths_launch_file
     ])

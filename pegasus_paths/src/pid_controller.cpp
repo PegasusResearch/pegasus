@@ -44,7 +44,7 @@ PidController::PidController(const rclcpp::Node::SharedPtr nh, const Pegasus::Pa
     RCLCPP_INFO_STREAM(nh_->get_logger(), "START REQUESTING MASS");
 
     // TODO - FIX THE MASS SERVICE
-    mass_ = 1.5;
+    mass_ = 0.600;
 
     // Send an async request to get the mass of the vehicle
     // auto request_mass = std::make_shared<pegasus_msgs::srv::ThrustCurve::Request>();

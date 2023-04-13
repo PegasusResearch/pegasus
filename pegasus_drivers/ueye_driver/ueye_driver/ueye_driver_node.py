@@ -27,7 +27,7 @@ class UeyeDriverNode(Node):
             rclpy.Parameter.Type.STRING, 
             'camera/image')).value)
         
-        self.publisher_ = self.create_publisher(Image, pub_topic, qos_profile=rclpy.qos.qos_profile_sensor_data)
+        self.publisher_ = self.create_publisher(Image, pub_topic, 1) # qos_profile=rclpy.qos.qos_profile_sensor_data)
 
         # Create a bridge to convert the image data to OpenCV format
         self.cv_bridge = CvBridge()
