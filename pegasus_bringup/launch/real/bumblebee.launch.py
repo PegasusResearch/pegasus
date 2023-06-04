@@ -61,12 +61,23 @@ def generate_launch_description():
     )
 
     # Call the ueye camera interface package launch file
-    ueye_camera_launch_file = IncludeLaunchDescription(
+    # ueye_camera_launch_file = IncludeLaunchDescription(
+    #     # Grab the launch file for the ueye camera interface
+    #     PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('ueye_driver'), 'launch/ueye_driver.launch.py')),
+    #     # Define costume launch arguments/parameters used for the ueye camera interface
+    #     launch_arguments={
+    #         'id': LaunchConfiguration('vehicle_id'),
+    #         'namespace': LaunchConfiguration('vehicle_ns')
+    #     }.items(),
+    # )
+
+    # Call the intel real sense camera interface 
+    real_sense_launch_file=IncludeLaunchDescription(
         # Grab the launch file for the ueye camera interface
-        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('ueye_driver'), 'launch/ueye_driver.launch.py')),
-        # Define costume launch arguments/parameters used for the ueye camera interface
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('pegasus_bringup'), 'launch/dev/realsense.launch.py')),
+        # Define costume launch arguments/parameters used for the camera interface
         launch_arguments={
-            'id': LaunchConfiguration('vehicle_id'),
+            'id': LaunchConfiguration('vehicle_id'), 
             'namespace': LaunchConfiguration('vehicle_ns')
         }.items(),
     )
@@ -94,6 +105,7 @@ def generate_launch_description():
         drone_params_file_arg,
         # Launch files
         mavlink_driver_launch_file,
-        ueye_camera_launch_file,
+        #ueye_camera_launch_file,
+        real_sense_launch_file,
         feature_tracker_launch_file
     ])
