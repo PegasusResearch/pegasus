@@ -42,6 +42,8 @@ def generate_launch_description():
     return LaunchDescription([
         # Launch arguments
         vrpn_params_file_arg,
+        id_arg,
+        namespace_arg,
         # Launch files
         vrpn_node
     ])

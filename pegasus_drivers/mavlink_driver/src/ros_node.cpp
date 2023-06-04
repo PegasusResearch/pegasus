@@ -139,7 +139,7 @@ void ROSNode::init_subscribers() {
     nh_->declare_parameter<std::string>("subscribers.external_sensors.mocap_enu", "mocap/pose_enu");
     rclcpp::Parameter mocap_topic = nh_->get_parameter("subscribers.external_sensors.mocap_enu");
     mocap_pose_enu_sub_ = nh_->create_subscription<geometry_msgs::msg::PoseStamped>(
-        mocap_topic.as_string(), 1, std::bind(&ROSNode::mocap_pose_callback, this, std::placeholders::_1));
+        "/drone6/drone6/" + mocap_topic.as_string(), 1, std::bind(&ROSNode::mocap_pose_callback, this, std::placeholders::_1));
 
 }
 

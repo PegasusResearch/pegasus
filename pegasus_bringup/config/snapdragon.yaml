@@ -1,11 +1,9 @@
 /**:
   ros__parameters:
-    drone:
+    dynamics:
       mass: 0.600 #Kg
       thrust_curve:
-        type: 'LinearExponential'
-        a: 0.1377
-        b: 0.02976
-        c: 0.003759
-        d: -0.05973
-        scale: 66.67  # SNAP-6 0.23 / 0.345 * 100.0 
+        identifier: 'LinearExponential'
+        parameter_names: ["a", "b", "c", "d", "scale"]
+        parameters: [0.1377, 0.02976,  0.003759, -0.05973, 66.67]
+        # SNAP-6 0.23 / 0.345 * 100.0 
