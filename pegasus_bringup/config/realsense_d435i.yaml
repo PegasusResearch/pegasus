@@ -1,0 +1,61 @@
+/**:
+  ros__parameters:
+    camera_name: 'camera'
+    serial_no: ''
+    usb_port_id: '' 
+    device_type: '' 
+    config_file: ''
+    unite_imu_method: 0                       # [0-None, 1-copy, 2-linear_interpolation]
+    json_file_path: ''                        # allows advanced configuration
+    log_level: 'info'                         # debug log level [DEBUG|INFO|WARN|ERROR|FATAL]
+    output: 'screen'                          # pipe node output [screen|log]
+    depth_module.profile: '0,0,0'             # depth module profile                           
+    enable_depth: true                        # enable depth stream
+    rgb_camera.profile: '0,0,0'               # color image width
+    rgb_camera.enable_auto_exposure: true     # enable/disable auto exposure for color image
+    rgb_camera.power_line_frequency: 0
+    enable_color: true                        # enable color stream
+    enable_infra1: false                      # enable infra1 stream
+    enable_infra2: false                      # enable infra2 stream
+    infra_rgb: false                          # enable infra2 stream
+    enable_fisheye1: true                     # enable fisheye1 stream
+    enable_fisheye2: true                     # enable fisheye2 stream
+    enable_confidence: true                   # enable depth stream'
+    #gyro_fps: 60    
+    #accel_fps: 60           
+    enable_gyro: true 
+    enable_accel: true 
+    enable_pose: true 
+    pose_fps: 60.0
+    color_qos: 'SENSOR_DATA'                  # SYSTEM_DEFAULT, DEFAULT, PARAMETER_EVENTS, SERVICES_DEFAULT, PARAMETERS, SENSOR_DATA
+    fisheye_qos: 'SENSOR_DATA'                # SYSTEM_DEFAULT, DEFAULT, PARAMETER_EVENTS, SERVICES_DEFAULT, PARAMETERS, SENSOR_DATA
+    depth_qos: 'SENSOR_DATA'                  # SYSTEM_DEFAULT, DEFAULT, PARAMETER_EVENTS, SERVICES_DEFAULT, PARAMETERS, SENSOR_DATA
+    gyro_qos: 'SENSOR_DATA'                   # SYSTEM_DEFAULT, DEFAULT, PARAMETER_EVENTS, SERVICES_DEFAULT, PARAMETERS, SENSOR_DATA
+    accel_qos: 'SENSOR_DATA'                  # SYSTEM_DEFAULT, DEFAULT, PARAMETER_EVENTS, SERVICES_DEFAULT, PARAMETERS, SENSOR_DATA
+    pose_qos: 'SENSOR_DATA'                   # SYSTEM_DEFAULT, DEFAULT, PARAMETER_EVENTS, SERVICES_DEFAULT, PARAMETERS, SENSOR_DATA
+    pointcloud.enable: false
+    pointcloud.stream_filter: 2               # texture stream for pointcloud
+    pointcloud.stream_index_filter: 0         # texture stream index for pointcloud
+    enable_sync: true         
+    align_depth.enable: false                
+    colorizer.enable: false
+    clip_distance: -2.0 
+    linear_accel_cov: 0.01
+    initial_reset: false      
+    allow_no_texture_points: false 
+    pointcloud.ordered_pc: false
+    publish_tf: true                          # [bool] enable/disable publishing static & dynamic TF
+    tf_publish_rate: 0.0                      # [double] rate in Hz for publishing dynamic TF
+    diagnostics_period: 0.0                   # Rate of publishing diagnostics. 0=Disabled
+    decimation_filter.enable: false           # Rate of publishing static_tf
+    rosbag_filename: ''                       # A realsense bagfile to run from as a device
+    depth_module.enable_auto_exposure: false  # enable/disable auto exposure for depth image
+    depth_module.exposure.1: 7500             # Depth module first exposure value. Used for hdr_merge filter
+    depth_module.gain.1: 16                   # Depth module first gain value. Used for hdr_merge filter
+    depth_module.exposure.2: 1                # Depth module second exposure value. Used for hdr_merge filter
+    depth_module.gain.2: 16                   # Depth module second gain value. Used for hdr_merge filter
+    depth_module.exposure: 8500               # Depth module manual exposure value
+    depth_module.hdr_enabled: false           # Depth module hdr enablement flag. Used for hdr_merge filter
+    hdr_merge.enable: false                   # hdr_merge filter enablement flag
+    wait_for_device_timeout: -1.0             # Timeout for waiting for device to connect (Seconds)
+    reconnect_timeout: 6.0                    # Timeout(seconds) between consequtive reconnection attempts'}

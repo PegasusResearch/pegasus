@@ -6,9 +6,9 @@
         position: "control/position"
         # Control the vehicle body velocity
         body_velocity: "control/body_velocity"
-        # Low-level control (attitude and attitude-rate control + thrust)
-        attitude_thrust: "control/attitude_thrust"
-        attitude_rate_thrust: "control/attitude_rate_thrust"
+        # Low-level control (attitude and attitude-rate control + throttle)
+        attitude_thrust: "control/attitude_throttle"
+        attitude_rate_thrust: "control/attitude_rate_throttle"
         # Low-level control (attitude and attitude-rate control + force expresed in Newton)
         attitude_force: "control/attitude_force"
         attitude_rate_force: "control/attitude_rate_force"

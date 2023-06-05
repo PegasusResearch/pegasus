@@ -30,7 +30,6 @@ def generate_launch_description():
     namespace_arg = DeclareLaunchArgument('vehicle_ns', default_value='drone', description='Namespace to append to every topic and node name')
     
     # Define the drone MAVLINK IP and PORT
-    #mav_connection_arg = DeclareLaunchArgument('connection', default_value='serial:///dev/ttyACM0:57600', description='The interface used to connect to the vehicle')
     mav_connection_arg = DeclareLaunchArgument('connection', default_value='serial:///dev/serial/by-id/usb-Holybro_PX4_KakuteH7_0-if00:57600', description='The interface used to connect to the vehicle')
 
     # Define the drone MAVLINK forward ips and ports
@@ -61,15 +60,15 @@ def generate_launch_description():
     )
 
     # Call the ueye camera interface package launch file
-    # ueye_camera_launch_file = IncludeLaunchDescription(
-    #     # Grab the launch file for the ueye camera interface
-    #     PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('ueye_driver'), 'launch/ueye_driver.launch.py')),
-    #     # Define costume launch arguments/parameters used for the ueye camera interface
-    #     launch_arguments={
-    #         'id': LaunchConfiguration('vehicle_id'),
-    #         'namespace': LaunchConfiguration('vehicle_ns')
-    #     }.items(),
-    # )
+    ueye_camera_launch_file = IncludeLaunchDescription(
+        # Grab the launch file for the ueye camera interface
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('ueye_driver'), 'launch/ueye_driver.launch.py')),
+        # Define costume launch arguments/parameters used for the ueye camera interface
+        launch_arguments={
+            'id': LaunchConfiguration('vehicle_id'),
+            'namespace': LaunchConfiguration('vehicle_ns')
+        }.items(),
+    )
 
     # Call the intel real sense camera interface 
     real_sense_launch_file=IncludeLaunchDescription(
