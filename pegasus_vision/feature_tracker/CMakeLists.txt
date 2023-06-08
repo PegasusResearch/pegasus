@@ -16,6 +16,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(message_filters REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(camera_models REQUIRED)
 
@@ -34,6 +35,7 @@ add_executable(${PROJECT_NAME}
 ament_target_dependencies(${PROJECT_NAME}
   rclcpp
   sensor_msgs
+  message_filters
   camera_models
 )
 

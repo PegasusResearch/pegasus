@@ -1,8 +1,11 @@
 #pragma once
 
 #include "rclcpp/rclcpp.hpp"
+#include "message_filters/subscriber.h"
+#include "message_filters/synchronizer.h"
+#include "message_filters/sync_policies/approximate_time.h"
+#include "sensor_msgs/msg/imu.hpp"
 #include "sensor_msgs/msg/image.hpp"
-#include "sensor_msgs/msg/point_cloud.hpp"
 
 #include <memory>
 
@@ -13,19 +16,16 @@ class FeatureTrackerNode : public rclcpp::Node {
 public:
 
     /**
-     * @brief An alias for a shared pointer of a FeatureTrackerNode
+     * @brief An alias for a shared, unique and weak pointers of a FeatureTrackerNode
      */
     using SharedPtr = std::shared_ptr<FeatureTrackerNode>;
-
-    /**
-     * @brief An alias for a unique pointer of a FeatureTrackerNode
-     */
     using UniquePtr = std::unique_ptr<FeatureTrackerNode>;
+    using WeakPtr = std::weak_ptr<FeatureTrackerNode>;
 
     /**
-     * @brief An alias for a weak pointer of a FeatureTrackerNode
+     * @brief An alias for the image sync policy to make sure that the rgb and depth images are synchronized 
      */
-    using WeakPtr = std::weak_ptr<FeatureTrackerNode>;
+    using ApproximateTime = message_filters::sync_policies::ApproximateTime<sensor_msgs::msg::Image, sensor_msgs::msg::Image>;
 
     /**
      * @brief Default constructor
@@ -48,18 +48,20 @@ protected:
      * @brief Callback for the image topic
      * @param msg The image message
      */
-    void image_callback(const sensor_msgs::msg::Image::SharedPtr msg);
+    void rgb_depth_image_callback(const sensor_msgs::msg::Image::ConstSharedPtr & rgb_msg, const sensor_msgs::msg::Image::ConstSharedPtr & depth_msg);
 
     /**
-     * @brief Subscriber for the image topic
+     * @brief Callback for the imu topic
+     * @param msg The imu message
      */
-    rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_sub_;
+    void imu_callback(const sensor_msgs::msg::Imu::ConstSharedPtr msg);
 
-    /**
-     * @brief Publisher for the pointcloud topic
-     */
-    rclcpp::Publisher<sensor_msgs::msg::PointCloud>::SharedPtr pointcloud_pub_;
+    message_filters::Subscriber<sensor_msgs::msg::Image> rgb_image_sub_;
+    message_filters::Subscriber<sensor_msgs::msg::Image> depth_image_sub_;
+    const rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_sub_;
 
+
+    std::shared_ptr<message_filters::Synchronizer<ApproximateTime>> image_synchronizer_;
 };
 
 }
