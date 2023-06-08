@@ -5,6 +5,8 @@ import rclpy
 from rclpy.node import Node
 from pegasus_msgs.msg import State as StateMsg
 from sensor_msgs.msg import Image as ImageMsg
+from sensor_msgs.msg import CameraInfo as CameraInfoMsg
+from sensor_msgs.msg import Imu as ImuMsg
 
 
 # Imports for parsing the dataset
@@ -62,13 +64,19 @@ class MidAirDatasetPlayer(Node):
 
         # ROS publishers setup
         self.gt_publisher = self.create_publisher(StateMsg, 'nav/state', 1)
+        self.imu_publisher = self.create_publisher(ImuMsg, 'imu/data', 1)
         self.depth_publisher = self.create_publisher(ImageMsg, 'camera/depth/image_raw', 1)
         self.rgb_publisher = self.create_publisher(ImageMsg, 'camera/rgb/image_raw', 1)
+        self.depth_camera_info_publisher = self.create_publisher(CameraInfoMsg, 'camera/depth/camera_info', 1)
+        self.rgb_camera_info_publisher = self.create_publisher(CameraInfoMsg, 'camera/rgb/camera_info', 1)
 
         # ROS messages setup
         self.gt_msg = StateMsg()
+        self.imu_msg = ImuMsg()
         self.depth_msg = ImageMsg()
         self.rgb_msg = ImageMsg()
+        self.depth_camera_info_msg = CameraInfoMsg()
+        self.rgb_camera_info_msg = CameraInfoMsg()
 
         # Get the start time of the simulation
         self.start_time = float(self.get_clock().now().nanoseconds / 1e9)
@@ -91,6 +99,13 @@ class MidAirDatasetPlayer(Node):
         groundtruth_angular_velocity = dataset["groundtruth"]["angular_velocity"][index]
 
         return groundtruth_position, groundtruth_velocity, groundtruth_acceleration, groundtruth_attitude, groundtruth_angular_velocity
+    
+    def get_imu(self, dataset, index):
+
+        imu_accelerometer = dataset["imu"]["accelerometer"][index]
+        imu_gyroscope = dataset["imu"]["gyroscope"][index]
+
+        return imu_accelerometer, imu_gyroscope
 
     def get_depth_images(self, dataset, index):
 
@@ -130,10 +145,25 @@ class MidAirDatasetPlayer(Node):
         self.gt_msg.body_vel.twist.angular.y = groundtruth_angular_velocity[1]
         self.gt_msg.body_vel.twist.angular.z = groundtruth_angular_velocity[2]
 
+    def fill_imu_message(self, imu_accelerometer, imu_gyroscope):
+
+        current_time = self.get_clock().now().to_msg()
+
+        # Create the IMU message
+        self.imu_msg.header.stamp = current_time
+        self.imu_msg.linear_acceleration.x = imu_accelerometer[0]
+        self.imu_msg.linear_acceleration.y = imu_accelerometer[1]
+        self.imu_msg.linear_acceleration.z = imu_accelerometer[2]
+        self.imu_msg.angular_velocity.x = imu_gyroscope[0]
+        self.imu_msg.angular_velocity.y = imu_gyroscope[1]
+        self.imu_msg.angular_velocity.z = imu_gyroscope[2]
+
     def fill_rgb_message(self, color_left):
 
         byte_depth = 1
         num_channels = 3
+
+        # Fill the image message
         self.rgb_msg.header.stamp = self.get_clock().now().to_msg()
         self.rgb_msg.header.frame_id = "rgb_camera"
         self.rgb_msg.height = color_left.shape[0]
@@ -143,6 +173,28 @@ class MidAirDatasetPlayer(Node):
 
         self.rgb_msg.encoding = "bgr8"
         self.rgb_msg.is_bigendian = 0
+
+        focal_length_x = self.rgb_msg.width / 2.0
+        focal_length_y = self.rgb_msg.height / 2.0
+        optical_center_x = focal_length_x
+        optical_center_y = focal_length_y
+
+        # Fill the camera info message
+        self.rgb_camera_info_msg.header = self.rgb_msg.header
+        self.rgb_camera_info_msg.height = self.rgb_msg.height
+        self.rgb_camera_info_msg.width = self.rgb_msg.width
+        self.rgb_camera_info_msg.k = [focal_length_x,            0.0, optical_center_x, 
+                                                 0.0, focal_length_y, optical_center_y, 
+                                                 0.0,            0.0,              1.0]
+        self.rgb_camera_info_msg.distortion_model = "plumb_bob"
+        self.rgb_camera_info_msg.d = [0.0, 0.0, 0.0, 0.0, 0.0]
+        self.rgb_camera_info_msg.p = [focal_length_x,            0.0, optical_center_x, 0.0, 
+                                                 0.0, focal_length_y, optical_center_y, 0.0,
+                                                 0.0,            0.0,              1.0, 0.0]
+        self.rgb_camera_info_msg.binning_x = 0
+        self.rgb_camera_info_msg.binning_y = 0
+        
+        
         
     def fill_depth_message(self, depth):
 
@@ -156,6 +208,27 @@ class MidAirDatasetPlayer(Node):
         self.depth_msg._data = depth[:, :].tobytes()
         self.depth_msg.encoding = "mono16"
         self.depth_msg.is_bigendian = 0
+
+        focal_length_x = self.depth_msg.width / 2.0
+        focal_length_y = self.depth_msg.height / 2.0
+        optical_center_x = focal_length_x
+        optical_center_y = focal_length_y
+
+        # Fill the camera info message
+        self.depth_camera_info_msg.header = self.depth_msg.header
+        self.depth_camera_info_msg.height = self.depth_msg.height
+        self.depth_camera_info_msg.width = self.depth_msg.width
+        self.depth_camera_info_msg.k = [focal_length_x,            0.0, optical_center_x,
+                                                   0.0, focal_length_y, optical_center_y,  
+                                                   0.0,            0.0,              1.0]
+        self.depth_camera_info_msg.distortion_model = "plumb_bob"
+        self.depth_camera_info_msg.d = [0.0, 0.0, 0.0, 0.0, 0.0]
+        self.depth_camera_info_msg.p = [focal_length_x,            0.0, optical_center_x, 0.0,
+                                                   0.0, focal_length_y, optical_center_y, 0.0,
+                                                   0.0,            0.0,              1.0, 0.0]
+        self.depth_camera_info_msg.binning_x = 0
+        self.depth_camera_info_msg.binning_y = 0
+
 
     def timer_callback(self):
 
@@ -180,11 +253,13 @@ class MidAirDatasetPlayer(Node):
         # Get the current dataset
         dataset = self.database[self.datasets_names[self.current_dataset]]
 
-        # Fill the groundtruth message
+        # Fill the groundtruth and imu messages
         self.fill_gt_message(*self.get_groundtruth(dataset, gt_index))
+        self.fill_imu_message(*self.get_imu(dataset, gt_index))
         
         # Publish the groundtruth message
         self.gt_publisher.publish(self.gt_msg)
+        self.imu_publisher.publish(self.imu_msg)
             
         # Get the current rgb and depth images
         color_left, depth = self.get_depth_images(dataset, image_index)
@@ -194,6 +269,8 @@ class MidAirDatasetPlayer(Node):
         self.fill_depth_message(depth)
         self.rgb_publisher.publish(self.rgb_msg)
         self.depth_publisher.publish(self.depth_msg)
+        self.rgb_camera_info_publisher.publish(self.rgb_camera_info_msg)
+        self.depth_camera_info_publisher.publish(self.depth_camera_info_msg)
 
 
 
