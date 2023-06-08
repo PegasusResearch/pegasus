@@ -3,6 +3,7 @@
 # ROS imports
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
 from pegasus_msgs.msg import State as StateMsg
 from sensor_msgs.msg import Image as ImageMsg
 from sensor_msgs.msg import CameraInfo as CameraInfoMsg
@@ -63,12 +64,12 @@ class MidAirDatasetPlayer(Node):
         self.current_dataset = 0
 
         # ROS publishers setup
-        self.gt_publisher = self.create_publisher(StateMsg, 'nav/state', 1)
-        self.imu_publisher = self.create_publisher(ImuMsg, 'imu/data', 1)
-        self.depth_publisher = self.create_publisher(ImageMsg, 'camera/depth/image_raw', 1)
-        self.rgb_publisher = self.create_publisher(ImageMsg, 'camera/rgb/image_raw', 1)
-        self.depth_camera_info_publisher = self.create_publisher(CameraInfoMsg, 'camera/depth/camera_info', 1)
-        self.rgb_camera_info_publisher = self.create_publisher(CameraInfoMsg, 'camera/rgb/camera_info', 1)
+        self.gt_publisher = self.create_publisher(StateMsg, 'nav/state', qos_profile=qos_profile_sensor_data)
+        self.imu_publisher = self.create_publisher(ImuMsg, 'imu/data', qos_profile=qos_profile_sensor_data)
+        self.depth_publisher = self.create_publisher(ImageMsg, 'camera/depth/image_raw', qos_profile=qos_profile_sensor_data)
+        self.rgb_publisher = self.create_publisher(ImageMsg, 'camera/rgb/image_raw', qos_profile=qos_profile_sensor_data)
+        self.depth_camera_info_publisher = self.create_publisher(CameraInfoMsg, 'camera/depth/camera_info', qos_profile=qos_profile_sensor_data)
+        self.rgb_camera_info_publisher = self.create_publisher(CameraInfoMsg, 'camera/rgb/camera_info', qos_profile=qos_profile_sensor_data)
 
         # ROS messages setup
         self.gt_msg = StateMsg()
