@@ -9,6 +9,7 @@ from sensor_msgs.msg import Image as ImageMsg
 
 # Imports for parsing the dataset
 import os
+import math
 import cv2
 import h5py
 import numpy as np
@@ -26,7 +27,9 @@ class MidAirDatasetPlayer(Node):
         self.sampling_ratio = int(self.sampling_rate / self.sampling_rate_image)
         
         # Setup the dataset parser
-        self.hdf5_path = "/home/marcelo/pegasus/MidAir/PLE_training/spring/sensor_records.hdf5"
+        self.declare_parameter('dataset_path', '')
+        self.hdf5_path = self.get_parameter('dataset_path').get_parameter_value().string_value
+        print(self.hdf5_path)
         self.database = h5py.File(self.hdf5_path, "r")
         self.db_path = os.path.dirname(self.hdf5_path)
 
@@ -56,7 +59,6 @@ class MidAirDatasetPlayer(Node):
         print("Image sampling rate [Hz]: %.2f" % (position_sampling_rate / 4.0))
 
         self.current_dataset = 0
-        self.current_dataset_index = 0
 
         # ROS publishers setup
         self.gt_publisher = self.create_publisher(StateMsg, 'nav/state', 1)
@@ -67,6 +69,9 @@ class MidAirDatasetPlayer(Node):
         self.gt_msg = StateMsg()
         self.depth_msg = ImageMsg()
         self.rgb_msg = ImageMsg()
+
+        # Get the start time of the simulation
+        self.start_time = float(self.get_clock().now().nanoseconds / 1e9)
 
         timer_period = 1.0 / self.sampling_rate  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
@@ -154,41 +159,43 @@ class MidAirDatasetPlayer(Node):
 
     def timer_callback(self):
 
+        # Get the current time
+        current_time = float(self.get_clock().now().nanoseconds / 1e9)
+        dt = current_time - self.start_time
+
+        gt_index = math.floor(self.sampling_rate * dt)
+        image_index = math.floor(self.sampling_rate_image * dt)
+
+        if gt_index >= self.datasets_length[self.current_dataset]:
+
+            gt_index = 0
+            image_index = 0
+            self.start_time = current_time
+            self.current_dataset += 1
+        
+            if self.current_dataset >= len(self.datasets_names):
+                self.destroy_node()
+                rclpy.shutdown()
+
         # Get the current dataset
         dataset = self.database[self.datasets_names[self.current_dataset]]
 
         # Fill the groundtruth message
-        self.fill_gt_message(*self.get_groundtruth(dataset, self.current_dataset_index))
+        self.fill_gt_message(*self.get_groundtruth(dataset, gt_index))
         
         # Publish the groundtruth message
         self.gt_publisher.publish(self.gt_msg)
-
-
-        # Check if we want to publish the images in this timestep
-        if self.current_dataset_index % self.sampling_ratio == 0:
             
-            # Get the current rgb and depth images
-            color_left, depth = self.get_depth_images(dataset, self.current_dataset_index * self.sampling_ratio)
+        # Get the current rgb and depth images
+        color_left, depth = self.get_depth_images(dataset, image_index)
 
-            # Fill the depth and rgb images and publish them
-            self.fill_rgb_message(color_left)
-            self.fill_depth_message(depth)
-            self.rgb_publisher.publish(self.rgb_msg)
-            self.depth_publisher.publish(self.depth_msg)
+        # Fill the depth and rgb images and publish them
+        self.fill_rgb_message(color_left)
+        self.fill_depth_message(depth)
+        self.rgb_publisher.publish(self.rgb_msg)
+        self.depth_publisher.publish(self.depth_msg)
 
 
-        # Increment the current dataset index
-        self.current_dataset_index += 1
-
-        # Check if we reached the end of the current dataset
-        if self.current_dataset_index >= self.datasets_length[self.current_dataset]:
-            self.current_dataset_index = 0
-            self.current_dataset += 1
-
-            # Check if we reached the end of the database. If so, stop the simulation
-            if self.current_dataset >= self.database_length:
-                self.destroy_node()
-                rclpy.shutdown()
 
 def main(args=None):
     rclpy.init(args=args)
