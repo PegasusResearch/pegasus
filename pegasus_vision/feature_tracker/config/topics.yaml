@@ -1,6 +1,0 @@
-/**:
-  ros__parameters:
-    subscribers:
-      camera: "camera/image"
-    publishers:
-      pointcloud: "features/pointcloud"
