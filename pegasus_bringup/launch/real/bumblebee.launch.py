@@ -33,7 +33,7 @@ def generate_launch_description():
     mav_connection_arg = DeclareLaunchArgument('connection', default_value='serial:///dev/serial/by-id/usb-Holybro_PX4_KakuteH7_0-if00:57600', description='The interface used to connect to the vehicle')
 
     # Define the drone MAVLINK forward ips and ports
-    mavlink_forward_arg = DeclareLaunchArgument('mavlink_forward', default_value="['udp://127.0.0.1:14550']", description='A list of ips where to forward mavlink messages')
+    mavlink_forward_arg = DeclareLaunchArgument('mavlink_forward', default_value="['udp://192.168.55.100:14550']", description='A list of ips where to forward mavlink messages')
     
     # Define which file to use for the drone parameters
     drone_params_file_arg = DeclareLaunchArgument(
