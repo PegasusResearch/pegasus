@@ -23,7 +23,6 @@
     enable_fisheye1: true                     # enable fisheye1 stream
     enable_fisheye2: false                    # enable fisheye2 stream
     enable_confidence: true                   # enable depth stream'
-    clip_distance: 5.0                        # Distance to clip the depth measurements
     gyro_fps: 200
     accel_fps: 63
     enable_gyro: true 
@@ -42,7 +41,6 @@
     enable_sync: true                        # TODO - check if this improves the matching or actually makes it worse....
     align_depth.enable: true                
     colorizer.enable: true
-    clip_distance: -2.0 
     linear_accel_cov: 0.01    
     allow_no_texture_points: false 
     pointcloud.ordered_pc: false
@@ -63,3 +61,9 @@
     wait_for_device_timeout: -1.0             # Timeout for waiting for device to connect (Seconds)
     reconnect_timeout: 10.0                   # Timeout(seconds) between consequtive reconnection attempts'}
     initial_reset: true                       # This is required, otherwise sometimes we need to physically plug and unplug the realsense between ROS re-launches
+    clip_distance: 10.0                       # Distance to clip the depth measurements
+    temporal_filter.enable: true
+    spatial_filter.enable: true
+    decimation_filter.enable: true
+    disparity_filter.enable: true
+    disparity_to_depth.enable: true
