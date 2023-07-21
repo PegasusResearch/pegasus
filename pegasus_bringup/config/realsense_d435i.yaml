@@ -24,8 +24,8 @@
     enable_fisheye2: false                    # enable fisheye2 stream
     enable_confidence: true                   # enable depth stream'
     clip_distance: 5.0                        # Distance to clip the depth measurements
-    gyro_fps: 60
-    accel_fps: 60
+    gyro_fps: 200
+    accel_fps: 63
     enable_gyro: true 
     enable_accel: true 
     enable_pose: false 
@@ -43,13 +43,12 @@
     align_depth.enable: true                
     colorizer.enable: true
     clip_distance: -2.0 
-    linear_accel_cov: 0.01
-    initial_reset: false      
+    linear_accel_cov: 0.01    
     allow_no_texture_points: false 
     pointcloud.ordered_pc: false
-    publish_tf: false                         # [bool] enable/disable publishing static & dynamic TF
+    publish_tf: true                          # [bool] enable/disable publishing static & dynamic TF
     tf_publish_rate: 0.0                      # [double] rate in Hz for publishing dynamic TF
-    diagnostics_period: 0.0                   # Rate of publishing diagnostics. 0=Disabled
+    diagnostics_period: 1.0                   # Rate of publishing diagnostics. 0=Disabled -> Sacrifices a little bit of performance but gives diagnostics on the rates
     decimation_filter.enable: false           # Rate of publishing static_tf
     rosbag_filename: ''                       # A realsense bagfile to run from as a device
     depth_module.enable_auto_exposure: true   # enable/disable auto exposure for depth image
