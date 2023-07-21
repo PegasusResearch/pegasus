@@ -5,7 +5,7 @@
     usb_port_id: '' 
     device_type: '' 
     config_file: ''
-    unite_imu_method: 0                       # [0-None, 1-copy, 2-linear_interpolation]
+    unite_imu_method: 1                       # [0-None, 1-copy, 2-linear_interpolation]
     json_file_path: ''                        # allows advanced configuration
     log_level: 'info'                         # debug log level [DEBUG|INFO|WARN|ERROR|FATAL]
     output: 'screen'                          # pipe node output [screen|log]
@@ -23,10 +23,11 @@
     enable_fisheye1: true                     # enable fisheye1 stream
     enable_fisheye2: false                    # enable fisheye2 stream
     enable_confidence: true                   # enable depth stream'
-    #gyro_fps: 60    
-    #accel_fps: 60           
-    enable_gyro: false 
-    enable_accel: false 
+    clip_distance: 5.0                        # Distance to clip the depth measurements
+    gyro_fps: 60
+    accel_fps: 60
+    enable_gyro: true 
+    enable_accel: true 
     enable_pose: false 
     pose_fps: 60.0
     color_qos: 'SENSOR_DATA'                  # SYSTEM_DEFAULT, DEFAULT, PARAMETER_EVENTS, SERVICES_DEFAULT, PARAMETERS, SENSOR_DATA
@@ -59,7 +60,7 @@
     depth_module.exposure: 8500               # Depth module manual exposure value
     depth_module.hdr_enabled: false           # Depth module hdr enablement flag. Used for hdr_merge filter
     depth_module.emitter_enabled: 1
-    hdr_merge.enable: false                   # hdr_merge filter enablement flag
+    hdr_merge.enable: false                   # hdr_merge filter enablement flag - This is disable because it does not work well at 60 FPS in the intel realsense D435i
     wait_for_device_timeout: -1.0             # Timeout for waiting for device to connect (Seconds)
     reconnect_timeout: 10.0                   # Timeout(seconds) between consequtive reconnection attempts'}
     initial_reset: true                       # This is required, otherwise sometimes we need to physically plug and unplug the realsense between ROS re-launches
