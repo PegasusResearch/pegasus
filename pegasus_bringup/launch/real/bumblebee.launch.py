@@ -82,9 +82,9 @@ def generate_launch_description():
     )
 
     # Call Feature tracker interface package launch file 
-    feature_tracker_launch_file = IncludeLaunchDescription(
+    visual_odometry_launch_file = IncludeLaunchDescription(
         # Grab the launch file for the mavlink interface
-        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('feature_tracker'), 'launch/feature_tracker.launch.py')),
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('visual_odometry'), 'launch/visual_odometry.launch.py')),
         # Define costume launch arguments/parameters used for the mavlink interface
         launch_arguments={
             'id': LaunchConfiguration('vehicle_id'), 
@@ -103,8 +103,8 @@ def generate_launch_description():
         mavlink_forward_arg,
         drone_params_file_arg,
         # Launch files
-        mavlink_driver_launch_file,
+        #mavlink_driver_launch_file,
         #ueye_camera_launch_file,
         real_sense_launch_file,
-        feature_tracker_launch_file
+        #visual_odometry_launch_file
     ])
