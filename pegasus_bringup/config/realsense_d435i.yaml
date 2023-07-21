@@ -15,7 +15,6 @@
     rgb_camera.enable_auto_exposure: true     # enable/disable auto exposure for color image
     rgb_camera.auto_exposure_priority: false
     rgb_camera.power_line_frequency: 0
-    color_fps: 60
     output_trigger_enabled: false
     enable_color: true                        # enable color stream
     enable_infra1: false                      # enable infra1 stream
@@ -39,7 +38,7 @@
     pointcloud.enable: false
     pointcloud.stream_filter: 2                # texture stream for pointcloud
     pointcloud.stream_index_filter: 0          # texture stream index for pointcloud
-    enable_sync: false         
+    enable_sync: true                        # TODO - check if this improves the matching or actually makes it worse....
     align_depth.enable: true                
     colorizer.enable: true
     clip_distance: -2.0 
@@ -63,3 +62,4 @@
     hdr_merge.enable: false                   # hdr_merge filter enablement flag
     wait_for_device_timeout: -1.0             # Timeout for waiting for device to connect (Seconds)
     reconnect_timeout: 10.0                   # Timeout(seconds) between consequtive reconnection attempts'}
+    initial_reset: true                       # This is required, otherwise sometimes we need to physically plug and unplug the realsense between ROS re-launches
