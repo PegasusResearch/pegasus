@@ -30,7 +30,7 @@ def generate_launch_description():
     namespace_arg = DeclareLaunchArgument('vehicle_ns', default_value='drone', description='Namespace to append to every topic and node name')
     
     # Define the drone MAVLINK IP and PORT
-    mav_connection_arg = DeclareLaunchArgument('connection', default_value='serial:///dev/serial/by-id/usb-Holybro_PX4_KakuteH7_0-if00:57600', description='The interface used to connect to the vehicle')
+    mav_connection_arg = DeclareLaunchArgument('connection', default_value='serial:///dev/ttyTHS0:57600', description='The interface used to connect to the vehicle')
 
     # Define the drone MAVLINK forward ips and ports
     mavlink_forward_arg = DeclareLaunchArgument('mavlink_forward', default_value="['udp://192.168.55.100:14550']", description='A list of ips where to forward mavlink messages')
@@ -102,9 +102,9 @@ def generate_launch_description():
         mav_connection_arg,
         mavlink_forward_arg,
         drone_params_file_arg,
-        # Launch files
-        #mavlink_driver_launch_file,
+        # Launch filesxit
+        mavlink_driver_launch_file,
         #ueye_camera_launch_file,
-        real_sense_launch_file,
+        #real_sense_launch_file,
         #visual_odometry_launch_file
     ])
