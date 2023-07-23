@@ -38,13 +38,13 @@
     pointcloud.enable: false
     pointcloud.stream_filter: 2                # texture stream for pointcloud
     pointcloud.stream_index_filter: 0          # texture stream index for pointcloud
-    enable_sync: true                        # TODO - check if this improves the matching or actually makes it worse....
+    enable_sync: true                          # TODO - check if this improves the matching or actually makes it worse....
     align_depth.enable: true                
     linear_accel_cov: 0.01    
     allow_no_texture_points: false 
     pointcloud.ordered_pc: false
     publish_tf: true                          # [bool] enable/disable publishing static & dynamic TF
-    tf_publish_rate: 0.0                      # [double] rate in Hz for publishing dynamic TF
+    tf_publish_rate: 1.0                      # [double] rate in Hz for publishing dynamic TF
     diagnostics_period: 1.0                   # Rate of publishing diagnostics. 0=Disabled -> Sacrifices a little bit of performance but gives diagnostics on the rates
     rosbag_filename: ''                       # A realsense bagfile to run from as a device
     depth_module.enable_auto_exposure: true   # enable/disable auto exposure for depth image
@@ -61,8 +61,8 @@
     initial_reset: true                       # This is required, otherwise sometimes we need to physically plug and unplug the realsense between ROS re-launches
     clip_distance: 10.0                       # Distance to clip the depth measurements
     colorizer.enable: true
-    temporal_filter.enable: true
-    spatial_filter.enable: true
+    temporal_filter.enable: false
+    spatial_filter.enable: false
     decimation_filter.enable: false
     disparity_filter.enable: false
     disparity_to_depth.enable: false
