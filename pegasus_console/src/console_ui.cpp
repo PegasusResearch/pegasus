@@ -8,9 +8,8 @@
 #include "ftxui/dom/elements.hpp"  // for gauge, separator, text, vbox, operator|, Element, border
 #include "ftxui/screen/color.hpp"  // for Color, Color::Blue, Color::Green, Color::Red
 
-using namespace ftxui;
-
-ConsoleUI::ConsoleUI() : screen_(ScreenInteractive::Fullscreen()) {
+ConsoleUI::ConsoleUI(const Config & config) : 
+    screen_(ftxui::ScreenInteractive::Fullscreen()), config_(config) {
 
     // Clear the terminal
     clear_terminal();
@@ -27,29 +26,78 @@ void ConsoleUI::clear_terminal() {
 
 void ConsoleUI::loop() {
 
-    // Create the arm menu
-    auto arm_menu = arm_buttons();
+    // Create the top bar
+    auto top = ftxui::Renderer([] { return ftxui::text("Drone Console") | ftxui::center; });
+    
+    // Create the left bar
+    auto left = ftxui::Container::Vertical( {
+        control_buttons(),
+        state_display(),
+    } );
+
+    // Create the Right spot
+    auto middle = ftxui::Renderer([&] { return ftxui::text("Middle") | ftxui::center; });
+
+    int left_size = 40;
+    int top_size = 1;
+
+    // Create a split screen
+    auto container = ftxui::ResizableSplitLeft(left, middle, &left_size);
+    container = ftxui::ResizableSplitTop(top, container, &top_size);
 
     // Renderer for the entire UI
-    auto renderer = Renderer(arm_menu, [&] {
-        return vbox({
-            arm_menu->Render() | border,
-            separator(),
-        });
+    auto renderer = ftxui::Renderer(container, [&] {
+        return container->Render() | ftxui::border;
     });
 
     // Loop the renderer
     screen_.Loop(renderer);
 }
 
-Component ConsoleUI::arm_buttons() {
+ftxui::Component ConsoleUI::control_buttons() {
+    
     // Basic control buttons
-    auto control_buttons = Container::Horizontal({
-        Button("Arm", [&] { printf("Arming\n"); }, ButtonOption::Animated(Color::Green)),
-        Button("Disarm", [&] { printf("Disarming\n"); }, ButtonOption::Animated(Color::Green)),
-        Button("Takeoff", [&] { printf("Taking off\n"); }, ButtonOption::Animated(Color::Blue)),
-        Button("Kill Switch", [&] { printf("Killing\n"); }, ButtonOption::Animated(Color::Red)),
+    auto control_buttons = ftxui::Container::Vertical({
+        ftxui::Renderer([] { return 
+            ftxui::vbox({ 
+                ftxui::text("Low Level Control") | ftxui::center, 
+                ftxui::separator() 
+            });
+        }),
+        ftxui::Container::Horizontal({
+            ftxui::Button("Arm", std::bind(config_.on_arm_disarm_click, true), ftxui::ButtonOption::Animated(ftxui::Color::Green)),
+            ftxui::Button("Disarm", std::bind(config_.on_arm_disarm_click, false), ftxui::ButtonOption::Animated(ftxui::Color::Blue)),
+            ftxui::Button("Land", config_.on_land_click, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
+            ftxui::Button("Hold", config_.on_hold_click, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
+            ftxui::Button("Kill Switch", config_.on_kill_switch_click, ftxui::ButtonOption::Animated(ftxui::Color::Red)),
+        }),
+        ftxui::Renderer([] { return ftxui::separator(); })
     });
 
     return control_buttons;
+}
+
+ftxui::Component ConsoleUI::state_display() {
+    
+    auto status = ftxui::Container::Vertical({
+        ftxui::Renderer([] { return
+            ftxui::vbox({
+                ftxui::text("Status") | ftxui::center,
+                ftxui::separator(),
+                ftxui::text("ID: "),
+                ftxui::text("Armed: "),
+                ftxui::text("Mode: "),
+                ftxui::separator(),
+                ftxui::text("State") | ftxui::center,
+                ftxui::separator(),
+                ftxui::text("Position: "),
+                ftxui::text("Orientation: "),
+                ftxui::text("Inertial Velocity: "),
+                ftxui::text("Angular Velocity: "),
+            });
+        })
+    });
+
+    return status;
+    
 }

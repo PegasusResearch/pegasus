@@ -15,7 +15,10 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(nav_msgs REQUIRED)
 find_package(pegasus_msgs REQUIRED)
+find_package(pegasus_utils REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 # ---------------------------------------------------------------------------
 # Get the FTXUI library
@@ -54,7 +57,9 @@ target_link_libraries(${PROJECT_NAME} ftxui::screen ftxui::dom ftxui::component)
 # Add the ROS2 packages to link against
 ament_target_dependencies(${PROJECT_NAME}
   rclcpp
+  nav_msgs
   pegasus_msgs
+  pegasus_utils
 )
 
 if(BUILD_TESTING)

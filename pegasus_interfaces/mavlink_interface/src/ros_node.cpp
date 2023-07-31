@@ -494,9 +494,9 @@ void ROSNode::on_quaternion_callback(const mavsdk::Telemetry::Quaternion &quat) 
 
     // Fill in the RPY message
     filter_state_rpy_msg_.header.stamp = filter_state_msg_.header.stamp;
-    filter_state_rpy_msg_.roll = euler_angles(0);
-    filter_state_rpy_msg_.pitch = euler_angles(1);
-    filter_state_rpy_msg_.yaw = euler_angles(2);
+    filter_state_rpy_msg_.roll = Pegasus::Rotations::rad_to_deg(euler_angles(0));
+    filter_state_rpy_msg_.pitch = Pegasus::Rotations::rad_to_deg(euler_angles(1));
+    filter_state_rpy_msg_.yaw = Pegasus::Rotations::rad_to_deg(euler_angles(2));
 
     // Publish the updated message
     filter_state_pub_->publish(filter_state_msg_);

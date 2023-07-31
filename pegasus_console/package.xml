@@ -12,7 +12,9 @@
 
  <!-- Packages Dependencies -->
  <depend>rclcpp</depend>
+ <depend>nav_msgs</depend>
  <depend>pegasus_msgs</depend>
+ <depend>pegasus_utils</depend>
 
  <test_depend>ament_lint_auto</test_depend>
  <test_depend>ament_cmake_copyright</test_depend>
