@@ -436,6 +436,5 @@ private:
     std::shared_ptr<Pegasus::ThrustCurve> thrust_curve_{nullptr};
 
     // ROS 2 thread setup
-    std::thread executor_thread_;
     rclcpp::executors::MultiThreadedExecutor executor_;
 };
