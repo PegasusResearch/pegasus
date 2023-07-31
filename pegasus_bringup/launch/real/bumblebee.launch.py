@@ -33,7 +33,7 @@ def generate_launch_description():
     mav_connection_arg = DeclareLaunchArgument('connection', default_value='serial:///dev/ttyTHS0:921600', description='The interface used to connect to the vehicle')
 
     # Define the drone MAVLINK forward ips and ports
-    mavlink_forward_arg = DeclareLaunchArgument('mavlink_forward', default_value="['udp://192.168.55.100:14550']", description='A list of ips where to forward mavlink messages')
+    mavlink_forward_arg = DeclareLaunchArgument('mavlink_forward', default_value="['']", description='A list of ips where to forward mavlink messages')
     
     # Define which file to use for the drone parameters
     drone_params_file_arg = DeclareLaunchArgument(
@@ -46,9 +46,9 @@ def generate_launch_description():
     # ----------------------------------------
     
     # Call MAVLINK interface package launch file 
-    mavlink_driver_launch_file = IncludeLaunchDescription(
+    mavlink_interface_launch_file = IncludeLaunchDescription(
         # Grab the launch file for the mavlink interface
-        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('mavlink_driver'), 'launch/mavlink_driver.launch.py')),
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('mavlink_interface'), 'launch/mavlink_interface.launch.py')),
         # Define costume launch arguments/parameters used for the mavlink interface
         launch_arguments={
             'id': LaunchConfiguration('vehicle_id'), 
@@ -102,8 +102,8 @@ def generate_launch_description():
         mav_connection_arg,
         mavlink_forward_arg,
         drone_params_file_arg,
-        # Launch filesxit
-        mavlink_driver_launch_file,
+        # Launch files
+        mavlink_interface_launch_file,
         #ueye_camera_launch_file,
         #real_sense_launch_file,
         #visual_odometry_launch_file

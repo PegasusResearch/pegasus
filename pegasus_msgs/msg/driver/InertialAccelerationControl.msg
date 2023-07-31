@@ -1,1 +1,0 @@
-float64[3] inertial_acceleration # Acceleration in the NED (north-east-down) inertial frame expressed in m/s^2

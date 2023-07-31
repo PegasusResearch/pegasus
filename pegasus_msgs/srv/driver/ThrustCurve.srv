@@ -1,5 +1,0 @@
----
-string identifier
-string[] parameter_names
-float64[] parameters
-float64 mass

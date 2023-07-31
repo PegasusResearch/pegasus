@@ -1,9 +1,0 @@
-/**:
-  ros__parameters:
-    rates:
-      # Rates for receiving data from mavlink
-      mavlink_telemetry:
-        imu: 20.0 # Hz
-        pos_vel: 20.0 #Hz
-        attitude: 20.0 #Hz
-        odometry: 20.0 #Hz

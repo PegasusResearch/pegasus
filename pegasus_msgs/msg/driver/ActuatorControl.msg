@@ -1,2 +1,0 @@
-float64[8] group0 # The typical group for the thrusters (max number of actuators per group - 8 [0...7])
-float64[8] group1 # The typical group for gimbal and lights (max number of actuators per group -8 [0...7])
