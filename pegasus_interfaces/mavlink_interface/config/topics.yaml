@@ -18,6 +18,9 @@
     services:
       arm: "fmu/arm"
       land: "fmu/land"
+      kill_switch: "fmu/kill_switch"
+      offboard: "fmu/offboard"
+      hold: "fmu/hold"
     publishers:
       # Current status of the vehicle (battery, operation mode, etc.)
       status: "fmu/status"

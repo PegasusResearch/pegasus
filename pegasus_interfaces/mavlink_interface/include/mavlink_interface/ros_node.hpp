@@ -24,7 +24,10 @@
 
 // Services for arming, auto-landing, etc.
 #include "pegasus_msgs/srv/arm.hpp"
+#include "pegasus_msgs/srv/kill_switch.hpp"
 #include "pegasus_msgs/srv/land.hpp"
+#include "pegasus_msgs/srv/offboard.hpp"
+#include "pegasus_msgs/srv/position_hold.hpp"
 
 // Messages for the mocap fusion and visual odometry
 #include "geometry_msgs/msg/pose_stamped.hpp"
@@ -288,18 +291,45 @@ private:
      * @brief Arming/disarming service callback. When a service request is reached from the arm_service_, 
      * this callback is called and will send a mavlink command for the vehicle to arm/disarm
      * @param request The request for arming (bool = true) or disarming (bool = false)
-     * @param response The response in this service goes empty, as the request is done asynchronously through mavlink
+     * @param response The response in this service uint8
      */
     void arm_callback(const pegasus_msgs::srv::Arm::Request::SharedPtr request, const pegasus_msgs::srv::Arm::Response::SharedPtr response);
+
+    /**
+     * @ingroup servicesCallbacks
+     * @brief Kill switch service callback. When a service request is reached from the kill_switch_service_,
+     * this callback is called and will send a mavlink command for the vehicle to kill the motors instantly.
+     * @param request The request for killing the motors (bool = true)
+     * @param response The response in this service uint8
+    */
+    void kill_switch_callback(const pegasus_msgs::srv::KillSwitch::Request::SharedPtr request, const pegasus_msgs::srv::KillSwitch::Response::SharedPtr response);
    
     /**
      * @ingroup servicesCallbacks
      * @brief Autoland service callback. When a service request is reached from the land_service_,
      * this callback is called and will send a mavlink command for the vehicle to autoland using the onboard controller
      * @param request An empty request for landing the vehicle (can be ignored)
-     * @param response The response in this service goes empty, as the request id done asynchronously through mavlink
+     * @param response The response in this service uint8
      */
     void land_callback(const pegasus_msgs::srv::Land::Request::SharedPtr request, const pegasus_msgs::srv::Land::Response::SharedPtr response);
+
+    /**
+     * @ingroup servicesCallbacks
+     * @brief Offboard service callback. When a service request is reached from the offboard_service_,
+     * this callback is called and will send a mavlink command for the vehicle to enter offboard mode
+     * @param request An empty request for entering offboard mode (can be ignored)
+     * @param response The response in this service uint8
+     */
+    void offboard_callback(const pegasus_msgs::srv::Offboard::Request::SharedPtr, const pegasus_msgs::srv::Offboard::Response::SharedPtr response);
+
+    /**
+     * @ingroup servicesCallbacks
+     * @brief Position hold service callback. When a service request is reached from the position_hold_service_,
+     * this callback is called and will send a mavlink command for the vehicle to enter position hold mode
+     * @param request An empty request for entering position hold mode (can be ignored)
+     * @param response The response in this service uint8
+     */
+    void position_hold_callback(const pegasus_msgs::srv::PositionHold::Request::SharedPtr, const pegasus_msgs::srv::PositionHold::Response::SharedPtr response);
 
     /**
      *  @defgroup messages 
@@ -417,10 +447,28 @@ private:
 
     /**
      * @ingroup services
+     * @brief Service server to disarm the vehicle
+     */
+    rclcpp::Service<pegasus_msgs::srv::KillSwitch>::SharedPtr kill_switch_service_{nullptr};
+
+    /**
+     * @ingroup services
      * @brief Service server to auto-land the vehicle using the 
      * microcontroller embeded control algorithm
      */
     rclcpp::Service<pegasus_msgs::srv::Land>::SharedPtr land_service_{nullptr};
+
+    /**
+     * @ingroup services
+     * @brief Service server to set the vehicle into the offboard mode 
+     */
+    rclcpp::Service<pegasus_msgs::srv::Offboard>::SharedPtr offboard_service_{nullptr};
+
+    /**
+     * @ingroup services
+     * @brief Service server to set the vehicle into the hold position mode
+     */
+    rclcpp::Service<pegasus_msgs::srv::PositionHold>::SharedPtr position_hold_service_{nullptr};
 
     /**
      * @brief A MavlinkNode object that allows for initializing the ROS2 publishers, subscribers, etc.

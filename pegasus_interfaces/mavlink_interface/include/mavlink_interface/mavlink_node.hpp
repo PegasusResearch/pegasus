@@ -107,12 +107,29 @@ public:
      * @brief Method to arm or disarm the vehicle
      * @param arm_disarm The boolean that is 1 to arm the vehicle and 0 to disarm
      */
-    void arm_disarm(const bool arm_disarm);
+    uint8_t arm_disarm(const bool arm_disarm);
+
+    /**
+     * @brief Method to kill the vehicle motors instantly
+     */
+    uint8_t kill_switch();
 
     /**
      * @brief Method to autoland the vehicle using the onboard microntroller controller
      */
-    void land();
+    uint8_t land();
+
+    /**
+     * @brief Method to make the vehicle switch to the offboard mode. This function is blocking
+     * until we have a result from the vehicle.
+     */
+    uint8_t offboard();
+
+    /**
+     * @brief Method to make the vehicle switch to the position hold mode. This function is blocking
+     * until we have a result from the vehicle. 
+     */
+    uint8_t position_hold();
 
     /**
      * @defgroup mocap
@@ -178,13 +195,6 @@ private:
      * all mavlink redirections (like mavlink router) to the ips speficied in "mavlink_forward" ROS parameter
      */
     void initialize_mavlink_forwarding();
-
-    /*
-     * @brief Method that checks if the OFFBOARD autopilot is engaged, in order to send low-level
-     * control command for the onboard micro-controller. If not, this method will send a signal
-     * for the micro-controller to engage offboard mode
-     */
-    void check_switch_offboard_mode();
 
     /**
      * @defgroup vehicle_state_callbacks

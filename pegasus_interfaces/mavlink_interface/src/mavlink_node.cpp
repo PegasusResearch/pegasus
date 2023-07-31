@@ -279,38 +279,36 @@ void MavlinkNode::set_position(const float x, const float y, const float z, cons
  * @brief Method to arm or disarm the vehicle
  * @param arm_disarm The boolean that is 1 to arm the vehicle and 0 to disarm
  */
-void MavlinkNode::arm_disarm(const bool arm_disarm) {
-    (arm_disarm) ? action_->arm_async(nullptr) : action_->disarm_async(nullptr);
+uint8_t MavlinkNode::arm_disarm(const bool arm_disarm) {
+    return static_cast<uint8_t>((arm_disarm) ? action_->arm() : action_->disarm());
+}
+
+uint8_t MavlinkNode::kill_switch() {
+    return static_cast<uint8_t>(action_->kill());
 }
 
 /**
  * @brief Method to autoland the vehicle using the onboard microntroller controller
  */
-void MavlinkNode::land() {
-    action_->land_async(nullptr);
+uint8_t MavlinkNode::land() {
+    return static_cast<uint8_t>(action_->land());
 }
 
 /**
- * @defgroup offboard_mode
- * This group defines all the methods that switch on and off the OFFBOARD autopilot mode
+ * @brief Method to make the vehicle switch to the offboard mode. This function is blocking
+ * until we have a result from the vehicle
  */
-
-/**
- * @ingroup offboard_mode
- * @brief Method that checks if the OFFBOARD autopilot is engaged, in order to send low-level
- * control command for the onboard micro-controller. If not, this method will send a signal
- * for the micro-controller to engage offboard mode
- */
-void MavlinkNode::check_switch_offboard_mode() {
-
-    // Start the offboard mode inside the microcontroller and signal the user of the result
-    RCLCPP_INFO_STREAM(rclcpp::get_logger("mavlink"), "Requesting offboard mode");
-        
-    offboard_->start_async([](mavsdk::Offboard::Result result) {
-        RCLCPP_INFO_STREAM(rclcpp::get_logger("mavlink"), "Offboard mode: " << result);
-    });
+uint8_t MavlinkNode::offboard() {
+    return static_cast<uint8_t>(offboard_->start());
 }
 
+/**
+ * @brief Method to make the vehicle switch to the position hold mode. This function is blocking
+ * until we have a result from the vehicle. 
+ */
+uint8_t MavlinkNode::position_hold() {
+    return static_cast<uint8_t>(action_->hold());
+}
 
 /**
  * @defgroup mocap

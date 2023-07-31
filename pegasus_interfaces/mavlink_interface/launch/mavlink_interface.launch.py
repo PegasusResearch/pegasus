@@ -52,6 +52,8 @@ def generate_launch_description():
             # Pass the connection URL (udp, tcp or serial)
             # as well as the mavlink forward ips (for example for operating QGroundControl in parallel)
             {
+                'vehicle_id': LaunchConfiguration('vehicle_id'),
+                'vehicle_ns': LaunchConfiguration('vehicle_ns'),
                 'connection': LaunchConfiguration('connection'), 
                 'mavlink_forward': LaunchConfiguration('mavlink_forward')
             }

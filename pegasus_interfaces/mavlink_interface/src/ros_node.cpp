@@ -2,6 +2,7 @@
 #include "ros_node.hpp"
 #include "mavlink_node.hpp"
 #include "pegasus_utils/frames.hpp"
+#include "pegasus_utils/rotations.hpp"
 
 /**
  * @brief Constructor for the ROS2 node that receives control commands 
@@ -179,10 +180,19 @@ void ROSNode::init_subscribers_and_services() {
     // ------------------------------------------------------------------------
     // Subscribe to data comming from the motion capture system (MOCAP)
     // ------------------------------------------------------------------------
-    this->declare_parameter<std::string>("subscribers.external_sensors.mocap_enu", "mocap/pose_enu");
+
+    // Get the ROS vehicle id and namespace (use to get the vehicle from the mocap system)
+    this->declare_parameter<int>("vehicle_id", 1);
+    rclcpp::Parameter vehicle_id = this->get_parameter("vehicle_id");
+
+    this->declare_parameter<std::string>("vehicle_ns", "drone");
+    rclcpp::Parameter vehicle_ns = this->get_parameter("vehicle_ns");
+
+    this->declare_parameter<std::string>("subscribers.external_sensors.mocap_enu", "/mocap/pose_enu");
     rclcpp::Parameter mocap_topic = this->get_parameter("subscribers.external_sensors.mocap_enu");
     mocap_pose_enu_sub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(
-        mocap_topic.as_string(), rclcpp::SensorDataQoS(), std::bind(&ROSNode::mocap_pose_callback, this, std::placeholders::_1));
+        mocap_topic.as_string() + "/" + vehicle_ns.as_string() + std::to_string(vehicle_id.as_int()), 
+        rclcpp::SensorDataQoS(), std::bind(&ROSNode::mocap_pose_callback, this, std::placeholders::_1));
 
 
     // ------------------------------------------------------------------------
@@ -192,6 +202,14 @@ void ROSNode::init_subscribers_and_services() {
     rclcpp::Parameter arm_topic = this->get_parameter("services.arm");
     arm_service_ = this->create_service<pegasus_msgs::srv::Arm>(
         arm_topic.as_string(), std::bind(&ROSNode::arm_callback, this, std::placeholders::_1, std::placeholders::_2));
+    
+    // ------------------------------------------------------------------------
+    // Initiate the service to kill switch the vehicle
+    // ------------------------------------------------------------------------
+    this->declare_parameter<std::string>("services.kill_switch", "kill_switch");
+    rclcpp::Parameter kill_switch_topic = this->get_parameter("services.kill_switch");
+    kill_switch_service_ = this->create_service<pegasus_msgs::srv::KillSwitch>(
+        kill_switch_topic.as_string(), std::bind(&ROSNode::kill_switch_callback, this, std::placeholders::_1, std::placeholders::_2));
 
     // ------------------------------------------------------------------------
     // Initiate the service to Land the vehicle
@@ -200,6 +218,20 @@ void ROSNode::init_subscribers_and_services() {
     rclcpp::Parameter land_topic = this->get_parameter("services.land");
     land_service_ = this->create_service<pegasus_msgs::srv::Land>(
         land_topic.as_string(), std::bind(&ROSNode::land_callback, this, std::placeholders::_1, std::placeholders::_2));
+
+
+    // ------------------------------------------------------------------------
+    // Initiate the service to set the vehicle mode
+    // ------------------------------------------------------------------------
+    this->declare_parameter<std::string>("services.offboard", "offboard");
+    rclcpp::Parameter offboard_topic = this->get_parameter("services.offboard");
+    offboard_service_ = this->create_service<pegasus_msgs::srv::Offboard>(
+        offboard_topic.as_string(), std::bind(&ROSNode::offboard_callback, this, std::placeholders::_1, std::placeholders::_2));
+
+    this->declare_parameter<std::string>("services.hold", "hold");
+    rclcpp::Parameter position_hold_topic = this->get_parameter("services.hold");
+    position_hold_service_ = this->create_service<pegasus_msgs::srv::PositionHold>(
+        position_hold_topic.as_string(), std::bind(&ROSNode::position_hold_callback, this, std::placeholders::_1, std::placeholders::_2));
 
 }
 
@@ -457,8 +489,20 @@ void ROSNode::on_quaternion_callback(const mavsdk::Telemetry::Quaternion &quat) 
     filter_state_msg_.pose.pose.orientation.y = quat.y;
     filter_state_msg_.pose.pose.orientation.z = quat.z;
 
+    // Create the Eigen quaternion object and convert the angle to roll, pitch and yaw
+    Eigen::Vector3d euler_angles = Pegasus::Rotations::quaternion_to_euler(Eigen::Quaterniond(quat.w, quat.x, quat.y, quat.z));
+
+    // Fill in the RPY message
+    filter_state_rpy_msg_.header.stamp = filter_state_msg_.header.stamp;
+    filter_state_rpy_msg_.roll = euler_angles(0);
+    filter_state_rpy_msg_.pitch = euler_angles(1);
+    filter_state_rpy_msg_.yaw = euler_angles(2);
+
     // Publish the updated message
     filter_state_pub_->publish(filter_state_msg_);
+
+    // Publish the euler angles
+    filter_state_rpy_pub_->publish(filter_state_rpy_msg_);
 }
 
 /**
@@ -649,11 +693,24 @@ void ROSNode::on_rc_callback(const mavsdk::Telemetry::RcStatus & rc_signal) {
  * @brief Arming/disarming service callback. When a service request is reached from the arm_service_, 
  * this callback is called and will send a mavlink command for the vehicle to arm/disarm
  * @param request The request for arming (bool = true) or disarming (bool = false)
- * @param response The response in this service goes empty, as the request is done asynchronously through mavlink
+ * @param response The response in this service uint8
  */
 void ROSNode::arm_callback(const pegasus_msgs::srv::Arm::Request::SharedPtr request, const pegasus_msgs::srv::Arm::Response::SharedPtr response) {
-    mavlink_node_->arm_disarm(request->arm);
-    (void) *response; // do nothing with the empty response and avoid compilation warnings from unused argument
+    // Set the response to the arm/disarm command
+    response->success = mavlink_node_->arm_disarm(request->arm);
+}
+
+/**
+ * @ingroup servicesCallbacks
+ * @brief Kill switch service callback. When a service request is reached from the kill_switch_service_,
+ * this callback is called and will send a mavlink command for the vehicle to kill the motors instantly.
+ * @param request The request for killing the motors (bool = true)
+ * @param response The response in this service uint8
+*/
+void ROSNode::kill_switch_callback(const pegasus_msgs::srv::KillSwitch::Request::SharedPtr request, const pegasus_msgs::srv::KillSwitch::Response::SharedPtr response) {
+    
+    // Set the response to the kill switch command
+    response->success = request->kill == true ? mavlink_node_->kill_switch() : 0;
 }
 
 /**
@@ -661,10 +718,36 @@ void ROSNode::arm_callback(const pegasus_msgs::srv::Arm::Request::SharedPtr requ
  * @brief Autoland service callback. When a service request is reached from the land_service_,
  * this callback is called and will send a mavlink command for the vehicle to autoland using the onboard controller
  * @param request An empty request for landing the vehicle (can be ignored)
- * @param response The response in this service goes empty, as the request id done asynchronously through mavlink
+ * @param response The response in this service uint8
  */
-void ROSNode::land_callback(const pegasus_msgs::srv::Land::Request::SharedPtr request, const pegasus_msgs::srv::Land::Response::SharedPtr response) {
-    mavlink_node_->land();
-    (void) *request; // do nothing with the empty request and avoid compilation warnings from unused argument
-    (void) *response; // do nothing with the empty response and avoid compilation warnings from unused argument
+void ROSNode::land_callback(const pegasus_msgs::srv::Land::Request::SharedPtr, const pegasus_msgs::srv::Land::Response::SharedPtr response) {
+
+    // Set the response to the land command
+    response->success = mavlink_node_->land();
+}
+
+/**
+ * @ingroup servicesCallbacks
+ * @brief Offboard service callback. When a service request is reached from the offboard_service_,
+ * this callback is called and will send a mavlink command for the vehicle to enter offboard mode
+ * @param request An empty request for entering offboard mode (can be ignored)
+ * @param response The response in this service uint8
+ */
+void ROSNode::offboard_callback(const pegasus_msgs::srv::Offboard::Request::SharedPtr, const pegasus_msgs::srv::Offboard::Response::SharedPtr response) {
+
+    // Set the response to the result of the offboard command
+    response->success = mavlink_node_->offboard();
+}
+
+/**
+ * @ingroup servicesCallbacks
+ * @brief Position hold service callback. When a service request is reached from the position_hold_service_,
+ * this callback is called and will send a mavlink command for the vehicle to enter position hold mode
+ * @param request An empty request for entering position hold mode (can be ignored)
+ * @param response The response in this service uint8
+ */
+void ROSNode::position_hold_callback(const pegasus_msgs::srv::PositionHold::Request::SharedPtr, const pegasus_msgs::srv::PositionHold::Response::SharedPtr response) {
+
+    // Set the response to the result of the offboard command
+    response->success = mavlink_node_->position_hold();
 }
