@@ -24,16 +24,32 @@ void ConsoleUI::clear_terminal() {
     printf("\033[2J\033[1;1H");
 }
 
-std::string ConsoleUI::float_to_string(float value) {
+std::string ConsoleUI::float_to_string(float value, int precision) const {
 
     // String stream to set the precision of the floats to represent on the UI
     std::stringstream stream;
     
     // Set the precision of the floats to represent in the UI to 2 decimal places
     stream.str("");
-    stream.precision(2);
+    stream.precision(precision);
     stream << value;
     return stream.str();
+}
+
+// Auxiliar function to validate the input of a string
+float ConsoleUI::validate_input(std::string & input, float default_value) const {
+    
+    float output = default_value;
+
+    if (!input.empty()) {
+        // Check if the input is a valid float
+        try {
+            output = std::stof(input);
+        } catch (std::invalid_argument const & e) {
+            // do nothing if the input is not a valid float
+        }
+    }
+    return output;
 }
 
 void ConsoleUI::loop() {
@@ -194,10 +210,57 @@ ftxui::Component ConsoleUI::thrust_curve() {
 }
 
 ftxui::Component ConsoleUI::onboard_position_control() {
-    return ftxui::Renderer([this] {
+
+    // Create an input option for the X, Y, Z position and vehicle orientation
+    std::string input_x_str;
+    std::string input_y_str;
+    std::string input_z_str;
+    std::string input_yaw_str; 
+
+    float input_x_float = 0.0;
+    float input_y_float = 0.0;
+    float input_z_float = 0.0;
+    float input_yaw_float = 0.0;
+
+    auto input_x_option = ftxui::InputOption();
+    auto input_y_option = ftxui::InputOption();
+    auto input_z_option = ftxui::InputOption();
+    auto input_yaw_option = ftxui::InputOption();
+    
+    // Validate the inputs to be a float
+    input_x_option.on_enter = [this, &input_x_str, &input_x_float] { 
+        input_x_float = this->validate_input(input_x_str, 0.0);
+        input_x_str = std::to_string(input_x_float);
+    };
+
+    input_y_option.on_enter = [this, &input_y_str, &input_y_float] { 
+        input_y_float = this->validate_input(input_y_str, 0.0);
+        input_y_str = std::to_string(input_y_float);
+    };
+
+    input_z_option.on_enter = [this, &input_z_str, &input_z_float] { 
+        input_z_float = this->validate_input(input_z_str, 0.0);
+        input_z_str = std::to_string(input_z_float);
+    };
+
+    input_yaw_option.on_enter = [this, &input_yaw_str, &input_yaw_float] { 
+        input_yaw_float = this->validate_input(input_yaw_str, 0.0);
+        input_yaw_str = std::to_string(input_yaw_float);
+    };
+
+    ftxui::Component input_x = ftxui::Input(&input_x_str, std::to_string(input_x_float), input_x_option);
+    ftxui::Component input_y = ftxui::Input(&input_y_str, std::to_string(input_y_float), input_y_option);
+    ftxui::Component input_z = ftxui::Input(&input_z_str, std::to_string(input_z_float), input_z_option);
+    ftxui::Component input_yaw = ftxui::Input(&input_yaw_str, std::to_string(input_yaw_float), input_yaw_option);
+
+    return ftxui::Renderer([this, &input_x, &input_y, &input_z, &input_yaw] {
         return ftxui::vbox({
             ftxui::text("Position Control") | ftxui::center,
             ftxui::separator(),
+            input_x->Render(),
+            input_y->Render(),
+            input_z->Render(),
+            input_yaw->Render()
         });
     });
 }

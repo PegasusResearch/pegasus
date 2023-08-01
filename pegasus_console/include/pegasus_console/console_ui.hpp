@@ -39,7 +39,10 @@ public:
 protected:
 
     // Auxiliar function to convert a float to string
-    std::string float_to_string(float value);
+    std::string float_to_string(float value, int precision=2) const;
+
+    // Auxiliar function to validate the input of a string
+    float validate_input(std::string & input, float default_value=0.0) const;
 
     // Individual Components that make up the UI
     ftxui::Component control_buttons();
@@ -52,4 +55,6 @@ protected:
 
     // UI Config
     Config config_;
+
+    int slider_value_;
 };
