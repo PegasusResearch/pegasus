@@ -24,34 +24,78 @@ void ConsoleUI::clear_terminal() {
     printf("\033[2J\033[1;1H");
 }
 
+std::string ConsoleUI::float_to_string(float value) {
+
+    // String stream to set the precision of the floats to represent on the UI
+    std::stringstream stream;
+    
+    // Set the precision of the floats to represent in the UI to 2 decimal places
+    stream.str("");
+    stream.precision(2);
+    stream << value;
+    return stream.str();
+}
+
 void ConsoleUI::loop() {
 
     // Create the top bar
     auto top = ftxui::Renderer([] { return ftxui::text("Drone Console") | ftxui::center; });
     
     // Create the left bar
-    auto left = ftxui::Container::Vertical( {
+    auto left = ftxui::Container::Vertical({
         control_buttons(),
-        state_display(),
-    } );
+        ftxui::Renderer([this] { return this->state_display(); }),
+    });
 
-    // Create the Right spot
-    auto middle = ftxui::Renderer([&] { return ftxui::text("Middle") | ftxui::center; });
+    // Create the tabs for the right screen
+    int tab_selected = 0;
+    std::vector<std::string> tab_values{"Thrust Curve", "Position Control"};
+    auto tab_toggle = ftxui::Toggle(&tab_values, &tab_selected);
+    
+    auto tab_container = ftxui::Container::Tab({
+        thrust_curve(),
+        onboard_position_control()
+    }, &tab_selected);
+ 
+    auto container = ftxui::Container::Vertical({
+        tab_toggle,
+        tab_container,
+    });
 
-    int left_size = 40;
-    int top_size = 1;
+    // Create the Right screen
+    auto middle = ftxui::Renderer(container, [&] {
+        return ftxui::vbox({
+            tab_toggle->Render(),
+            ftxui::separator(),
+            tab_container->Render(),
+        });
+    });
 
     // Create a split screen
-    auto container = ftxui::ResizableSplitLeft(left, middle, &left_size);
-    container = ftxui::ResizableSplitTop(top, container, &top_size);
+    int left_size = 43;
+    int top_size = 1;
+    auto container_aux = ftxui::ResizableSplitLeft(left, middle, &left_size);
+    auto document = ftxui::ResizableSplitTop(top, container_aux, &top_size);
 
-    // Renderer for the entire UI
-    auto renderer = ftxui::Renderer(container, [&] {
-        return container->Render() | ftxui::border;
+    // Create a thread that will create events to refresh the terminal UI
+    std::atomic<bool> refresh_ui_continue = true;
+    
+    std::thread refresh_ui([&] {
+        while (refresh_ui_continue) {
+            using namespace std::chrono_literals;
+            std::this_thread::sleep_for(0.1s);
+            // After updating the state, request a new frame to be drawn. This is done
+            // by simulating a new "custom" event to be handled.
+            screen_.Post(ftxui::Event::Custom);
+        }
     });
 
     // Loop the renderer
-    screen_.Loop(renderer);
+    screen_.Loop(document);
+
+    // After exiting the loop, kill the event thread and join it
+    refresh_ui_continue = false;
+    refresh_ui.join();
 }
 
 ftxui::Component ConsoleUI::control_buttons() {
@@ -70,34 +114,90 @@ ftxui::Component ConsoleUI::control_buttons() {
             ftxui::Button("Land", config_.on_land_click, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
             ftxui::Button("Hold", config_.on_hold_click, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
             ftxui::Button("Kill Switch", config_.on_kill_switch_click, ftxui::ButtonOption::Animated(ftxui::Color::Red)),
-        }),
+        }) | ftxui::center,
         ftxui::Renderer([] { return ftxui::separator(); })
     });
 
     return control_buttons;
 }
 
-ftxui::Component ConsoleUI::state_display() {
+ftxui::Element ConsoleUI::state_display() {
     
-    auto status = ftxui::Container::Vertical({
-        ftxui::Renderer([] { return
+    return ftxui::vbox({
+        ftxui::hbox({
             ftxui::vbox({
                 ftxui::text("Status") | ftxui::center,
                 ftxui::separator(),
-                ftxui::text("ID: "),
-                ftxui::text("Armed: "),
-                ftxui::text("Mode: "),
+                ftxui::text("ID: " + std::to_string(this->status_.system_id)),
+                ftxui::text("Armed: " + std::string(this->status_.armed == true ? "True" : "False")),
+                ftxui::text("Mode: " + fmu_flight_mode_map.at(this->status_.flight_mode)),
+                ftxui::text("State: " + fmu_landed_state_map.at(this->status_.landed_state)),
+                ftxui::text("RC Status: " + std::string(this->status_.rc_status.available == true ? "True" : "False")),
+                ftxui::text("RC Strength: " + std::to_string(this->status_.rc_status.signal_strength))
+            }),
+            ftxui::separator(),
+            ftxui::vbox({
+                ftxui::text("Battery") | ftxui::center,
                 ftxui::separator(),
-                ftxui::text("State") | ftxui::center,
-                ftxui::separator(),
-                ftxui::text("Position: "),
-                ftxui::text("Orientation: "),
-                ftxui::text("Inertial Velocity: "),
-                ftxui::text("Angular Velocity: "),
-            });
-        })
-    });
+                ftxui::hbox({
+                    ftxui::text(std::to_string(int(this->status_.battery.percentage)) + "% "),
+                    ftxui::gauge(this->status_.battery.percentage / 100.0) | ftxui::color(ftxui::Color::Red),
+                }),
+                ftxui::text(std::to_string(this->status_.battery.voltage) + "V"),
+                ftxui::text(std::to_string(this->status_.battery.current) + "A"),
+                ftxui::text("Consumed: "),
+                ftxui::text(std::to_string(this->status_.battery.amps_hour_consumed) + "mAh")
+            })
+        }),
+        ftxui::separator(),
+        ftxui::text("State") | ftxui::center,
+        ftxui::separator(),
+        ftxui::text("Position: [" +  float_to_string(this->state_.position[0]) + ", " + float_to_string(this->state_.position[1]) + ", " + float_to_string(this->state_.position[2]) + "]"),
+        ftxui::text("Orientation: [" + float_to_string(this->state_.attitude_euler[0]) + ", " + float_to_string(this->state_.attitude_euler[1]) + ", " + float_to_string(this->state_.attitude_euler[2]) + "]"),
+        ftxui::text("Inertial Velocity: [" + float_to_string(this->state_.velocity_inertial[0]) + ", " + float_to_string(this->state_.velocity_inertial[1]) + ", " + float_to_string(this->state_.velocity_inertial[2]) + "]"),
+        ftxui::text("Angular Velocity: [" + float_to_string(this->state_.angular_velocity[0]) + ", " + float_to_string(this->state_.angular_velocity[1]) + ", " + float_to_string(this->state_.angular_velocity[2]) + "]"),
+        ftxui::separator(),
+        ftxui::text("Health") | ftxui::center,
+        ftxui::separator(),
+        ftxui::text("Armable: " + std::string(this->status_.health.is_armable ? "True" : "False")),
+        ftxui::text("Global Position: " + std::string(this->status_.health.global_position_ok ? "Ok" : "Not Ok")),
+        ftxui::text("Home Position: " + std::string(this->status_.health.home_position_ok ? "Ok" : "Not Ok")),
+        ftxui::text("Local Position: " + std::string(this->status_.health.local_position_ok ? "Ok" : "Not Ok")),
+        ftxui::text("Acc. Calibration: " + std::string(this->status_.health.acc_calibrated ? "Ok" : "Not Ok")),
+        ftxui::text("Mag. Calibration: " + std::string(this->status_.health.mag_calibrated ? "Ok" : "Not Ok")),
+    });    
+}
 
-    return status;
-    
+ftxui::Component ConsoleUI::thrust_curve() {
+    return ftxui::Renderer([this] { 
+        return ftxui::vbox({
+            ftxui::text("Thrust Curve") | ftxui::center,
+            ftxui::separator(),
+            ftxui::hbox({
+                ftxui::text("Throttle: "),
+                //ftxui::gauge(this->state_.throttle) | ftxui::color(ftxui::Color::Red),
+            }),
+            ftxui::hbox({
+                ftxui::text("Thrust: "),
+                //ftxui::gauge(this->state_.thrust) | ftxui::color(ftxui::Color::Red),
+            }),
+            ftxui::hbox({
+                ftxui::text("Thrust Curve: "),
+                //ftxui::gauge(this->state_.thrust_curve) | ftxui::color(ftxui::Color::Red),
+            }),
+            ftxui::hbox({
+                ftxui::text("Thrust Curve Rate: "),
+                //ftxui::gauge(this->state_.thrust_curve_rate) | ftxui::color(ftxui::Color::Red),
+            }),
+        }); 
+    });
+}
+
+ftxui::Component ConsoleUI::onboard_position_control() {
+    return ftxui::Renderer([this] {
+        return ftxui::vbox({
+            ftxui::text("Position Control") | ftxui::center,
+            ftxui::separator(),
+        });
+    });
 }

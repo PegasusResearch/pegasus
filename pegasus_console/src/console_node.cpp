@@ -211,6 +211,11 @@ void ConsoleNode::state_callback(const nav_msgs::msg::Odometry::ConstSharedPtr m
         )
     );
 
+    // Convert the attitude from rad to deg
+    console_ui_->state_.attitude_euler[0] = Pegasus::Rotations::rad_to_deg(console_ui_->state_.attitude_euler[0]);
+    console_ui_->state_.attitude_euler[1] = Pegasus::Rotations::rad_to_deg(console_ui_->state_.attitude_euler[1]);
+    console_ui_->state_.attitude_euler[2] = Pegasus::Rotations::rad_to_deg(console_ui_->state_.attitude_euler[2]);
+
     // Update the current angular velocity
     console_ui_->state_.angular_velocity[0] = msg->twist.twist.angular.x;
     console_ui_->state_.angular_velocity[1] = msg->twist.twist.angular.y;

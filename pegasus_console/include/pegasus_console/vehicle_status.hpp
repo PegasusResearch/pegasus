@@ -41,39 +41,39 @@ const std::map<uint8_t, std::string> fmu_flight_mode_map = {
 };
 
 struct State {
-    Eigen::Vector3d position;
-    Eigen::Vector3d attitude_euler;
-    Eigen::Vector3d velocity_inertial;
-    Eigen::Vector3d angular_velocity;
+    Eigen::Vector3d position{Eigen::Vector3d::Zero()};
+    Eigen::Vector3d attitude_euler{Eigen::Vector3d::Zero()};
+    Eigen::Vector3d velocity_inertial{Eigen::Vector3d::Zero()};
+    Eigen::Vector3d angular_velocity{Eigen::Vector3d::Zero()};
 };
 
 struct Battery {
-    float temperature;
-    float voltage;
-    float current;
-    float percentage;
-    float amps_hour_consumed;
+    float temperature{0.0};
+    float voltage{0.0};
+    float current{0.0};
+    float percentage{0.0};
+    float amps_hour_consumed{0.0};
 };
 
 struct Health {
-    bool is_armable;
-    bool acc_calibrated;
-    bool mag_calibrated;
-    bool local_position_ok;
-    bool global_position_ok;
-    bool home_position_ok;
+    bool is_armable{false};
+    bool acc_calibrated{false};
+    bool mag_calibrated{false};
+    bool local_position_ok{false};
+    bool global_position_ok{false};
+    bool home_position_ok{false};
 };
 
 struct RcStatus {
-    bool available;
-    float signal_strength;
+    bool available{false};
+    float signal_strength{0.0};
 };
 
 struct FmuStatus {
-    uint8_t system_id;
-    bool armed;
-    uint8_t landed_state;
-    uint8_t flight_mode;
+    uint8_t system_id{0};
+    bool armed{false};
+    uint8_t landed_state{0};
+    uint8_t flight_mode{0};
     Battery battery;
     Health health;
     RcStatus rc_status;

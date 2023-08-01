@@ -1,7 +1,10 @@
 #pragma once
 
-#include "vehicle_status.hpp"
+#include <memory>
+#include <sstream>
 #include <functional>
+
+#include "vehicle_status.hpp"
 #include "ftxui/component/component.hpp"  // for Button, Horizontal, Renderer
 #include "ftxui/component/screen_interactive.hpp"  // for ScreenInteractive
 
@@ -35,9 +38,14 @@ public:
 
 protected:
 
+    // Auxiliar function to convert a float to string
+    std::string float_to_string(float value);
+
     // Individual Components that make up the UI
     ftxui::Component control_buttons();
-    ftxui::Component state_display();
+    ftxui::Element state_display();
+    ftxui::Component thrust_curve();
+    ftxui::Component onboard_position_control();
 
     // Screen where the UI will be placed
     ftxui::ScreenInteractive screen_;
