@@ -32,6 +32,7 @@ public:
     void on_arm_disarm_click(bool arm);
     void on_land_click();
     void on_hold_click();
+    void on_offboard_click();
     void on_kill_switch_click();
 
     // Offboard position control of the vehicle

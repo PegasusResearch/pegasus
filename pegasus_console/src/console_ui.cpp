@@ -130,9 +130,10 @@ ftxui::Component ConsoleUI::control_buttons() {
         ftxui::Container::Horizontal({
             ftxui::Button("Arm", std::bind(config_.on_arm_disarm_click, true), ftxui::ButtonOption::Animated(ftxui::Color::Green)),
             ftxui::Button("Disarm", std::bind(config_.on_arm_disarm_click, false), ftxui::ButtonOption::Animated(ftxui::Color::Blue)),
+            ftxui::Button("Offboard", config_.on_offboard_click, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
             ftxui::Button("Land", config_.on_land_click, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
             ftxui::Button("Hold", config_.on_hold_click, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
-            ftxui::Button("Kill Switch", config_.on_kill_switch_click, ftxui::ButtonOption::Animated(ftxui::Color::Red)),
+            ftxui::Button("Kill", config_.on_kill_switch_click, ftxui::ButtonOption::Animated(ftxui::Color::Red)),
         }) | ftxui::center,
         ftxui::Renderer([] { return ftxui::separator(); })
     });

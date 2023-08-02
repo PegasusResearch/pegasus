@@ -23,6 +23,7 @@ public:
     struct Config{
         // Basic low level operation of the vehicle
         std::function<void(bool)> on_arm_disarm_click;
+        std::function<void()> on_offboard_click;
         std::function<void()> on_land_click;
         std::function<void()> on_hold_click;
         std::function<void()> on_kill_switch_click;

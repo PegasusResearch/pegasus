@@ -12,6 +12,7 @@ ConsoleNode::ConsoleNode() : rclcpp::Node("pegasus_console") {
     config_.on_arm_disarm_click = std::bind(&ConsoleNode::on_arm_disarm_click, this, std::placeholders::_1);
     config_.on_land_click = std::bind(&ConsoleNode::on_land_click, this);
     config_.on_hold_click = std::bind(&ConsoleNode::on_hold_click, this);
+    config_.on_offboard_click = std::bind(&ConsoleNode::on_offboard_click, this);
     config_.on_kill_switch_click = std::bind(&ConsoleNode::on_kill_switch_click, this);
 
     // Offboard position control of the vehicle
@@ -142,6 +143,33 @@ void ConsoleNode::on_hold_click() {
         position_hold_client_->async_send_request(request, [this](rclcpp::Client<pegasus_msgs::srv::PositionHold>::SharedFuture future) {
             auto response = future.get();
             RCLCPP_INFO(this->get_logger(), "Hold response: %s", response->success ? "true" : "false");
+        });
+
+    }).detach();
+}
+
+void ConsoleNode::on_offboard_click() {
+
+    std::thread([this]() {
+
+        // Create and fill the request to switch to offboard mode
+        auto request = std::make_shared<pegasus_msgs::srv::Offboard::Request>();
+
+        using namespace std::chrono_literals;
+
+        // Wait for the service to be available
+        while (!offboard_client_->wait_for_service(1s)) {
+            if (!rclcpp::ok()) {
+                RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting.");
+                return;
+            }
+            RCLCPP_INFO(this->get_logger(), "service not available, waiting again...");
+        }
+
+        // Send the request to the service
+        offboard_client_->async_send_request(request, [this](rclcpp::Client<pegasus_msgs::srv::Offboard>::SharedFuture future) {
+            auto response = future.get();
+            RCLCPP_INFO(this->get_logger(), "Offboard response: %s", response->success ? "true" : "false");
         });
 
     }).detach();
