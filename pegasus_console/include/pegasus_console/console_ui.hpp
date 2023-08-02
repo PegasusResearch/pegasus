@@ -28,6 +28,11 @@ public:
         std::function<void()> on_hold_click;
         std::function<void()> on_kill_switch_click;
 
+        // Thrust curve control of the vehicle
+        std::function<void()> on_thrust_curve_click;
+        std::function<void()> on_thrust_curve_stop;
+        std::function<bool()> is_thrust_curve_running;
+
         // Offboard position control of the vehicle
         std::function<void()> on_setpoint_click;
         std::function<void()> on_setpoint_stop;
@@ -39,6 +44,9 @@ public:
 
     void clear_terminal();
     void loop();
+
+    // Get the thrust curve value selected from the thrust curve widget
+    float get_throtle();
 
     // Get the setpoint selected from the setpoint widget
     std::pair<Eigen::Vector3d, float> get_setpoint();
@@ -68,11 +76,14 @@ protected:
     Config config_;
 
     // The selected tab in the UI
-    int tab_selected_{0};
+    int tab_selected_{1};
     std::vector<std::string> tab_values_{"Thrust Curve", "Position Control"};
 
     // The structure that holds the data for the Position Control tab
     PositionControlWidgetData position_control_data_;
+
+    // The float slider value for the thrust curve
+    ThrotleWidgetData throtle_data_;
     
     int slider_value_;
 };

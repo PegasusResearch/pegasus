@@ -15,6 +15,11 @@ ConsoleNode::ConsoleNode() : rclcpp::Node("pegasus_console") {
     config_.on_offboard_click = std::bind(&ConsoleNode::on_offboard_click, this);
     config_.on_kill_switch_click = std::bind(&ConsoleNode::on_kill_switch_click, this);
 
+    // Thrust curve control of the vehicle
+    config_.on_thrust_curve_click = std::bind(&ConsoleNode::on_thrust_curve_click, this);
+    config_.on_thrust_curve_stop = std::bind(&ConsoleNode::on_thrust_curve_stop, this);
+    config_.is_thrust_curve_running = std::bind(&ConsoleNode::is_thrust_curve_running, this);
+
     // Offboard position control of the vehicle
     config_.on_setpoint_click = std::bind(&ConsoleNode::on_setpoint_click, this);
     config_.on_setpoint_stop = std::bind(&ConsoleNode::on_setpoint_stop, this);
@@ -39,6 +44,10 @@ void ConsoleNode::initialize_subscribers() {
 }
 
 void ConsoleNode::initialize_publishers() {
+
+    // Publish the attitude setpoints to the vehicle for thrust curve control
+    attitude_rate_pub_ = this->create_publisher<pegasus_msgs::msg::ControlAttitude>(
+        "/drone1/fmu/in/throtle/attitude_rate", rclcpp::SensorDataQoS());
 
     // Publish the setpoints to the vehicle
     position_pub_ = this->create_publisher<pegasus_msgs::msg::ControlPosition>(
@@ -201,6 +210,86 @@ void ConsoleNode::on_kill_switch_click() {
         });
 
     }).detach();
+}
+
+void ConsoleNode::on_thrust_curve_click() {
+
+    // Get the thrust values from the UI
+    float throtle = console_ui_->get_throtle();
+
+    // Set the control message
+    thrust_curve_msg_.thrust = throtle;
+    thrust_curve_msg_.attitude[0] = 0.0;
+    thrust_curve_msg_.attitude[1] = 0.0;
+    thrust_curve_msg_.attitude[2] = 0.0;
+
+    // Start publishing on the setpoint thread if it is not already running
+    if (!thrust_curve_mode_) {
+
+        // Set the flag to true and start the thread
+        thrust_curve_mode_ = true;
+        thrust_curve_thread_ = std::thread([this] () {
+            while(this->thrust_curve_mode_) {
+                // Publish the setpoint reference message at 30 Hz
+                this->attitude_rate_pub_->publish(thrust_curve_msg_);
+
+                // Sleep for 33 ms
+                std::this_thread::sleep_for(std::chrono::milliseconds(33));
+            }
+        });
+
+        // Check if we are already in offboard mode - if not, set the offboard mode
+        if (console_ui_->status_.flight_mode != 7) {
+            std::thread([this]() {
+
+                // Create and fill the request to set the vehicle to offboard mode
+                auto request = std::make_shared<pegasus_msgs::srv::Offboard::Request>();
+
+                using namespace std::chrono_literals;
+
+                // Wait for the service to be available
+                while (!offboard_client_->wait_for_service(1s)) {
+                    if (!rclcpp::ok()) {
+                        RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting.");
+                        return;
+                    }
+                    RCLCPP_INFO(this->get_logger(), "service not available, waiting again...");
+                }
+
+                // Send the request to the service
+                offboard_client_->async_send_request(request, [this](rclcpp::Client<pegasus_msgs::srv::Offboard>::SharedFuture future) {
+                    auto response = future.get();
+                    RCLCPP_INFO(this->get_logger(), "Set flight mode response: %s", response->success ? "true" : "false");
+                });
+            }).detach();
+        }
+    }
+
+}
+
+void ConsoleNode::on_thrust_curve_stop() {
+
+    // If thrust curve mode was not enabled, then just return
+    if(!thrust_curve_mode_) return;
+
+    // Set the last attitude_rate message to 0 thrust
+    thrust_curve_msg_.thrust = 0.0;
+
+    // Sleep for a few seconds before killing the thrust curve thread, to ensure the vehicle has stopped
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    // Set the flag to false
+    thrust_curve_mode_ = false;
+
+    // Stop publishing the thrust commands in a separate thread and join it
+    if(thrust_curve_thread_.joinable()) thrust_curve_thread_.join();
+
+    // Kill the vehicle
+    on_kill_switch_click();
+}
+
+bool ConsoleNode::is_thrust_curve_running() {
+    return this->thrust_curve_mode_;
 }
 
 void ConsoleNode::on_setpoint_click() {

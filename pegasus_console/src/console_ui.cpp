@@ -57,6 +57,10 @@ std::pair<Eigen::Vector3d, float> ConsoleUI::get_setpoint() {
     return std::make_pair(position_control_data_.position, position_control_data_.yaw);
 }
 
+float ConsoleUI::get_throtle() {
+    return throtle_data_.throtle;
+}
+
 void ConsoleUI::loop() {
 
     // Create the top bar
@@ -190,6 +194,23 @@ ftxui::Element ConsoleUI::state_display() {
 
 ftxui::Component ConsoleUI::thrust_curve() {
 
+    // Set a lambda function to be called when the user presses enter
+    auto throtle_validator = [this]() { 
+
+        // Get the updated value
+        float new_throtle = validate_input(throtle_data_.input, throtle_data_.throtle);
+
+        // Make sure that the new throtle is within the range [0, 100]
+        new_throtle = std::max(0.0f, std::min(new_throtle, 100.0f));
+
+        // Update the text and the value
+        throtle_data_.input = float_to_string(new_throtle);
+        throtle_data_.throtle = new_throtle;
+    };
+
+    ftxui::InputOption throtle_option = ftxui::InputOption();
+    throtle_option.on_enter = throtle_validator;
+
     auto thrust_curve_input = ftxui::Container::Vertical({
         ftxui::Renderer([] { return 
             ftxui::vbox({ 
@@ -197,9 +218,24 @@ ftxui::Component ConsoleUI::thrust_curve() {
                 ftxui::separator() 
             });
         }),
-
+        ftxui::Container::Vertical({
+            ftxui::Container::Horizontal({
+                ftxui::Renderer([] { return ftxui::text("Throtle: "); }),
+                ftxui::Input(&this->throtle_data_.input, "0.0", throtle_option),
+            }),
+            ftxui::Container::Horizontal({
+                ftxui::Button("Go", config_.on_thrust_curve_click, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
+                ftxui::Button("Stop", config_.on_thrust_curve_stop, ftxui::ButtonOption::Animated(ftxui::Color::Red)),
+            })
+        }),
+        ftxui::Renderer([this] { 
+            return ftxui::vbox({
+                ftxui::separator(),
+                ftxui::text("Throtle test state: " + std::string(config_.is_thrust_curve_running() ? "Running" : "Stopped")) | ftxui::color((config_.is_thrust_curve_running() ? ftxui::Color::Red : ftxui::Color::Blue)),
+                ftxui::text("Throtle value: " + std::to_string(this->throtle_data_.throtle)),
+            });
+        })
     });
-
     
     return thrust_curve_input;
 }
@@ -274,7 +310,7 @@ ftxui::Component ConsoleUI::onboard_position_control() {
         ftxui::Renderer([this] { 
             return ftxui::vbox({
                 ftxui::separator(),
-                ftxui::text("Setpoint state: " + std::string(config_.is_setpoint_running() ? "Running" : "Stopped")),
+                ftxui::text("Setpoint state: " + std::string(config_.is_setpoint_running() ? "Running" : "Stopped")) | ftxui::color((config_.is_setpoint_running() ? ftxui::Color::Red : ftxui::Color::Blue)),
                 ftxui::text("Setpoint: [" + float_to_string(this->position_control_data_.position[0]) + ", " + float_to_string(this->position_control_data_.position[1]) + ", " + float_to_string(this->position_control_data_.position[2]) + "]"),
                 ftxui::text("Yaw: " + float_to_string(this->position_control_data_.yaw)),
             });

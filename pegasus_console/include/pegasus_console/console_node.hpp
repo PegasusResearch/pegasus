@@ -8,6 +8,7 @@
 // ROS2 messages supported
 #include "nav_msgs/msg/odometry.hpp"
 #include "pegasus_msgs/msg/status.hpp"
+#include "pegasus_msgs/msg/control_attitude.hpp"
 #include "pegasus_msgs/msg/control_position.hpp"
 
 // ROS2 services supported
@@ -35,6 +36,11 @@ public:
     void on_offboard_click();
     void on_kill_switch_click();
 
+    // Thrust curve control of the vehicle
+    void on_thrust_curve_click();
+    void on_thrust_curve_stop();
+    bool is_thrust_curve_running();
+
     // Offboard position control of the vehicle
     void on_setpoint_click();
     void on_setpoint_stop();
@@ -58,8 +64,13 @@ protected:
     std::thread executor_thread_;
     rclcpp::executors::MultiThreadedExecutor executor_;
 
+    // Auxiliar variables for using the thrust curve feature
+    bool thrust_curve_mode_{false};
+    pegasus_msgs::msg::ControlAttitude thrust_curve_msg_;
+    std::thread thrust_curve_thread_;
+
     // Auxiliar variables for using the setpoint feature
-    bool setpoint_mode_ = false;
+    bool setpoint_mode_{false};
     pegasus_msgs::msg::ControlPosition setpoint_msg_;
     std::thread setpoint_thread_;
 
@@ -68,6 +79,7 @@ protected:
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr filter_sub_;
 
     // ROS2 publishers
+    rclcpp::Publisher<pegasus_msgs::msg::ControlAttitude>::SharedPtr attitude_rate_pub_;
     rclcpp::Publisher<pegasus_msgs::msg::ControlPosition>::SharedPtr position_pub_;
 
     // ROS2 service clients

@@ -85,3 +85,8 @@ struct PositionControlWidgetData {
     Eigen::Vector3d position{Eigen::Vector3d::Zero()};
     float yaw{0.0};
 };
+
+struct ThrotleWidgetData {
+    std::string input{""};
+    float throtle{0.0};
+};
