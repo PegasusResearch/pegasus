@@ -4,6 +4,7 @@
 ConsoleNode::ConsoleNode() : rclcpp::Node("pegasus_console") {
 
     // Initialize the subscribers, services and publishers
+    initialize_publishers();
     initialize_subscribers();
     initialize_services();
 
@@ -12,6 +13,11 @@ ConsoleNode::ConsoleNode() : rclcpp::Node("pegasus_console") {
     config_.on_land_click = std::bind(&ConsoleNode::on_land_click, this);
     config_.on_hold_click = std::bind(&ConsoleNode::on_hold_click, this);
     config_.on_kill_switch_click = std::bind(&ConsoleNode::on_kill_switch_click, this);
+
+    // Offboard position control of the vehicle
+    config_.on_setpoint_click = std::bind(&ConsoleNode::on_setpoint_click, this);
+    config_.on_setpoint_stop = std::bind(&ConsoleNode::on_setpoint_stop, this);
+    config_.is_setpoint_running = std::bind(&ConsoleNode::is_setpoint_running, this);
 
     // Initialize the console UI
     console_ui_ = std::make_unique<ConsoleUI>(config_);
@@ -31,6 +37,13 @@ void ConsoleNode::initialize_subscribers() {
         rclcpp::SensorDataQoS(), std::bind(&ConsoleNode::state_callback, this, std::placeholders::_1));
 }
 
+void ConsoleNode::initialize_publishers() {
+
+    // Publish the setpoints to the vehicle
+    position_pub_ = this->create_publisher<pegasus_msgs::msg::ControlPosition>(
+        "/drone1/fmu/in/position", rclcpp::SensorDataQoS());
+}
+
 void ConsoleNode::initialize_services() {
 
     // Create the service clients
@@ -38,6 +51,7 @@ void ConsoleNode::initialize_services() {
     land_client_ = this->create_client<pegasus_msgs::srv::Land>("/drone1/fmu/land");
     kill_switch_client_ = this->create_client<pegasus_msgs::srv::KillSwitch>("/drone1/fmu/kill_switch");
     position_hold_client_ = this->create_client<pegasus_msgs::srv::PositionHold>("/drone1/fmu/hold");
+    offboard_client_ = this->create_client<pegasus_msgs::srv::Offboard>("/drone1/fmu/offboard");
 }
 
 void ConsoleNode::start() {
@@ -159,6 +173,80 @@ void ConsoleNode::on_kill_switch_click() {
         });
 
     }).detach();
+}
+
+void ConsoleNode::on_setpoint_click() {
+
+    // Get the setpoint values from the UI
+    std::pair<Eigen::Vector3d, float> pos_yaw = console_ui_->get_setpoint();
+
+    // Update the Setpoint Control message witht he appropriate reference
+    setpoint_msg_.position[0] = pos_yaw.first[0];
+    setpoint_msg_.position[1] = pos_yaw.first[1];
+    setpoint_msg_.position[2] = pos_yaw.first[2];
+    setpoint_msg_.yaw = pos_yaw.second;
+
+    // Start publishing on the setpoint thread if it is not already running
+    if (!setpoint_mode_) {
+
+        // Set the flag to true and start the thread
+        setpoint_mode_ = true;
+        setpoint_thread_ = std::thread([this] () {
+            while(this->setpoint_mode_) {
+                // Publish the setpoint reference message at 30 Hz
+                this->position_pub_->publish(setpoint_msg_);
+
+                // Sleep for 33 ms
+                std::this_thread::sleep_for(std::chrono::milliseconds(33));
+            }
+        });
+
+        // Check if we are already in offboard mode - if not, set the offboard mode
+        if (console_ui_->status_.flight_mode != 7) {
+            std::thread([this]() {
+
+                // Create and fill the request to set the vehicle to offboard mode
+                auto request = std::make_shared<pegasus_msgs::srv::Offboard::Request>();
+
+                using namespace std::chrono_literals;
+
+                // Wait for the service to be available
+                while (!offboard_client_->wait_for_service(1s)) {
+                    if (!rclcpp::ok()) {
+                        RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting.");
+                        return;
+                    }
+                    RCLCPP_INFO(this->get_logger(), "service not available, waiting again...");
+                }
+
+                // Send the request to the service
+                offboard_client_->async_send_request(request, [this](rclcpp::Client<pegasus_msgs::srv::Offboard>::SharedFuture future) {
+                    auto response = future.get();
+                    RCLCPP_INFO(this->get_logger(), "Set flight mode response: %s", response->success ? "true" : "false");
+                });
+            }).detach();
+        }
+    }
+}
+
+void ConsoleNode::on_setpoint_stop() {
+
+    // If setpoint mode was not enabled, then just return
+    if(!setpoint_mode_) return;
+
+    // Set the vehicle to Hold mode
+    on_hold_click();
+
+    // Set the setpoint variable to false, such that the setpoint thread will stop
+    // and the vehicle enters the Hold mode
+    setpoint_mode_ = false;
+
+    // Stop publishing the setpoing in a separate thread and join it
+    if(setpoint_thread_.joinable()) setpoint_thread_.join();
+}
+
+bool ConsoleNode::is_setpoint_running() {
+    return this->setpoint_mode_;
 }
 
 void ConsoleNode::status_callback(const pegasus_msgs::msg::Status::ConstSharedPtr msg) {

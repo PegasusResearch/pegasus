@@ -52,6 +52,11 @@ float ConsoleUI::validate_input(std::string & input, float default_value) const 
     return output;
 }
 
+// Auxiliar function to return the current setpoint selected in the onboard setpoint widget
+std::pair<Eigen::Vector3d, float> ConsoleUI::get_setpoint() {
+    return std::make_pair(position_control_data_.position, position_control_data_.yaw);
+}
+
 void ConsoleUI::loop() {
 
     // Create the top bar
@@ -64,14 +69,12 @@ void ConsoleUI::loop() {
     });
 
     // Create the tabs for the right screen
-    int tab_selected = 0;
-    std::vector<std::string> tab_values{"Thrust Curve", "Position Control"};
-    auto tab_toggle = ftxui::Toggle(&tab_values, &tab_selected);
+    auto tab_toggle = ftxui::Toggle(&tab_values_, &tab_selected_);
     
     auto tab_container = ftxui::Container::Tab({
         thrust_curve(),
         onboard_position_control()
-    }, &tab_selected);
+    }, &tab_selected_);
  
     auto container = ftxui::Container::Vertical({
         tab_toggle,
@@ -185,82 +188,97 @@ ftxui::Element ConsoleUI::state_display() {
 }
 
 ftxui::Component ConsoleUI::thrust_curve() {
-    return ftxui::Renderer([this] { 
-        return ftxui::vbox({
-            ftxui::text("Thrust Curve") | ftxui::center,
-            ftxui::separator(),
-            ftxui::hbox({
-                ftxui::text("Throttle: "),
-                //ftxui::gauge(this->state_.throttle) | ftxui::color(ftxui::Color::Red),
-            }),
-            ftxui::hbox({
-                ftxui::text("Thrust: "),
-                //ftxui::gauge(this->state_.thrust) | ftxui::color(ftxui::Color::Red),
-            }),
-            ftxui::hbox({
-                ftxui::text("Thrust Curve: "),
-                //ftxui::gauge(this->state_.thrust_curve) | ftxui::color(ftxui::Color::Red),
-            }),
-            ftxui::hbox({
-                ftxui::text("Thrust Curve Rate: "),
-                //ftxui::gauge(this->state_.thrust_curve_rate) | ftxui::color(ftxui::Color::Red),
-            }),
-        }); 
+
+    auto thrust_curve_input = ftxui::Container::Vertical({
+        ftxui::Renderer([] { return 
+            ftxui::vbox({ 
+                ftxui::text("Thrust Curve") | ftxui::center, 
+                ftxui::separator() 
+            });
+        }),
+
     });
+
+    
+    return thrust_curve_input;
 }
 
 ftxui::Component ConsoleUI::onboard_position_control() {
 
-    // Create an input option for the X, Y, Z position and vehicle orientation
-    std::string input_x_str;
-    std::string input_y_str;
-    std::string input_z_str;
-    std::string input_yaw_str; 
+    // Set a lambda function to be called when the user presses enter
+    auto position_validator = [this](int index) { 
 
-    float input_x_float = 0.0;
-    float input_y_float = 0.0;
-    float input_z_float = 0.0;
-    float input_yaw_float = 0.0;
+        // Get the updated value
+        float new_value = validate_input(position_control_data_.inputs[index], position_control_data_.position[index]);
 
-    auto input_x_option = ftxui::InputOption();
-    auto input_y_option = ftxui::InputOption();
-    auto input_z_option = ftxui::InputOption();
-    auto input_yaw_option = ftxui::InputOption();
-    
-    // Validate the inputs to be a float
-    input_x_option.on_enter = [this, &input_x_str, &input_x_float] { 
-        input_x_float = this->validate_input(input_x_str, 0.0);
-        input_x_str = std::to_string(input_x_float);
+        // Update the text and the value
+        position_control_data_.inputs[index] = float_to_string(new_value);
+        position_control_data_.position[index] = new_value;
     };
 
-    input_y_option.on_enter = [this, &input_y_str, &input_y_float] { 
-        input_y_float = this->validate_input(input_y_str, 0.0);
-        input_y_str = std::to_string(input_y_float);
+    // Set a lambda function to be called when the user presses enter
+    auto yaw_validator = [this]() { 
+
+        // Get the updated value
+        float new_yaw = validate_input(position_control_data_.inputs[3], position_control_data_.yaw);
+
+        // Validate that the new is between 0 and 360
+        new_yaw = std::max(std::min(new_yaw, 360.0f), 0.0f);
+
+        // Update the text and the value
+        position_control_data_.inputs[3] = float_to_string(new_yaw);
+        position_control_data_.yaw = new_yaw;
     };
 
-    input_z_option.on_enter = [this, &input_z_str, &input_z_float] { 
-        input_z_float = this->validate_input(input_z_str, 0.0);
-        input_z_str = std::to_string(input_z_float);
-    };
+    // Set the input options for the position inputs and yaw input
+    std::array<ftxui::InputOption, 3> position_input_option{ftxui::InputOption(), ftxui::InputOption(), ftxui::InputOption()};
+    ftxui::InputOption yaw_input_option = ftxui::InputOption();
 
-    input_yaw_option.on_enter = [this, &input_yaw_str, &input_yaw_float] { 
-        input_yaw_float = this->validate_input(input_yaw_str, 0.0);
-        input_yaw_str = std::to_string(input_yaw_float);
-    };
+    for (int i = 0; i < 3; i++) {
+        position_input_option[i].on_enter = std::bind(position_validator, i);
+    }
 
-    ftxui::Component input_x = ftxui::Input(&input_x_str, std::to_string(input_x_float), input_x_option);
-    ftxui::Component input_y = ftxui::Input(&input_y_str, std::to_string(input_y_float), input_y_option);
-    ftxui::Component input_z = ftxui::Input(&input_z_str, std::to_string(input_z_float), input_z_option);
-    ftxui::Component input_yaw = ftxui::Input(&input_yaw_str, std::to_string(input_yaw_float), input_yaw_option);
+    yaw_input_option.on_enter = yaw_validator;
 
-    return ftxui::Renderer([this, &input_x, &input_y, &input_z, &input_yaw] {
-        return ftxui::vbox({
-            ftxui::text("Position Control") | ftxui::center,
-            ftxui::separator(),
-            input_x->Render(),
-            input_y->Render(),
-            input_z->Render(),
-            input_yaw->Render()
-        });
+    // Basic control buttons
+    auto position_input = ftxui::Container::Vertical({
+        ftxui::Renderer([] { return 
+            ftxui::vbox({ 
+                ftxui::text("Onboard Position Control") | ftxui::center, 
+                ftxui::separator() 
+            });
+        }),
+        ftxui::Container::Vertical({
+            ftxui::Container::Horizontal({
+                ftxui::Renderer([] { return ftxui::text("X: "); }),
+                ftxui::Input(&this->position_control_data_.inputs[0], "0.0", position_input_option[0]),
+            }),
+            ftxui::Container::Horizontal({
+                ftxui::Renderer([] { return ftxui::text("Y: "); }),
+                ftxui::Input(&this->position_control_data_.inputs[1], "0.0", position_input_option[1]),
+            }),
+            ftxui::Container::Horizontal({
+                ftxui::Renderer([] { return ftxui::text("Z: "); }),
+                ftxui::Input(&this->position_control_data_.inputs[2], "0.0", position_input_option[2]),
+            }),
+            ftxui::Container::Horizontal({
+                ftxui::Renderer([] { return ftxui::text("Yaw: "); }),
+                ftxui::Input(&this->position_control_data_.inputs[3], "0.0", yaw_input_option),
+            }),
+            ftxui::Container::Horizontal({
+                ftxui::Button("Go", config_.on_setpoint_click, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
+                ftxui::Button("Stop", config_.on_setpoint_stop, ftxui::ButtonOption::Animated(ftxui::Color::Red)),
+            })
+        }),
+        ftxui::Renderer([this] { 
+            return ftxui::vbox({
+                ftxui::separator(),
+                ftxui::text("Setpoint state: " + std::string(config_.is_setpoint_running() ? "Running" : "Stopped")),
+                ftxui::text("Setpoint: [" + float_to_string(this->position_control_data_.position[0]) + ", " + float_to_string(this->position_control_data_.position[1]) + ", " + float_to_string(this->position_control_data_.position[2]) + "]"),
+                ftxui::text("Yaw: " + float_to_string(this->position_control_data_.yaw)),
+            });
+        })
     });
+
+    return position_input;
 }

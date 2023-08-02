@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <array>
 #include <string>
 #include <Eigen/Dense>
 
@@ -77,4 +78,10 @@ struct FmuStatus {
     Battery battery;
     Health health;
     RcStatus rc_status;
+};
+
+struct PositionControlWidgetData {
+    std::array<std::string, 4> inputs{"", "", "", ""};
+    Eigen::Vector3d position{Eigen::Vector3d::Zero()};
+    float yaw{0.0};
 };

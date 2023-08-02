@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <utility>
 #include <sstream>
 #include <functional>
 
@@ -20,10 +21,16 @@ public:
     using WeakPtr = std::weak_ptr<ConsoleUI>;
 
     struct Config{
+        // Basic low level operation of the vehicle
         std::function<void(bool)> on_arm_disarm_click;
         std::function<void()> on_land_click;
         std::function<void()> on_hold_click;
         std::function<void()> on_kill_switch_click;
+
+        // Offboard position control of the vehicle
+        std::function<void()> on_setpoint_click;
+        std::function<void()> on_setpoint_stop;
+        std::function<bool()> is_setpoint_running;
     };
     
     ConsoleUI(const Config & config);
@@ -31,6 +38,9 @@ public:
 
     void clear_terminal();
     void loop();
+
+    // Get the setpoint selected from the setpoint widget
+    std::pair<Eigen::Vector3d, float> get_setpoint();
 
     // The latest status and state of the vehicle
     FmuStatus status_;
@@ -56,5 +66,12 @@ protected:
     // UI Config
     Config config_;
 
+    // The selected tab in the UI
+    int tab_selected_{0};
+    std::vector<std::string> tab_values_{"Thrust Curve", "Position Control"};
+
+    // The structure that holds the data for the Position Control tab
+    PositionControlWidgetData position_control_data_;
+    
     int slider_value_;
 };
