@@ -12,6 +12,13 @@ struct State {
     Eigen::Vector3d angular_velocity{Eigen::Vector3d::Zero()};   // Angular velocity of the vehicle (FRD) with respect to the world frame NED expressed in the body frame FRD
 };
 
+// Status of the vehicle
+struct VehicleStatus {
+    bool armed{false};      // Whether the vehicle is armed
+    bool flying{false};     // Whether the vehicle is flying
+    bool offboard{false};   // Whether the vehicle is in offboard mode
+};
+
 }
 
 

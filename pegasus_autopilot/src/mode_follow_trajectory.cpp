@@ -2,6 +2,8 @@
 
 namespace Pegasus {
 
+FollowTrajectoryMode::FollowTrajectoryMode(const Mode::Config & config) : Mode(config) {}
 
+FollowTrajectoryMode::~FollowTrajectoryMode() {}
 
 }

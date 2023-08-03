@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mode.hpp"
+#include "paths/path.hpp"
 
 namespace Pegasus {
 
@@ -17,8 +18,7 @@ public:
 
 protected:
 
-
-private:
-
+    // The path for the vehicle to follow    
+    Path path_;
 };
 }
