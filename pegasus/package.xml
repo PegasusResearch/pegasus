@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+    <name>pegasus</name>
+    <version>1.0.0</version>
+    <description>ROS2 Pegasus Control and Navigation System</description>
+    <author email="marcelo.jacinto@tecnico.ulisboa.pt">Marcelo Jacinto</author>
+    <maintainer email="marcelo.jacinto@tecnico.ulisboa.pt">Marcelo Jacinto</maintainer>
+    <license>BSD 3-Clause License </license>
+
+    <buildtool_depend>ament_cmake</buildtool_depend>
+
+    <!-- Pegasus dependencies -->
+
+    <!-- Pegasus Addons -->
+    <exec_depend>paths</exec_depend>
+    <exec_depend>pegasus_utils</exec_depend>
+    <exec_depend>pid</exec_depend>
+
+    <!-- Bringup package to start the toolbox -->
+    <exec_depend>pegasus_bringup</exec_depend>
+
+    <!-- Pegasus console - Terminal UI to do basic vehicle operations -->
+    <exec_depend>pegasus_console</exec_depend>
+
+    <!-- Interfaces for mavlink, mocap and such -->
+    <exec_depend>mavlink_interface</exec_depend>
+    <exec_depend>mocap_interface</exec_depend>
+
+    <!-- Custom messages used by all the packages -->
+    <exec_depend>pegasus_msgs</exec_depend>
+
+    <export>
+        <build_type>ament_cmake</build_type>
+    </export>
+
+</package>
