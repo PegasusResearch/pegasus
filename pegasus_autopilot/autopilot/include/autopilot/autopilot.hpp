@@ -19,20 +19,16 @@
 #include "pegasus_msgs/srv/offboard.hpp"
 
 // Auxiliary libraries
-#include "mode.hpp"
-#include "state.hpp"
-#include "pid/pid.hpp"
+#include "autopilot_modes/mode.hpp"
+#include "autopilot_common/state.hpp"
 
-namespace Pegasus {
 
-// Class that implements the base autopilot that every other autopilot should inherit from
 class Autopilot : public rclcpp::Node {
 
 public:
 
-    // Constructor and Destructor of the autopilot
     Autopilot();
-    ~Autopilot();
+    ~Autopilot() {}
 
     // Function that executes periodically the control loop of each operation mode
     virtual void update();
@@ -47,8 +43,8 @@ public:
 
     // Returns the current mode of operation of the autopilot and state of the vehicle
     inline std::string get_mode() const { return current_mode_; }
-    inline State get_state() const { return state_; }
-    inline VehicleStatus get_status() const { return status_; }
+    inline PegasusAutopilot::State get_state() const { return state_; }
+    inline PegasusAutopilot::VehicleStatus get_status() const { return status_; }
 
 private:
 
@@ -76,24 +72,24 @@ private:
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr state_subscriber_;
     rclcpp::Subscription<pegasus_msgs::msg::Status>::SharedPtr status_subscriber_;
 
+    // ROS2 messages
+    pegasus_msgs::msg::ControlPosition position_msg_;
+    pegasus_msgs::msg::ControlAttitude attitude_msg_;
+    pegasus_msgs::msg::ControlAttitude attitude_rate_msg_;
+    pegasus_msgs::msg::AutopilotStatus status_msg_;
+
     // ROS 2 timer to handle the control modes, update the controllers and publish the control commands
     rclcpp::TimerBase::SharedPtr timer_;
 
-    // PID control for the position
-    std::array<Pegasus::Pid::UniquePtr, 3> pid_control_;
-
     // Modes of operation of the autopilot
-    std::map<std::string, Mode::UniquePtr> operating_modes_;
+    //std::map<std::string, PegasusAutopilot::Mode::UniquePtr> operating_modes_;
     std::map<std::string, std::vector<std::string>> valid_transitions_;
 
     // Current state and status of the vehicle
-    State state_;
-    VehicleStatus status_;
+    PegasusAutopilot::State state_;
+    PegasusAutopilot::VehicleStatus status_;
     std::string current_mode_;
 
     // Auxiliar variable used to keep track of time
-    double last_time_{0.0};
+    rclcpp::Time last_time_;
 };
-
-}
-

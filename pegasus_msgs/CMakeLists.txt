@@ -32,6 +32,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/driver/Land.srv"
   "srv/driver/Offboard.srv"
   "srv/driver/PositionHold.srv"
+  "srv/driver/Waypoint.srv"
   
   # Paths services/messages
   "srv/paths/Speed.msg"

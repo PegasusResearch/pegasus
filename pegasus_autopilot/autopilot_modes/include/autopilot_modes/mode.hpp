@@ -1,10 +1,15 @@
 #pragma once
 
-#include "state.hpp"
 #include <functional>
+#include <Eigen/Core>
+
+// ROS imports
 #include "rclcpp/rclcpp.hpp"
 
-namespace Pegasus {
+// Pegasus imports
+#include "autopilot_common/state.hpp"
+
+namespace PegasusAutopilot {
 
 class Mode {
 
@@ -23,12 +28,23 @@ public:
         std::function<void(const Eigen::Vector3d &, float)> set_attitude_rate;  // Function pointer to set the attitude rate of the vehicle
     };
 
-    // Constructor and Destructor of the mode
-    Mode(const Config & config) : node_(config.node), get_vehicle_state(config.get_vehicle_state), set_position(config.set_position), set_attitude(config.set_attitude), set_attitude_rate(config.set_attitude_rate) {}
-    ~Mode();
+    // Custom constructor like function - as we must have the default constructor for the pluginlib
+    inline void initialize_mode(const Mode::Config & config) {
+
+        // Initialize the base class
+        node_ = config.node;
+        get_vehicle_state = config.get_vehicle_state;
+        set_position = config.set_position;
+        set_attitude = config.set_attitude;
+        set_attitude_rate = config.set_attitude_rate;
+
+        // Initialize the derived class
+        initialize();
+    }
 
     // Methods that can be implemented by derived classes
     // that are executed by the state machine when entering, exiting or updating the mode
+    virtual void initialize() = 0;
     virtual bool enter() = 0;
     virtual bool exit() = 0;
     virtual void update(double dt) = 0;

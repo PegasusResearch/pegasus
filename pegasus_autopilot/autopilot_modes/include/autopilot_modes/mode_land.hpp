@@ -2,15 +2,15 @@
 
 #include "mode.hpp"
 
-namespace Pegasus {
+namespace PegasusAutopilot {
 
 class LandMode : public Mode {
 
 public:
 
-    LandMode(const Mode::Config & config);
     ~LandMode();
 
+    void initialize() override;
     bool enter() override;
     bool exit() override;
     void update(double dt) override;
@@ -28,4 +28,4 @@ private:
 }
 
 #include <pluginlib/class_list_macros.hpp>
-PLUGINLIB_EXPORT_CLASS(Pegasus::LandMode, Pegasus::Mode)
+PLUGINLIB_EXPORT_CLASS(PegasusAutopilot::LandMode, PegasusAutopilot::Mode)

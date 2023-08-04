@@ -3,15 +3,15 @@
 #include "mode.hpp"
 #include <Eigen/Core>
 
-namespace Pegasus {
+namespace PegasusAutopilot {
 
 class HoldMode : public Mode {
 
 public:
 
-    HoldMode(const Mode::Config & config) : Mode(config) {}
-    ~HoldMode() {}
+    ~HoldMode();
 
+    void initialize() override;
     bool enter() override;
     bool exit() override;
     void update(double dt) override;
@@ -26,4 +26,4 @@ protected:
 }
 
 #include <pluginlib/class_list_macros.hpp>
-PLUGINLIB_EXPORT_CLASS(Pegasus::HoldMode, Pegasus::Mode)
+PLUGINLIB_EXPORT_CLASS(PegasusAutopilot::HoldMode, PegasusAutopilot::Mode)

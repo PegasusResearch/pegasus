@@ -1,6 +1,14 @@
-#include "mode_hold.hpp"
+#include "autopilot_modes/mode_hold.hpp"
+#include "pegasus_utils/rotations.hpp"
 
-namespace Pegasus {
+namespace PegasusAutopilot {
+
+HoldMode::~HoldMode() {}
+
+void HoldMode::initialize() {
+    // Do nothing
+    return;
+}
 
 bool HoldMode::enter() {
     
@@ -11,7 +19,9 @@ bool HoldMode::enter() {
     this->target_pos[0] = curr_state.position[0];
     this->target_pos[1] = curr_state.position[1];
     this->target_pos[2] = curr_state.position[2];
-    this->target_yaw = curr_state.attitude.yaw();
+
+    // TODO: Check if we need to convert the yaw from rad to deg to be used by the target position
+    this->target_yaw = Pegasus::Rotations::yaw_from_quaternion(curr_state.attitude);
 
     // Return true to indicate that the mode has been entered successfully
     return true;

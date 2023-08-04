@@ -3,15 +3,15 @@
 #include "mode.hpp"
 #include "paths/path.hpp"
 
-namespace Pegasus {
+namespace PegasusAutopilot {
 
 class FollowTrajectoryMode : public Mode {
 
 public:
 
-    FollowTrajectoryMode(const Mode::Config & config);
     ~FollowTrajectoryMode();
 
+    void initialize() override;
     virtual bool enter();
     virtual bool exit() override;
     virtual void update(double dt);
@@ -19,9 +19,9 @@ public:
 protected:
 
     // The path for the vehicle to follow    
-    Paths::Path path_;
+    Pegasus::Paths::Path path_;
 };
 }
 
 #include <pluginlib/class_list_macros.hpp>
-PLUGINLIB_EXPORT_CLASS(Pegasus::FollowTrajectoryMode, Pegasus::Mode)
+PLUGINLIB_EXPORT_CLASS(PegasusAutopilot::FollowTrajectoryMode, PegasusAutopilot::Mode)

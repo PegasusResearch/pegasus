@@ -1,16 +1,43 @@
-<library path="pegasus_autopilot">
-  
-    <!-- Waypoint -->
-    <class type="Pegasus::WaypointMode" base_class_type="Pegasus::Mode">
-        <description>Waypoint operation mode.</description>
+<library path="autopilot_modes">
+
+    <!-- Arm -->
+    <class type="PegasusAutopilot::ArmMode" base_class_type="PegasusAutopilot::Mode">
+        <description>Arm operation mode.</description>
+    </class>
+
+    <!-- Disarm -->
+    <class type="PegasusAutopilot::DisarmMode" base_class_type="PegasusAutopilot::Mode">
+        <description>Disarm operation mode.</description>
+    </class>
+
+    <!-- Follow Trajectory -->
+    <class type="PegasusAutopilot::FollowTrajectoryMode" base_class_type="PegasusAutopilot::Mode">
+        <description>Follow Trajectory operation mode.</description>
     </class>
 
     <!-- Hold -->
-    <class type="Pegasus::HoldMode" base_class_type="Pegasus::Mode">
+    <class type="PegasusAutopilot::HoldMode" base_class_type="PegasusAutopilot::Mode">
         <description>Hold operation mode.</description>
     </class>
 
-    
+    <!-- Land -->
+    <class type="PegasusAutopilot::LandMode" base_class_type="PegasusAutopilot::Mode">
+        <description>Land operation mode.</description>
+    </class>
 
+    <!-- Pass Through -->
+    <class type="PegasusAutopilot::PassThroughMode" base_class_type="PegasusAutopilot::Mode">
+        <description>Pass Through operation mode.</description>
+    </class>
+
+    <!-- Take Off -->
+    <class type="PegasusAutopilot::TakeOffMode" base_class_type="PegasusAutopilot::Mode">
+        <description>Take Off operation mode.</description>
+    </class>
+
+    <!-- Waypoint -->
+    <class type="PegasusAutopilot::WaypointMode" base_class_type="PegasusAutopilot::Mode">
+        <description>Waypoint operation mode.</description>
+    </class>
   
 </library>

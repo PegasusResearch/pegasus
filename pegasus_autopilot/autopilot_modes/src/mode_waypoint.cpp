@@ -1,18 +1,16 @@
-#include "mode_waypoint.hpp"
+#include "autopilot_modes/mode_waypoint.hpp"
 
-namespace Pegasus {
-
-WaypointMode::WaypointMode(const Mode::Config & config) : Mode(config) {
-
-    // Create the waypoint service server
-    this->waypoint_service_ = this->node_->create_service<pegasus_msgs::srv::Waypoint>(
-        "set_waypoint", 
-        std::bind(&WaypointMode::waypoint_callback, this, std::placeholders::_1, std::placeholders::_2));
-}
+namespace PegasusAutopilot {
 
 WaypointMode::~WaypointMode() {
     // Terminate the waypoint service
     this->waypoint_service_.reset();
+}
+
+void WaypointMode::initialize() {
+
+    // Create the waypoint service server
+    this->waypoint_service_ = this->node_->create_service<pegasus_msgs::srv::Waypoint>("set_waypoint", std::bind(&WaypointMode::waypoint_callback, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 bool WaypointMode::enter() {

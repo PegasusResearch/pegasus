@@ -1,7 +1,14 @@
-#include "mode_takeoff.hpp"
+#include "autopilot_modes/mode_takeoff.hpp"
+#include "pegasus_utils/rotations.hpp"
 
+namespace PegasusAutopilot {
 
-namespace Pegasus {
+TakeoffMode::~TakeoffMode() {}
+
+void TakeoffMode::initialize() {
+    // Do nothing
+    return;
+}
 
 bool TakeoffMode::enter() {
     
@@ -11,8 +18,10 @@ bool TakeoffMode::enter() {
     // Set the target position and attitude to the current position and attitude of the drone
     this->takeoff_pos[0] = curr_state.position[0];
     this->takeoff_pos[1] = curr_state.position[1];
-    this->takeoff_pos[2] = curr_state.position[2];
-    this->takeoff_yaw = curr_state.attitude.yaw();
+    this->takeoff_pos[2] = curr_state.position[2] - this->target_altitude;
+
+    // TODO: Check if we need to convert the yaw from rad to deg to be used by the target position
+    this->takeoff_yaw = Pegasus::Rotations::yaw_from_quaternion(curr_state.attitude);
 
     // Return true to indicate that the mode has been entered successfully
     return true;
@@ -26,7 +35,7 @@ bool TakeoffMode::exit() {
 void TakeoffMode::update(double) {
 
     // Set the controller to track the target position and attitude
-    this->set_position(this->target_pos, this->target_yaw);
+    this->set_position(this->takeoff_pos, this->takeoff_yaw);
 }
 
 }

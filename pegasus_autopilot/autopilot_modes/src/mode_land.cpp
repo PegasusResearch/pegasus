@@ -1,10 +1,14 @@
-#include "mode_land.hpp"
+#include "autopilot_modes/mode_land.hpp"
 #include "pegasus_utils/rotations.hpp"
 
-namespace Pegasus {
+namespace PegasusAutopilot {
 
-LandMode::LandMode(const Mode::Config & config) : Mode(config) {}
 LandMode::~LandMode() {}
+
+void LandMode::initialize() {
+    // Do nothing
+    return;
+}
 
 bool LandMode::enter() {
 
@@ -35,7 +39,7 @@ void LandMode::update(double dt) {
     State curr_state = this->get_vehicle_state();
 
     // Update the target Z position based on the current land speed
-    this->target_pos_[2] = this->target_pos_[2] + (this->land_speed_ * dt);
+    this->target_pos_[2] = curr_state.position[2] + (this->land_speed_ * dt);
 
     // Set the controller to track the position which is slighlty bellow the vehicle, but keep the original orientation
     this->set_position(this->target_pos_, this->target_yaw_);

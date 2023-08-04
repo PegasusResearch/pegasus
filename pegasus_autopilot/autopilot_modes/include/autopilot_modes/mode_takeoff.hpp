@@ -2,15 +2,15 @@
 
 #include "mode.hpp"
 
-namespace Pegasus {
+namespace PegasusAutopilot {
 
 class TakeoffMode : public Mode {
 
 public:
 
-    TakeoffMode(const Mode::Config & config) : Mode(config) {}
-    ~TakeoffMode() {}
+    ~TakeoffMode();
 
+    void initialize() override;
     bool enter() override;
     bool exit() override;
     void update(double dt) override;
@@ -20,7 +20,7 @@ protected:
     // The target altitude to takeoff to
     float target_altitude{1.0f};
 
-    // The position the vehicle is taking off from
+    // The target position for the vehicle to take off to
     Eigen::Vector3d takeoff_pos{Eigen::Vector3d::Zero()};
     float takeoff_yaw{0.0f};
 };
@@ -28,4 +28,4 @@ protected:
 }
 
 #include <pluginlib/class_list_macros.hpp>
-PLUGINLIB_EXPORT_CLASS(Pegasus::TakeoffMode, Pegasus::Mode)
+PLUGINLIB_EXPORT_CLASS(PegasusAutopilot::TakeoffMode, PegasusAutopilot::Mode)

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
- <name>pegasus_autopilot</name>
+ <name>autopilot</name>
  <version>1.0.0</version>
  <description>The Pegasus Autopilot which controls the different autonomous modes of operation of the vehicle</description>
  <author email="marcelo.jacinto@tecnico.ulisboa.pt">Marcelo Jacinto</author>
@@ -11,14 +11,14 @@
  <buildtool_depend>ament_cmake</buildtool_depend>
 
  <!-- Packages Dependencies -->
- <depend>rclcpp</depend>
  <depend>pegasus_msgs</depend>
- <depend>nav_msgs</depend>
- <depend>paths</depend>
- <depend>pid</depend>
  <depend>pegasus_utils</depend>
+ <depend>autopilot_modes</depend>
+ <depend>autopilot_common</depend>
 
  <!-- External dependencies -->
+ <depend>rclcpp</depend>
+ <depend>nav_msgs</depend>
  <depend>pluginlib</depend>
  
  <test_depend>ament_lint_auto</test_depend>
@@ -26,7 +26,7 @@
  <test_depend>ament_lint_common</test_depend>
  
  <export>
-   <build_type>ament_cmake</build_type>
+    <build_type>ament_cmake</build_type>
  </export>
  
 </package>

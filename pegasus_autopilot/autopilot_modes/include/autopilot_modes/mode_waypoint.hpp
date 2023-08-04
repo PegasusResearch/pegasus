@@ -3,15 +3,15 @@
 #include "mode.hpp"
 #include "pegasus_msgs/srv/waypoint.hpp"
 
-namespace Pegasus {
+namespace PegasusAutopilot {
 
 class WaypointMode : public Mode {
 
 public:
 
-    WaypointMode(const Mode::Config & config);
     ~WaypointMode();
 
+    void initialize() override;
     bool enter() override;
     bool exit() override;
     void update(double dt) override;
@@ -19,9 +19,7 @@ public:
 protected:
 
     // The waypoint service callback
-    void waypoint_callback(
-        const pegasus_msgs::srv::Waypoint::Request::SharedPtr request, 
-        const pegasus_msgs::srv::Waypoint::Response::SharedPtr response);
+    void waypoint_callback(const pegasus_msgs::srv::Waypoint::Request::SharedPtr request, const pegasus_msgs::srv::Waypoint::Response::SharedPtr response);
 
     // Check if the waypoint is already set
     bool waypoint_set_{false};
@@ -37,4 +35,4 @@ protected:
 }
 
 #include <pluginlib/class_list_macros.hpp>
-PLUGINLIB_EXPORT_CLASS(Pegasus::WaypointMode, Pegasus::Mode)
+PLUGINLIB_EXPORT_CLASS(PegasusAutopilot::WaypointMode, PegasusAutopilot::Mode)
