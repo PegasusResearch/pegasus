@@ -19,6 +19,9 @@ public:
 protected:
 
     // The path for the vehicle to follow    
-    Path path_;
+    Paths::Path path_;
 };
 }
+
+#include <pluginlib/class_list_macros.hpp>
+PLUGINLIB_EXPORT_CLASS(Pegasus::FollowTrajectoryMode, Pegasus::Mode)

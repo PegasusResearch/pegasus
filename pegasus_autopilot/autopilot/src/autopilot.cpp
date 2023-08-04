@@ -9,11 +9,17 @@ Autopilot::Autopilot() : rclcpp::Node("autopilot") {
     initialize_publishers();
     initialize_subscribers();
     initialize_services();
+
+    // Initialize the timer running at 50 Hz
+    last_time_ = this->now();
+    timer_ = this->create_wall_timer(std::chrono::milliseconds(1.0 / 50.0), std::bind(&Autopilot::update, this));
 }
 
 
 void Autopilot::initialize_parameters() {
 
+    // Read the list of operation modes from the parameter server
+    this->declare_parameter<std::vector<std::string>>("modes", {});
 }
 
 void Autopilot::initialize_publishers() {
@@ -54,6 +60,27 @@ void Autopilot::initialize_subscribers() {
 
 void Autopilot::initialize_services() {
 
+
+}
+
+// Function that executes periodically the control loop of each operation mode
+void Autopilot::update() {
+
+    // Get the current time and compute the time difference
+    auto now = this->now();
+    double dt = (now - last_time_).seconds();
+
+    try {
+        // Try to execute the current mode 
+        mode_map_.at(mode_)->update(dt);
+    }
+
+    // Update the last time
+    last_time_ = now;
+}
+
+// Function that establishes the state machine to transition between operating modes
+void Autopilot::change_mode(const uint8_t new_mode) {
 
 }
 

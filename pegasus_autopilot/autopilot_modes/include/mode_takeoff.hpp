@@ -26,3 +26,6 @@ protected:
 };
 
 }
+
+#include <pluginlib/class_list_macros.hpp>
+PLUGINLIB_EXPORT_CLASS(Pegasus::TakeoffMode, Pegasus::Mode)

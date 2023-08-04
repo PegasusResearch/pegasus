@@ -1,0 +1,16 @@
+<library path="pegasus_autopilot">
+  
+    <!-- Waypoint -->
+    <class type="Pegasus::WaypointMode" base_class_type="Pegasus::Mode">
+        <description>Waypoint operation mode.</description>
+    </class>
+
+    <!-- Hold -->
+    <class type="Pegasus::HoldMode" base_class_type="Pegasus::Mode">
+        <description>Hold operation mode.</description>
+    </class>
+
+    
+
+  
+</library>

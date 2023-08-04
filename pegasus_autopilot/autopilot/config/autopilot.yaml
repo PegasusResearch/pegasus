@@ -1,0 +1,22 @@
+/**:
+  ros__parameters:
+    autopilot:
+
+      # Define the default operation mode (the one which the autopilot initializes at)
+      default_mode: "DISARMED"
+
+      # Define all the existing operation modes
+      modes: ["DISARMED", "ARMED_LANDED", "TAKEOFF", "LAND", "HOLD", "WAYPOINT", "FOLLOW_TRAJECTORY", "PASS_THROUGH"]
+
+      # Define the valid transitions from a given operation mode to other operation modes
+      valid_transitions:
+        DISARMED: ["ARMED_LANDED"]
+        ARMED_LANDED: ["DISARMED", "TAKEOFF", "HOLD", "WAYPOINT", "FOLLOW_TRAJECTORY", "PASS_THROUGH"]
+        TAKEOFF: ["LAND", "HOLD", "WAYPOINT", "FOLLOW_TRAJECTORY", "PASS_THROUGH"]
+        LAND: ["DISARMED", "ARMED_LANDED", "TAKEOFF", "HOLD", "WAYPOINT", "FOLLOW_TRAJECTORY", "PASS_THROUGH"]
+        HOLD: ["LAND", "WAYPOINT", "FOLLOW_TRAJECTORY", "PASS_THROUGH"]
+        WAYPOINT: ["LAND", "HOLD", "FOLLOW_TRAJECTORY", "PASS_THROUGH"]
+        FOLLOW_TRAJECTORY: ["LAND", "HOLD", "WAYPOINT", "PASS_THROUGH"]
+        PASS_THROUGH: ["DISARMED", "ARMED_LANDED", "TAKEOFF", "LAND", "HOLD", "WAYPOINT", "FOLLOW_TRAJECTORY"]
+
+      

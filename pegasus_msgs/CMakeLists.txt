@@ -47,6 +47,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/controllers/LandMission.srv"
 
   # Messages
+  "msg/autopilot/AutopilotStatus.msg"
   "msg/driver/Battery.msg"
   "msg/driver/ControlAttitude.msg"
   "msg/driver/ControlPosition.msg"

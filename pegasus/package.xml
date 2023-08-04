@@ -19,6 +19,11 @@
 
     <!-- Bringup package to start the toolbox -->
     <exec_depend>pegasus_bringup</exec_depend>
+    
+    <!-- The Autopilot packages -->
+    <exec_depend>autopilot</exec_depend>
+    <exec_depend>autopilot_common</exec_depend>
+    <exec_depend>autopilot_modes</exec_depend>
 
     <!-- Pegasus console - Terminal UI to do basic vehicle operations -->
     <exec_depend>pegasus_console</exec_depend>

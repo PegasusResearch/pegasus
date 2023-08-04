@@ -10,6 +10,10 @@ class Mode {
 
 public:
 
+    using SharedPtr = std::shared_ptr<Mode>;
+    using UniquePtr = std::unique_ptr<Mode>;
+    using WeakPtr = std::weak_ptr<Mode>;
+
     // Configuration for the operation mode
     struct Config {
         rclcpp::Node::SharedPtr node;                                           // ROS 2 node ptr (in case the mode needs to create publishers, subscribers, etc.)
