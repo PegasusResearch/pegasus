@@ -7,9 +7,9 @@
 #include "rclcpp/rclcpp.hpp"
 
 // Pegasus imports
-#include "autopilot_common/state.hpp"
+#include "state.hpp"
 
-namespace PegasusAutopilot {
+namespace autopilot {
 
 class Mode {
 
@@ -61,4 +61,4 @@ protected:
     std::function<void(const Eigen::Vector3d &, float)> set_attitude_rate{nullptr};
 };
 
-}
+} // namespace autopilot

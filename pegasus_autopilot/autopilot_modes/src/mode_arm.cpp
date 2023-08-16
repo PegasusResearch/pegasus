@@ -1,12 +1,13 @@
 #include "autopilot_modes/mode_arm.hpp"
 
-namespace PegasusAutopilot {
+namespace autopilot {
 
 ArmMode::~ArmMode() {}
 
 void ArmMode::initialize() {
     // Do nothing 
-    return;
+    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "ArmMode initialized");
+    //RCLCPP_INFO(this->node_->get_logger(), "ArmMode initialized");
 }
 
 bool ArmMode::enter() {
@@ -24,4 +25,7 @@ void ArmMode::update(double) {
     return;
 }
 
-}
+} // namespace autopilot
+
+#include <pluginlib/class_list_macros.hpp>
+PLUGINLIB_EXPORT_CLASS(autopilot::ArmMode, autopilot::Mode)

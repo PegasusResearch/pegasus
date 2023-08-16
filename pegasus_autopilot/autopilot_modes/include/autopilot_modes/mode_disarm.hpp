@@ -1,10 +1,10 @@
 #pragma once
 
-#include "mode.hpp"
+#include <autopilot/mode.hpp>
 
-namespace PegasusAutopilot {
+namespace autopilot {
 
-class DisarmMode : public Mode {
+class DisarmMode : public autopilot::Mode {
 
 public:
 
@@ -18,6 +18,3 @@ public:
 };
 
 }
-
-#include <pluginlib/class_list_macros.hpp>
-PLUGINLIB_EXPORT_CLASS(PegasusAutopilot::DisarmMode, PegasusAutopilot::Mode)

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "mode.hpp"
+#include <autopilot/mode.hpp>
 
-namespace PegasusAutopilot {
+namespace autopilot {
 
-class TakeoffMode : public Mode {
+class TakeoffMode : public autopilot::Mode {
 
 public:
 
@@ -26,6 +26,3 @@ protected:
 };
 
 }
-
-#include <pluginlib/class_list_macros.hpp>
-PLUGINLIB_EXPORT_CLASS(PegasusAutopilot::TakeoffMode, PegasusAutopilot::Mode)

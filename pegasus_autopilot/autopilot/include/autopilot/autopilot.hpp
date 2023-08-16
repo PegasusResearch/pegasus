@@ -19,9 +19,10 @@
 #include "pegasus_msgs/srv/offboard.hpp"
 
 // Auxiliary libraries
-#include "autopilot_modes/mode.hpp"
-#include "autopilot_common/state.hpp"
+#include "mode.hpp"
+#include "state.hpp"
 
+namespace autopilot {
 
 class Autopilot : public rclcpp::Node {
 
@@ -43,8 +44,8 @@ public:
 
     // Returns the current mode of operation of the autopilot and state of the vehicle
     inline std::string get_mode() const { return current_mode_; }
-    inline PegasusAutopilot::State get_state() const { return state_; }
-    inline PegasusAutopilot::VehicleStatus get_status() const { return status_; }
+    inline State get_state() const { return state_; }
+    inline VehicleStatus get_status() const { return status_; }
 
 private:
 
@@ -82,14 +83,16 @@ private:
     rclcpp::TimerBase::SharedPtr timer_;
 
     // Modes of operation of the autopilot
-    //std::map<std::string, PegasusAutopilot::Mode::UniquePtr> operating_modes_;
+    std::map<std::string, Mode::UniquePtr> operating_modes_;
     std::map<std::string, std::vector<std::string>> valid_transitions_;
 
     // Current state and status of the vehicle
-    PegasusAutopilot::State state_;
-    PegasusAutopilot::VehicleStatus status_;
+    State state_;
+    VehicleStatus status_;
     std::string current_mode_;
 
     // Auxiliar variable used to keep track of time
     rclcpp::Time last_time_;
 };
+
+} // namespace autopilot

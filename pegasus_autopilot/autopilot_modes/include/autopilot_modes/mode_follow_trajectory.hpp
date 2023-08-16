@@ -1,11 +1,11 @@
 #pragma once
 
-#include "mode.hpp"
+#include <autopilot/mode.hpp>
 #include "paths/path.hpp"
 
-namespace PegasusAutopilot {
+namespace autopilot {
 
-class FollowTrajectoryMode : public Mode {
+class FollowTrajectoryMode : public autopilot::Mode {
 
 public:
 
@@ -19,9 +19,6 @@ public:
 protected:
 
     // The path for the vehicle to follow    
-    Pegasus::Paths::Path path_;
+    //Pegasus::Paths::Path path_;
 };
 }
-
-#include <pluginlib/class_list_macros.hpp>
-PLUGINLIB_EXPORT_CLASS(PegasusAutopilot::FollowTrajectoryMode, PegasusAutopilot::Mode)

@@ -1,12 +1,14 @@
 #include "autopilot_modes/mode_hold.hpp"
 #include "pegasus_utils/rotations.hpp"
 
-namespace PegasusAutopilot {
+namespace autopilot {
 
 HoldMode::~HoldMode() {}
 
 void HoldMode::initialize() {
     // Do nothing
+    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "HoldMode initialized");
+    //RCLCPP_INFO(this->node_->get_logger(), "ArmMode initialized");
     return;
 }
 
@@ -38,4 +40,7 @@ void HoldMode::update(double) {
     this->set_position(this->target_pos, this->target_yaw);
 }
 
-}
+} // namespace autopilot
+
+#include <pluginlib/class_list_macros.hpp>
+PLUGINLIB_EXPORT_CLASS(autopilot::HoldMode, autopilot::Mode)

@@ -1,32 +1,25 @@
-cmake_minimum_required(VERSION 3.10.2)
+cmake_minimum_required(VERSION 3.8)
 project(autopilot_modes)
 
-# Default to C++17 and compiler flags to give all warnings
+# Default to C++20 and compiler flags to give all warnings
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic -O3)
-endif()
-if(MSVC)
-  add_compile_options(-WX -W2)
+  add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-parameter -Wno-sign-compare -O3)
 endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
+find_package(ament_cmake_ros REQUIRED)
+find_package(autopilot REQUIRED)
+find_package(pegasus_msgs REQUIRED)
+find_package("paths" REQUIRED)
+find_package(pegasus_utils REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(Eigen3 REQUIRED)
 
-# Pegasus libraries
-find_package(autopilot_common REQUIRED)
-find_package(pegasus_utils REQUIRED)
-find_package(pegasus_msgs REQUIRED)
-find_package("paths" REQUIRED)
-
-# Create the package with source code
-add_library(
-  ${PROJECT_NAME}
+add_library(${PROJECT_NAME} 
   src/mode_arm.cpp
   src/mode_disarm.cpp
   src/mode_follow_trajectory.cpp
@@ -37,51 +30,55 @@ add_library(
   src/mode_waypoint.cpp
 )
 
-# Add the include directories
 target_include_directories(${PROJECT_NAME} PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+  ${EIGEN3_INCLUDE_DIRS}
 )
+
+add_definitions(${EIGEN3_DEFINITIONS})
 
 ament_target_dependencies(${PROJECT_NAME}
-  rclcpp
-  pluginlib
-  autopilot_common
-  pegasus_utils
+  autopilot
   pegasus_msgs
   "paths"
+  pegasus_utils
+  pluginlib
 )
 
-# Let the pluginlib know that we are creating multiple mode plugins
-pluginlib_export_plugin_description_file(autopilot_modes plugins.xml)
+# Export the pluginlib description (package containing the base class and the derived classes information in XML format)
+pluginlib_export_plugin_description_file(autopilot autopilot_mode_plugins.xml)
 
-install(TARGETS ${PROJECT_NAME}
-  EXPORT "${PROJECT_NAME}Targets"
+install(
+  TARGETS ${PROJECT_NAME}
+  EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
 )
 
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION include/${PROJECT_NAME}
+# Causes the visibility macros to use dllexport rather than dllimport,
+# which is appropriate when building the dll but not consuming it.
+target_compile_definitions(${PROJECT_NAME} PRIVATE "AUTOPILOT_MODES_BUILDING_LIBRARY")
+
+install(
+  DIRECTORY include/
+  DESTINATION include
 )
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
-  # uncomment the line when a copyright and license is not present in all source files
-  #set(ament_cmake_copyright_FOUND TRUE)
+  # comment the line when a copyright and license is added to all source files
+  set(ament_cmake_copyright_FOUND TRUE)
   # the following line skips cpplint (only works in a git repo)
-  # uncomment the line when this package is not in a git repo
-  #set(ament_cmake_cpplint_FOUND TRUE)
+  # comment the line when this package is in a git repo and when
+  # a copyright and license is added to all source files
+  set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-ament_export_dependencies()
 ament_export_include_directories(include)
 ament_export_libraries(${PROJECT_NAME})
-
-# Specify the export targets for the header only libraries
-ament_export_targets("${PROJECT_NAME}Targets" HAS_LIBRARY_TARGET)
+ament_export_targets(export_${PROJECT_NAME})
 ament_package()

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "mode.hpp"
+#include <autopilot/mode.hpp>
 #include <Eigen/Core>
 
-namespace PegasusAutopilot {
+namespace autopilot {
 
-class HoldMode : public Mode {
+class HoldMode : public autopilot::Mode {
 
 public:
 
@@ -24,6 +24,3 @@ protected:
 };
 
 }
-
-#include <pluginlib/class_list_macros.hpp>
-PLUGINLIB_EXPORT_CLASS(PegasusAutopilot::HoldMode, PegasusAutopilot::Mode)

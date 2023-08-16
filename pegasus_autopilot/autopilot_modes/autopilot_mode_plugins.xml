@@ -1,0 +1,42 @@
+<library path="autopilot_modes">
+
+  <!-- Arm -->
+  <class type="autopilot::ArmMode" base_class_type="autopilot::Mode">
+      <description>Arm operation mode.</description>
+  </class>
+
+  <!-- Disarm -->
+  <class type="autopilot::DisarmMode" base_class_type="autopilot::Mode">
+      <description>Disarm operation mode.</description>
+  </class>
+
+  <!-- Follow Trajectory -->
+  <class type="autopilot::FollowTrajectoryMode" base_class_type="autopilot::Mode">
+      <description>Follow Trajectory operation mode.</description>
+  </class>
+
+  <!-- Hold -->
+  <class type="autopilot::HoldMode" base_class_type="autopilot::Mode">
+      <description>Hold operation mode.</description>
+  </class>
+
+  <!-- Land -->
+  <class type="autopilot::LandMode" base_class_type="autopilot::Mode">
+      <description>Land operation mode.</description>
+  </class>
+
+  <!-- Pass Through -->
+  <class type="autopilot::PassThroughMode" base_class_type="autopilot::Mode">
+      <description>Pass Through operation mode.</description>
+  </class>
+
+  <!-- Take Off -->
+  <class type="autopilot::TakeoffMode" base_class_type="autopilot::Mode">
+      <description>Take Off operation mode.</description>
+  </class>
+
+  <!-- Waypoint -->
+  <class type="autopilot::WaypointMode" base_class_type="autopilot::Mode">
+      <description>Waypoint operation mode.</description>
+  </class>
+</library>

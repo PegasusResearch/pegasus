@@ -1,11 +1,11 @@
 #pragma once
 
-#include "mode.hpp"
+#include <autopilot/mode.hpp>
 #include "pegasus_msgs/srv/waypoint.hpp"
 
-namespace PegasusAutopilot {
+namespace autopilot {
 
-class WaypointMode : public Mode {
+class WaypointMode : public autopilot::Mode {
 
 public:
 
@@ -33,6 +33,3 @@ protected:
 };
 
 }
-
-#include <pluginlib/class_list_macros.hpp>
-PLUGINLIB_EXPORT_CLASS(PegasusAutopilot::WaypointMode, PegasusAutopilot::Mode)

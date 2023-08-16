@@ -1,7 +1,6 @@
 /**:
   ros__parameters:
     autopilot:
-
       # Define the default operation mode (the one which the autopilot initializes at)
       default_mode: "DISARMED"
 
@@ -18,5 +17,14 @@
         WAYPOINT: ["LAND", "HOLD", "FOLLOW_TRAJECTORY", "PASS_THROUGH"]
         FOLLOW_TRAJECTORY: ["LAND", "HOLD", "WAYPOINT", "PASS_THROUGH"]
         PASS_THROUGH: ["DISARMED", "ARMED_LANDED", "TAKEOFF", "LAND", "HOLD", "WAYPOINT", "FOLLOW_TRAJECTORY"]
-
+    
+    # Topics configurations
+    publishers:
+      control_position: "fmu/in/position"
+      control_attitude: "fmu/in/force/attitude"
+      control_attitude_rate: "fmu/in/force/attitude_rate"
+      status: "autopilot/status"
+    subscribers:
+      state: "fmu/filter/state"
+      status: "fmu/status"
       

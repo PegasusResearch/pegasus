@@ -1,10 +1,10 @@
 #pragma once
 
-#include "mode.hpp"
+#include <autopilot/mode.hpp>
 
-namespace PegasusAutopilot {
+namespace autopilot {
 
-class LandMode : public Mode {
+class LandMode : public autopilot::Mode {
 
 public:
 
@@ -26,6 +26,3 @@ private:
 };
 
 }
-
-#include <pluginlib/class_list_macros.hpp>
-PLUGINLIB_EXPORT_CLASS(PegasusAutopilot::LandMode, PegasusAutopilot::Mode)

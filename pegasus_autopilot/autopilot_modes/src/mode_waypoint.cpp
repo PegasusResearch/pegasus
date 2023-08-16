@@ -1,6 +1,6 @@
 #include "autopilot_modes/mode_waypoint.hpp"
 
-namespace PegasusAutopilot {
+namespace autopilot {
 
 WaypointMode::~WaypointMode() {
     // Terminate the waypoint service
@@ -11,6 +11,9 @@ void WaypointMode::initialize() {
 
     // Create the waypoint service server
     this->waypoint_service_ = this->node_->create_service<pegasus_msgs::srv::Waypoint>("set_waypoint", std::bind(&WaypointMode::waypoint_callback, this, std::placeholders::_1, std::placeholders::_2));
+
+    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "WaypointMode initialized");
+    //RCLCPP_INFO(this->node_->get_logger(), "ArmMode initialized");
 }
 
 bool WaypointMode::enter() {
@@ -55,4 +58,7 @@ void WaypointMode::waypoint_callback(const pegasus_msgs::srv::Waypoint::Request:
     response->success = true;
 }
 
-}
+} // namespace autopilot
+
+#include <pluginlib/class_list_macros.hpp>
+PLUGINLIB_EXPORT_CLASS(autopilot::WaypointMode, autopilot::Mode)

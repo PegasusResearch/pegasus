@@ -1,4 +1,8 @@
 #include "autopilot/autopilot.hpp"
+#include "autopilot/mode.hpp"
+#include <pluginlib/class_loader.hpp>
+
+namespace autopilot {
 
 Autopilot::Autopilot() : Node("pegasus_autopilot") {
 
@@ -13,12 +17,23 @@ Autopilot::Autopilot() : Node("pegasus_autopilot") {
     timer_ = this->create_wall_timer(std::chrono::duration<double>(1.0 / 50.0), std::bind(&Autopilot::update, this));
 }
 
-
-
 void Autopilot::initialize_parameters() {
 
     // Read the list of operation modes from the parameter server
-    //this->declare_parameter<std::vector<std::string>>("modes", {});
+    this->declare_parameter<std::vector<std::string>>("autopilot.modes", std::vector<std::string>());
+    rclcpp::Parameter modes = this->get_parameter("autopilot.modes");
+    
+    // Load the base class that defines the interface for all the operation modes
+    pluginlib::ClassLoader<autopilot::Mode> mode_loader("autopilot", "autopilot::Mode");
+
+    std::vector<std::string> operating_modes = mode_loader.getDeclaredClasses();
+
+    for (const std::string & mode : operating_modes) {
+        RCLCPP_INFO(this->get_logger(), "Found mode: %s", mode.c_str());
+    }
+
+    std::shared_ptr<autopilot::Mode> arm = mode_loader.createSharedInstance("autopilot::ArmMode");
+    arm->initialize();
 
     // TODO: Finish this implementation
 }
@@ -42,6 +57,12 @@ void Autopilot::initialize_publishers() {
     rclcpp::Parameter control_attitude_rate_topic = this->get_parameter("publishers.control_attitude_rate");
     attitude_rate_publisher_ = this->create_publisher<pegasus_msgs::msg::ControlAttitude>(
         control_attitude_rate_topic.as_string(), rclcpp::SensorDataQoS());
+
+    // Initialize the publisher for the status of the vehicle
+    this->declare_parameter<std::string>("publishers.status", "autopilot/status");
+    rclcpp::Parameter status_topic = this->get_parameter("publishers.status");
+    status_publisher_ = this->create_publisher<pegasus_msgs::msg::AutopilotStatus>(
+        status_topic.as_string(), rclcpp::SensorDataQoS());
 }
 
 void Autopilot::initialize_subscribers() {
@@ -72,23 +93,27 @@ void Autopilot::update() {
 
     // Execute the control loop of the current mode
     try {
-        //operating_modes_.at(current_mode_)->update(dt);
+        operating_modes_.at(current_mode_)->update(dt);
         //TODO
     } catch (const std::exception & e) {
-        RCLCPP_ERROR(this->get_logger(), "Exception thrown while executing the current mode: %s", e.what());
+        auto steady_clock = rclcpp::Clock();
+        RCLCPP_ERROR_STREAM_THROTTLE(this->get_logger(), steady_clock, 1000, "Exception while executing update: " << e.what() << ". Mode: " << current_mode_);
     }
 
     // Update the last time
     last_time_ = now;
 
     // Publish the current status of the autopilot
-    // TODO
+    status_msg_.header.stamp = now;
+    status_publisher_->publish(status_msg_);
 }
 
 // Function that establishes the state machine to transition between operating modes
 void Autopilot::change_mode(const std::string new_mode) {
     // TODO - implement the state machine and the transition logic here
-    return;
+
+    // Update the current mode in the status message
+    status_msg_.mode = current_mode_;
 }
 
 void Autopilot::set_target_position(const Eigen::Vector3d & position, float yaw) {
@@ -156,3 +181,5 @@ void Autopilot::status_callback(const pegasus_msgs::msg::Status::ConstSharedPtr 
     status_.flying = (msg->landed_state == pegasus_msgs::msg::Status::IN_AIR) ? true : false;
     status_.offboard = (msg->flight_mode == pegasus_msgs::msg::Status::OFFBOARD) ? true : false;
 }
+
+} // namespace autopilot

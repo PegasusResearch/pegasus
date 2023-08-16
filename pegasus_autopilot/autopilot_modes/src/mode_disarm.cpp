@@ -1,11 +1,13 @@
 #include "autopilot_modes/mode_disarm.hpp"
 
-namespace PegasusAutopilot {
+namespace autopilot {
 
 DisarmMode::~DisarmMode() {}
 
 void DisarmMode::initialize() {
     // Do nothing
+    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "DisarmMode initialized");
+    //RCLCPP_INFO(this->node_->get_logger(), "DisarmMode initialized");
     return;
 }
 
@@ -24,4 +26,7 @@ void DisarmMode::update(double) {
     return;
 }
 
-}
+} // namespace autopilot
+
+#include <pluginlib/class_list_macros.hpp>
+PLUGINLIB_EXPORT_CLASS(autopilot::DisarmMode, autopilot::Mode)

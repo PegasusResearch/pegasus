@@ -2,7 +2,7 @@
 
 #include <Eigen/Dense>
 
-namespace PegasusAutopilot {
+namespace autopilot {
 
 // State of the vehicle
 struct State {

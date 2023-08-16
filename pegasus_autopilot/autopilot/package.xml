@@ -1,32 +1,24 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
- <name>autopilot</name>
- <version>1.0.0</version>
- <description>The Pegasus Autopilot which controls the different autonomous modes of operation of the vehicle</description>
- <author email="marcelo.jacinto@tecnico.ulisboa.pt">Marcelo Jacinto</author>
- <maintainer email="marcelo.jacinto@tecnico.ulisboa.pt">Marcelo Jacinto</maintainer>
- <license>BSD 3-Clause License</license>
+  <name>autopilot</name>
+  <version>1.0.0</version>
+  <description>The Pegasus Autopilot which controls the different autonomous modes of operation of the vehicle</description>
+  <author email="marcelo.jacinto@tecnico.ulisboa.pt">Marcelo Jacinto</author>
+  <maintainer email="marcelo.jacinto@tecnico.ulisboa.pt">Marcelo Jacinto</maintainer>
+  <license>BSD 3-Clause License</license>
 
- <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
- <!-- Packages Dependencies -->
- <depend>pegasus_msgs</depend>
- <depend>pegasus_utils</depend>
- <depend>autopilot_modes</depend>
- <depend>autopilot_common</depend>
+  <depend>rclcpp</depend>
+  <depend>pluginlib</depend>
+  <depend>nav_msgs</depend>
+  <depend>pegasus_msgs</depend>
+  
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
 
- <!-- External dependencies -->
- <depend>rclcpp</depend>
- <depend>nav_msgs</depend>
- <depend>pluginlib</depend>
- 
- <test_depend>ament_lint_auto</test_depend>
- <test_depend>ament_cmake_copyright</test_depend>
- <test_depend>ament_lint_common</test_depend>
- 
- <export>
+  <export>
     <build_type>ament_cmake</build_type>
- </export>
- 
+  </export>
 </package>
