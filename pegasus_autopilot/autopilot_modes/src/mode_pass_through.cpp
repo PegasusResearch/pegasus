@@ -11,17 +11,17 @@ void PassThroughMode::initialize() {
 }
 
 bool PassThroughMode::enter() {
-    // TODO: Implement this method
+    // Do nothing and just return
     return true;
 }
 
 bool PassThroughMode::exit() {
-    // TODO: Implement this method
+    // Do nothing and just return
     return true;
 }
 
 void PassThroughMode::update(double) {
-    // TODO: Implement this method
+    // Do nothing and just return
     return;
 }
 

@@ -17,8 +17,8 @@ void LandMode::initialize() {
 
     // Log that the LandMode has been initialized successfully
     RCLCPP_INFO(this->node_->get_logger(), "LandMode initialized");
-    RCLCPP_INFO(this->node_->get_logger(), "LandMode land_speed: %f", land_speed_);
-    RCLCPP_INFO(this->node_->get_logger(), "LandMode land_detected_treshold: %f", land_detected_treshold_);
+    RCLCPP_INFO(this->node_->get_logger(), "LandMode land_speed: %.2f m/s", land_speed_);
+    RCLCPP_INFO(this->node_->get_logger(), "LandMode land_detected_treshold: %.2f m/s", land_detected_treshold_);
 }
 
 bool LandMode::enter() {

@@ -18,7 +18,7 @@ bool WaypointMode::enter() {
 
     // Check if the waypoint was already set - if not, then do not enter the waypoint mode
     if (!this->waypoint_set_) {
-        RCLCPP_ERROR(this->node_->get_logger(), "Waypoint not set - cannot enter waypoint mode");
+        RCLCPP_ERROR(this->node_->get_logger(), "Waypoint not set - cannot enter waypoint mode.");
         return false;
     }
 

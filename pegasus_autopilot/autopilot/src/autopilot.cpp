@@ -292,6 +292,14 @@ void Autopilot::status_callback(const pegasus_msgs::msg::Status::ConstSharedPtr 
         RCLCPP_WARN(this->get_logger(), "Vehicle is disarmed by FMU. Autopilot forcing a transition to DisarmMode");
         change_mode("DisarmMode", true);
     }
+
+    // Check if the vehicle is ON_AIR, armed and in offboard mode. If so, it means something has died and we reconnected. In this case we should transition
+    // to HoldMode and try to prevent the vehicle from crashing
+    // TODO - improve this logic later on
+    if (status_.flying && status_.armed && status_.offboard && current_mode_ == "DisarmMode") {
+        RCLCPP_WARN(this->get_logger(), "Vehicle is ON_AIR, armed and in offboard mode. Autopilot forcing a transition to HoldMode");
+        change_mode("HoldMode", true);
+    }
 }
 
 } // namespace autopilot
