@@ -24,10 +24,10 @@ def generate_launch_description():
     mavlink_forward_arg = DeclareLaunchArgument('mavlink_forward', default_value="['udp://127.0.0.1:14551']", description='A list of ips where to forward mavlink messages')
 
     # Define which file to use for the drone parameters
-    # drone_params_yaml_arg = DeclareLaunchArgument(
-    #     'drone_params', 
-    #     default_value=os.path.join(get_package_share_directory('mavlink_interface'), 'config', 'drone_params.yaml'),
-    #     description='The directory where the drone parameters such as mass, thrust curve, etc. are defined')
+    drone_params_yaml_arg = DeclareLaunchArgument(
+        'drone_params', 
+        default_value=os.path.join(get_package_share_directory('mavlink_interface'), 'config', 'drone_params.yaml'),
+        description='The directory where the drone parameters such as mass, thrust curve, etc. are defined')
 
     # Get the name of the .yaml configuration file either from the package or an external source
     topics_yaml_arg = DeclareLaunchArgument(
@@ -48,7 +48,7 @@ def generate_launch_description():
         parameters=[
             # Pass the file which contains the topics configuration and rates for telemetry
             LaunchConfiguration('mavlink_topics_yaml'), 
-            #LaunchConfiguration('drone_params'),
+            LaunchConfiguration('drone_params'),
             # Pass the connection URL (udp, tcp or serial)
             # as well as the mavlink forward ips (for example for operating QGroundControl in parallel)
             {
@@ -67,7 +67,7 @@ def generate_launch_description():
         namespace_arg,
         mav_connection_arg,
         mavlink_forward_arg,
-        #drone_params_yaml_arg,
+        drone_params_yaml_arg,
         topics_yaml_arg,
         # Launch files
         mavlink_interface_node])

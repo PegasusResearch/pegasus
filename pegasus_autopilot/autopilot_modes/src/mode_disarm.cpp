@@ -6,8 +6,7 @@ DisarmMode::~DisarmMode() {}
 
 void DisarmMode::initialize() {
     // Do nothing
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "DisarmMode initialized");
-    //RCLCPP_INFO(this->node_->get_logger(), "DisarmMode initialized");
+    RCLCPP_INFO(this->node_->get_logger(), "DisarmMode initialized");
     return;
 }
 

@@ -7,8 +7,7 @@ TakeoffMode::~TakeoffMode() {}
 
 void TakeoffMode::initialize() {
     // Do nothing
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "TakeoffMode initialized");
-    //RCLCPP_INFO(this->node_->get_logger(), "ArmMode initialized");
+    RCLCPP_INFO(this->node_->get_logger(), "TakeoffMode initialized");
     return;
 }
 

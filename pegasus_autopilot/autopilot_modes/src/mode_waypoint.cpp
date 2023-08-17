@@ -11,9 +11,7 @@ void WaypointMode::initialize() {
 
     // Create the waypoint service server
     this->waypoint_service_ = this->node_->create_service<pegasus_msgs::srv::Waypoint>("set_waypoint", std::bind(&WaypointMode::waypoint_callback, this, std::placeholders::_1, std::placeholders::_2));
-
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "WaypointMode initialized");
-    //RCLCPP_INFO(this->node_->get_logger(), "ArmMode initialized");
+    RCLCPP_INFO(this->node_->get_logger(), "WaypointMode initialized");
 }
 
 bool WaypointMode::enter() {

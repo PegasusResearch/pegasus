@@ -10,6 +10,9 @@ int main(int argc, char ** argv) {
     // Create the autopilot node
     auto autopilot_node = std::make_shared<autopilot::Autopilot>();
 
+    // Initialize the autopilot node
+    autopilot_node->initialize();
+
     // Spin the node until shutdown
     rclcpp::spin(autopilot_node);
     rclcpp::shutdown();

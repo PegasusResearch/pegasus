@@ -6,8 +6,7 @@ PassThroughMode::~PassThroughMode() {}
 
 void PassThroughMode::initialize() {
     // Do nothing
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "PassThroughMode initialized");
-    //RCLCPP_INFO(this->node_->get_logger(), "ArmMode initialized");
+    RCLCPP_INFO(this->node_->get_logger(), "PassThroughMode initialized");
     return;
 }
 

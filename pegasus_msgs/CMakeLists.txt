@@ -26,13 +26,16 @@ install(DIRECTORY include/${PROJECT_NAME}
 # Services, messages and actions to generate
 rosidl_generate_interfaces(${PROJECT_NAME}
   
-  # Services
+  # Driver Services
   "srv/driver/KillSwitch.srv"
   "srv/driver/Arm.srv"
   "srv/driver/Land.srv"
   "srv/driver/Offboard.srv"
   "srv/driver/PositionHold.srv"
   "srv/driver/Waypoint.srv"
+
+  # Autopilot services
+  "srv/autopilot/SetMode.srv"
   
   # Paths services/messages
   "srv/paths/Speed.msg"

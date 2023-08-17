@@ -17,6 +17,7 @@
 // ROS 2 services
 #include "pegasus_msgs/srv/arm.hpp"
 #include "pegasus_msgs/srv/offboard.hpp"
+#include "pegasus_msgs/srv/set_mode.hpp"
 
 // Auxiliary libraries
 #include "mode.hpp"
@@ -35,7 +36,7 @@ public:
     virtual void update();
     
     // Function that establishes the state machine to transition between operating modes
-    virtual void change_mode(const std::string new_mode);
+    virtual bool change_mode(const std::string new_mode);
 
     // Functions that set the target position, attitude or attitude rate for the inner-loops to track
     virtual void set_target_position(const Eigen::Vector3d & position, float yaw);
@@ -46,6 +47,9 @@ public:
     inline std::string get_mode() const { return current_mode_; }
     inline State get_state() const { return state_; }
     inline VehicleStatus get_status() const { return status_; }
+
+    // Initializes the autopilot to run
+    void initialize();
 
 private:
 
@@ -59,9 +63,11 @@ private:
     void state_callback(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
     void status_callback(const pegasus_msgs::msg::Status::ConstSharedPtr msg);
 
-    // ROS2 service clients
-    rclcpp::Client<pegasus_msgs::srv::Arm>::SharedPtr arm_client_;
-    rclcpp::Client<pegasus_msgs::srv::Offboard>::SharedPtr offboard_client_;
+    // Services callbacks to set the operation mode of the autopilot
+    void change_mode_callback(const std::shared_ptr<pegasus_msgs::srv::SetMode::Request> request, std::shared_ptr<pegasus_msgs::srv::SetMode::Response> response);
+
+    // ROS 2 service to change the operation mode
+    rclcpp::Service<pegasus_msgs::srv::SetMode>::SharedPtr change_mode_service_;
 
     // ROS2 publishers
     rclcpp::Publisher<pegasus_msgs::msg::ControlPosition>::SharedPtr position_publisher_;
@@ -85,6 +91,10 @@ private:
     // Modes of operation of the autopilot
     std::map<std::string, Mode::UniquePtr> operating_modes_;
     std::map<std::string, std::vector<std::string>> valid_transitions_;
+    std::map<std::string, std::string> fallback_modes_;
+
+    // Configuration for the operation modes for the autopilot
+    Mode::Config mode_config_;
 
     // Current state and status of the vehicle
     State state_;

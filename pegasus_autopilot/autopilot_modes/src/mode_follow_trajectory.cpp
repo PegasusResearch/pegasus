@@ -6,8 +6,7 @@ FollowTrajectoryMode::~FollowTrajectoryMode() {}
 
 void FollowTrajectoryMode::initialize() {
     // Do nothing
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "FollowTrajectoryMode initialized");
-    //RCLCPP_INFO(this->node_->get_logger(), "ArmMode initialized");
+    RCLCPP_INFO(this->node_->get_logger(), "FollowTrajectoryMode initialized");
     return;
 }
 
