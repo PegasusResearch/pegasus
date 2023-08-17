@@ -18,7 +18,7 @@
       DisarmMode: 
         valid_transitions: ["ArmMode"]
         fallback: "DisarmMode"
-        disarm_service: "fmu/arm"
+        disarm_service: "fmu/kill_switch"
       ArmMode: 
         valid_transitions: ["DisarmMode", "TakeoffMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
         fallback: "DisarmMode"
@@ -30,15 +30,20 @@
       LandMode: 
         valid_transitions: ["DisarmMode", "ArmMode", "TakeoffMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
         fallback: "HoldMode"
+        on_finish: "DisarmMode"
+        land_speed: 0.5 #m/s
+        land_detected_treshold: 0.1 #m/s
       HoldMode: 
         valid_transitions: ["LandMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
         fallback: "HoldMode"
       WaypointMode: 
         valid_transitions: ["LandMode", "HoldMode", "FollowTrajectoryMode", "PassThroughMode"]
         fallback: "HoldMode"
+        on_finish: "HoldMode"
       FollowTrajectoryMode: 
         valid_transitions: ["LandMode", "HoldMode", "WaypointMode", "PassThroughMode"]
         fallback: "HoldMode"
+        on_finish: "HoldMode"
       PassThroughMode: 
         valid_transitions: ["DisarmMode", "ArmMode", "TakeoffMode", "LandMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode"]
         fallback: "HoldMode"

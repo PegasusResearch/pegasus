@@ -6,7 +6,8 @@ namespace autopilot {
 HoldMode::~HoldMode() {}
 
 void HoldMode::initialize() {
-    // Do nothing
+    
+    // Log that the mode has been initialized successfully
     RCLCPP_INFO(this->node_->get_logger(), "HoldMode initialized");
     return;
 }
@@ -23,6 +24,9 @@ bool HoldMode::enter() {
 
     // TODO: Check if we need to convert the yaw from rad to deg to be used by the target position
     this->target_yaw = Pegasus::Rotations::yaw_from_quaternion(curr_state.attitude);
+
+    // Log the Hold position
+    RCLCPP_WARN(this->node_->get_logger(), "Hold position: [%f, %f, %f] and yaw: %f", this->target_pos[0], this->target_pos[1], this->target_pos[2], this->target_yaw);
 
     // Return true to indicate that the mode has been entered successfully
     return true;

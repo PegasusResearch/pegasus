@@ -27,6 +27,7 @@ public:
         std::function<void(const Eigen::Vector3d &, float)> set_position;       // Function pointer to set the position of the vehicle
         std::function<void(const Eigen::Vector3d &, float)> set_attitude;       // Function pointer to set the attitude of the vehicle
         std::function<void(const Eigen::Vector3d &, float)> set_attitude_rate;  // Function pointer to set the attitude rate of the vehicle
+        std::function<void()> signal_mode_finished;                             // Function pointer to signal that the mode has finished operating
     };
 
     // Custom constructor like function - as we must have the default constructor for the pluginlib
@@ -39,6 +40,8 @@ public:
         set_position = config.set_position;
         set_attitude = config.set_attitude;
         set_attitude_rate = config.set_attitude_rate;
+        
+        signal_mode_finished = config.signal_mode_finished;
 
         // Initialize the derived class
         initialize();
@@ -62,6 +65,9 @@ protected:
     std::function<void(const Eigen::Vector3d &, float)> set_position{nullptr};
     std::function<void(const Eigen::Vector3d &, float)> set_attitude{nullptr};
     std::function<void(const Eigen::Vector3d &, float)> set_attitude_rate{nullptr};
+
+    // Function pointer to signal that the mode has finished operating
+    std::function<void()> signal_mode_finished{nullptr};
 };
 
 } // namespace autopilot

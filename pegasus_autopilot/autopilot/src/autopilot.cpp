@@ -39,6 +39,7 @@ void Autopilot::initialize_parameters() {
     mode_config_.set_position = std::bind(&Autopilot::set_target_position, this, std::placeholders::_1, std::placeholders::_2);
     mode_config_.set_attitude = std::bind(&Autopilot::set_target_attitude, this, std::placeholders::_1, std::placeholders::_2);
     mode_config_.set_attitude_rate = std::bind(&Autopilot::set_target_attitude_rate, this, std::placeholders::_1, std::placeholders::_2);
+    mode_config_.signal_mode_finished = std::bind(&Autopilot::signal_mode_finished, this);
 
     // Log all the modes that are to be loaded dynamically
     for (const std::string & mode : modes.as_string_array()) {
@@ -46,20 +47,30 @@ void Autopilot::initialize_parameters() {
         // Log the mode that is about to be loaded
         RCLCPP_INFO(this->get_logger(), "Loading mode: %s", mode.c_str());
 
-        // Load the mode and initialize it
-        operating_modes_[mode] = autopilot::Mode::UniquePtr(mode_loader.createUnmanagedInstance("autopilot::" + mode));
+        // Attempt to load the mode
+        try {
+            // Load the mode and initialize it
+            operating_modes_[mode] = autopilot::Mode::UniquePtr(mode_loader.createUnmanagedInstance("autopilot::" + mode));
 
-        // Initialize the mode
-        operating_modes_[mode]->initialize_mode(mode_config_);
+            // Initialize the mode
+            operating_modes_[mode]->initialize_mode(mode_config_);
 
-        // Load the valid transitions for this mode
-        this->declare_parameter<std::vector<std::string>>("autopilot." + mode + ".valid_transitions", std::vector<std::string>());
-        rclcpp::Parameter valid_transitions = this->get_parameter("autopilot." + mode + ".valid_transitions");
-        valid_transitions_[mode] = valid_transitions.as_string_array();
+            // Load the valid transitions for this mode
+            this->declare_parameter<std::vector<std::string>>("autopilot." + mode + ".valid_transitions", std::vector<std::string>());
+            rclcpp::Parameter valid_transitions = this->get_parameter("autopilot." + mode + ".valid_transitions");
+            valid_transitions_[mode] = valid_transitions.as_string_array();
 
-        // Load the fallback mode for this mode
-        this->declare_parameter<std::string>("autopilot." + mode + ".fallback", "");
-        fallback_modes_[mode] = this->get_parameter("autopilot." + mode + ".fallback").as_string();
+            // Load the fallback mode for this mode
+            this->declare_parameter<std::string>("autopilot." + mode + ".fallback", "");
+            fallback_modes_[mode] = this->get_parameter("autopilot." + mode + ".fallback").as_string();
+
+            // Load the on_finish mode for this mode
+            this->declare_parameter<std::string>("autopilot." + mode + ".on_finish", "");
+            on_finish_modes_[mode] = this->get_parameter("autopilot." + mode + ".on_finish").as_string();
+
+        } catch (const std::exception & e) {
+            RCLCPP_ERROR_STREAM(this->get_logger(), "Exception while loading mode: " << e.what() << ". Mode: " << mode);
+        }
     }
 
     // Set the default/initial operating mode
@@ -153,15 +164,21 @@ void Autopilot::update() {
 }
 
 // Function that establishes the state machine to transition between operating modes
-bool Autopilot::change_mode(const std::string new_mode) {
+bool Autopilot::change_mode(const std::string new_mode, bool force) {
 
     // Check if the requested mode exists in the dictionary. If not return false
     if (!operating_modes_.contains(new_mode)) {
         RCLCPP_ERROR_STREAM(this->get_logger(), "Requested mode: " << new_mode << " does not exist. Keeping the operating mode: " << current_mode_);
         return false;
-    } else if (new_mode == current_mode_) {
+    } else if (new_mode == current_mode_ && !force) {
         RCLCPP_WARN_STREAM(this->get_logger(), "Requested mode: " << new_mode << " is the same as the current mode. Keeping the operating mode: " << current_mode_);
         return false;
+    }
+
+    // Check if the request mode is a valid transition from the current mode. If not return false
+    if (!std::count(valid_transitions_[current_mode_].begin(), valid_transitions_[current_mode_].end(), new_mode) && !force) {
+            RCLCPP_ERROR_STREAM(this->get_logger(), "Requested mode: " << new_mode << " is not a valid transition from the current mode: " << current_mode_ << ". Keeping the operating mode: " << current_mode_);
+            return false;
     }
 
     // Attemp to enter the new mode
@@ -188,6 +205,15 @@ bool Autopilot::change_mode(const std::string new_mode) {
     status_msg_.mode = current_mode_;
     RCLCPP_INFO_STREAM(this->get_logger(), "Transitioned from mode: " << old_mode << " to mode: " << current_mode_);
     return true;
+}
+
+void Autopilot::signal_mode_finished() {
+
+    // Log that the current mode has finished and we are transitioning to the next mode
+    RCLCPP_WARN_STREAM(this->get_logger(), "Mode: " << current_mode_ << " has finished its operation. Transitioning to mode: " << on_finish_modes_[current_mode_]);
+
+    // Signal that the current mode has finished its operation and should transition to the fallback mode
+    if (on_finish_modes_[current_mode_] != "") change_mode(on_finish_modes_[current_mode_]);
 }
 
 void Autopilot::set_target_position(const Eigen::Vector3d & position, float yaw) {
@@ -232,7 +258,6 @@ void Autopilot::change_mode_callback(const std::shared_ptr<pegasus_msgs::srv::Se
     response->success = change_mode(request->mode);
 }
 
-
 void Autopilot::state_callback(const nav_msgs::msg::Odometry::ConstSharedPtr msg) {
 
     // Update the state of the vehicle
@@ -265,7 +290,7 @@ void Autopilot::status_callback(const pegasus_msgs::msg::Status::ConstSharedPtr 
     // TODO - improve this logic
     if (!status_.armed && current_mode_ != "DisarmMode") {
         RCLCPP_WARN(this->get_logger(), "Vehicle is disarmed by FMU. Autopilot forcing a transition to DisarmMode");
-        change_mode("DisarmMode");
+        change_mode("DisarmMode", true);
     }
 }
 

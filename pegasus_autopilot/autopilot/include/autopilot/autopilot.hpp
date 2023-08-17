@@ -36,7 +36,10 @@ public:
     virtual void update();
     
     // Function that establishes the state machine to transition between operating modes
-    virtual bool change_mode(const std::string new_mode);
+    virtual bool change_mode(const std::string new_mode, bool force=false);
+
+    // Function that signals that the current mode has finished its operation and should transition to the fallback mode
+    virtual void signal_mode_finished();
 
     // Functions that set the target position, attitude or attitude rate for the inner-loops to track
     virtual void set_target_position(const Eigen::Vector3d & position, float yaw);
@@ -92,6 +95,7 @@ private:
     std::map<std::string, Mode::UniquePtr> operating_modes_;
     std::map<std::string, std::vector<std::string>> valid_transitions_;
     std::map<std::string, std::string> fallback_modes_;
+    std::map<std::string, std::string> on_finish_modes_;
 
     // Configuration for the operation modes for the autopilot
     Mode::Config mode_config_;

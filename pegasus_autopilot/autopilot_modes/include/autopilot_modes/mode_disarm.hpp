@@ -1,6 +1,7 @@
 #pragma once
 
 #include <autopilot/mode.hpp>
+#include "pegasus_msgs/srv/kill_switch.hpp"
 
 namespace autopilot {
 
@@ -15,6 +16,16 @@ public:
     bool exit() override;
     void update(double dt) override;
 
+protected:
+
+    bool disarm();
+
+    // ROS2 service clients
+    rclcpp::Client<pegasus_msgs::srv::KillSwitch>::SharedPtr disarm_client_;
+
+    // Create a callback group such that the service callbacks are executed in a separate thread
+    rclcpp::CallbackGroup::SharedPtr callback_group_;
+    rclcpp::executors::SingleThreadedExecutor callback_group_executor_;
 };
 
 }
