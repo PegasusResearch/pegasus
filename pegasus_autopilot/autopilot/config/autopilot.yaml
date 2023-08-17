@@ -28,20 +28,21 @@
         valid_transitions: ["LandMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
         fallback: "HoldMode"
         on_finish: "HoldMode"
-        takeoff_altitude: 1.0 #m
+        takeoff_altitude: -1.0 # m (NED)
+        set_takeoff_altitude_service: "autopilot/set_takeoff"
       LandMode: 
         valid_transitions: ["DisarmMode", "ArmMode", "TakeoffMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
         fallback: "HoldMode"
         on_finish: "DisarmMode"
-        land_speed: 0.5 #m/s
-        land_detected_treshold: 0.1 #m/s
+        land_speed: 0.5 # m/s
+        land_detected_treshold: 0.1 # m/s
       HoldMode: 
         valid_transitions: ["LandMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
-        fallback: "HoldMode"
+        fallback: "LandMode"
       WaypointMode: 
         valid_transitions: ["LandMode", "HoldMode", "FollowTrajectoryMode", "PassThroughMode"]
         fallback: "HoldMode"
-        on_finish: "HoldMode"
+        set_waypoint_service: "autopilot/set_waypoint"
       FollowTrajectoryMode: 
         valid_transitions: ["LandMode", "HoldMode", "WaypointMode", "PassThroughMode"]
         fallback: "HoldMode"

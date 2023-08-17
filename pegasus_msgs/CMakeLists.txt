@@ -33,6 +33,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/driver/Offboard.srv"
   "srv/driver/PositionHold.srv"
   "srv/driver/Waypoint.srv"
+  "srv/driver/Takeoff.srv"
 
   # Autopilot services
   "srv/autopilot/SetMode.srv"

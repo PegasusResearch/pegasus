@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(paths)
 
-# Default to C++17 and compiler flags to give all warnings
-set(CMAKE_CXX_STANDARD 17)
+# Default to C++20 and compiler flags to give all warnings
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -18,7 +18,7 @@ find_package(ament_cmake REQUIRED)
 
 # Create the package with source code
 add_library(
-    ${PROJECT_NAME}
+    ${PROJECT_NAME} SHARED
     # Speeds source files
     src/speeds/const_speed.cpp
     # Sections source files

@@ -10,7 +10,8 @@ WaypointMode::~WaypointMode() {
 void WaypointMode::initialize() {
 
     // Create the waypoint service server
-    this->waypoint_service_ = this->node_->create_service<pegasus_msgs::srv::Waypoint>("set_waypoint", std::bind(&WaypointMode::waypoint_callback, this, std::placeholders::_1, std::placeholders::_2));
+    node_->declare_parameter<std::string>("autopilot.WaypointMode.set_waypoint_service", "set_waypoint"); 
+    this->waypoint_service_ = this->node_->create_service<pegasus_msgs::srv::Waypoint>(node_->get_parameter("autopilot.WaypointMode.set_waypoint_service").as_string(), std::bind(&WaypointMode::waypoint_callback, this, std::placeholders::_1, std::placeholders::_2));
     RCLCPP_INFO(this->node_->get_logger(), "WaypointMode initialized");
 }
 
@@ -54,6 +55,7 @@ void WaypointMode::waypoint_callback(const pegasus_msgs::srv::Waypoint::Request:
 
     // Return true to indicate that the waypoint has been set successfully
     response->success = true;
+    RCLCPP_WARN(this->node_->get_logger(), "Waypoint set to (%f, %f, %f) with yaw %f", this->target_pos[0], this->target_pos[1], this->target_pos[2], this->target_yaw);
 }
 
 } // namespace autopilot
