@@ -27,6 +27,8 @@
       TakeoffMode: 
         valid_transitions: ["LandMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
         fallback: "HoldMode"
+        on_finish: "HoldMode"
+        takeoff_altitude: 1.0 #m
       LandMode: 
         valid_transitions: ["DisarmMode", "ArmMode", "TakeoffMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
         fallback: "HoldMode"
@@ -58,5 +60,5 @@
         state: "fmu/filter/state"
         status: "fmu/status"
       services:
-        set_mode: "change_mode"
+        set_mode: "autopilot/change_mode"
       
