@@ -300,6 +300,8 @@ void Autopilot::status_callback(const pegasus_msgs::msg::Status::ConstSharedPtr 
         RCLCPP_WARN(this->get_logger(), "Vehicle is ON_AIR, armed and in offboard mode. Autopilot forcing a transition to HoldMode");
         change_mode("HoldMode", true);
     }
+
+    // TODO - if statsus is armed and not in offboard mode and current_mode == DIsarmedMode, transition to ArmedMode and status_.flying==False
 }
 
 } // namespace autopilot

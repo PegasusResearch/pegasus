@@ -39,13 +39,12 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/autopilot/SetMode.srv"
   
   # Paths services/messages
-  "srv/paths/Speed.msg"
-  "srv/paths/AddWaypoint.srv"
-  "srv/paths/AddArc.srv"
-  "srv/paths/AddLine.srv"
-  "srv/paths/AddCircle.srv"
-  "srv/paths/AddLemniscate.srv"
-  "srv/paths/ResetPath.srv"
+  "srv/trajectories/Speed.msg"
+  "srv/trajectories/AddArc.srv"
+  "srv/trajectories/AddLine.srv"
+  "srv/trajectories/AddCircle.srv"
+  "srv/trajectories/AddLemniscate.srv"
+  "srv/trajectories/ResetPath.srv"
   
   # Controllers services/messages
   "srv/controllers/StartMission.srv"

@@ -34,8 +34,8 @@
         valid_transitions: ["DisarmMode", "ArmMode", "TakeoffMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
         fallback: "HoldMode"
         on_finish: "DisarmMode"
-        land_speed: 0.5 # m/s
-        land_detected_treshold: 0.1 # m/s
+        land_speed: 0.1 # m/s
+        land_detected_treshold: 0.01 # m/s
       HoldMode: 
         valid_transitions: ["LandMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
         fallback: "LandMode"
@@ -47,6 +47,14 @@
         valid_transitions: ["LandMode", "HoldMode", "WaypointMode", "PassThroughMode"]
         fallback: "HoldMode"
         on_finish: "HoldMode"
+        gains:
+          kp: []
+          kd: []
+          ki: []
+          kff: []
+          min_output: []
+          max_output: []
+        pid_debug_topic: "autopilot/statistics/pid"
       PassThroughMode: 
         valid_transitions: ["DisarmMode", "ArmMode", "TakeoffMode", "LandMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode"]
         fallback: "HoldMode"

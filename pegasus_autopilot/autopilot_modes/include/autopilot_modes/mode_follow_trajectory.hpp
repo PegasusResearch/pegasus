@@ -1,7 +1,12 @@
 #pragma once
 
 #include <autopilot/mode.hpp>
-#include "paths/path.hpp"
+
+// Library that implements parameterized paths to follow
+#include "paths/dense.hpp"
+
+// Library that implements PID controllers
+#include "pid/pid.hpp"
 
 // Services for path setup
 #include "pegasus_msgs/srv/reset_path.hpp"
@@ -9,6 +14,9 @@
 #include "pegasus_msgs/srv/add_line.hpp"
 #include "pegasus_msgs/srv/add_circle.hpp"
 #include "pegasus_msgs/srv/add_lemniscate.hpp"
+
+// Messages for controller debugging
+#include "pegasus_msgs/msg/pid_statistics.hpp"
 
 #include "nav_msgs/msg/path.hpp"
 
@@ -27,6 +35,13 @@ public:
 
 protected:
 
+    // Get the desired position, velocity and acceleration from the path
+    void update_reference(double dt);
+    bool check_finished();
+
+    // Auxiliar function to add a section to the path
+    void add_section_to_path(const Pegasus::Paths::Section::SharedPtr section);
+
     // Services callbacks to set the path to follow
     void reset_callback(const pegasus_msgs::srv::ResetPath::Request::SharedPtr request, const pegasus_msgs::srv::ResetPath::Response::SharedPtr response);
     void add_arc_callback(const pegasus_msgs::srv::AddArc::Request::SharedPtr request, const pegasus_msgs::srv::AddArc::Response::SharedPtr response);
@@ -40,6 +55,29 @@ protected:
     rclcpp::Service<pegasus_msgs::srv::AddLine>::SharedPtr add_line_service_{nullptr};
     rclcpp::Service<pegasus_msgs::srv::AddCircle>::SharedPtr add_circle_service_{nullptr};
     rclcpp::Service<pegasus_msgs::srv::AddLemniscate>::SharedPtr add_lemniscate_service_{nullptr};
+
+    // Publisher for the PID statistics
+    pegasus_msgs::msg::PidStatistics pid_statistics_msg_;
+    rclcpp::Publisher<pegasus_msgs::msg::PidStatistics>::SharedPtr statistics_pub_{nullptr};
+
+    // The step to sample the path
+    double sample_step_{0.1};
+
+    // The mass of the vehicle
+    double mass_{-1.0};
+
+    // Set the progression speed of the parametric variable
+    double gamma_{0.0};
+    double d_gamma_{0.0};
+    double dd_gamma_{0.0};
+    
+    // Set the desired targets to follow
+    Eigen::Vector3d desired_position_{0.0, 0.0, 0.0};
+    Eigen::Vector3d desired_velocity_{0.0, 0.0, 0.0};
+    Eigen::Vector3d desired_acceleration_{0.0, 0.0, 0.0};
+
+    // The PID controller to follow the path
+    std::array<Pegasus::Pid::UniquePtr, 3> controllers_{nullptr};
 
     // Publisher of the path to be displayed in RVIZ
     nav_msgs::msg::Path path_points_msg_;

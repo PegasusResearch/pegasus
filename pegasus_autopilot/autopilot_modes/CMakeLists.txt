@@ -18,6 +18,8 @@ find_package(nav_msgs REQUIRED)
 find_package("paths" REQUIRED)
 find_package(pegasus_utils REQUIRED)
 find_package(pluginlib REQUIRED)
+find_package(pid REQUIRED)
+find_package(thrust_curves REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 add_library(${PROJECT_NAME} 
@@ -39,14 +41,18 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 add_definitions(${EIGEN3_DEFINITIONS})
 
-ament_target_dependencies(${PROJECT_NAME}
+set(dependencies 
   autopilot
   pegasus_msgs
   nav_msgs
   "paths"
+  pid
+  thrust_curves
   pegasus_utils
   pluginlib
 )
+
+ament_target_dependencies(${PROJECT_NAME} ${dependencies})
 
 # Export the pluginlib description (package containing the base class and the derived classes information in XML format)
 pluginlib_export_plugin_description_file(autopilot autopilot_mode_plugins.xml)
@@ -82,5 +88,6 @@ endif()
 
 ament_export_include_directories(include)
 ament_export_libraries(${PROJECT_NAME})
+ament_export_dependencies(${dependencies})
 ament_export_targets(export_${PROJECT_NAME})
 ament_package()
