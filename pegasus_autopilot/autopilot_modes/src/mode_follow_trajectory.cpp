@@ -32,7 +32,7 @@ void FollowTrajectoryMode::initialize() {
     // Create the 3 PID controllers for x, y and z axis
     for(unsigned int i=0; i < 3; i++) controllers_[i] = std::make_unique<Pegasus::Pid>(kp[i], kd[i], ki[i], kff[i], min_output[i], max_output[i]);
 
-    // TODO: Subscribe to the mass of the vehicle
+    // TODO: load the mass of the vehicle from the parameter server
 
     // Initialize the publishers for the statistics of the PID controller
     node_->declare_parameter<std::string>("autopilot.FollowTrajectoryMode.pid_debug_topic", "statistics/pid");
@@ -63,6 +63,7 @@ bool FollowTrajectoryMode::exit() {
     // Reset the parametric values
     gamma_ = 0.0;
     d_gamma_ = 0.0;
+    dd_gamma_ = 0.0;
 
     // Reset the desired targets
     desired_position_ = Eigen::Vector3d(0.0, 0.0, 0.0);
@@ -87,6 +88,10 @@ void FollowTrajectoryMode::update_reference(double dt) {
     desired_velocity_ = path_.d_pd(gamma_).value() * d_gamma_;
     desired_acceleration_ = (path_.dd_pd(gamma_).value() * std::pow(d_gamma_, 2)) + (path_.d_pd(gamma_).value() * std::pow(dd_gamma_, 2));
 
+    // Update the desired yaw from the tangent to the path
+    // TODO: make the this more general later on
+    desired_yaw_ = path_.tangent_angle(gamma_).value();
+
     // Integrate the parametric value (virtual target) over time
     gamma_ += d_gamma_ * dt;
 
@@ -97,7 +102,7 @@ void FollowTrajectoryMode::update_reference(double dt) {
 bool FollowTrajectoryMode::check_finished() {
 
     // Check if the path is finished
-    if(gamma_ == path_.get_max_gamma()) {
+    if(gamma_ >= path_.get_max_gamma()) {
         RCLCPP_INFO_STREAM(node_->get_logger(), "Trajectory Tracking mission finished.");
         signal_mode_finished();
         return true;
@@ -145,7 +150,7 @@ void FollowTrajectoryMode::reset_callback(const pegasus_msgs::srv::ResetPath::Re
     path_.clear();
 
     // Call the controller reset function if one is running to signal that the path was cleaned
-    if(controller_) controller_->reset();
+    for(unsigned int i=0; i < 3; i++) controllers_[i]->reset_controller();
 
     // Reset the path points message
     path_points_msg_.header.frame_id = "world_ned";
@@ -157,7 +162,6 @@ void FollowTrajectoryMode::reset_callback(const pegasus_msgs::srv::ResetPath::Re
 
     // Make the response of this service to true
     response->success = true;
-
     RCLCPP_INFO_STREAM(node_->get_logger(), "Path reset");
 }
 
