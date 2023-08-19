@@ -99,6 +99,10 @@ void ROSNode::init_publishers() {
     rclcpp::Parameter status_topic = this->get_parameter("publishers.status");
     status_pub_ = this->create_publisher<pegasus_msgs::msg::Status>(status_topic.as_string(), rclcpp::SensorDataQoS());
 
+    this->declare_parameter("publishers.vehicle_constants", "vehicle_constants");
+    rclcpp::Parameter vehicle_constants_topic = this->get_parameter("publishers.vehicle_constants");
+    vehicle_constants_pub_ = this->create_publisher<pegasus_msgs::msg::VehicleConstants>(vehicle_constants_topic.as_string(), rclcpp::SensorDataQoS());
+
     // ------------------------------------------------------------------------
     // Initialize the publisher for sensors data (IMU, barometer and gps)
     // ------------------------------------------------------------------------
@@ -246,6 +250,10 @@ void ROSNode::init_thrust_curve() {
     // Get the singleton factory of thrust curves
     auto thrust_curve_Factory = Pegasus::ThrustCurveFactory::get_instance();
 
+    // Get from the ROS parameter server the mass of the vehicle
+    this->declare_parameter<double>("dynamics.mass", 0.0);
+    rclcpp::Parameter mass = this->get_parameter("dynamics.mass");
+
     // Get from the ROS parameter server the type of thrust curve to apply to the vehicle
     this->declare_parameter<std::string>("dynamics.thrust_curve.identifier", "None"); 
     rclcpp::Parameter thrust_curve_id = this->get_parameter("dynamics.thrust_curve.identifier");
@@ -257,8 +265,13 @@ void ROSNode::init_thrust_curve() {
     this->declare_parameter<std::vector<double>>("dynamics.thrust_curve.parameters", std::vector<double>());
     rclcpp::Parameter thrust_curve_parameters = this->get_parameter("dynamics.thrust_curve.parameters");
 
-    // Check if the thrust curve parameter_names has the same size as the number of parameters
-    // If not, throw a runtime error
+    // Set the message with the parameters of the drone, namely the mass and the thrust curve
+    vehicle_constants_msg_.mass = mass.as_double();
+    vehicle_constants_msg_.thrust_curve.identifier = thrust_curve_id.as_string();
+    vehicle_constants_msg_.thrust_curve.parameters = thrust_curve_parameter_names.as_string_array();
+    vehicle_constants_msg_.thrust_curve.values = thrust_curve_parameters.as_double_array();
+
+    // Check if the thrust curve parameter_names has the same size as the number of parameters - if not, throw a runtime error
     std::vector<double> parameters = thrust_curve_parameters.as_double_array();
     std::vector<std::string> parameter_names = thrust_curve_parameter_names.as_string_array();
     
@@ -636,6 +649,10 @@ void ROSNode::on_health_callback(const mavsdk::Telemetry::Health &health) {
     status_msg_.health.local_position_ok = health.is_local_position_ok;
     status_msg_.health.global_position_ok = health.is_global_position_ok;
     status_msg_.health.home_position_ok = health.is_home_position_ok;
+
+    // Also publish the message with the vehicle constants
+    // TODO: improve this later on
+    vehicle_constants_pub_->publish(vehicle_constants_msg_);
     
     // Publish the updated message
     status_pub_->publish(status_msg_);

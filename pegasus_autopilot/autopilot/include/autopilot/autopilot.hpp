@@ -10,6 +10,7 @@
 // ROS 2 messages
 #include "nav_msgs/msg/odometry.hpp"
 #include "pegasus_msgs/msg/status.hpp"
+#include "pegasus_msgs/msg/vehicle_constants.hpp"
 #include "pegasus_msgs/msg/control_attitude.hpp"
 #include "pegasus_msgs/msg/control_position.hpp"
 #include "pegasus_msgs/msg/autopilot_status.hpp"
@@ -50,6 +51,7 @@ public:
     inline std::string get_mode() const { return current_mode_; }
     inline State get_state() const { return state_; }
     inline VehicleStatus get_status() const { return status_; }
+    inline VehicleConstants get_vehicle_constants() const { return vehicle_constants_; }
 
     // Initializes the autopilot to run
     void initialize();
@@ -65,6 +67,7 @@ private:
     // Subscriber callbacks to get the current state of the vehicle
     void state_callback(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
     void status_callback(const pegasus_msgs::msg::Status::ConstSharedPtr msg);
+    void vehicle_constants_callback(const pegasus_msgs::msg::VehicleConstants::ConstSharedPtr msg);
 
     // Services callbacks to set the operation mode of the autopilot
     void change_mode_callback(const std::shared_ptr<pegasus_msgs::srv::SetMode::Request> request, std::shared_ptr<pegasus_msgs::srv::SetMode::Response> response);
@@ -81,12 +84,14 @@ private:
     // ROS2 subscribers
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr state_subscriber_;
     rclcpp::Subscription<pegasus_msgs::msg::Status>::SharedPtr status_subscriber_;
+    rclcpp::Subscription<pegasus_msgs::msg::VehicleConstants>::SharedPtr vehicle_constants_subscriber_;
 
     // ROS2 messages
     pegasus_msgs::msg::ControlPosition position_msg_;
     pegasus_msgs::msg::ControlAttitude attitude_msg_;
     pegasus_msgs::msg::ControlAttitude attitude_rate_msg_;
     pegasus_msgs::msg::AutopilotStatus status_msg_;
+    pegasus_msgs::msg::VehicleConstants vehicle_constants_msg_;
 
     // ROS 2 timer to handle the control modes, update the controllers and publish the control commands
     rclcpp::TimerBase::SharedPtr timer_;
@@ -103,6 +108,7 @@ private:
     // Current state and status of the vehicle
     State state_;
     VehicleStatus status_;
+    VehicleConstants vehicle_constants_;
     std::string current_mode_;
 
     // Auxiliar variable used to keep track of time

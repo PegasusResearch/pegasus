@@ -18,6 +18,15 @@
 #include "pegasus_msgs/srv/kill_switch.hpp"
 #include "pegasus_msgs/srv/position_hold.hpp"
 
+// ROS2 services for the autopilot functionality
+#include "pegasus_msgs/srv/set_mode.hpp"
+
+// ROS2 services for the trajectory generations
+#include "pegasus_msgs/srv/add_arc.hpp"
+#include "pegasus_msgs/srv/add_line.hpp"
+#include "pegasus_msgs/srv/add_circle.hpp"
+#include "pegasus_msgs/srv/add_lemniscate.hpp"
+
 class ConsoleNode : public rclcpp::Node {
 
 public:
@@ -45,6 +54,16 @@ public:
     void on_setpoint_click();
     void on_setpoint_stop();
     bool is_setpoint_running();
+
+    // Set the autopilot operating mode
+    void on_set_autopilot_mode(const std::string & mode);
+
+    // Add trajectory segments to the autopilot to follow
+    void on_add_waypoint_click();
+    void on_add_arc_click();
+    void on_add_line_click();
+    void on_add_circle_click();
+    void on_add_lemniscate_click();
 
     void start();
 
@@ -88,4 +107,13 @@ protected:
     rclcpp::Client<pegasus_msgs::srv::KillSwitch>::SharedPtr kill_switch_client_;
     rclcpp::Client<pegasus_msgs::srv::PositionHold>::SharedPtr position_hold_client_;
     rclcpp::Client<pegasus_msgs::srv::Offboard>::SharedPtr offboard_client_;
+
+    // ROS2 service clients for the autopilot
+    rclcpp::Client<pegasus_msgs::srv::SetMode>::SharedPtr set_mode_client_;
+
+    // ROS2 service clients for the trajectory generation
+    rclcpp::Client<pegasus_msgs::srv::AddArc>::SharedPtr add_arc_client_;
+    rclcpp::Client<pegasus_msgs::srv::AddLine>::SharedPtr add_line_client_;
+    rclcpp::Client<pegasus_msgs::srv::AddCircle>::SharedPtr add_circle_client_;
+    rclcpp::Client<pegasus_msgs::srv::AddLemniscate>::SharedPtr add_lemniscate_client_;
 };

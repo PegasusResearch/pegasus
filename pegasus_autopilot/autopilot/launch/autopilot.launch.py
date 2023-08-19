@@ -35,8 +35,7 @@ def generate_launch_description():
         emulate_tty=True,
         parameters=[
             # Pass the file which contains the topics configuration and rates for telemetry
-            LaunchConfiguration('autopilot_yaml'), 
-            #LaunchConfiguration('drone_params'),
+            LaunchConfiguration('autopilot_yaml'),
             # Pass the connection URL (udp, tcp or serial)
             # as well as the mavlink forward ips (for example for operating QGroundControl in parallel)
             {

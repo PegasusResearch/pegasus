@@ -38,6 +38,7 @@ protected:
     // Get the desired position, velocity and acceleration from the path
     void update_reference(double dt);
     bool check_finished();
+    void update_statistics(double dt);
 
     // Auxiliar function to add a section to the path
     void add_section_to_path(const Pegasus::Paths::Section::SharedPtr section);
@@ -64,7 +65,7 @@ protected:
     double sample_step_{0.1};
 
     // The mass of the vehicle
-    double mass_{-1.0};
+    double mass_;
 
     // Set the progression speed of the parametric variable
     double gamma_{0.0};

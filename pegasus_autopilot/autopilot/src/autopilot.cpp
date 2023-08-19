@@ -36,6 +36,7 @@ void Autopilot::initialize_parameters() {
     mode_config_.node = this->shared_from_this();
     mode_config_.get_vehicle_state = std::bind(&Autopilot::get_state, this);
     mode_config_.get_vehicle_status = std::bind(&Autopilot::get_status, this);
+    mode_config_.get_vehicle_constants = std::bind(&Autopilot::get_vehicle_constants, this);
     mode_config_.set_position = std::bind(&Autopilot::set_target_position, this, std::placeholders::_1, std::placeholders::_2);
     mode_config_.set_attitude = std::bind(&Autopilot::set_target_attitude, this, std::placeholders::_1, std::placeholders::_2);
     mode_config_.set_attitude_rate = std::bind(&Autopilot::set_target_attitude_rate, this, std::placeholders::_1, std::placeholders::_2);
@@ -86,52 +87,49 @@ void Autopilot::initialize_publishers() {
 
     // Initialize the publisher for the position control commands
     this->declare_parameter<std::string>("autopilot.publishers.control_position", "control_position");
-    rclcpp::Parameter control_position_topic = this->get_parameter("autopilot.publishers.control_position");
     position_publisher_ = this->create_publisher<pegasus_msgs::msg::ControlPosition>(
-        control_position_topic.as_string(), rclcpp::SensorDataQoS());
+        this->get_parameter("autopilot.publishers.control_position").as_string(), rclcpp::SensorDataQoS());
 
     // Initialize the publisher for the attitude control commands
     this->declare_parameter<std::string>("autopilot.publishers.control_attitude", "control_attitude");
-    rclcpp::Parameter control_attitude_topic = this->get_parameter("autopilot.publishers.control_attitude");
     attitude_publisher_ = this->create_publisher<pegasus_msgs::msg::ControlAttitude>(
-        control_attitude_topic.as_string(), rclcpp::SensorDataQoS());
+        this->get_parameter("autopilot.publishers.control_attitude").as_string(), rclcpp::SensorDataQoS());
 
     // Initialize the publisher for the attitude rate control commands
     this->declare_parameter<std::string>("autopilot.publishers.control_attitude_rate", "control_attitude_rate");
-    rclcpp::Parameter control_attitude_rate_topic = this->get_parameter("autopilot.publishers.control_attitude_rate");
     attitude_rate_publisher_ = this->create_publisher<pegasus_msgs::msg::ControlAttitude>(
-        control_attitude_rate_topic.as_string(), rclcpp::SensorDataQoS());
+        this->get_parameter("autopilot.publishers.control_attitude_rate").as_string(), rclcpp::SensorDataQoS());
 
     // Initialize the publisher for the status of the vehicle
     this->declare_parameter<std::string>("autopilot.publishers.status", "autopilot/status");
-    rclcpp::Parameter status_topic = this->get_parameter("autopilot.publishers.status");
     status_publisher_ = this->create_publisher<pegasus_msgs::msg::AutopilotStatus>(
-        status_topic.as_string(), rclcpp::SensorDataQoS());
+        this->get_parameter("autopilot.publishers.status").as_string(), rclcpp::SensorDataQoS());
 }
 
 void Autopilot::initialize_subscribers() {
 
     // Subscribe to the state of the vehicle
     this->declare_parameter<std::string>("autopilot.subscribers.state", "state");
-    rclcpp::Parameter state_topic = this->get_parameter("autopilot.subscribers.state");
     state_subscriber_ = this->create_subscription<nav_msgs::msg::Odometry>(
-        state_topic.as_string(), rclcpp::SensorDataQoS(), std::bind(&Autopilot::state_callback, this, std::placeholders::_1));
+        this->get_parameter("autopilot.subscribers.state").as_string(), rclcpp::SensorDataQoS(), std::bind(&Autopilot::state_callback, this, std::placeholders::_1));
 
     // Subscribe to the status of the vehicle
     this->declare_parameter<std::string>("autopilot.subscribers.status", "status");
-    rclcpp::Parameter status_topic = this->get_parameter("autopilot.subscribers.status");
     status_subscriber_ = this->create_subscription<pegasus_msgs::msg::Status>(
-        status_topic.as_string(), rclcpp::SensorDataQoS(), std::bind(&Autopilot::status_callback, this, std::placeholders::_1));
+        this->get_parameter("autopilot.subscribers.status").as_string(), rclcpp::SensorDataQoS(), std::bind(&Autopilot::status_callback, this, std::placeholders::_1));
+
+    // Subscribe to the constants of the vehicle
+    this->declare_parameter<std::string>("autopilot.subscribers.constants", "vehicle_constants");
+    vehicle_constants_subscriber_ = this->create_subscription<pegasus_msgs::msg::VehicleConstants>(
+        this->get_parameter("autopilot.subscribers.constants").as_string(), rclcpp::SensorDataQoS(), std::bind(&Autopilot::vehicle_constants_callback, this, std::placeholders::_1));
 }
 
 void Autopilot::initialize_services() {
     
     // Initialize the Service server to change the operation mode
     this->declare_parameter<std::string>("autopilot.services.set_mode", "set_mode");
-    rclcpp::Parameter change_mode_service = this->get_parameter("autopilot.services.set_mode");
-
     change_mode_service_ = this->create_service<pegasus_msgs::srv::SetMode>(
-        change_mode_service.as_string(), std::bind(&Autopilot::change_mode_callback, this, std::placeholders::_1, std::placeholders::_2));
+        this->get_parameter("autopilot.services.set_mode").as_string(), std::bind(&Autopilot::change_mode_callback, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 // Function that executes periodically the control loop of each operation mode
@@ -301,7 +299,26 @@ void Autopilot::status_callback(const pegasus_msgs::msg::Status::ConstSharedPtr 
         change_mode("HoldMode", true);
     }
 
-    // TODO - if statsus is armed and not in offboard mode and current_mode == DIsarmedMode, transition to ArmedMode and status_.flying==False
+    // TODO - if status is armed and not in offboard mode and current_mode == DIsarmedMode, transition to ArmedMode and status_.flying==False
+}
+
+void Autopilot::vehicle_constants_callback(const pegasus_msgs::msg::VehicleConstants::ConstSharedPtr msg) {
+
+    // Save the parameters of the vehicle
+    vehicle_constants_.mass = msg->mass;
+    vehicle_constants_.thrust_curve_id = msg->thrust_curve.identifier;
+    vehicle_constants_.thurst_curve_params = msg->thrust_curve.parameters;
+    vehicle_constants_.thrust_curve_values = msg->thrust_curve.values;
+
+    // Unsubscribe from the vehicle constants topic (as we assume they do not change over time)
+    vehicle_constants_subscriber_.reset();
+
+    // Log the vehicle constants for debugging
+    RCLCPP_INFO(this->get_logger(), "Vehicle constants: mass: %.2f", vehicle_constants_.mass);
+    RCLCPP_INFO(this->get_logger(), "Vehicle constants: thrust_curve_id: %s", vehicle_constants_.thrust_curve_id.c_str());
+    for(int i = 0; i < vehicle_constants_.thurst_curve_params.size(); i++) {
+        RCLCPP_INFO(this->get_logger(), "%s: %.4f", vehicle_constants_.thurst_curve_params[i].c_str(), vehicle_constants_.thrust_curve_values[i]);
+    }
 }
 
 } // namespace autopilot

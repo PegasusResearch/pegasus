@@ -25,6 +25,16 @@ ConsoleNode::ConsoleNode() : rclcpp::Node("pegasus_console") {
     config_.on_setpoint_stop = std::bind(&ConsoleNode::on_setpoint_stop, this);
     config_.is_setpoint_running = std::bind(&ConsoleNode::is_setpoint_running, this);
 
+    // Autopilot mode of the vehicle
+    config_.on_set_autopilot_mode = std::bind(&ConsoleNode::on_set_autopilot_mode, this, std::placeholders::_1);
+
+    // Add trajectory segments to the autopilot to follow
+    config_.on_add_waypoint_click = std::bind(&ConsoleNode::on_add_waypoint_click, this);
+    config_.on_add_arc_click = std::bind(&ConsoleNode::on_add_arc_click, this);
+    config_.on_add_line_click = std::bind(&ConsoleNode::on_add_line_click, this);
+    config_.on_add_circle_click = std::bind(&ConsoleNode::on_add_circle_click, this);
+    config_.on_add_lemniscate_click = std::bind(&ConsoleNode::on_add_lemniscate_click, this);
+
     // Initialize the console UI
     console_ui_ = std::make_unique<ConsoleUI>(config_);
 }
@@ -62,6 +72,15 @@ void ConsoleNode::initialize_services() {
     kill_switch_client_ = this->create_client<pegasus_msgs::srv::KillSwitch>("/drone1/fmu/kill_switch");
     position_hold_client_ = this->create_client<pegasus_msgs::srv::PositionHold>("/drone1/fmu/hold");
     offboard_client_ = this->create_client<pegasus_msgs::srv::Offboard>("/drone1/fmu/offboard");
+
+    // Create the service clients for the autopilot
+    set_mode_client_ = this->create_client<pegasus_msgs::srv::SetMode>("/drone1/autopilot/set_mode");
+
+    // Create the service clients for the trajectory generation
+    add_arc_client_ = this->create_client<pegasus_msgs::srv::AddArc>("/drone1/autopilot/add_arc");
+    add_line_client_ = this->create_client<pegasus_msgs::srv::AddLine>("/drone1/autopilot/add_line");
+    add_circle_client_ = this->create_client<pegasus_msgs::srv::AddCircle>("/drone1/autopilot/add_circle");
+    add_lemniscate_client_ = this->create_client<pegasus_msgs::srv::AddLemniscate>("/drone1/autopilot/add_lemniscate");
 }
 
 void ConsoleNode::start() {
@@ -83,10 +102,8 @@ void ConsoleNode::on_arm_disarm_click(bool arm) {
         auto request = std::make_shared<pegasus_msgs::srv::Arm::Request>();
         request->arm = arm;
 
-        using namespace std::chrono_literals;
-
         // Wait for the service to be available
-        while (!arm_disarm_client_->wait_for_service(1s)) {
+        while (!arm_disarm_client_->wait_for_service(std::chrono::seconds(1))) {
             if (!rclcpp::ok()) {
                 RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting.");
                 return;
@@ -109,11 +126,9 @@ void ConsoleNode::on_land_click() {
 
         // Create and fill the request to land the vehicle
         auto request = std::make_shared<pegasus_msgs::srv::Land::Request>();
-        
-        using namespace std::chrono_literals;
 
         // Wait for the service to be available
-        while (!land_client_->wait_for_service(1s)) {
+        while (!land_client_->wait_for_service(std::chrono::seconds(1))) {
             if (!rclcpp::ok()) {
                 RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting.");
                 return;
@@ -137,10 +152,8 @@ void ConsoleNode::on_hold_click() {
         // Create and fill the request to hold the vehicle
         auto request = std::make_shared<pegasus_msgs::srv::PositionHold::Request>();
 
-        using namespace std::chrono_literals;
-
         // Wait for the service to be available
-        while (!position_hold_client_->wait_for_service(1s)) {
+        while (!position_hold_client_->wait_for_service(std::chrono::seconds(1))) {
             if (!rclcpp::ok()) {
                 RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting.");
                 return;
@@ -164,10 +177,8 @@ void ConsoleNode::on_offboard_click() {
         // Create and fill the request to switch to offboard mode
         auto request = std::make_shared<pegasus_msgs::srv::Offboard::Request>();
 
-        using namespace std::chrono_literals;
-
         // Wait for the service to be available
-        while (!offboard_client_->wait_for_service(1s)) {
+        while (!offboard_client_->wait_for_service(std::chrono::seconds(1))) {
             if (!rclcpp::ok()) {
                 RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting.");
                 return;
@@ -192,10 +203,8 @@ void ConsoleNode::on_kill_switch_click() {
         auto request = std::make_shared<pegasus_msgs::srv::KillSwitch::Request>();
         request->kill = true;
 
-        using namespace std::chrono_literals;
-
         // Wait for the service to be available
-        while (!kill_switch_client_->wait_for_service(1s)) {
+        while (!kill_switch_client_->wait_for_service(std::chrono::seconds(1))) {
             if (!rclcpp::ok()) {
                 RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting.");
                 return;
@@ -209,6 +218,31 @@ void ConsoleNode::on_kill_switch_click() {
             RCLCPP_INFO(this->get_logger(), "Kill switch response: %s", response->success ? "true" : "false");
         });
 
+    }).detach();
+}
+
+void ConsoleNode::on_set_autopilot_mode(const std::string & mode) {
+
+    std::thread([this, mode]() {
+
+        // Create and fill the request to set the autopilot mode
+        auto request = std::make_shared<pegasus_msgs::srv::SetMode::Request>();
+        request->mode = mode;
+
+        // Wait for the service to be available
+        while(!set_mode_client_->wait_for_service(std::chrono::seconds(1))) {
+            if(!rclcpp::ok()) {
+                RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting.");
+                return;
+            }
+            RCLCPP_INFO(this->get_logger(), "service not available, waiting again...");
+        }
+
+        // Send the request to the service
+        set_mode_client_->async_send_request(request, [this](rclcpp::Client<pegasus_msgs::srv::SetMode>::SharedFuture future) {
+            auto response = future.get();
+            RCLCPP_INFO(this->get_logger(), "Set mode response: %s", response->success ? "true" : "false");
+        });
     }).detach();
 }
 
@@ -264,7 +298,6 @@ void ConsoleNode::on_thrust_curve_click() {
             }).detach();
         }
     }
-
 }
 
 void ConsoleNode::on_thrust_curve_stop() {
@@ -344,6 +377,27 @@ void ConsoleNode::on_setpoint_click() {
             }).detach();
         }
     }
+}
+
+// Add trajectory segments to the autopilot to follow
+void ConsoleNode::on_add_waypoint_click() {
+    // TODO
+}
+
+void ConsoleNode::on_add_arc_click() {
+    // TODO
+}
+
+void ConsoleNode::on_add_line_click() {
+    // TODO
+}
+
+void ConsoleNode::on_add_circle_click() {
+    // TODO
+}
+
+void ConsoleNode::on_add_lemniscate_click() {
+    // TODO
 }
 
 void ConsoleNode::on_setpoint_stop() {

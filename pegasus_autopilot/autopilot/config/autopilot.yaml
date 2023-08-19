@@ -1,16 +1,12 @@
 /**:
   ros__parameters:
     autopilot:
-
       # Update rate
       rate: 50.0 # Hz
-
       # Define the default operation mode (the one which the autopilot initializes at)
       default_mode: "DisarmMode"
-
       # Define all the existing operation modes
       modes: ["DisarmMode", "ArmMode", "TakeoffMode", "LandMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
-
       # Configurations of each operating mode:
       # 1) Define the valid transitions from a given operation mode to other operation modes
       # 2) Fallback mode if something goes wrong
@@ -48,17 +44,21 @@
         fallback: "HoldMode"
         on_finish: "HoldMode"
         gains:
-          kp: []
-          kd: []
-          ki: []
-          kff: []
-          min_output: []
-          max_output: []
+          kp: [1.0, 1.0, 1.0]
+          kd: [1.0, 1.0, 1.0]
+          ki: [0.0, 0.0, 0.0]
+          kff: [0.0, 0.0, 0.0]
+          min_output: [-10.0, -10.0, -10.0]
+          max_output: [10.0, 10.0, 10.0]
         pid_debug_topic: "autopilot/statistics/pid"
+        reset_path_topic: "autopilot/trajectory/reset"
+        add_arc_topic: "autopilot/trajectory/add_arc"
+        add_line_topic: "autopilot/trajectory/add_line"
+        add_circle_topic: "autopilot/trajectory/add_circle"
+        add_lemniscate_topic: "autopilot/trajectory/add_lemniscates"
       PassThroughMode: 
         valid_transitions: ["DisarmMode", "ArmMode", "TakeoffMode", "LandMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode"]
         fallback: "HoldMode"
-    
       # Topics configurations
       publishers:
         control_position: "fmu/in/position"
@@ -68,6 +68,7 @@
       subscribers:
         state: "fmu/filter/state"
         status: "fmu/status"
+        constants: "fmu/constants"
       services:
         set_mode: "autopilot/change_mode"
       

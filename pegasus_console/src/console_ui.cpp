@@ -77,7 +77,8 @@ void ConsoleUI::loop() {
     
     auto tab_container = ftxui::Container::Tab({
         thrust_curve(),
-        onboard_position_control()
+        onboard_position_control(),
+        autopilot_control()
     }, &tab_selected_);
  
     auto container = ftxui::Container::Vertical({
@@ -318,4 +319,132 @@ ftxui::Component ConsoleUI::onboard_position_control() {
     });
 
     return position_input;
+}
+
+ftxui::Component ConsoleUI::autopilot_control() {
+
+    // Create a position input
+    
+
+    // Basic control buttons
+    auto autopilot_control = ftxui::Container::Vertical({
+        ftxui::Renderer([] { return 
+            ftxui::vbox({ 
+                ftxui::text("Autopilot Control") | ftxui::center, 
+                ftxui::separator() 
+            });
+        }),
+        ftxui::Container::Horizontal({
+            ftxui::Button("Arm", std::bind(config_.on_set_autopilot_mode, std::string("ArmMode")), ftxui::ButtonOption::Animated(ftxui::Color::Green)),
+            ftxui::Button("Disarm", std::bind(config_.on_set_autopilot_mode, std::string("DisarmMode")), ftxui::ButtonOption::Animated(ftxui::Color::Red)),
+            ftxui::Button("Takeoff", std::bind(config_.on_set_autopilot_mode, std::string("TakeoffMode")), ftxui::ButtonOption::Animated(ftxui::Color::Green)),
+            ftxui::Button("Hold", std::bind(config_.on_set_autopilot_mode, std::string("HoldMode")), ftxui::ButtonOption::Animated(ftxui::Color::Green)),
+            ftxui::Button("Land", std::bind(config_.on_set_autopilot_mode, std::string("LandMode")), ftxui::ButtonOption::Animated(ftxui::Color::Green)),
+        }) | ftxui::center,
+        ftxui::Renderer([] { return ftxui::separator(); }),
+        ftxui::Container::Horizontal({
+            // Create a waypoint box
+            ftxui::Container::Vertical({
+                ftxui::Renderer([] { return ftxui::text("Set Waypoint"); }),
+                ftxui::Container::Horizontal({
+                    ftxui::Renderer([] { return ftxui::text("X: "); }),
+                    ftxui::Input(&this->position_control_data_.inputs[0], "0.0"),
+                }),
+                ftxui::Container::Horizontal({
+                    ftxui::Renderer([] { return ftxui::text("Y: "); }),
+                    ftxui::Input(&this->position_control_data_.inputs[1], "0.0"),
+                }),
+                ftxui::Container::Horizontal({
+                    ftxui::Renderer([] { return ftxui::text("Z: "); }),
+                    ftxui::Input(&this->position_control_data_.inputs[2], "0.0"),
+                }),
+                ftxui::Container::Horizontal({
+                    ftxui::Renderer([] { return ftxui::text("Yaw: "); }),
+                    ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                }),
+                ftxui::Container::Horizontal({
+                    ftxui::Button("Go to Waypoint", config_.on_add_waypoint_click, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
+                })
+            }),
+            ftxui::Container::Vertical({
+                ftxui::Container::Horizontal({
+                    ftxui::Renderer([] { return ftxui::separator(); }),
+                    // Create an arc box
+                    ftxui::Container::Vertical({
+                        ftxui::Renderer([] { return ftxui::text("Add Arc"); }),
+                        ftxui::Renderer([] { return ftxui::text("Start: "); }),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Renderer([] { return ftxui::text("Center: "); }),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Renderer([] { return ftxui::text("Normal vector: "); }),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "-1.0"),
+                        ftxui::Renderer([] { return ftxui::text("Speed: "); }),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Button("Add Arc", config_.on_add_line_click, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
+                    }),
+                    ftxui::Renderer([] { return ftxui::separator(); }),
+                    // Create an line box
+                    ftxui::Container::Vertical({
+                        ftxui::Renderer([] { return ftxui::text("Add Line"); }),
+                        ftxui::Renderer([] { return ftxui::text("Start: "); }),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Renderer([] { return ftxui::text("End: "); }),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Renderer([] { return ftxui::text("Speed: "); }),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Button("Add Line", config_.on_add_line_click, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
+                    }),
+                    ftxui::Renderer([] { return ftxui::separator(); }),
+                    // Create a circle box
+                    ftxui::Container::Vertical({
+                        ftxui::Renderer([] { return ftxui::text("Add Circle"); }),
+                        ftxui::Renderer([] { return ftxui::text("Center: "); }),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Renderer([] { return ftxui::text("Radius: "); }),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Renderer([] { return ftxui::text("Normal vector: "); }),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "-1.0"),
+                        ftxui::Renderer([] { return ftxui::text("Speed: "); }),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Button("Add Circle", config_.on_add_circle_click, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
+                    }),
+                    ftxui::Renderer([] { return ftxui::separator(); }),
+                    // Create lemniscate box
+                    ftxui::Container::Vertical({
+                        ftxui::Renderer([] { return ftxui::text("Add Lemniscate"); }),
+                        ftxui::Renderer([] { return ftxui::text("Center: "); }),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Renderer([] { return ftxui::text("Radius: "); }),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Renderer([] { return ftxui::text("Normal vector: "); }),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "-1.0"),
+                        ftxui::Renderer([] { return ftxui::text("Speed: "); }),
+                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Button("Add Lemniscate", config_.on_add_lemniscate_click, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
+                    }),
+                }),
+            ftxui::Button("Follow Trajectory", [] {}, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
+            }),
+        })
+        ,
+    });
+
+    return autopilot_control;
 }

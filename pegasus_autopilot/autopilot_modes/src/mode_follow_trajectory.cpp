@@ -21,7 +21,7 @@ void FollowTrajectoryMode::initialize() {
     auto ki = node_->get_parameter("autopilot.FollowTrajectoryMode.gains.ki").as_double_array();
     auto kff = node_->get_parameter("autopilot.FollowTrajectoryMode.gains.kff").as_double_array();
     auto min_output = node_->get_parameter("autopilot.FollowTrajectoryMode.gains.min_output").as_double_array();
-    auto max_output = node_->get_parameter("autopilot.FollowTrajectoryMode.gainss.max_output").as_double_array();
+    auto max_output = node_->get_parameter("autopilot.FollowTrajectoryMode.gains.max_output").as_double_array();
 
     // Safety check on the gains (make sure they are there)
     if(kp.size() != 3 || kd.size() != 3 || ki.size() != 3 || kff.size() != 3 || min_output.size() != 3 || max_output.size() != 3) {
@@ -32,7 +32,9 @@ void FollowTrajectoryMode::initialize() {
     // Create the 3 PID controllers for x, y and z axis
     for(unsigned int i=0; i < 3; i++) controllers_[i] = std::make_unique<Pegasus::Pid>(kp[i], kd[i], ki[i], kff[i], min_output[i], max_output[i]);
 
-    // TODO: load the mass of the vehicle from the parameter server
+    // Get the mass of the vehicle (used to get the thrust from the acceleration)
+    VehicleConstants vehicle_constansts = get_vehicle_constants();
+    mass_ = vehicle_constansts.mass;
 
     // Initialize the publishers for the statistics of the PID controller
     node_->declare_parameter<std::string>("autopilot.FollowTrajectoryMode.pid_debug_topic", "statistics/pid");
@@ -41,8 +43,18 @@ void FollowTrajectoryMode::initialize() {
     // ----------------------- TRAJECTORY SETUP -------------------------
 
     // Load the topics for the trajectories
-    
+    node_->declare_parameter<std::string>("autopilot.FollowTrajectoryMode.reset_path_topic", "path/reset");
+    node_->declare_parameter<std::string>("autopilot.FollowTrajectoryMode.add_arc_topic", "path/add_arc");
+    node_->declare_parameter<std::string>("autopilot.FollowTrajectoryMode.add_line_topic", "path/add_line");
+    node_->declare_parameter<std::string>("autopilot.FollowTrajectoryMode.add_circle_topic", "path/add_circle");
+    node_->declare_parameter<std::string>("autopilot.FollowTrajectoryMode.add_lemniscate_topic", "path/add_lemniscate");
 
+    reset_service_ = node_->create_service<pegasus_msgs::srv::ResetPath>(node_->get_parameter("autopilot.FollowTrajectoryMode.reset_path_topic").as_string(), std::bind(&FollowTrajectoryMode::reset_callback, this, std::placeholders::_1, std::placeholders::_2));
+    add_arc_service_ = node_->create_service<pegasus_msgs::srv::AddArc>(node_->get_parameter("autopilot.FollowTrajectoryMode.add_arc_topic").as_string(), std::bind(&FollowTrajectoryMode::add_arc_callback, this, std::placeholders::_1, std::placeholders::_2));
+    add_line_service_ = node_->create_service<pegasus_msgs::srv::AddLine>(node_->get_parameter("autopilot.FollowTrajectoryMode.add_line_topic").as_string(), std::bind(&FollowTrajectoryMode::add_line_callback, this, std::placeholders::_1, std::placeholders::_2));
+    add_circle_service_ = node_->create_service<pegasus_msgs::srv::AddCircle>(node_->get_parameter("autopilot.FollowTrajectoryMode.add_circle_topic").as_string(), std::bind(&FollowTrajectoryMode::add_circle_callback, this, std::placeholders::_1, std::placeholders::_2));
+    add_lemniscate_service_ = node_->create_service<pegasus_msgs::srv::AddLemniscate>(node_->get_parameter("autopilot.FollowTrajectoryMode.add_lemniscate_topic").as_string(), std::bind(&FollowTrajectoryMode::add_lemniscate_callback, this, std::placeholders::_1, std::placeholders::_2));
+    
     RCLCPP_INFO(this->node_->get_logger(), "FollowTrajectoryMode initialized");
 }
 

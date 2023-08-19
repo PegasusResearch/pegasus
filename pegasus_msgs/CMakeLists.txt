@@ -62,6 +62,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/driver/SensorGps.msg"
   "msg/driver/SensorGpsInfo.msg"
   "msg/driver/Status.msg"
+  "msg/driver/ThrustCurve.msg"
+  "msg/driver/VehicleConstants.msg"
   
   # High level control
   "msg/paths/Path.msg"

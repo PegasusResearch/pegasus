@@ -15,8 +15,9 @@
 #include "nav_msgs/msg/odometry.hpp"
 #include "pegasus_msgs/msg/rpy.hpp"
 
-// Messages for the current status of the vehicle (armed, landed, etc.)
+// Messages for the current status of the vehicle (armed, landed, etc.) and the vehicle constants such as mass and thrust curve
 #include "pegasus_msgs/msg/status.hpp"
+#include "pegasus_msgs/msg/vehicle_constants.hpp"
 
 // Messages for the control commands (position, attitude, etc.)
 #include "pegasus_msgs/msg/control_position.hpp"
@@ -356,6 +357,7 @@ private:
      * @ingroup messages
      * Message corresponding to the status of the vehicle */
     pegasus_msgs::msg::Status status_msg_;
+    pegasus_msgs::msg::VehicleConstants vehicle_constants_msg_;
 
     /**
      *  @defgroup publishers ROS2 Publishers
@@ -383,6 +385,7 @@ private:
      * @brief 
      */
     rclcpp::Publisher<pegasus_msgs::msg::Status>::SharedPtr status_pub_{nullptr};
+    rclcpp::Publisher<pegasus_msgs::msg::VehicleConstants>::SharedPtr vehicle_constants_pub_{nullptr};
 
     /**
      * @defgroup subscribers ROS2 Subscribers

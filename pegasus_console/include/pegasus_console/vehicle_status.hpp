@@ -90,3 +90,13 @@ struct ThrotleWidgetData {
     std::string input{""};
     float throtle{0.0};
 };
+
+struct AutopilotwidgetData {
+    // The waypoint part of the autopilot
+    std::array<std::string, 4> waypoint_inputs{"", "", "", ""};
+    Eigen::Vector3d waypoint{Eigen::Vector3d::Zero()};
+    float waypoint_yaw{0.0};
+
+    // The Trajectory tracking part of the autopilot
+    
+};

@@ -19,6 +19,14 @@ struct VehicleStatus {
     bool offboard{false};   // Whether the vehicle is in offboard mode
 };
 
+// Dynamical constants of the vehicle
+struct VehicleConstants {
+    double mass{0.0};                                                         // Mass of the vehicle (in Kg)
+    std::string thrust_curve_id{"None"};                                      // Thrust curve of the vehicle
+    std::vector<std::string> thurst_curve_params{std::vector<std::string>()}; // Thrust curve parameters
+    std::vector<double> thrust_curve_values{std::vector<double>()};           // Thrust curve values associated with the parameters
+};
+
 }
 
 

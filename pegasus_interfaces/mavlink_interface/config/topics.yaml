@@ -24,6 +24,7 @@
     publishers:
       # Current status of the vehicle (battery, operation mode, etc.)
       status: "fmu/status"
+      vehicle_constants: "fmu/constants"
       # Sensor data received from micro-controller
       sensors:
         imu: "fmu/sensors/imu"

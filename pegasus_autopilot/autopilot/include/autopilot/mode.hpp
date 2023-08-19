@@ -23,7 +23,8 @@ public:
     struct Config {
         rclcpp::Node::SharedPtr node;                                           // ROS 2 node ptr (in case the mode needs to create publishers, subscribers, etc.)
         std::function<State()> get_vehicle_state;                               // Function pointer to get the current state of the vehicle      
-        std::function<VehicleStatus()> get_vehicle_status;                      // Function pointer to get the current status of the vehicle      
+        std::function<VehicleStatus()> get_vehicle_status;                      // Function pointer to get the current status of the vehicle  
+        std::function<VehicleConstants()> get_vehicle_constants;                // Function pointer to get the current dynamical constants of the vehicle    
         std::function<void(const Eigen::Vector3d &, float)> set_position;       // Function pointer to set the position of the vehicle
         std::function<void(const Eigen::Vector3d &, float)> set_attitude;       // Function pointer to set the attitude of the vehicle
         std::function<void(const Eigen::Vector3d &, float)> set_attitude_rate;  // Function pointer to set the attitude rate of the vehicle
@@ -37,6 +38,7 @@ public:
         node_ = config.node;
         get_vehicle_state = config.get_vehicle_state;
         get_vehicle_status = config.get_vehicle_status;
+        get_vehicle_constants = config.get_vehicle_constants;
         set_position = config.set_position;
         set_attitude = config.set_attitude;
         set_attitude_rate = config.set_attitude_rate;
@@ -62,6 +64,7 @@ protected:
     // Function pointer which will be instantiated with the function pointers passed in the configuration
     std::function<State()> get_vehicle_state{nullptr};
     std::function<VehicleStatus()> get_vehicle_status{nullptr};
+    std::function<VehicleConstants()> get_vehicle_constants{nullptr};
     std::function<void(const Eigen::Vector3d &, float)> set_position{nullptr};
     std::function<void(const Eigen::Vector3d &, float)> set_attitude{nullptr};
     std::function<void(const Eigen::Vector3d &, float)> set_attitude_rate{nullptr};

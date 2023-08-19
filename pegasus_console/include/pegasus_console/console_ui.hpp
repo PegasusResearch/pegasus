@@ -37,6 +37,16 @@ public:
         std::function<void()> on_setpoint_click;
         std::function<void()> on_setpoint_stop;
         std::function<bool()> is_setpoint_running;
+
+        // Autopulot of the vehicle
+        std::function<void(std::string&)> on_set_autopilot_mode;
+
+        // Add trajectory segments to the autopilot to follow
+        std::function<void()> on_add_waypoint_click;
+        std::function<void()> on_add_arc_click;
+        std::function<void()> on_add_line_click;
+        std::function<void()> on_add_circle_click;
+        std::function<void()> on_add_lemniscate_click;
     };
     
     ConsoleUI(const Config & config);
@@ -62,12 +72,13 @@ protected:
 
     // Auxiliar function to validate the input of a string
     float validate_input(std::string & input, float default_value=0.0) const;
-
+   
     // Individual Components that make up the UI
     ftxui::Component control_buttons();
     ftxui::Element state_display();
     ftxui::Component thrust_curve();
     ftxui::Component onboard_position_control();
+    ftxui::Component autopilot_control();
 
     // Screen where the UI will be placed
     ftxui::ScreenInteractive screen_;
@@ -76,14 +87,17 @@ protected:
     Config config_;
 
     // The selected tab in the UI
-    int tab_selected_{1};
-    std::vector<std::string> tab_values_{"Thrust Curve", "Position Control"};
+    int tab_selected_{2};
+    std::vector<std::string> tab_values_{"Thrust Curve", "Position Control", "Autopilot"};
 
     // The structure that holds the data for the Position Control tab
     PositionControlWidgetData position_control_data_;
 
     // The float slider value for the thrust curve
     ThrotleWidgetData throtle_data_;
+
+    // The structure that holds the data for the Autopilot tab
+
     
     int slider_value_;
 };
