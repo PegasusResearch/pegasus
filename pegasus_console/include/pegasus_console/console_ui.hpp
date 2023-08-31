@@ -47,6 +47,7 @@ public:
         std::function<void()> on_add_line_click;
         std::function<void()> on_add_circle_click;
         std::function<void()> on_add_lemniscate_click;
+        std::function<void()> on_reset_path_click;
     };
     
     ConsoleUI(const Config & config);
@@ -60,6 +61,9 @@ public:
 
     // Get the setpoint selected from the setpoint widget
     std::pair<Eigen::Vector3d, float> get_setpoint();
+
+    // Get the autopilot data
+    inline AutopilotwidgetData & get_autopilot_data() { return autopilot_data_; }
 
     // The latest status and state of the vehicle
     FmuStatus status_;
@@ -97,7 +101,7 @@ protected:
     ThrotleWidgetData throtle_data_;
 
     // The structure that holds the data for the Autopilot tab
-
+    AutopilotwidgetData autopilot_data_;
     
     int slider_value_;
 };

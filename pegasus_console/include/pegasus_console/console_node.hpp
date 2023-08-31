@@ -20,12 +20,12 @@
 
 // ROS2 services for the autopilot functionality
 #include "pegasus_msgs/srv/set_mode.hpp"
-
-// ROS2 services for the trajectory generations
+#include "pegasus_msgs/srv/waypoint.hpp"
 #include "pegasus_msgs/srv/add_arc.hpp"
 #include "pegasus_msgs/srv/add_line.hpp"
 #include "pegasus_msgs/srv/add_circle.hpp"
 #include "pegasus_msgs/srv/add_lemniscate.hpp"
+#include "pegasus_msgs/srv/reset_path.hpp"
 
 class ConsoleNode : public rclcpp::Node {
 
@@ -64,6 +64,7 @@ public:
     void on_add_line_click();
     void on_add_circle_click();
     void on_add_lemniscate_click();
+    void on_reset_path_click();
 
     void start();
 
@@ -110,10 +111,10 @@ protected:
 
     // ROS2 service clients for the autopilot
     rclcpp::Client<pegasus_msgs::srv::SetMode>::SharedPtr set_mode_client_;
-
-    // ROS2 service clients for the trajectory generation
+    rclcpp::Client<pegasus_msgs::srv::Waypoint>::SharedPtr waypoint_client_;
     rclcpp::Client<pegasus_msgs::srv::AddArc>::SharedPtr add_arc_client_;
     rclcpp::Client<pegasus_msgs::srv::AddLine>::SharedPtr add_line_client_;
     rclcpp::Client<pegasus_msgs::srv::AddCircle>::SharedPtr add_circle_client_;
     rclcpp::Client<pegasus_msgs::srv::AddLemniscate>::SharedPtr add_lemniscate_client_;
+    rclcpp::Client<pegasus_msgs::srv::ResetPath>::SharedPtr reset_path_client_;
 };

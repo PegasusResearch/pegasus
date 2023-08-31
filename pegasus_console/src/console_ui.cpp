@@ -323,8 +323,154 @@ ftxui::Component ConsoleUI::onboard_position_control() {
 
 ftxui::Component ConsoleUI::autopilot_control() {
 
-    // Create a position input
-    
+    // --------------------------------------------
+    // Set the inputs for the waypoint
+    // --------------------------------------------
+    std::array<ftxui::InputOption, 3> waypoint_pos_opt{ftxui::InputOption(), ftxui::InputOption(), ftxui::InputOption()};
+    ftxui::InputOption waypoint_yaw_opt = ftxui::InputOption();
+
+    for (int i = 0; i < 3; i++) {
+        waypoint_pos_opt[i].on_enter = [this, i] () {
+            // Get the updated value from the string of text and validate it
+            float new_value = validate_input(autopilot_data_.waypoint_pos_input[i], autopilot_data_.waypoint[i]);
+
+            // Update the text and the value
+            autopilot_data_.waypoint_pos_input[i] = float_to_string(new_value);
+            autopilot_data_.waypoint[i] = new_value;
+        };
+    }
+
+    waypoint_yaw_opt.on_enter = [this] () {
+        // Get the updated value from the string of text and validate it
+        float new_value = validate_input(autopilot_data_.waypoint_yaw_input, autopilot_data_.waypoint_yaw);
+
+        // Validate that the new is between 0 and 360
+        new_value = std::max( 0.0f, std::min(new_value, 360.0f));
+
+        // Update the text and the value
+        autopilot_data_.waypoint_yaw_input = float_to_string(new_value);
+        autopilot_data_.waypoint_yaw = new_value;
+    };
+
+    // --------------------------------------------
+    // Set the inputs for the arc path section
+    // --------------------------------------------
+    std::array<ftxui::InputOption, 5> arc_pos_opt{ftxui::InputOption(), ftxui::InputOption(), ftxui::InputOption(), ftxui::InputOption(), ftxui::InputOption()};
+    ftxui::InputOption arc_speed_opt = ftxui::InputOption();
+
+    for (int i = 0; i < 5; i++) {
+        arc_pos_opt[i].on_enter = [this, i] () {
+            // Get the updated value from the string of text and validate it
+            float new_value = validate_input(autopilot_data_.arc_pos_input[i], autopilot_data_.arc[i]);
+
+            // Update the text and the value
+            autopilot_data_.arc_pos_input[i] = float_to_string(new_value);
+            autopilot_data_.arc[i] = new_value;
+        };
+    }
+
+    arc_speed_opt.on_enter = [this] () {
+
+        // Get the updated value from the string of text and validate it
+        float new_value = validate_input(autopilot_data_.arc_speed_input, autopilot_data_.arc_speed);
+
+        // Validate that the new is between 0 and 50 m/s
+        new_value = std::max( 0.0f, std::min(new_value, 50.0f));
+
+        // Update the text and the value
+        autopilot_data_.arc_speed_input = float_to_string(new_value);
+        autopilot_data_.arc_speed = new_value;
+    };
+
+    // --------------------------------------------
+    // Set the inputs for the line path section
+    // --------------------------------------------
+    std::array<ftxui::InputOption, 6> line_pos_opt{ftxui::InputOption(), ftxui::InputOption(), ftxui::InputOption(), ftxui::InputOption(), ftxui::InputOption(), ftxui::InputOption()};
+    ftxui::InputOption line_speed_opt = ftxui::InputOption();
+
+    for (int i = 0; i < 6; i++) {
+        line_pos_opt[i].on_enter = [this, i] () {
+            // Get the updated value from the string of text and validate it
+            float new_value = validate_input(autopilot_data_.line_pos_input[i], autopilot_data_.line[i]);
+
+            // Update the text and the value
+            autopilot_data_.line_pos_input[i] = float_to_string(new_value);
+            autopilot_data_.line[i] = new_value;
+        };
+    }
+
+    line_speed_opt.on_enter = [this] () {
+
+        // Get the updated value from the string of text and validate it
+        float new_value = validate_input(autopilot_data_.line_speed_input, autopilot_data_.line_speed);
+
+        // Validate that the new is between 0 and 50 m/s
+        new_value = std::max( 0.0f, std::min(new_value, 50.0f));
+
+        // Update the text and the value
+        autopilot_data_.line_speed_input = float_to_string(new_value);
+        autopilot_data_.line_speed = new_value;
+    };
+
+    // --------------------------------------------
+    // Set the inputs for the circle path section
+    // --------------------------------------------
+    std::array<ftxui::InputOption, 4> circle_pos_opt{ftxui::InputOption(), ftxui::InputOption(), ftxui::InputOption(), ftxui::InputOption()};
+    ftxui::InputOption circle_speed_opt = ftxui::InputOption();
+
+    for (int i = 0; i < 4; i++) {
+        circle_pos_opt[i].on_enter = [this, i] () {
+            // Get the updated value from the string of text and validate it
+            float new_value = validate_input(autopilot_data_.circle_pos_input[i], autopilot_data_.circle[i]);
+
+            // Update the text and the value
+            autopilot_data_.circle_pos_input[i] = float_to_string(new_value);
+            autopilot_data_.circle[i] = new_value;
+        };
+    }
+
+    circle_speed_opt.on_enter = [this] () {
+
+        // Get the updated value from the string of text and validate it
+        float new_value = validate_input(autopilot_data_.circle_speed_input, autopilot_data_.circle_speed);
+
+        // Validate that the new is between 0 and 50 m/s
+        new_value = std::max( 0.0f, std::min(new_value, 50.0f));
+
+        // Update the text and the value
+        autopilot_data_.circle_speed_input = float_to_string(new_value);
+        autopilot_data_.circle_speed = new_value;
+    };
+
+    // --------------------------------------------
+    // Set the inputs for the lemniscate path section
+    // --------------------------------------------
+    std::array<ftxui::InputOption, 4> lemniscate_pos_opt{ftxui::InputOption(), ftxui::InputOption(), ftxui::InputOption(), ftxui::InputOption()};
+    ftxui::InputOption lemniscate_speed_opt = ftxui::InputOption();
+
+    for (int i = 0; i < 4; i++) {
+        lemniscate_pos_opt[i].on_enter = [this, i] () {
+            // Get the updated value from the string of text and validate it
+            float new_value = validate_input(autopilot_data_.lemniscate_pos_input[i], autopilot_data_.lemniscate[i]);
+
+            // Update the text and the value
+            autopilot_data_.lemniscate_pos_input[i] = float_to_string(new_value);
+            autopilot_data_.lemniscate[i] = new_value;
+        };
+    }
+
+    lemniscate_speed_opt.on_enter = [this] () {
+
+        // Get the updated value from the string of text and validate it
+        float new_value = validate_input(autopilot_data_.lemniscate_speed_input, autopilot_data_.lemniscate_speed);
+
+        // Validate that the new is between 0 and 50 m/s
+        new_value = std::max( 0.0f, std::min(new_value, 50.0f));
+
+        // Update the text and the value
+        autopilot_data_.lemniscate_speed_input = float_to_string(new_value);
+        autopilot_data_.lemniscate_speed = new_value;
+    };
 
     // Basic control buttons
     auto autopilot_control = ftxui::Container::Vertical({
@@ -348,22 +494,25 @@ ftxui::Component ConsoleUI::autopilot_control() {
                 ftxui::Renderer([] { return ftxui::text("Set Waypoint"); }),
                 ftxui::Container::Horizontal({
                     ftxui::Renderer([] { return ftxui::text("X: "); }),
-                    ftxui::Input(&this->position_control_data_.inputs[0], "0.0"),
+                    ftxui::Input(&this->autopilot_data_.waypoint_pos_input[0], "0.0", waypoint_pos_opt[0]),
                 }),
                 ftxui::Container::Horizontal({
                     ftxui::Renderer([] { return ftxui::text("Y: "); }),
-                    ftxui::Input(&this->position_control_data_.inputs[1], "0.0"),
+                    ftxui::Input(&this->autopilot_data_.waypoint_pos_input[1], "0.0", waypoint_pos_opt[1]),
                 }),
                 ftxui::Container::Horizontal({
                     ftxui::Renderer([] { return ftxui::text("Z: "); }),
-                    ftxui::Input(&this->position_control_data_.inputs[2], "0.0"),
+                    ftxui::Input(&this->autopilot_data_.waypoint_pos_input[2], "0.0", waypoint_pos_opt[2]),
                 }),
                 ftxui::Container::Horizontal({
                     ftxui::Renderer([] { return ftxui::text("Yaw: "); }),
-                    ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                    ftxui::Input(&this->autopilot_data_.waypoint_yaw_input, "0.0", waypoint_yaw_opt),
                 }),
                 ftxui::Container::Horizontal({
-                    ftxui::Button("Go to Waypoint", config_.on_add_waypoint_click, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
+                    ftxui::Button("Set Waypoint", config_.on_add_waypoint_click, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
+                }),
+                ftxui::Container::Horizontal({
+                    ftxui::Button("Go to Waypoint", std::bind(config_.on_set_autopilot_mode, std::string("WaypointMode")), ftxui::ButtonOption::Animated(ftxui::Color::Green)),
                 })
             }),
             ftxui::Container::Vertical({
@@ -373,34 +522,30 @@ ftxui::Component ConsoleUI::autopilot_control() {
                     ftxui::Container::Vertical({
                         ftxui::Renderer([] { return ftxui::text("Add Arc"); }),
                         ftxui::Renderer([] { return ftxui::text("Start: "); }),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->autopilot_data_.arc_pos_input[0], "0.0", arc_pos_opt[0]),
+                        ftxui::Input(&this->autopilot_data_.arc_pos_input[1], "0.0", arc_pos_opt[1]),
                         ftxui::Renderer([] { return ftxui::text("Center: "); }),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
-                        ftxui::Renderer([] { return ftxui::text("Normal vector: "); }),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "-1.0"),
+                        ftxui::Input(&this->autopilot_data_.arc_pos_input[2], "0.0", arc_pos_opt[2]),
+                        ftxui::Input(&this->autopilot_data_.arc_pos_input[3], "0.0", arc_pos_opt[3]),
+                        ftxui::Input(&this->autopilot_data_.arc_pos_input[4], "0.0", arc_pos_opt[4]),
                         ftxui::Renderer([] { return ftxui::text("Speed: "); }),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
-                        ftxui::Button("Add Arc", config_.on_add_line_click, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
+                        ftxui::Input(&this->autopilot_data_.arc_speed_input, "0.0", arc_speed_opt),
+                        ftxui::Button("Add Arc", config_.on_add_arc_click, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
                     }),
                     ftxui::Renderer([] { return ftxui::separator(); }),
                     // Create an line box
                     ftxui::Container::Vertical({
                         ftxui::Renderer([] { return ftxui::text("Add Line"); }),
                         ftxui::Renderer([] { return ftxui::text("Start: "); }),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->autopilot_data_.line_pos_input[0], "0.0", line_pos_opt[0]),
+                        ftxui::Input(&this->autopilot_data_.line_pos_input[1], "0.0", line_pos_opt[1]),
+                        ftxui::Input(&this->autopilot_data_.line_pos_input[2], "0.0", line_pos_opt[2]),
                         ftxui::Renderer([] { return ftxui::text("End: "); }),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->autopilot_data_.line_pos_input[3], "0.0", line_pos_opt[3]),
+                        ftxui::Input(&this->autopilot_data_.line_pos_input[4], "0.0", line_pos_opt[4]),
+                        ftxui::Input(&this->autopilot_data_.line_pos_input[5], "0.0", line_pos_opt[5]),
                         ftxui::Renderer([] { return ftxui::text("Speed: "); }),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->autopilot_data_.line_speed_input, "0.0", line_speed_opt),
                         ftxui::Button("Add Line", config_.on_add_line_click, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
                     }),
                     ftxui::Renderer([] { return ftxui::separator(); }),
@@ -408,17 +553,13 @@ ftxui::Component ConsoleUI::autopilot_control() {
                     ftxui::Container::Vertical({
                         ftxui::Renderer([] { return ftxui::text("Add Circle"); }),
                         ftxui::Renderer([] { return ftxui::text("Center: "); }),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->autopilot_data_.circle_pos_input[0], "0.0", circle_pos_opt[0]),
+                        ftxui::Input(&this->autopilot_data_.circle_pos_input[1], "0.0", circle_pos_opt[1]),
+                        ftxui::Input(&this->autopilot_data_.circle_pos_input[2], "0.0", circle_pos_opt[2]),
                         ftxui::Renderer([] { return ftxui::text("Radius: "); }),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
-                        ftxui::Renderer([] { return ftxui::text("Normal vector: "); }),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "-1.0"),
+                        ftxui::Input(&this->autopilot_data_.circle_pos_input[3], "0.0", circle_pos_opt[3]),
                         ftxui::Renderer([] { return ftxui::text("Speed: "); }),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->autopilot_data_.circle_speed_input, "0.0", circle_speed_opt),
                         ftxui::Button("Add Circle", config_.on_add_circle_click, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
                     }),
                     ftxui::Renderer([] { return ftxui::separator(); }),
@@ -426,21 +567,18 @@ ftxui::Component ConsoleUI::autopilot_control() {
                     ftxui::Container::Vertical({
                         ftxui::Renderer([] { return ftxui::text("Add Lemniscate"); }),
                         ftxui::Renderer([] { return ftxui::text("Center: "); }),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->autopilot_data_.lemniscate_pos_input[0], "0.0", lemniscate_pos_opt[0]),
+                        ftxui::Input(&this->autopilot_data_.lemniscate_pos_input[1], "0.0", lemniscate_pos_opt[1]),
+                        ftxui::Input(&this->autopilot_data_.lemniscate_pos_input[2], "0.0", lemniscate_pos_opt[2]),
                         ftxui::Renderer([] { return ftxui::text("Radius: "); }),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
-                        ftxui::Renderer([] { return ftxui::text("Normal vector: "); }),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "-1.0"),
+                        ftxui::Input(&this->autopilot_data_.lemniscate_pos_input[3], "0.0", lemniscate_pos_opt[3]),
                         ftxui::Renderer([] { return ftxui::text("Speed: "); }),
-                        ftxui::Input(&this->position_control_data_.inputs[3], "0.0"),
+                        ftxui::Input(&this->autopilot_data_.lemniscate_speed_input, "0.0", lemniscate_speed_opt),
                         ftxui::Button("Add Lemniscate", config_.on_add_lemniscate_click, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
                     }),
                 }),
-            ftxui::Button("Follow Trajectory", [] {}, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
+            ftxui::Button("Reset Trajectory", config_.on_reset_path_click, ftxui::ButtonOption::Animated(ftxui::Color::Green)),
+            ftxui::Button("Follow Trajectory", std::bind(config_.on_set_autopilot_mode, std::string("FollowTrajectoryMode")), ftxui::ButtonOption::Animated(ftxui::Color::Green)),
             }),
         })
         ,

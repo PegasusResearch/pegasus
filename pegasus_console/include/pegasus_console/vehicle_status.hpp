@@ -92,11 +92,49 @@ struct ThrotleWidgetData {
 };
 
 struct AutopilotwidgetData {
-    // The waypoint part of the autopilot
-    std::array<std::string, 4> waypoint_inputs{"", "", "", ""};
+
+    // ----------------------------------
+    // Waypoint UI data
+    // ----------------------------------
+    std::array<std::string, 3> waypoint_pos_input{"", "", ""};
+    std::string waypoint_yaw_input{""};
+
     Eigen::Vector3d waypoint{Eigen::Vector3d::Zero()};
     float waypoint_yaw{0.0};
 
-    // The Trajectory tracking part of the autopilot
-    
+    // ----------------------------------
+    // Arc UI data
+    // ----------------------------------
+    std::array<std::string, 5> arc_pos_input{"", "", "", "", ""};
+    std::string arc_speed_input{""};
+
+    Eigen::Vector<double, 5> arc{Eigen::Vector<double, 5>::Zero()};
+    float arc_speed{0.0};
+
+    // ----------------------------------
+    // Line UI data
+    // ----------------------------------
+    std::array<std::string, 6> line_pos_input{"", "", "", "", "", ""};
+    std::string line_speed_input{""};
+
+    Eigen::Vector<double, 6> line{Eigen::Vector<double, 6>::Zero()};
+    float line_speed{0.0};
+
+    // ----------------------------------
+    // Circle UI data
+    // ----------------------------------
+    std::array<std::string, 4> circle_pos_input{"", "", "", ""};
+    std::string circle_speed_input{""};
+
+    Eigen::Vector<double, 4> circle{Eigen::Vector<double, 4>::Zero()};
+    float circle_speed{0.0};
+
+    // ----------------------------------
+    // Lemniscate UI data
+    // ----------------------------------
+    std::array<std::string, 4> lemniscate_pos_input{"", "", "", ""};
+    std::string lemniscate_speed_input{""};
+
+    Eigen::Vector<double, 4> lemniscate{Eigen::Vector<double, 4>::Zero()};
+    float lemniscate_speed{0.0};
 };

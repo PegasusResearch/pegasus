@@ -34,6 +34,7 @@ ConsoleNode::ConsoleNode() : rclcpp::Node("pegasus_console") {
     config_.on_add_line_click = std::bind(&ConsoleNode::on_add_line_click, this);
     config_.on_add_circle_click = std::bind(&ConsoleNode::on_add_circle_click, this);
     config_.on_add_lemniscate_click = std::bind(&ConsoleNode::on_add_lemniscate_click, this);
+    config_.on_reset_path_click = std::bind(&ConsoleNode::on_reset_path_click, this);
 
     // Initialize the console UI
     console_ui_ = std::make_unique<ConsoleUI>(config_);
@@ -74,13 +75,14 @@ void ConsoleNode::initialize_services() {
     offboard_client_ = this->create_client<pegasus_msgs::srv::Offboard>("/drone1/fmu/offboard");
 
     // Create the service clients for the autopilot
-    set_mode_client_ = this->create_client<pegasus_msgs::srv::SetMode>("/drone1/autopilot/set_mode");
+    set_mode_client_ = this->create_client<pegasus_msgs::srv::SetMode>("/drone1/autopilot/change_mode");
 
-    // Create the service clients for the trajectory generation
-    add_arc_client_ = this->create_client<pegasus_msgs::srv::AddArc>("/drone1/autopilot/add_arc");
-    add_line_client_ = this->create_client<pegasus_msgs::srv::AddLine>("/drone1/autopilot/add_line");
-    add_circle_client_ = this->create_client<pegasus_msgs::srv::AddCircle>("/drone1/autopilot/add_circle");
-    add_lemniscate_client_ = this->create_client<pegasus_msgs::srv::AddLemniscate>("/drone1/autopilot/add_lemniscate");
+    waypoint_client_ = this->create_client<pegasus_msgs::srv::Waypoint>("/drone1/autopilot/set_waypoint");
+    add_arc_client_ = this->create_client<pegasus_msgs::srv::AddArc>("/drone1/autopilot/trajectory/add_arc");
+    add_line_client_ = this->create_client<pegasus_msgs::srv::AddLine>("/drone1/autopilot/trajectory/add_line");
+    add_circle_client_ = this->create_client<pegasus_msgs::srv::AddCircle>("/drone1/autopilot/trajectory/add_circle");
+    add_lemniscate_client_ = this->create_client<pegasus_msgs::srv::AddLemniscate>("/drone1/autopilot/trajectory/add_lemniscate");
+    reset_path_client_ = this->create_client<pegasus_msgs::srv::ResetPath>("/drone1/autopilot/trajectory/reset");
 }
 
 void ConsoleNode::start() {
@@ -381,23 +383,247 @@ void ConsoleNode::on_setpoint_click() {
 
 // Add trajectory segments to the autopilot to follow
 void ConsoleNode::on_add_waypoint_click() {
-    // TODO
+    
+    // Get the current waypoint from the UI
+    auto autopilot_data = console_ui_->get_autopilot_data();
+    Eigen::Vector3d waypoint = autopilot_data.waypoint;
+    float yaw = autopilot_data.waypoint_yaw; 
+
+    // Create and fill the request to add a waypoint to the autopilot
+    std::thread([this, waypoint, yaw]() {
+        
+        auto request = std::make_shared<pegasus_msgs::srv::Waypoint::Request>();
+        request->position[0] = waypoint[0];
+        request->position[1] = waypoint[1];
+        request->position[2] = waypoint[2];
+        request->yaw = yaw;
+
+        // Wait for the service to be available
+        while (!waypoint_client_->wait_for_service(std::chrono::seconds(1))) {
+            if (!rclcpp::ok()) {
+                RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting.");
+                return;
+            }
+            RCLCPP_INFO(this->get_logger(), "service not available, waiting again...");
+        }
+
+        // Send the request to the service
+        waypoint_client_->async_send_request(request, [this](rclcpp::Client<pegasus_msgs::srv::Waypoint>::SharedFuture future) {
+            auto response = future.get();
+            RCLCPP_INFO(this->get_logger(), "Waypoint response: %s", response->success ? "true" : "false");
+        });
+    }).detach();
+
 }
 
 void ConsoleNode::on_add_arc_click() {
-    // TODO
+    
+    // Get the current arc configuration from the UI
+    auto autopilot_data = console_ui_->get_autopilot_data();
+    Eigen::Vector<double, 5> arc = autopilot_data.arc;
+    float arc_speed = autopilot_data.arc_speed; 
+
+    // Create and fill the request to add an arc to the autopilot
+    std::thread([this, arc, arc_speed]() {
+        
+        auto request = std::make_shared<pegasus_msgs::srv::AddArc::Request>();
+        
+        // Set the starting position in a 2D plane
+        request->start[0] = arc[0];
+        request->start[1] = arc[1];
+
+        // Set the center of the arc in 3D space
+        request->center[0] = arc[2];
+        request->center[1] = arc[3];
+        request->center[2] = arc[4];
+
+        // Set the normal vector of the plane in which the arc lies
+        request->normal[0] = 0.0;
+        request->normal[1] = 0.0;
+        request->normal[2] = 1.0;
+
+        // Set the speed of the arc in m/s
+        request->speed.type = "constant";
+        request->speed.parameters = std::vector<double>();
+        request->speed.parameters.push_back(arc_speed);
+
+        // Set the direction of the arc
+        request->clockwise_direction = true;
+
+        // Wait for the service to be available
+        while (!add_arc_client_->wait_for_service(std::chrono::seconds(1))) {
+            if (!rclcpp::ok()) {
+                RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting.");
+                return;
+            }
+            RCLCPP_INFO(this->get_logger(), "service not available, waiting again...");
+        }
+
+        // Send the request to the service
+        add_arc_client_->async_send_request(request, [this](rclcpp::Client<pegasus_msgs::srv::AddArc>::SharedFuture future) {
+            auto response = future.get();
+            RCLCPP_INFO(this->get_logger(), "Add Arc section response: %s", response->success ? "true" : "false");
+        });
+    }).detach();
 }
 
 void ConsoleNode::on_add_line_click() {
-    // TODO
+    
+    // Get the current line configuration from the UI
+    auto autopilot_data = console_ui_->get_autopilot_data();
+    Eigen::Vector<double, 6> line = autopilot_data.line;
+    float line_speed = autopilot_data.line_speed; 
+
+    // Create and fill the request to add a line to the autopilot
+    std::thread([this, line, line_speed]() {
+        
+        auto request = std::make_shared<pegasus_msgs::srv::AddLine::Request>();
+        
+        // Set the starting position in a 2D plane
+        request->start[0] = line[0];
+        request->start[1] = line[1];
+        request->start[2] = line[2];
+
+        // Set the end of the line in 3D space
+        request->end[0] = line[3];
+        request->end[1] = line[4];
+        request->end[2] = line[5];
+
+        // Set the speed of the arc in m/s
+        request->speed.type = "constant";
+        request->speed.parameters = std::vector<double>();
+        request->speed.parameters.push_back(line_speed);
+
+        // Wait for the service to be available
+        while (!add_line_client_->wait_for_service(std::chrono::seconds(1))) {
+            if (!rclcpp::ok()) {
+                RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting.");
+                return;
+            }
+            RCLCPP_INFO(this->get_logger(), "service not available, waiting again...");
+        }
+
+        // Send the request to the service
+        add_line_client_->async_send_request(request, [this](rclcpp::Client<pegasus_msgs::srv::AddLine>::SharedFuture future) {
+            auto response = future.get();
+            RCLCPP_INFO(this->get_logger(), "Add Line section response: %s", response->success ? "true" : "false");
+        });
+    }).detach();
+
 }
 
 void ConsoleNode::on_add_circle_click() {
-    // TODO
+    
+    // Get the current circle configuration from the UI
+    auto autopilot_data = console_ui_->get_autopilot_data();
+    Eigen::Vector<double, 4> circle = autopilot_data.circle;
+    float circle_speed = autopilot_data.circle_speed; 
+
+    // Create and fill the request to add a circle to the autopilot
+    std::thread([this, circle, circle_speed]() {
+
+        auto request = std::make_shared<pegasus_msgs::srv::AddCircle::Request>();
+        
+        // Set the starting position in a 2D plane
+        request->center[0] = circle[0];
+        request->center[1] = circle[1];
+        request->center[2] = circle[2];
+        request->radius = circle[3];
+
+        // Set the normal of the circle in 3D space
+        request->normal[0] = 0.0;
+        request->normal[1] = 0.0;
+        request->normal[2] = 1.0;
+
+        // Set the speed of the circle in m/s
+        request->speed.type = "constant";
+        request->speed.parameters = std::vector<double>();
+        request->speed.parameters.push_back(circle_speed);
+
+        // Wait for the service to be available
+        while (!add_circle_client_->wait_for_service(std::chrono::seconds(1))) {
+            if (!rclcpp::ok()) {
+                RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting.");
+                return;
+            }
+            RCLCPP_INFO(this->get_logger(), "service not available, waiting again...");
+        }
+
+        // Send the request to the service
+        add_circle_client_->async_send_request(request, [this](rclcpp::Client<pegasus_msgs::srv::AddCircle>::SharedFuture future) {
+            auto response = future.get();
+            RCLCPP_INFO(this->get_logger(), "Add Circle section response: %s", response->success ? "true" : "false");
+        });
+    }).detach();
 }
 
 void ConsoleNode::on_add_lemniscate_click() {
-    // TODO
+    
+    // Get the current lemniscate configuration from the UI
+    auto autopilot_data = console_ui_->get_autopilot_data();
+    Eigen::Vector<double, 4> lemniscate = autopilot_data.lemniscate;
+    float lemniscate_speed = autopilot_data.lemniscate_speed; 
+
+    // Create and fill the request to add a lemniscate to the autopilot
+    std::thread([this, lemniscate, lemniscate_speed]() {
+
+        auto request = std::make_shared<pegasus_msgs::srv::AddLemniscate::Request>();
+        
+        // Set the starting position in a 2D plane
+        request->center[0] = lemniscate[0];
+        request->center[1] = lemniscate[1];
+        request->center[2] = lemniscate[2];
+        request->radius = lemniscate[3];
+
+        // Set the normal of the lemniscate in 3D space
+        request->normal[0] = 0.0;
+        request->normal[1] = 0.0;
+        request->normal[2] = 1.0;
+
+        // Set the speed of the lemniscate in m/s
+        request->speed.type = "constant";
+        request->speed.parameters = std::vector<double>();
+        request->speed.parameters.push_back(lemniscate_speed);
+
+        // Wait for the service to be available
+        while (!add_lemniscate_client_->wait_for_service(std::chrono::seconds(1))) {
+            if (!rclcpp::ok()) {
+                RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting.");
+                return;
+            }
+            RCLCPP_INFO(this->get_logger(), "service not available, waiting again...");
+        }
+
+        // Send the request to the service
+        add_lemniscate_client_->async_send_request(request, [this](rclcpp::Client<pegasus_msgs::srv::AddLemniscate>::SharedFuture future) {
+            auto response = future.get();
+            RCLCPP_INFO(this->get_logger(), "Add Lemniscate  section response: %s", response->success ? "true" : "false");
+        });
+    }).detach();
+}
+
+void ConsoleNode::on_reset_path_click() {
+
+    // Create and fill the request to add a waypoint to the autopilot
+    std::thread([this]() {
+        
+        auto request = std::make_shared<pegasus_msgs::srv::ResetPath::Request>();
+
+        // Wait for the service to be available
+        while (!reset_path_client_->wait_for_service(std::chrono::seconds(1))) {
+            if (!rclcpp::ok()) {
+                RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting.");
+                return;
+            }
+            RCLCPP_INFO(this->get_logger(), "service not available, waiting again...");
+        }
+
+        // Send the request to the service
+        reset_path_client_->async_send_request(request, [this](rclcpp::Client<pegasus_msgs::srv::ResetPath>::SharedFuture future) {
+            auto response = future.get();
+            RCLCPP_INFO(this->get_logger(), "Reset path response: %s", response->success ? "true" : "false");
+        });
+    }).detach();
 }
 
 void ConsoleNode::on_setpoint_stop() {

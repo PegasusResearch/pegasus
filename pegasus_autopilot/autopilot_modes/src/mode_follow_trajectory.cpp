@@ -48,6 +48,7 @@ void FollowTrajectoryMode::initialize() {
     node_->declare_parameter<std::string>("autopilot.FollowTrajectoryMode.add_line_topic", "path/add_line");
     node_->declare_parameter<std::string>("autopilot.FollowTrajectoryMode.add_circle_topic", "path/add_circle");
     node_->declare_parameter<std::string>("autopilot.FollowTrajectoryMode.add_lemniscate_topic", "path/add_lemniscate");
+    node_->declare_parameter<std::string>("autopilot.FollowTrajectoryMode.sampled_path_topic", "path/points");
 
     reset_service_ = node_->create_service<pegasus_msgs::srv::ResetPath>(node_->get_parameter("autopilot.FollowTrajectoryMode.reset_path_topic").as_string(), std::bind(&FollowTrajectoryMode::reset_callback, this, std::placeholders::_1, std::placeholders::_2));
     add_arc_service_ = node_->create_service<pegasus_msgs::srv::AddArc>(node_->get_parameter("autopilot.FollowTrajectoryMode.add_arc_topic").as_string(), std::bind(&FollowTrajectoryMode::add_arc_callback, this, std::placeholders::_1, std::placeholders::_2));
@@ -55,6 +56,9 @@ void FollowTrajectoryMode::initialize() {
     add_circle_service_ = node_->create_service<pegasus_msgs::srv::AddCircle>(node_->get_parameter("autopilot.FollowTrajectoryMode.add_circle_topic").as_string(), std::bind(&FollowTrajectoryMode::add_circle_callback, this, std::placeholders::_1, std::placeholders::_2));
     add_lemniscate_service_ = node_->create_service<pegasus_msgs::srv::AddLemniscate>(node_->get_parameter("autopilot.FollowTrajectoryMode.add_lemniscate_topic").as_string(), std::bind(&FollowTrajectoryMode::add_lemniscate_callback, this, std::placeholders::_1, std::placeholders::_2));
     
+    // Publisher for a sampled path for visualization purposes
+    points_pub_ = node_->create_publisher<nav_msgs::msg::Path>(node_->get_parameter("autopilot.FollowTrajectoryMode.sampled_path_topic").as_string(), 1);
+
     RCLCPP_INFO(this->node_->get_logger(), "FollowTrajectoryMode initialized");
 }
 
@@ -158,6 +162,8 @@ void FollowTrajectoryMode::update(double dt) {
 // Services callbacks to set the path to follow
 void FollowTrajectoryMode::reset_callback(const pegasus_msgs::srv::ResetPath::Request::SharedPtr, const pegasus_msgs::srv::ResetPath::Response::SharedPtr response) {
 
+    RCLCPP_INFO_STREAM(node_->get_logger(), "Resetting path.");
+
     // Clear the path
     path_.clear();
 
@@ -184,6 +190,7 @@ void FollowTrajectoryMode::add_section_to_path(const Pegasus::Paths::Section::Sh
 
     // Update the samples of the path
     auto path_samples = path_.get_samples(sample_step_);
+    //auto path_samples = std::optional<std::vector<Eigen::Vector3d>>();
 
     // If the path samples optional is not null, update the message that describes the path
     if(path_samples.has_value()) {
@@ -214,7 +221,10 @@ void FollowTrajectoryMode::add_section_to_path(const Pegasus::Paths::Section::Sh
 }
 
 void FollowTrajectoryMode::add_arc_callback(const pegasus_msgs::srv::AddArc::Request::SharedPtr request, const pegasus_msgs::srv::AddArc::Response::SharedPtr response) {
-    
+
+    // Log the parameters of the path section to be added
+    RCLCPP_INFO_STREAM(node_->get_logger(), "Adding arc to path. Speed: " << request->speed.parameters[0] << ", start: [" << request->start[0] << "," << request->start[1] << "], center: [" << request->center[0] << "," << request->center[1] << "," << request->center[2] << "], normal: [" << request->normal[0] << "," << request->normal[1] << "," << request->normal[2] << "], clockwise: " << request->clockwise_direction << ".");
+
     // Create a new Speed object (by default just get the value for now - TO BE IMPROVED)
     auto speed = std::make_shared<Pegasus::Paths::ConstSpeed>(request->speed.parameters[0]);
 
@@ -226,11 +236,12 @@ void FollowTrajectoryMode::add_arc_callback(const pegasus_msgs::srv::AddArc::Req
 
     // Update the response
     response->success = true;
-
-    RCLCPP_INFO_STREAM(node_->get_logger(), "Add arc to path");
 }
 
 void FollowTrajectoryMode::add_line_callback(const pegasus_msgs::srv::AddLine::Request::SharedPtr request, const pegasus_msgs::srv::AddLine::Response::SharedPtr response) {
+
+    // Log the parameters of the path section to be added
+    RCLCPP_INFO_STREAM(node_->get_logger(), "Adding line to path. Speed: " << request->speed.parameters[0] << ", start: [" << request->start[0] << "," << request->start[1] << "," << request->start[2] << "], end: [" << request->end[0] << "," << request->end[1] << "," << request->end[2] << "].");
 
     // Create a new Speed object (by default just get the value for now - TO BE IMPROVED)
     auto speed = std::make_shared<Pegasus::Paths::ConstSpeed>(request->speed.parameters[0]);
@@ -240,9 +251,15 @@ void FollowTrajectoryMode::add_line_callback(const pegasus_msgs::srv::AddLine::R
 
     // Add the new line to the path
     add_section_to_path(line);
+
+    // Update the response
+    response->success = true;
 }
 
 void FollowTrajectoryMode::add_circle_callback(const pegasus_msgs::srv::AddCircle::Request::SharedPtr request, const pegasus_msgs::srv::AddCircle::Response::SharedPtr response) {
+
+    // Log the parameters of the path section to be added
+    RCLCPP_INFO_STREAM(node_->get_logger(), "Adding circle to path. Speed: " << request->speed.parameters[0] << ", center: [" << request->center[0] << "," << request->center[1] << "," << request->center[2] << "], normal: [" << request->normal[0] << "," << request->normal[1] << "," << request->normal[2] << "], radius: " << request->radius << ".");
 
     // Create a new Speed object (by default just get the value for now - TO BE IMPROVED)
     auto speed = std::make_shared<Pegasus::Paths::ConstSpeed>(request->speed.parameters[0]);
@@ -255,11 +272,12 @@ void FollowTrajectoryMode::add_circle_callback(const pegasus_msgs::srv::AddCircl
 
     // Update the response
     response->success = true;
-
-    RCLCPP_INFO_STREAM(node_->get_logger(), "Add circle to path");
 }
 
 void FollowTrajectoryMode::add_lemniscate_callback(const pegasus_msgs::srv::AddLemniscate::Request::SharedPtr request, const pegasus_msgs::srv::AddLemniscate::Response::SharedPtr response) {
+
+    // Log the parameters of the path section to be added
+    RCLCPP_INFO_STREAM(node_->get_logger(), "Adding lemniscate to path. Speed: " << request->speed.parameters[0] << ", center: [" << request->center[0] << "," << request->center[1] << "," << request->center[2] << "], normal: [" << request->normal[0] << "," << request->normal[1] << "," << request->normal[2] << "], radius: " << request->radius << ".");
     
     // Create a new Speed object (by default just get the value for now - TO BE IMPROVED)
     auto speed = std::make_shared<Pegasus::Paths::ConstSpeed>(request->speed.parameters[0]);
@@ -272,8 +290,6 @@ void FollowTrajectoryMode::add_lemniscate_callback(const pegasus_msgs::srv::AddL
 
     // Update the response
     response->success = true;
-
-    RCLCPP_INFO_STREAM(node_->get_logger(), "Add lemniscate to path");
 }
 
 } // namespace autopilot

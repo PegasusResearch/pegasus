@@ -55,7 +55,8 @@
         add_arc_topic: "autopilot/trajectory/add_arc"
         add_line_topic: "autopilot/trajectory/add_line"
         add_circle_topic: "autopilot/trajectory/add_circle"
-        add_lemniscate_topic: "autopilot/trajectory/add_lemniscates"
+        add_lemniscate_topic: "autopilot/trajectory/add_lemniscate"
+        sampled_path_topic: "autopilot/trajectory/path"
       PassThroughMode: 
         valid_transitions: ["DisarmMode", "ArmMode", "TakeoffMode", "LandMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode"]
         fallback: "HoldMode"
