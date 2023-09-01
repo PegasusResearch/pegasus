@@ -38,7 +38,7 @@ protected:
     // Get the desired position, velocity and acceleration from the path
     void update_reference(double dt);
     bool check_finished();
-    void update_statistics(double dt);
+    void update_statistics();
 
     // Auxiliar function to add a section to the path
     void add_section_to_path(const Pegasus::Paths::Section::SharedPtr section);
@@ -57,8 +57,10 @@ protected:
     rclcpp::Service<pegasus_msgs::srv::AddCircle>::SharedPtr add_circle_service_{nullptr};
     rclcpp::Service<pegasus_msgs::srv::AddLemniscate>::SharedPtr add_lemniscate_service_{nullptr};
 
-    // Publisher for the PID statistics
+    // Publisher for the PID statistics and the path to follow
+    nav_msgs::msg::Path path_points_msg_;
     pegasus_msgs::msg::PidStatistics pid_statistics_msg_;
+    rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr points_pub_{nullptr}; 
     rclcpp::Publisher<pegasus_msgs::msg::PidStatistics>::SharedPtr statistics_pub_{nullptr};
 
     // The step to sample the path
@@ -80,10 +82,6 @@ protected:
 
     // The PID controller to follow the path
     std::array<Pegasus::Pid::UniquePtr, 3> controllers_{nullptr};
-
-    // Publisher of the path to be displayed in RVIZ
-    nav_msgs::msg::Path path_points_msg_;
-    rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr points_pub_{nullptr};    
 
     // The path for the vehicle to follow    
     Pegasus::Paths::Path path_;

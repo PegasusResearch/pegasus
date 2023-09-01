@@ -36,10 +36,6 @@ void FollowTrajectoryMode::initialize() {
     VehicleConstants vehicle_constansts = get_vehicle_constants();
     mass_ = vehicle_constansts.mass;
 
-    // Initialize the publishers for the statistics of the PID controller
-    node_->declare_parameter<std::string>("autopilot.FollowTrajectoryMode.pid_debug_topic", "statistics/pid");
-    statistics_pub_ = node_->create_publisher<pegasus_msgs::msg::PidStatistics>(node_->get_parameter("autopilot.FollowTrajectoryMode.pid_debug_topic").as_string(), 1);
-
     // ----------------------- TRAJECTORY SETUP -------------------------
 
     // Load the topics for the trajectories
@@ -49,6 +45,7 @@ void FollowTrajectoryMode::initialize() {
     node_->declare_parameter<std::string>("autopilot.FollowTrajectoryMode.add_circle_topic", "path/add_circle");
     node_->declare_parameter<std::string>("autopilot.FollowTrajectoryMode.add_lemniscate_topic", "path/add_lemniscate");
     node_->declare_parameter<std::string>("autopilot.FollowTrajectoryMode.sampled_path_topic", "path/points");
+    node_->declare_parameter<std::string>("autopilot.FollowTrajectoryMode.pid_debug_topic", "statistics/pid");
 
     reset_service_ = node_->create_service<pegasus_msgs::srv::ResetPath>(node_->get_parameter("autopilot.FollowTrajectoryMode.reset_path_topic").as_string(), std::bind(&FollowTrajectoryMode::reset_callback, this, std::placeholders::_1, std::placeholders::_2));
     add_arc_service_ = node_->create_service<pegasus_msgs::srv::AddArc>(node_->get_parameter("autopilot.FollowTrajectoryMode.add_arc_topic").as_string(), std::bind(&FollowTrajectoryMode::add_arc_callback, this, std::placeholders::_1, std::placeholders::_2));
@@ -56,8 +53,9 @@ void FollowTrajectoryMode::initialize() {
     add_circle_service_ = node_->create_service<pegasus_msgs::srv::AddCircle>(node_->get_parameter("autopilot.FollowTrajectoryMode.add_circle_topic").as_string(), std::bind(&FollowTrajectoryMode::add_circle_callback, this, std::placeholders::_1, std::placeholders::_2));
     add_lemniscate_service_ = node_->create_service<pegasus_msgs::srv::AddLemniscate>(node_->get_parameter("autopilot.FollowTrajectoryMode.add_lemniscate_topic").as_string(), std::bind(&FollowTrajectoryMode::add_lemniscate_callback, this, std::placeholders::_1, std::placeholders::_2));
     
-    // Publisher for a sampled path for visualization purposes
+    // Initialize the publishers for the statistics of the PID controller and the path to follow
     points_pub_ = node_->create_publisher<nav_msgs::msg::Path>(node_->get_parameter("autopilot.FollowTrajectoryMode.sampled_path_topic").as_string(), 1);
+    statistics_pub_ = node_->create_publisher<pegasus_msgs::msg::PidStatistics>(node_->get_parameter("autopilot.FollowTrajectoryMode.pid_debug_topic").as_string(), 1);
 
     RCLCPP_INFO(this->node_->get_logger(), "FollowTrajectoryMode initialized");
 }
@@ -106,7 +104,7 @@ void FollowTrajectoryMode::update_reference(double dt) {
 
     // Update the desired yaw from the tangent to the path
     // TODO: make the this more general later on
-    desired_yaw_ = path_.tangent_angle(gamma_).value();
+    desired_yaw_ = 0.0; //path_.tangent_angle(gamma_).value();
 
     // Integrate the parametric value (virtual target) over time
     gamma_ += d_gamma_ * dt;
@@ -117,14 +115,48 @@ void FollowTrajectoryMode::update_reference(double dt) {
 
 bool FollowTrajectoryMode::check_finished() {
 
+    // Get the stats from the PID controllers
+    // Pegasus::Pid::Statistics stats_x = controllers_[0]->get_statistics();
+    // Pegasus::Pid::Statistics stats_y = controllers_[1]->get_statistics();
+    // Pegasus::Pid::Statistics stats_z = controllers_[2]->get_statistics();
+
     // Check if the path is finished
-    if(gamma_ >= path_.get_max_gamma()) {
-        RCLCPP_INFO_STREAM(node_->get_logger(), "Trajectory Tracking mission finished.");
-        signal_mode_finished();
-        return true;
-    }
+    // if(gamma_ >= path_.get_max_gamma() &&  stats_x.error_p < 0.1 && stats_y.error_p < 0.1 && stats_z.error_p < 0.1) {
+    //     RCLCPP_INFO_STREAM(node_->get_logger(), "Trajectory Tracking mission finished.");
+    //     signal_mode_finished();
+    //     return true;
+    // }
 
     return false;
+}
+
+void FollowTrajectoryMode::update_statistics() {
+    
+    // For each PID control [x, y, z]
+    for(unsigned int i = 0; i < 3; i++) {
+
+        // Get the statistics from the controller object
+        Pegasus::Pid::Statistics stats = controllers_[i]->get_statistics();
+
+        pid_statistics_msg_.statistics[i].dt = stats.dt;
+        pid_statistics_msg_.statistics[i].reference = desired_position_[i];
+        // Fill the feedback errors
+        pid_statistics_msg_.statistics[i].error_p = stats.error_p;
+        pid_statistics_msg_.statistics[i].error_d = stats.error_d;
+        pid_statistics_msg_.statistics[i].integral = stats.integral;
+        pid_statistics_msg_.statistics[i].ff_ref = stats.ff_ref;
+
+        // Fill the errors scaled by the gains
+        pid_statistics_msg_.statistics[i].p_term = stats.p_term;
+        pid_statistics_msg_.statistics[i].d_term = stats.d_term;
+        pid_statistics_msg_.statistics[i].i_term = stats.i_term;
+        pid_statistics_msg_.statistics[i].ff_term = stats.ff_term;
+
+        // Fill the outputs of the controller
+        pid_statistics_msg_.statistics[i].anti_windup_discharge = stats.anti_windup_discharge;
+        pid_statistics_msg_.statistics[i].output_pre_sat = stats.output_pre_sat;
+        pid_statistics_msg_.statistics[i].output = stats.output;
+    }
 }
 
 void FollowTrajectoryMode::update(double dt) {
@@ -148,12 +180,19 @@ void FollowTrajectoryMode::update(double dt) {
     // Convert the acceleration to attitude and thrust
     Eigen::Vector4d attitude_thrust = get_attitude_thrust_from_acceleration(u, mass_, desired_yaw_);
 
+    RCLCPP_INFO_STREAM(node_->get_logger(), "Thrust: " << attitude_thrust[3] << ".");
+    RCLCPP_INFO_STREAM(node_->get_logger(), "mass: " << mass_ << ".");
+
     // Set the control output
     Eigen::Vector3d attitude_target = Eigen::Vector3d(
         Pegasus::Rotations::rad_to_deg(attitude_thrust[0]), 
         Pegasus::Rotations::rad_to_deg(attitude_thrust[1]), 
         Pegasus::Rotations::rad_to_deg(attitude_thrust[2]));
     set_attitude(attitude_target, attitude_thrust[3]);
+
+    // Update and publish the PID statistics
+    update_statistics();
+    statistics_pub_->publish(pid_statistics_msg_);
 
     // Check if we have reached the end of the path
     check_finished();
@@ -190,7 +229,6 @@ void FollowTrajectoryMode::add_section_to_path(const Pegasus::Paths::Section::Sh
 
     // Update the samples of the path
     auto path_samples = path_.get_samples(sample_step_);
-    //auto path_samples = std::optional<std::vector<Eigen::Vector3d>>();
 
     // If the path samples optional is not null, update the message that describes the path
     if(path_samples.has_value()) {

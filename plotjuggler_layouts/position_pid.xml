@@ -1,47 +1,58 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <root>
  <tabbed_widget parent="main_window" name="Main Window">
-  <Tab tab_name="PID Errors" containers="1">
+  <Tab tab_name="References and errors" containers="1">
    <Container>
-    <DockSplitter sizes="1" count="1" orientation="-">
-     <DockSplitter sizes="0.5;0.5" count="2" orientation="|">
-      <DockSplitter sizes="0.500707;0.499293" count="2" orientation="-">
+    <DockSplitter orientation="-" sizes="1" count="1">
+     <DockSplitter orientation="|" sizes="0.500239;0.499761" count="2">
+      <DockSplitter orientation="-" sizes="0.500401;0.499599" count="2">
+       <DockSplitter orientation="|" sizes="0.5;0.5" count="2">
+        <DockArea name="...">
+         <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
+          <range right="4.980112" top="0.002320" left="0.000000" bottom="-0.095120"/>
+          <limitY/>
+          <curve color="#1f77b4" name="/drone1/autopilot/statistics/pid/statistics.0/reference"/>
+          <curve color="#d62728" name="/drone1/autopilot/statistics/pid/statistics.1/reference"/>
+          <curve color="#1ac938" name="/drone1/autopilot/statistics/pid/statistics.2/reference"/>
+         </plot>
+        </DockArea>
+        <DockArea name="...">
+         <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
+          <range right="4.980112" top="0.245250" left="0.000000" bottom="-10.055250"/>
+          <limitY/>
+          <curve color="#1f77b4" name="/drone1/autopilot/statistics/pid/statistics.0/ff_ref"/>
+          <curve color="#d62728" name="/drone1/autopilot/statistics/pid/statistics.1/ff_ref"/>
+          <curve color="#1ac938" name="/drone1/autopilot/statistics/pid/statistics.2/ff_ref"/>
+         </plot>
+        </DockArea>
+       </DockSplitter>
        <DockArea name="...">
-        <plot flip_x="false" mode="TimeSeries" style="Lines" flip_y="false">
-         <range top="0.000822" right="-155.751343" bottom="-0.119888" left="-156.702943"/>
+        <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
+         <range right="4.980112" top="0.041148" left="0.000000" bottom="-0.008718"/>
          <limitY/>
-         <curve color="#cf2917" name="/drone1/statistics/pid/statistics.0/error_p"/>
-         <curve color="#22c91a" name="/drone1/statistics/pid/statistics.1/error_p"/>
-         <curve color="#16717b" name="/drone1/statistics/pid/statistics.2/error_p"/>
-        </plot>
-       </DockArea>
-       <DockArea name="...">
-        <plot flip_x="false" mode="TimeSeries" style="Lines" flip_y="false">
-         <range top="0.339930" right="-155.751343" bottom="-0.079587" left="-156.702943"/>
-         <limitY/>
-         <curve color="#cf2917" name="/drone1/statistics/pid/statistics.0/i_term"/>
-         <curve color="#22c91a" name="/drone1/statistics/pid/statistics.1/i_term"/>
-         <curve color="#16717b" name="/drone1/statistics/pid/statistics.2/i_term"/>
+         <curve color="#17becf" name="/drone1/autopilot/statistics/pid/statistics.0/error_d"/>
+         <curve color="#bcbd22" name="/drone1/autopilot/statistics/pid/statistics.1/error_d"/>
+         <curve color="#1f77b4" name="/drone1/autopilot/statistics/pid/statistics.2/error_d"/>
         </plot>
        </DockArea>
       </DockSplitter>
-      <DockSplitter sizes="0.500707;0.499293" count="2" orientation="-">
+      <DockSplitter orientation="-" sizes="0.500401;0.499599" count="2">
        <DockArea name="...">
-        <plot flip_x="false" mode="TimeSeries" style="Lines" flip_y="false">
-         <range top="0.035187" right="-155.751343" bottom="-0.029148" left="-156.702943"/>
+        <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
+         <range right="4.980112" top="0.039061" left="0.000000" bottom="-0.017621"/>
          <limitY/>
-         <curve color="#cf2917" name="/drone1/statistics/pid/statistics.0/error_d"/>
-         <curve color="#22c91a" name="/drone1/statistics/pid/statistics.1/error_d"/>
-         <curve color="#16717b" name="/drone1/statistics/pid/statistics.2/error_d"/>
+         <curve color="#ff7f0e" name="/drone1/autopilot/statistics/pid/statistics.0/error_p"/>
+         <curve color="#f14cc1" name="/drone1/autopilot/statistics/pid/statistics.1/error_p"/>
+         <curve color="#9467bd" name="/drone1/autopilot/statistics/pid/statistics.2/error_p"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" mode="TimeSeries" style="Lines" flip_y="false">
-         <range top="0.246427" right="-155.751343" bottom="-10.103492" left="-156.702943"/>
+        <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
+         <range right="4.980112" top="0.100000" left="0.000000" bottom="-0.100000"/>
          <limitY/>
-         <curve color="#cf2917" name="/drone1/statistics/pid/statistics.0/ff_ref"/>
-         <curve color="#22c91a" name="/drone1/statistics/pid/statistics.1/ff_ref"/>
-         <curve color="#16717b" name="/drone1/statistics/pid/statistics.2/ff_ref"/>
+         <curve color="#d62728" name="/drone1/autopilot/statistics/pid/statistics.0/integral"/>
+         <curve color="#1ac938" name="/drone1/autopilot/statistics/pid/statistics.1/integral"/>
+         <curve color="#ff7f0e" name="/drone1/autopilot/statistics/pid/statistics.2/integral"/>
         </plot>
        </DockArea>
       </DockSplitter>
@@ -49,56 +60,43 @@
     </DockSplitter>
    </Container>
   </Tab>
-  <Tab tab_name="Scaled PID Terms" containers="1">
+  <Tab tab_name="Position" containers="1">
    <Container>
-    <DockSplitter sizes="1" count="1" orientation="-">
-     <DockSplitter sizes="0.5;0.5" count="2" orientation="|">
-      <DockSplitter sizes="0.500707;0.499293" count="2" orientation="-">
+    <DockSplitter orientation="-" sizes="1" count="1">
+     <DockSplitter orientation="|" sizes="0.500239;0.499761" count="2">
+      <DockSplitter orientation="-" sizes="0.500401;0.499599" count="2">
        <DockArea name="...">
-        <plot flip_x="false" mode="TimeSeries" style="Lines" flip_y="false">
-         <range top="0.003290" right="-155.751343" bottom="-0.479552" left="-156.702943"/>
+        <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
+         <range right="180.412353" top="0.013742" left="-0.015387" bottom="-0.011290"/>
          <limitY/>
-         <curve color="#cf2917" name="/drone1/statistics/pid/statistics.0/p_term"/>
-         <curve color="#22c91a" name="/drone1/statistics/pid/statistics.1/p_term"/>
-         <curve color="#16717b" name="/drone1/statistics/pid/statistics.2/p_term"/>
+         <curve color="#bcbd22" name="/drone1/fmu/filter/state/pose/pose/position/x"/>
+         <curve color="#1f77b4" name="/drone1/autopilot/statistics/pid/statistics.0/reference"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" mode="TimeSeries" style="Lines" flip_y="false">
-         <range top="0.175936" right="-155.751343" bottom="-0.145741" left="-156.702943"/>
+        <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
+         <range right="180.412353" top="0.000429" left="-0.015387" bottom="-0.017607"/>
          <limitY/>
-         <curve color="#cf2917" name="/drone1/statistics/pid/statistics.0/d_term"/>
-         <curve color="#22c91a" name="/drone1/statistics/pid/statistics.1/d_term"/>
-         <curve color="#16717b" name="/drone1/statistics/pid/statistics.2/d_term"/>
+         <curve color="#1f77b4" name="/drone1/fmu/filter/state/pose/pose/position/y"/>
+         <curve color="#d62728" name="/drone1/autopilot/statistics/pid/statistics.1/reference"/>
         </plot>
        </DockArea>
       </DockSplitter>
-      <DockSplitter sizes="0.332861;0.334278;0.332861" count="3" orientation="-">
+      <DockSplitter orientation="-" sizes="0.500401;0.499599" count="2">
        <DockArea name="...">
-        <plot flip_x="false" mode="TimeSeries" style="Lines" flip_y="false">
-         <range top="0.339930" right="-155.751343" bottom="-0.079587" left="-156.702943"/>
+        <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
+         <range right="180.412353" top="-0.040720" left="-0.015387" bottom="-0.136455"/>
          <limitY/>
-         <curve color="#cf2917" name="/drone1/statistics/pid/statistics.0/i_term"/>
-         <curve color="#22c91a" name="/drone1/statistics/pid/statistics.1/i_term"/>
-         <curve color="#16717b" name="/drone1/statistics/pid/statistics.2/i_term"/>
+         <curve color="#d62728" name="/drone1/fmu/filter/state/pose/pose/position/z"/>
+         <curve color="#1ac938" name="/drone1/autopilot/statistics/pid/statistics.2/reference"/>
         </plot>
        </DockArea>
        <DockArea name="...">
-        <plot flip_x="false" mode="TimeSeries" style="Lines" flip_y="false">
-         <range top="0.341210" right="-155.751343" bottom="-10.315350" left="-156.702943"/>
+        <plot mode="XYPlot" flip_x="false" style="Lines" flip_y="false">
+         <range right="0.017839" top="0.000429" left="-0.015387" bottom="-0.017607"/>
          <limitY/>
-         <curve color="#cf2917" name="/drone1/statistics/pid/statistics.0/output"/>
-         <curve color="#22c91a" name="/drone1/statistics/pid/statistics.1/output"/>
-         <curve color="#16717b" name="/drone1/statistics/pid/statistics.2/output"/>
-        </plot>
-       </DockArea>
-       <DockArea name="...">
-        <plot flip_x="false" mode="TimeSeries" style="Lines" flip_y="false">
-         <range top="0.341210" right="-155.751343" bottom="-10.315350" left="-156.702943"/>
-         <limitY/>
-         <curve color="#cf2917" name="/drone1/statistics/pid/statistics.0/output_pre_sat"/>
-         <curve color="#22c91a" name="/drone1/statistics/pid/statistics.1/output_pre_sat"/>
-         <curve color="#16717b" name="/drone1/statistics/pid/statistics.2/output_pre_sat"/>
+         <curve color="#1f77b4" curve_x="/drone1/fmu/filter/state/pose/pose/position/x" name="/drone1/fmu/filter/state/pose/pose/position/[x;y]" curve_y="/drone1/fmu/filter/state/pose/pose/position/y"/>
+         <curve color="#d62728" curve_x="/drone1/autopilot/statistics/pid/statistics.0/reference" name="/drone1/autopilot/statistics/pid/statistics.[0/reference;1/reference]" curve_y="/drone1/autopilot/statistics/pid/statistics.1/reference"/>
         </plot>
        </DockArea>
       </DockSplitter>
@@ -106,139 +104,136 @@
     </DockSplitter>
    </Container>
   </Tab>
-  <Tab tab_name="Thrust and Attitude Ref" containers="1">
+  <Tab tab_name="System Inputs" containers="1">
    <Container>
-    <DockSplitter sizes="1" count="1" orientation="-">
-     <DockSplitter sizes="0.5;0.5" count="2" orientation="|">
+    <DockSplitter orientation="-" sizes="1" count="1">
+     <DockSplitter orientation="|" sizes="0.500239;0.499761" count="2">
       <DockArea name="...">
-       <plot flip_x="false" mode="TimeSeries" style="Lines" flip_y="false">
-        <range top="2.255193" right="-155.751837" bottom="-0.055005" left="-156.742767"/>
+       <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
+        <range right="4.980074" top="59.208899" left="0.000021" bottom="-120.254909"/>
         <limitY/>
-        <curve color="#cf2917" name="/drone1/control/attitude_force/attitude.0"/>
-        <curve color="#22c91a" name="/drone1/control/attitude_force/attitude.1"/>
-        <curve color="#16717b" name="/drone1/control/attitude_force/attitude.2"/>
+        <curve color="#ff7f0e" name="/drone1/fmu/in/force/attitude/attitude.0"/>
+        <curve color="#f14cc1" name="/drone1/fmu/in/force/attitude/attitude.1"/>
+        <curve color="#9467bd" name="/drone1/fmu/in/force/attitude/attitude.2"/>
        </plot>
       </DockArea>
       <DockArea name="...">
-       <plot flip_x="false" mode="TimeSeries" style="Lines" flip_y="false">
-        <range top="15.104211" right="-155.751837" bottom="15.051435" left="-156.742767"/>
+       <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
+        <range right="4.980074" top="0.100000" left="0.000021" bottom="-0.100000"/>
         <limitY/>
-        <curve color="#9467bd" name="/drone1/control/attitude_force/thrust"/>
-       </plot>
-      </DockArea>
-     </DockSplitter>
-    </DockSplitter>
-   </Container>
-  </Tab>
-  <Tab tab_name="References" containers="1">
-   <Container>
-    <DockSplitter sizes="1" count="1" orientation="-">
-     <DockSplitter sizes="0.5;0.5" count="2" orientation="|">
-      <DockSplitter sizes="0.332861;0.334278;0.332861" count="3" orientation="-">
-       <DockArea name="...">
-        <plot flip_x="false" mode="TimeSeries" style="Lines" flip_y="false">
-         <range top="0.045862" right="104.897669" bottom="-0.047583" left="4.873802"/>
-         <limitY/>
-         <curve color="#1f77b4" name="/drone1/nav/state/pose/pose/position/x"/>
-         <curve color="#b4291f" name="/drone1/statistics/pid/statistics.0/reference"/>
-        </plot>
-       </DockArea>
-       <DockArea name="...">
-        <plot flip_x="false" mode="XYPlot" style="Lines" flip_y="false">
-         <range top="0.053527" right="0.198215" bottom="-0.060347" left="-0.199936"/>
-         <limitY/>
-         <curve curve_y="/drone1/nav/state/pose/pose/position/y" color="#1f77b4" name="/drone1/nav/state/pose/pose/position/[x;y]" curve_x="/drone1/nav/state/pose/pose/position/x"/>
-         <curve curve_y="/drone1/statistics/pid/statistics.1/reference" color="#b4291f" name="/drone1/statistics/pid/statistics.[0/reference;1/reference]" curve_x="/drone1/statistics/pid/statistics.0/reference"/>
-        </plot>
-       </DockArea>
-       <DockArea name="...">
-        <plot flip_x="false" mode="TimeSeries" style="Lines" flip_y="false">
-         <range top="0.021336" right="104.869349" bottom="-0.013174" left="4.873802"/>
-         <limitY/>
-         <curve color="#1f77b4" name="/drone1/nav/state/rpy/vector/z"/>
-        </plot>
-       </DockArea>
-      </DockSplitter>
-      <DockSplitter sizes="0.500707;0.499293" count="2" orientation="-">
-       <DockArea name="...">
-        <plot flip_x="false" mode="TimeSeries" style="Lines" flip_y="false">
-         <range top="0.053527" right="104.897669" bottom="-0.060347" left="4.873802"/>
-         <limitY/>
-         <curve color="#1f77b4" name="/drone1/nav/state/pose/pose/position/y"/>
-         <curve color="#b4291f" name="/drone1/statistics/pid/statistics.1/reference"/>
-        </plot>
-       </DockArea>
-       <DockArea name="...">
-        <plot flip_x="false" mode="TimeSeries" style="Lines" flip_y="false">
-         <range top="-0.959922" right="104.897669" bottom="-1.063913" left="4.873802"/>
-         <limitY/>
-         <curve color="#1f77b4" name="/drone1/nav/state/pose/pose/position/z"/>
-         <curve color="#b4291f" name="/drone1/statistics/pid/statistics.2/reference"/>
-        </plot>
-       </DockArea>
-      </DockSplitter>
-     </DockSplitter>
-    </DockSplitter>
-   </Container>
-  </Tab>
-  <Tab tab_name="Anti-Windup" containers="1">
-   <Container>
-    <DockSplitter sizes="1" count="1" orientation="-">
-     <DockArea name="...">
-      <plot flip_x="false" mode="TimeSeries" style="Lines" flip_y="false">
-       <range top="0.100000" right="75.799345" bottom="-0.100000" left="-24.189450"/>
-       <limitY/>
-       <curve color="#cf2917" name="/drone1/statistics/pid/statistics.0/anti_windup_discharge"/>
-       <curve color="#22c91a" name="/drone1/statistics/pid/statistics.1/anti_windup_discharge"/>
-       <curve color="#16717b" name="/drone1/statistics/pid/statistics.2/anti_windup_discharge"/>
-      </plot>
-     </DockArea>
-    </DockSplitter>
-   </Container>
-  </Tab>
-  <Tab tab_name="Position Plots" containers="1">
-   <Container>
-    <DockSplitter sizes="1" count="1" orientation="-">
-     <DockSplitter sizes="0.5;0.5" count="2" orientation="|">
-      <DockSplitter sizes="0.500707;0.499293" count="2" orientation="-">
-       <DockArea name="...">
-        <plot flip_x="false" mode="XYPlot" style="Lines" flip_y="false">
-         <range top="0.646500" right="1.238551" bottom="-0.639545" left="-1.233458"/>
-         <limitY/>
-         <curve curve_y="/drone1/statistics/pid/statistics.1/reference" color="#b4291f" name="/drone1/statistics/pid/statistics.[X-Y]" curve_x="/drone1/statistics/pid/statistics.0/reference"/>
-         <curve curve_y="/drone1/nav/state/pose/pose/position/y" color="#1f77b4" name="/drone1/nav/state/pose/pose/position/[x;y]" curve_x="/drone1/nav/state/pose/pose/position/x"/>
-        </plot>
-       </DockArea>
-       <DockArea name="...">
-        <plot flip_x="false" mode="XYPlot" style="Lines" flip_y="false">
-         <range top="-0.734130" right="2.495580" bottom="-3.318003" left="-2.490488"/>
-         <limitY/>
-         <curve curve_y="/drone1/statistics/pid/statistics.2/reference" color="#b4291f" name="/drone1/statistics/pid/statistics.[XZ]" curve_x="/drone1/statistics/pid/statistics.0/reference"/>
-         <curve curve_y="/drone1/nav/state/pose/pose/position/z" color="#1f77b4" name="/drone1/nav/state/pose/pose/position/[x;z]" curve_x="/drone1/nav/state/pose/pose/position/x"/>
-        </plot>
-       </DockArea>
-      </DockSplitter>
-      <DockArea name="...">
-       <plot flip_x="false" mode="XYPlot" style="Lines" flip_y="false">
-        <range top="-0.734130" right="1.048022" bottom="-3.318003" left="-1.041067"/>
-        <limitY/>
-        <curve curve_y="/drone1/statistics/pid/statistics.2/reference" color="#b4291f" name="/drone1/statistics/pid/statistics.[Y-Z]" curve_x="/drone1/statistics/pid/statistics.1/reference"/>
-        <curve curve_y="/drone1/nav/state/pose/pose/position/z" color="#1f77b4" name="/drone1/nav/state/pose/pose/position/[y;z]" curve_x="/drone1/nav/state/pose/pose/position/y"/>
+        <curve color="#1ac938" name="/drone1/fmu/in/force/attitude/thrust"/>
        </plot>
       </DockArea>
      </DockSplitter>
     </DockSplitter>
    </Container>
   </Tab>
-  <currentTabIndex index="5"/>
+  <Tab tab_name="Scaled Terms" containers="1">
+   <Container>
+    <DockSplitter orientation="-" sizes="1" count="1">
+     <DockSplitter orientation="|" sizes="0.500239;0.499761" count="2">
+      <DockSplitter orientation="-" sizes="0.500401;0.499599" count="2">
+       <DockArea name="...">
+        <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
+         <range right="4.980112" top="0.039061" left="0.000000" bottom="-0.017621"/>
+         <limitY/>
+         <curve color="#f14cc1" name="/drone1/autopilot/statistics/pid/statistics.0/p_term"/>
+         <curve color="#9467bd" name="/drone1/autopilot/statistics/pid/statistics.1/p_term"/>
+         <curve color="#17becf" name="/drone1/autopilot/statistics/pid/statistics.2/p_term"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
+         <range right="4.980112" top="0.100000" left="0.000000" bottom="-0.100000"/>
+         <limitY/>
+         <curve color="#1ac938" name="/drone1/autopilot/statistics/pid/statistics.0/i_term"/>
+         <curve color="#ff7f0e" name="/drone1/autopilot/statistics/pid/statistics.1/i_term"/>
+         <curve color="#f14cc1" name="/drone1/autopilot/statistics/pid/statistics.2/i_term"/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+      <DockSplitter orientation="-" sizes="0.500401;0.499599" count="2">
+       <DockArea name="...">
+        <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
+         <range right="4.980112" top="0.041148" left="0.000000" bottom="-0.008718"/>
+         <limitY/>
+         <curve color="#bcbd22" name="/drone1/autopilot/statistics/pid/statistics.0/d_term"/>
+         <curve color="#1f77b4" name="/drone1/autopilot/statistics/pid/statistics.1/d_term"/>
+         <curve color="#d62728" name="/drone1/autopilot/statistics/pid/statistics.2/d_term"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
+         <range right="4.980112" top="0.100000" left="0.000000" bottom="-0.100000"/>
+         <limitY/>
+         <curve color="#9467bd" name="/drone1/autopilot/statistics/pid/statistics.0/ff_term"/>
+         <curve color="#17becf" name="/drone1/autopilot/statistics/pid/statistics.1/ff_term"/>
+         <curve color="#bcbd22" name="/drone1/autopilot/statistics/pid/statistics.2/ff_term"/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+     </DockSplitter>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <Tab tab_name="Control outputs" containers="1">
+   <Container>
+    <DockSplitter orientation="-" sizes="1" count="1">
+     <DockSplitter orientation="|" sizes="0.500239;0.499761" count="2">
+      <DockSplitter orientation="-" sizes="0.500401;0.499599" count="2">
+       <DockArea name="...">
+        <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
+         <range right="4.980112" top="0.080092" left="0.000000" bottom="-0.021555"/>
+         <limitY/>
+         <curve color="#ff7f0e" name="/drone1/autopilot/statistics/pid/statistics.0/output"/>
+         <curve color="#f14cc1" name="/drone1/autopilot/statistics/pid/statistics.1/output"/>
+         <curve color="#9467bd" name="/drone1/autopilot/statistics/pid/statistics.2/output"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
+         <range right="4.980112" top="0.080092" left="0.000000" bottom="-0.021555"/>
+         <limitY/>
+         <curve color="#17becf" name="/drone1/autopilot/statistics/pid/statistics.0/output_pre_sat"/>
+         <curve color="#bcbd22" name="/drone1/autopilot/statistics/pid/statistics.1/output_pre_sat"/>
+         <curve color="#1f77b4" name="/drone1/autopilot/statistics/pid/statistics.2/output_pre_sat"/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+      <DockSplitter orientation="-" sizes="0.500401;0.499599" count="2">
+       <DockArea name="...">
+        <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
+         <range right="4.980112" top="0.100000" left="0.000000" bottom="-0.100000"/>
+         <limitY/>
+         <curve color="#d62728" name="/drone1/autopilot/statistics/pid/statistics.0/anti_windup_discharge"/>
+         <curve color="#1ac938" name="/drone1/autopilot/statistics/pid/statistics.1/anti_windup_discharge"/>
+         <curve color="#ff7f0e" name="/drone1/autopilot/statistics/pid/statistics.2/anti_windup_discharge"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot mode="TimeSeries" flip_x="false" style="Lines" flip_y="false">
+         <range right="4.980112" top="0.020067" left="0.000000" bottom="0.019930"/>
+         <limitY/>
+         <curve color="#f14cc1" name="/drone1/autopilot/statistics/pid/statistics.0/dt"/>
+         <curve color="#9467bd" name="/drone1/autopilot/statistics/pid/statistics.1/dt"/>
+         <curve color="#17becf" name="/drone1/autopilot/statistics/pid/statistics.2/dt"/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+     </DockSplitter>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <currentTabIndex index="1"/>
  </tabbed_widget>
  <use_relative_time_offset enabled="1"/>
  <!-- - - - - - - - - - - - - - - -->
  <!-- - - - - - - - - - - - - - - -->
  <Plugins>
   <plugin ID="DataLoad CSV">
-   <default time_axis="" delimiter="0"/>
+   <default delimiter="0" time_axis=""/>
   </plugin>
+  <plugin ID="DataLoad MCAP"/>
   <plugin ID="DataLoad ROS2 bags">
    <use_header_stamp value="false"/>
    <discard_large_arrays value="true"/>
@@ -256,6 +251,7 @@
   </plugin>
   <plugin ID="UDP Server"/>
   <plugin ID="WebSocket Server"/>
+  <plugin ID="ZMQ Subscriber"/>
   <plugin ID="Fast Fourier Transform"/>
   <plugin ID="Quaternion to RPY"/>
   <plugin ID="Reactive Script Editor">
