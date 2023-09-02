@@ -59,7 +59,7 @@ public:
 private:
 
     // ROS2 node initializations
-    void initialize_parameters();
+    void initialize_autopilot();
     void initialize_publishers();
     void initialize_subscribers();
     void initialize_services();
@@ -109,7 +109,7 @@ private:
     State state_;
     VehicleStatus status_;
     VehicleConstants vehicle_constants_;
-    std::string current_mode_;
+    std::string current_mode_{"Uninitialized"};
 
     // Auxiliar variable used to keep track of time
     rclcpp::Time last_time_;

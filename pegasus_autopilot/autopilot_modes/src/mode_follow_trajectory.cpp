@@ -180,9 +180,6 @@ void FollowTrajectoryMode::update(double dt) {
     // Convert the acceleration to attitude and thrust
     Eigen::Vector4d attitude_thrust = get_attitude_thrust_from_acceleration(u, mass_, desired_yaw_);
 
-    RCLCPP_INFO_STREAM(node_->get_logger(), "Thrust: " << attitude_thrust[3] << ".");
-    RCLCPP_INFO_STREAM(node_->get_logger(), "mass: " << mass_ << ".");
-
     // Set the control output
     Eigen::Vector3d attitude_target = Eigen::Vector3d(
         Pegasus::Rotations::rad_to_deg(attitude_thrust[0]), 

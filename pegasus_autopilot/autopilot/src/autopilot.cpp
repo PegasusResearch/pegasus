@@ -9,21 +9,17 @@ Autopilot::Autopilot() : Node("pegasus_autopilot") {}
 void Autopilot::initialize() {
     
     // Initialize the ROS2 interface
-    initialize_parameters();
     initialize_publishers();
     initialize_subscribers();
     initialize_services();
 
-    // Initialize the timer running at the control rate defined in the configuration file
-    this->declare_parameter<double>("autopilot.rate", 50.0);
-    double rate = this->get_parameter("autopilot.rate").as_double();
-
-    last_time_ = this->get_clock()->now();
-    timer_ = this->create_wall_timer(std::chrono::duration<double>(1.0 / rate), std::bind(&Autopilot::update, this));
-    RCLCPP_INFO(this->get_logger(), "Autopilot is initialized and will run at %.2f Hz", rate);
+    // Only after the autopilot receives the vehicle constants it can initialize the operation modes and start its operation
+    // This is performed in the vehicle_constants_callback function, because we assume the vehicle constants do not change over time
+    // and we only need to receive them once. We must initialize the operation modes after receiving the vehicle constants, because
+    // some of the operation modes depend on the vehicle constants to initialize their parameters
 }
 
-void Autopilot::initialize_parameters() {
+void Autopilot::initialize_autopilot() {
 
     // Read the list of operation modes from the parameter server
     this->declare_parameter<std::vector<std::string>>("autopilot.modes", std::vector<std::string>());
@@ -81,6 +77,14 @@ void Autopilot::initialize_parameters() {
 
     // Log the default mode
     RCLCPP_INFO(this->get_logger(), "Default mode: %s", current_mode_.c_str());
+
+    // Initialize the timer running at the control rate defined in the configuration file
+    this->declare_parameter<double>("autopilot.rate", 50.0);
+    double rate = this->get_parameter("autopilot.rate").as_double();
+
+    last_time_ = this->get_clock()->now();
+    timer_ = this->create_wall_timer(std::chrono::duration<double>(1.0 / rate), std::bind(&Autopilot::update, this));
+    RCLCPP_INFO(this->get_logger(), "Autopilot is initialized and will run at %.2f Hz", rate);
 }
 
 void Autopilot::initialize_publishers() {
@@ -284,6 +288,9 @@ void Autopilot::status_callback(const pegasus_msgs::msg::Status::ConstSharedPtr 
     status_.flying = (msg->landed_state == pegasus_msgs::msg::Status::IN_AIR) ? true : false;
     status_.offboard = (msg->flight_mode == pegasus_msgs::msg::Status::OFFBOARD) ? true : false;
 
+    // If the autopilot is not initialized yet, return
+    if (current_mode_ == "Uninitialized") return;
+
     // Check if the vehicle is disarmed and the current mode is not armed mode or disarmed mode - if so, force a transition to disarmed mode
     // TODO - improve this logic
     if (!status_.armed && current_mode_ != "DisarmMode") {
@@ -319,6 +326,10 @@ void Autopilot::vehicle_constants_callback(const pegasus_msgs::msg::VehicleConst
     for(int i = 0; i < vehicle_constants_.thurst_curve_params.size(); i++) {
         RCLCPP_INFO(this->get_logger(), "%s: %.4f", vehicle_constants_.thurst_curve_params[i].c_str(), vehicle_constants_.thrust_curve_values[i]);
     }
+
+    // After getting the vehicle constants, we are ready to initialize the parameters of the operation modes
+    // and let the autopilot start its operation
+    initialize_autopilot();
 }
 
 } // namespace autopilot
