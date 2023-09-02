@@ -111,6 +111,9 @@ private:
     VehicleConstants vehicle_constants_;
     std::string current_mode_{"Uninitialized"};
 
+    // Auxiliar counter to keep track when forcing a mode change
+    int force_change_counter_{0};
+
     // Auxiliar variable used to keep track of time
     rclcpp::Time last_time_;
 };

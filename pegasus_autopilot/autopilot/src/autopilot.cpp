@@ -294,17 +294,34 @@ void Autopilot::status_callback(const pegasus_msgs::msg::Status::ConstSharedPtr 
     // Check if the vehicle is disarmed and the current mode is not armed mode or disarmed mode - if so, force a transition to disarmed mode
     // TODO - improve this logic
     if (!status_.armed && current_mode_ != "DisarmMode") {
-        RCLCPP_WARN(this->get_logger(), "Vehicle is disarmed by FMU. Autopilot forcing a transition to DisarmMode");
-        change_mode("DisarmMode", true);
+        
+        // Increment the counter for forcing a transition - this is done to prevent the autopilot from forcing a transition to DisarmMode
+        force_change_counter_++;
+
+        if (force_change_counter_ > 3) {
+            RCLCPP_WARN(this->get_logger(), "Vehicle is disarmed by FMU. Autopilot forcing a transition to DisarmMode");
+            change_mode("DisarmMode", true);
+        }
+        return;
     }
 
     // Check if the vehicle is ON_AIR, armed and in offboard mode. If so, it means something has died and we reconnected. In this case we should transition
     // to HoldMode and try to prevent the vehicle from crashing
     // TODO - improve this logic later on
     if (status_.flying && status_.armed && status_.offboard && current_mode_ == "DisarmMode") {
-        RCLCPP_WARN(this->get_logger(), "Vehicle is ON_AIR, armed and in offboard mode. Autopilot forcing a transition to HoldMode");
-        change_mode("HoldMode", true);
+
+        // Increment the counter for forcing a transition - this is done to prevent the autopilot from forcing a transition to HoldMode
+        force_change_counter_++;
+        
+        if (force_change_counter_ > 3) {
+            RCLCPP_WARN(this->get_logger(), "Vehicle is ON_AIR, armed and in offboard mode. Autopilot forcing a transition to HoldMode");
+            change_mode("HoldMode", true);
+        }
+        return;
     }
+
+    // Reset the change counter
+    force_change_counter_ = 0;
 
     // TODO - if status is armed and not in offboard mode and current_mode == DIsarmedMode, transition to ArmedMode and status_.flying==False
 }

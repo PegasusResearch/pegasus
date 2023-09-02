@@ -22,7 +22,6 @@ bool DisarmMode::disarm() {
     
     // Check if the vehicle is already armed
     if (!get_vehicle_status().armed) {
-        RCLCPP_WARN(this->node_->get_logger(), "Vehicle is already disarmed");
         return true;
     } 
 
