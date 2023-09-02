@@ -59,14 +59,14 @@ def generate_launch_description():
         }.items(),
     )
 
-    # Call the ueye camera interface package launch file
-    ueye_camera_launch_file = IncludeLaunchDescription(
-        # Grab the launch file for the ueye camera interface
-        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('ueye_driver'), 'launch/ueye_driver.launch.py')),
-        # Define costume launch arguments/parameters used for the ueye camera interface
+    # Call autopilot interface package launch file 
+    autopilot_interface_launch_file = IncludeLaunchDescription(
+        # Grab the launch file for the mavlink interface
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('autopilot'), 'launch/autopilot.launch.py')),
+        # Define costume launch arguments/parameters used for the mavlink interface
         launch_arguments={
-            'id': LaunchConfiguration('vehicle_id'),
-            'namespace': LaunchConfiguration('vehicle_ns')
+            'vehicle_id': LaunchConfiguration('vehicle_id'), 
+            'vehicle_ns': LaunchConfiguration('vehicle_ns'),
         }.items(),
     )
 
@@ -75,17 +75,6 @@ def generate_launch_description():
         # Grab the launch file for the ueye camera interface
         PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('pegasus_bringup'), 'launch/dev/realsense.launch.py')),
         # Define costume launch arguments/parameters used for the camera interface
-        launch_arguments={
-            'id': LaunchConfiguration('vehicle_id'), 
-            'namespace': LaunchConfiguration('vehicle_ns')
-        }.items(),
-    )
-
-    # Call Feature tracker interface package launch file 
-    visual_odometry_launch_file = IncludeLaunchDescription(
-        # Grab the launch file for the mavlink interface
-        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('visual_odometry'), 'launch/visual_odometry.launch.py')),
-        # Define costume launch arguments/parameters used for the mavlink interface
         launch_arguments={
             'id': LaunchConfiguration('vehicle_id'), 
             'namespace': LaunchConfiguration('vehicle_ns')
@@ -104,7 +93,5 @@ def generate_launch_description():
         drone_params_file_arg,
         # Launch files
         mavlink_interface_launch_file,
-        #ueye_camera_launch_file,
-        #real_sense_launch_file,
-        #visual_odometry_launch_file
+        #autopilot_interface_launch_file
     ])
