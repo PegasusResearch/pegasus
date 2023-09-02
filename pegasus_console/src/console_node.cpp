@@ -52,6 +52,10 @@ void ConsoleNode::initialize_subscribers() {
     filter_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
         "/drone1/fmu/filter/state", 
         rclcpp::SensorDataQoS(), std::bind(&ConsoleNode::state_callback, this, std::placeholders::_1));
+
+    // Status of the autopilot
+    autopilot_status_sub_ = this->create_subscription<pegasus_msgs::msg::AutopilotStatus>(
+        "/drone1/autopilot/status", rclcpp::SensorDataQoS(), std::bind(&ConsoleNode::autopilot_status_callback, this, std::placeholders::_1));
 }
 
 void ConsoleNode::initialize_publishers() {
@@ -705,4 +709,9 @@ void ConsoleNode::state_callback(const nav_msgs::msg::Odometry::ConstSharedPtr m
     console_ui_->state_.angular_velocity[0] = msg->twist.twist.angular.x;
     console_ui_->state_.angular_velocity[1] = msg->twist.twist.angular.y;
     console_ui_->state_.angular_velocity[2] = msg->twist.twist.angular.z;
+}
+
+void ConsoleNode::autopilot_status_callback(const pegasus_msgs::msg::AutopilotStatus::ConstSharedPtr msg) {
+    // Update the current autopilot mode
+    console_ui_->autopilot_mode_ = msg->mode;
 }

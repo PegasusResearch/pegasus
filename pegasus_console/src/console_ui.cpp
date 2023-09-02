@@ -175,6 +175,8 @@ ftxui::Element ConsoleUI::state_display() {
             })
         }),
         ftxui::separator(),
+        ftxui::text("Autopilot: " + autopilot_mode_),
+        ftxui::separator(),
         ftxui::text("State") | ftxui::center,
         ftxui::separator(),
         ftxui::text("Position: [" +  float_to_string(this->state_.position[0]) + ", " + float_to_string(this->state_.position[1]) + ", " + float_to_string(this->state_.position[2]) + "]"),
@@ -234,6 +236,7 @@ ftxui::Component ConsoleUI::thrust_curve() {
                 ftxui::separator(),
                 ftxui::text("Throtle test state: " + std::string(config_.is_thrust_curve_running() ? "Running" : "Stopped")) | ftxui::color((config_.is_thrust_curve_running() ? ftxui::Color::Red : ftxui::Color::Blue)),
                 ftxui::text("Throtle value: " + std::to_string(this->throtle_data_.throtle)),
+                ftxui::text("Perform this operation without the autopilot node running") | ftxui::color(ftxui::Color::Red),
             });
         })
     });

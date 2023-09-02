@@ -8,6 +8,7 @@
 // ROS2 messages supported
 #include "nav_msgs/msg/odometry.hpp"
 #include "pegasus_msgs/msg/status.hpp"
+#include "pegasus_msgs/msg/autopilot_status.hpp"
 #include "pegasus_msgs/msg/control_attitude.hpp"
 #include "pegasus_msgs/msg/control_position.hpp"
 
@@ -76,6 +77,7 @@ protected:
     // Callbacks for the ROS2 subscribers
     void state_callback(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
     void status_callback(const pegasus_msgs::msg::Status::ConstSharedPtr msg);
+    void autopilot_status_callback(const pegasus_msgs::msg::AutopilotStatus::ConstSharedPtr msg);
 
     // Configuration for the console UI
     ConsoleUI::Config config_;
@@ -97,6 +99,7 @@ protected:
     // ROS2 subscribers
     rclcpp::Subscription<pegasus_msgs::msg::Status>::SharedPtr status_sub_;
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr filter_sub_;
+    rclcpp::Subscription<pegasus_msgs::msg::AutopilotStatus>::SharedPtr autopilot_status_sub_;
 
     // ROS2 publishers
     rclcpp::Publisher<pegasus_msgs::msg::ControlAttitude>::SharedPtr attitude_rate_pub_;
