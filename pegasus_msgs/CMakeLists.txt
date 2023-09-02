@@ -25,42 +25,51 @@ install(DIRECTORY include/${PROJECT_NAME}
 
 # Services, messages and actions to generate
 rosidl_generate_interfaces(${PROJECT_NAME}
-  # Actions
-  "action/VehicleTakeOff.action"
-  "action/VehicleLand.action"
-  "action/VehicleArm.action"
-  # Services
+  
+  # Driver Services
   "srv/driver/KillSwitch.srv"
   "srv/driver/Arm.srv"
   "srv/driver/Land.srv"
-  "srv/driver/Reboot.srv"
-  "srv/driver/ThrustCurve.srv"
+  "srv/driver/Offboard.srv"
+  "srv/driver/PositionHold.srv"
+  "srv/driver/Waypoint.srv"
+  "srv/driver/Takeoff.srv"
+
+  # Autopilot services
+  "srv/autopilot/SetMode.srv"
+  
   # Paths services/messages
-  "srv/paths/Speed.msg"
-  "srv/paths/AddWaypoint.srv"
-  "srv/paths/AddArc.srv"
-  "srv/paths/AddLine.srv"
-  "srv/paths/AddCircle.srv"
-  "srv/paths/AddLemniscate.srv"
-  "srv/paths/ResetPath.srv"
+  "srv/trajectories/Speed.msg"
+  "srv/trajectories/AddArc.srv"
+  "srv/trajectories/AddLine.srv"
+  "srv/trajectories/AddCircle.srv"
+  "srv/trajectories/AddLemniscate.srv"
+  "srv/trajectories/ResetPath.srv"
+  
   # Controllers services/messages
   "srv/controllers/StartMission.srv"
   "srv/controllers/LandMission.srv"
 
   # Messages
-  "msg/driver/Status.msg"
+  "msg/autopilot/AutopilotStatus.msg"
+  "msg/driver/Battery.msg"
+  "msg/driver/ControlAttitude.msg"
+  "msg/driver/ControlPosition.msg"
   "msg/driver/Health.msg"
-  "msg/driver/BodyVelocityControl.msg"
-  "msg/driver/AttitudeThrustControl.msg"
-  "msg/driver/AttitudeRateThrustControl.msg"
-  "msg/driver/ActuatorControl.msg"
-  "msg/driver/PositionControl.msg"
-  "msg/driver/InertialAccelerationControl.msg"
+  "msg/driver/RcStatus.msg"
   "msg/driver/RPY.msg"
-  "msg/driver/State.msg"
+  "msg/driver/SensorBarometer.msg"
+  "msg/driver/SensorGps.msg"
+  "msg/driver/SensorGpsInfo.msg"
+  "msg/driver/Status.msg"
+  "msg/driver/ThrustCurve.msg"
+  "msg/driver/VehicleConstants.msg"
+  
+  # High level control
   "msg/paths/Path.msg"
   "msg/pid/PidStatistic.msg"
   "msg/pid/PidStatistics.msg"
+  
   # Depedencies for generating the messages, services and actions
   DEPENDENCIES 
   builtin_interfaces 

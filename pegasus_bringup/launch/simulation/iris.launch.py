@@ -34,9 +34,9 @@ def generate_launch_description():
     # ----------------------------------------
     
     # Call MAVLINK interface package launch file 
-    mavlink_driver_launch_file = IncludeLaunchDescription(
+    mavlink_interface_launch_file = IncludeLaunchDescription(
         # Grab the launch file for the mavlink interface
-        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('mavlink_driver'), 'launch/mavlink_driver.launch.py')),
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('mavlink_interface'), 'launch/mavlink_interface.launch.py')),
         # Define costume launch arguments/parameters used for the mavlink interface
         launch_arguments={
             'id': LaunchConfiguration('vehicle_id'), 
@@ -48,15 +48,15 @@ def generate_launch_description():
     )
 
     # Call Path following/Trajectory tracking controllers package launch file
-    paths_launch_file = IncludeLaunchDescription(
-        # Grab the launch file for the paths following/trajectory tracking 
-        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('pegasus_paths'), 'launch/pegasus_paths.launch.py')),
-        # Define costume launch arguments/parameters used 
-        launch_arguments={
-            'id': LaunchConfiguration('vehicle_id'),
-            'namespace': LaunchConfiguration('vehicle_ns')
-        }.items(),
-    )
+    # paths_launch_file = IncludeLaunchDescription(
+    #     # Grab the launch file for the paths following/trajectory tracking 
+    #     PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('pegasus_paths'), 'launch/pegasus_paths.launch.py')),
+    #     # Define costume launch arguments/parameters used 
+    #     launch_arguments={
+    #         'id': LaunchConfiguration('vehicle_id'),
+    #         'namespace': LaunchConfiguration('vehicle_ns')
+    #     }.items(),
+    # )
 
     # ----------------------------------------
     # ---- RETURN THE LAUNCH DESCRIPTION -----
@@ -69,6 +69,6 @@ def generate_launch_description():
         mavlink_forward_arg,
         drone_params_file_arg,
         # Launch files
-        mavlink_driver_launch_file,
-        paths_launch_file
+        mavlink_interface_launch_file,
+        #paths_launch_file
     ])

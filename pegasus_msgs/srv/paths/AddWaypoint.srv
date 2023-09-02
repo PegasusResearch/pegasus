@@ -1,6 +1,0 @@
-# The end goal position for the waypoint
-float64[3] end
-# The type of speed assignment
-pegasus_msgs/Speed speed
----
-bool success

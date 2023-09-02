@@ -1,0 +1,12 @@
+# The start position for the arc
+float64[2] start
+# The center of the arc
+float64[3] center
+# The end position for the line
+float64[3] normal
+# The type of speed assignment
+pegasus_msgs/Speed speed
+# Direction of the arc
+bool clockwise_direction
+---
+bool success

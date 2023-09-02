@@ -1,3 +1,21 @@
 bool kill
 ---
-bool result
+uint8 success
+
+# ---------------------------------
+# Constants Definition for the result
+# --------------------------------- 
+uint8 UNKNOWN = 0
+uint8 SUCCESS = 1
+uint8 NO_SYSTEM = 2
+uint8 CONNECTION_ERROR = 3
+uint8 BUSY = 4
+uint8 COMMAND_DENIED = 5
+uint8 COMMAND_DENIED_LANDED_STATE_UNKNOWN = 6
+uint8 COMMAND_DENIED_NOT_LANDED = 7
+uint8 TIMEOUT = 8
+uint8 VTOL_TRANSITION_SUPPORT_UNKNOWN = 9
+uint8 NO_VTOL_TRANSITION_SUPPORT = 10
+uint8 PARAMETER_ERROR = 11
+uint8 UNSUPPORTED = 12
+uint8 FAILED = 13

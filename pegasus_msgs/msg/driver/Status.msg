@@ -4,20 +4,23 @@ uint8 system_id
 bool armed
 uint8 landed_state
 uint8 flight_mode
-float64 battery
-float64 rc_signal
+Battery battery
 Health health
+RcStatus rc_status
+
 # ---------------------------------
 # Constants Definition common to all uint8
 # --------------------------------- 
 uint8 UNKOWN = 0
+
 # ---------------------------------
-# Constants Definition for the flight-mode
-# --------------------------------- 
+# Constants Definition for the landed-state
+# ---------------------------------
 uint8 ON_GROUND = 1
 uint8 IN_AIR = 2
 uint8 TAKING_OFF = 3
 uint8 LANDING = 4
+
 # ---------------------------------
 # Constants Definition for the flight-mode
 # --------------------------------- 
