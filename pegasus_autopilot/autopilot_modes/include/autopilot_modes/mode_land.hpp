@@ -17,6 +17,7 @@ public:
 
 private:
 
+    // Check if the drone has landed
     bool check_land_complete(double velocity_z, double dt);
 
     // The desired landing speed
@@ -30,9 +31,6 @@ private:
     // The next target position for the landing controller to track
     Eigen::Vector3d target_pos_{Eigen::Vector3d::Zero()};
     float target_yaw_{0.0f};
-
-    // The previous position of the drone on the z-axis
-    float prev_z_pos_{-100000000.0f};
 };
 
 }

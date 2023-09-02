@@ -74,9 +74,6 @@ void LandMode::update(double dt) {
 
     // Check if the position is no longer changing - if so, it means that the drone has landed and we should signal the mode as finished
     if (check_land_complete(curr_state.velocity[2], dt)) signal_mode_finished();
-
-    // Set the previous position of the drone on the z-axis
-    this->prev_z_pos_ = curr_state.position[2];
 }
 
 } // namespace autopilot
