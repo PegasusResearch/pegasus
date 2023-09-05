@@ -108,7 +108,7 @@ struct AutopilotwidgetData {
     std::array<std::string, 5> arc_pos_input{"", "", "", "", ""};
     std::string arc_speed_input{""};
 
-    Eigen::Vector<double, 5> arc{Eigen::Vector<double, 5>::Zero()};
+    Eigen::Matrix<double, 5, 1> arc{Eigen::Matrix<double, 5, 1>::Zero()};
     float arc_speed{0.0};
 
     // ----------------------------------
@@ -117,7 +117,7 @@ struct AutopilotwidgetData {
     std::array<std::string, 6> line_pos_input{"", "", "", "", "", ""};
     std::string line_speed_input{""};
 
-    Eigen::Vector<double, 6> line{Eigen::Vector<double, 6>::Zero()};
+    Eigen::Matrix<double, 6, 1> line{Eigen::Matrix<double, 6, 1>::Zero()};
     float line_speed{0.0};
 
     // ----------------------------------
@@ -126,7 +126,7 @@ struct AutopilotwidgetData {
     std::array<std::string, 4> circle_pos_input{"", "", "", ""};
     std::string circle_speed_input{""};
 
-    Eigen::Vector<double, 4> circle{Eigen::Vector<double, 4>::Zero()};
+    Eigen::Matrix<double, 4, 1> circle{Eigen::Matrix<double, 4, 1>::Zero()};
     float circle_speed{0.0};
 
     // ----------------------------------
@@ -135,6 +135,6 @@ struct AutopilotwidgetData {
     std::array<std::string, 4> lemniscate_pos_input{"", "", "", ""};
     std::string lemniscate_speed_input{""};
 
-    Eigen::Vector<double, 4> lemniscate{Eigen::Vector<double, 4>::Zero()};
+    Eigen::Matrix<double, 4, 1> lemniscate{Eigen::Matrix<double, 4, 1>::Zero()};
     float lemniscate_speed{0.0};
 };

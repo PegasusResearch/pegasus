@@ -6,14 +6,24 @@ DisarmMode::~DisarmMode() {}
 
 void DisarmMode::initialize() {
 
-    // Create the callback group and executor for the service clients
-    callback_group_ = node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive, false);
-    callback_group_executor_.add_callback_group(callback_group_, node_->get_node_base_interface());
-
     // Initialize the ROS 2 service clients
     node_->declare_parameter<std::string>("autopilot.DisarmMode.disarm_service", "disarm");
-    disarm_client_ = node_->create_client<pegasus_msgs::srv::KillSwitch>(node_->get_parameter("autopilot.DisarmMode.disarm_service").as_string(), rmw_qos_profile_system_default, callback_group_);
+
+    // ----- THIS CODE WILL REPLACE THE CODE BELLOW WHEN WE SWITCH TO ROS HUMBLE IN THE VEHICLES ------
+    // // Create the callback group and executor for the service clients
+    // callback_group_ = node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+    // callback_group_executor_.add_callback_group(callback_group_, node_->get_node_base_interface(), false);
+    // disarm_client_ = node_->create_client<pegasus_msgs::srv::KillSwitch>(node_->get_parameter("autopilot.DisarmMode.disarm_service").as_string(), rmw_qos_profile_system_default, callback_group_);
     
+    // ----- THIS CODE IS ONLY USED IN ROS FOXY --------
+    std::string sub_node_name = "autopilot_disarm_client";
+    auto options = rclcpp::NodeOptions()
+        .start_parameter_services(false)
+        .start_parameter_event_publisher(false)
+        .arguments({"--ros-args", "-r", "__node:=" + sub_node_name, "--"});
+    sub_node_ = rclcpp::Node::make_shared("_", options);
+    disarm_client_ = sub_node_->create_client<pegasus_msgs::srv::KillSwitch>(node_->get_parameter("autopilot.DisarmMode.disarm_service").as_string(), rmw_qos_profile_system_default);
+
     // Log that the DisarmMode has been initialized successfully
     RCLCPP_INFO(this->node_->get_logger(), "DisarmMode initialized");
 }
@@ -43,7 +53,8 @@ bool DisarmMode::disarm() {
     
     // Wait for the result.
     auto timeout = std::chrono::seconds(5);
-    if (callback_group_executor_.spin_until_future_complete(result, timeout) != rclcpp::FutureReturnCode::SUCCESS) return false;
+    //if (callback_group_executor_.spin_until_future_complete(result, timeout) != rclcpp::FutureReturnCode::SUCCESS) return false;
+    if(rclcpp::spin_until_future_complete(sub_node_, result, timeout) != rclcpp::FutureReturnCode::SUCCESS) return false;
     
     // Check if the vehicle was disarmed successfully
     return result.get()->success == pegasus_msgs::srv::KillSwitch::Response::SUCCESS ? true : false;

@@ -8,16 +8,29 @@ ArmMode::~ArmMode() {}
 
 void ArmMode::initialize() {
 
-    // Create the callback group and executor for the service clients
-    callback_group_ = node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive, false);
-    callback_group_executor_.add_callback_group(callback_group_, node_->get_node_base_interface());
-
-    // Initialize the ROS 2 service clients
+    // // Initialize the ROS 2 service clients
     node_->declare_parameter<std::string>("autopilot.ArmMode.arm_service", "arm");
     node_->declare_parameter<std::string>("autopilot.ArmMode.offboard_service", "offboard");
 
-    arm_client_ = node_->create_client<pegasus_msgs::srv::Arm>(node_->get_parameter("autopilot.ArmMode.arm_service").as_string(), rmw_qos_profile_system_default, callback_group_);
-    offboard_client_ = node_->create_client<pegasus_msgs::srv::Offboard>(node_->get_parameter("autopilot.ArmMode.offboard_service").as_string(), rmw_qos_profile_system_default, callback_group_);
+    // ----- THIS CODE WILL REPLACE THE CODE BELLOW WHEN WE SWITCH TO ROS HUMBLE IN THE VEHICLES ------
+    // Create the callback group and executor for the service clients
+    // callback_group_ = node_->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive, false);
+    // callback_group_executor_.add_callback_group(callback_group_, node_->get_node_base_interface());
+
+    // arm_client_ = node_->create_client<pegasus_msgs::srv::Arm>(node_->get_parameter("autopilot.ArmMode.arm_service").as_string(), rmw_qos_profile_system_default, callback_group_);
+    // offboard_client_ = node_->create_client<pegasus_msgs::srv::Offboard>(node_->get_parameter("autopilot.ArmMode.offboard_service").as_string(), rmw_qos_profile_system_default, callback_group_);
+
+    // ----- THIS CODE IS ONLY USED IN ROS FOXY --------
+    std::string sub_node_name = "autopilot_arm_client";
+    auto options = rclcpp::NodeOptions()
+        .start_parameter_services(false)
+        .start_parameter_event_publisher(false)
+        .arguments({"--ros-args", "-r", "__node:=" + sub_node_name, "--"});
+
+    sub_node_ = rclcpp::Node::make_shared("_", options);
+
+    arm_client_ = sub_node_->create_client<pegasus_msgs::srv::Arm>(node_->get_parameter("autopilot.ArmMode.arm_service").as_string(), rmw_qos_profile_system_default);
+    offboard_client_ = sub_node_->create_client<pegasus_msgs::srv::Offboard>(node_->get_parameter("autopilot.ArmMode.offboard_service").as_string(), rmw_qos_profile_system_default);
 
     // Log that the ArmMode has been initialized successfully 
     RCLCPP_INFO(this->node_->get_logger(), "ArmMode initialized");
@@ -49,7 +62,8 @@ bool ArmMode::arm() {
     
     // Wait for the result.
     auto timeout = std::chrono::seconds(5);
-    if (callback_group_executor_.spin_until_future_complete(result, timeout) != rclcpp::FutureReturnCode::SUCCESS) return false;
+    // if (callback_group_executor_.spin_until_future_complete(result, timeout) != rclcpp::FutureReturnCode::SUCCESS) return false;
+    if(rclcpp::spin_until_future_complete(sub_node_, result, timeout) != rclcpp::FutureReturnCode::SUCCESS) return false;
     
     // Check if the vehicle was armed successfully
     return result.get()->success == pegasus_msgs::srv::Arm::Response::SUCCESS ? true : false;
@@ -77,7 +91,8 @@ bool ArmMode::offboard() {
     
     // Wait for the result.
     auto timeout = std::chrono::seconds(5);
-    if (callback_group_executor_.spin_until_future_complete(result, timeout) != rclcpp::FutureReturnCode::SUCCESS) return false;
+    // if (callback_group_executor_.spin_until_future_complete(result, timeout) != rclcpp::FutureReturnCode::SUCCESS) return false;
+    if(rclcpp::spin_until_future_complete(sub_node_, result, timeout) != rclcpp::FutureReturnCode::SUCCESS) return false;
     
     // Check if the vehicle was set to offboard mode successfully
     return result.get()->success == pegasus_msgs::srv::Offboard::Response::SUCCESS ? true : false;

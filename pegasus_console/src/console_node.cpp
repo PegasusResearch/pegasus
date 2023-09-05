@@ -424,7 +424,7 @@ void ConsoleNode::on_add_arc_click() {
     
     // Get the current arc configuration from the UI
     auto autopilot_data = console_ui_->get_autopilot_data();
-    Eigen::Vector<double, 5> arc = autopilot_data.arc;
+    Eigen::Matrix<double, 5, 1> arc = autopilot_data.arc;
     float arc_speed = autopilot_data.arc_speed; 
 
     // Create and fill the request to add an arc to the autopilot
@@ -475,7 +475,7 @@ void ConsoleNode::on_add_line_click() {
     
     // Get the current line configuration from the UI
     auto autopilot_data = console_ui_->get_autopilot_data();
-    Eigen::Vector<double, 6> line = autopilot_data.line;
+    Eigen::Matrix<double, 6, 1> line = autopilot_data.line;
     float line_speed = autopilot_data.line_speed; 
 
     // Create and fill the request to add a line to the autopilot
@@ -520,7 +520,7 @@ void ConsoleNode::on_add_circle_click() {
     
     // Get the current circle configuration from the UI
     auto autopilot_data = console_ui_->get_autopilot_data();
-    Eigen::Vector<double, 4> circle = autopilot_data.circle;
+    Eigen::Matrix<double, 4, 1> circle = autopilot_data.circle;
     float circle_speed = autopilot_data.circle_speed; 
 
     // Create and fill the request to add a circle to the autopilot
@@ -565,7 +565,7 @@ void ConsoleNode::on_add_lemniscate_click() {
     
     // Get the current lemniscate configuration from the UI
     auto autopilot_data = console_ui_->get_autopilot_data();
-    Eigen::Vector<double, 4> lemniscate = autopilot_data.lemniscate;
+    Eigen::Matrix<double, 4, 1> lemniscate = autopilot_data.lemniscate;
     float lemniscate_speed = autopilot_data.lemniscate_speed; 
 
     // Create and fill the request to add a lemniscate to the autopilot
