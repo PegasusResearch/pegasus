@@ -9,8 +9,8 @@
     json_file_path: ''                        # allows advanced configuration
     log_level: 'info'                         # debug log level [DEBUG|INFO|WARN|ERROR|FATAL]
     output: 'screen'                          # pipe node output [screen|log]
-    depth_module.profile: '848x480x60'        # depth module profile         
-    rgb_camera.profile: '848x480x60'          # color image profile                  
+    depth_module.profile: '848x480x30'        # depth module profile         
+    rgb_camera.profile: '848x480x30'          # color image profile                  
     enable_depth: true                        # enable depth stream
     rgb_camera.enable_auto_exposure: true     # enable/disable auto exposure for color image
     rgb_camera.auto_exposure_priority: false
@@ -47,7 +47,7 @@
     tf_publish_rate: 1.0                      # [double] rate in Hz for publishing dynamic TF
     diagnostics_period: 1.0                   # Rate of publishing diagnostics. 0=Disabled -> Sacrifices a little bit of performance but gives diagnostics on the rates
     rosbag_filename: ''                       # A realsense bagfile to run from as a device
-    depth_module.enable_auto_exposure: true   # enable/disable auto exposure for depth image
+    depth_module.enable_auto_exposure: false  # enable/disable auto exposure for depth image
     depth_module.exposure.1: 7500             # Depth module first exposure value. Used for hdr_merge filter
     depth_module.gain.1: 16                   # Depth module first gain value. Used for hdr_merge filter
     depth_module.exposure.2: 1                # Depth module second exposure value. Used for hdr_merge filter
