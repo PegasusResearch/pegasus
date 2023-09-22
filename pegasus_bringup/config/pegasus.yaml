@@ -1,0 +1,12 @@
+/**:
+  ros__parameters:
+    drone:
+      mass: 0.980 #Kg
+      thrust_curve:
+        # Formula T(N) = a * arctan(b * input + c) + d
+        # with input = [0.0, 100.0]
+        type: 'arctan'
+        a: 22.0541
+        b: 0.0223
+        c: -0.8662
+        d: 15.6262
