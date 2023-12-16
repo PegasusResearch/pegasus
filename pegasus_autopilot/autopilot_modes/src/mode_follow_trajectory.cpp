@@ -218,7 +218,7 @@ void FollowTrajectoryMode::update(double dt) {
         Pegasus::Rotations::rad_to_deg(attitude_thrust[0]), 
         Pegasus::Rotations::rad_to_deg(attitude_thrust[1]), 
         Pegasus::Rotations::rad_to_deg(attitude_thrust[2]));
-    set_attitude(attitude_target, attitude_thrust[3]);
+    this->controller_->set_attitude(attitude_target, attitude_thrust[3]);
 
     // Update and publish the PID statistics
     update_statistics();

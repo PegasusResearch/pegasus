@@ -34,7 +34,9 @@
 #pragma once
 
 #include <memory>
+#include <stdexcept>
 #include <functional>
+
 #include <Eigen/Core>
 
 // ROS imports
@@ -42,17 +44,16 @@
 
 // Pegasus imports
 #include "state.hpp"
-#include "controller.hpp"
 
 namespace autopilot {
 
-class Mode {
+class Controller {
 
-public:
+public: 
 
-    using SharedPtr = std::shared_ptr<Mode>;
-    using UniquePtr = std::unique_ptr<Mode>;
-    using WeakPtr = std::weak_ptr<Mode>;
+    using SharedPtr = std::shared_ptr<Controller>;
+    using UniquePtr = std::unique_ptr<Controller>;
+    using WeakPtr = std::weak_ptr<Controller>;
 
     // Configuration for the operation mode
     struct Config {
@@ -60,49 +61,86 @@ public:
         std::function<State()> get_vehicle_state;                               // Function pointer to get the current state of the vehicle      
         std::function<VehicleStatus()> get_vehicle_status;                      // Function pointer to get the current status of the vehicle  
         std::function<VehicleConstants()> get_vehicle_constants;                // Function pointer to get the current dynamical constants of the vehicle    
-        std::function<void()> signal_mode_finished;                             // Function pointer to signal that the mode has finished operating
-        Controller::SharedPtr controller;                                       // Controller to be used by the mode
     };
 
-    // Custom constructor like function - as we must have the default constructor for the pluginlib
-    inline void initialize_mode(const Mode::Config & config) {
+    inline void initialize_controller(const Controller::Config & config) {
 
         // Initialize the base class
         node_ = config.node;
         get_vehicle_state = config.get_vehicle_state;
         get_vehicle_status = config.get_vehicle_status;
-        get_vehicle_constants = config.get_vehicle_constants;        
-        signal_mode_finished = config.signal_mode_finished;
-
-        // Initialize the controller
-        controller_ = config.controller;
+        get_vehicle_constants = config.get_vehicle_constants;
 
         // Initialize the derived class
         initialize();
     }
 
-    // Methods that can be implemented by derived classes
-    // that are executed by the state machine when entering, exiting or updating the mode
+    /**
+     * @brief Pure virtual function that must be implemented by the derived class to initialize the controller
+    */
     virtual void initialize() = 0;
-    virtual bool enter() = 0;
-    virtual bool exit() = 0;
-    virtual void update(double dt) = 0;
+
+    /** 
+     * @brief Sets the target position of the vehicle in the inertial frame and the target yaw (in degres)
+     * @param position The target position in the inertial frame
+     * @param yaw The target yaw in degrees
+    */
+    virtual void set_position(const Eigen::Vector3d& position, float yaw) {
+        throw std::runtime_error("set_position() not implemented in derived class");
+    }
+
+    /**
+     * @brief Sets the target velocity of the vehicle in the inertial frame and the target yaw rate (in degres/s)
+     * @param velocity The target velocity in the inertial frame
+     * @param yaw_rate The target yaw rate in degrees/s
+    */
+    virtual void set_velocity(const Eigen::Vector3d& velocity, float yaw_rate) {
+        throw std::runtime_error("set_velocity() not implemented in derived class");
+    }
+
+    /**
+     * @brief Sets the target position of the vehicle in the body frame (rotated to be vertically aligned with NED) and the target yaw (in degres)
+     * @param position The target position in the body frame
+     * @param yaw The target yaw in degrees
+    */
+    virtual void set_body_velocity(const Eigen::Vector3d& velocity, float yaw_rate) {
+        throw std::runtime_error("set_body_velocity() not implemented in derived class");
+    }
+
+    /**
+     * @brief Sets the target attitude of the vehicle in the body frame and the target thrust force
+     * @param attitude The target attitude in the body frame (in degrees)
+     * @param thrust_force The target thrust force (in Newton)
+    */
+    virtual void set_attitude(const Eigen::Vector3d& attitude, float thrust_force) {
+        throw std::runtime_error("set_attitude() not implemented in derived class");
+    }
+
+    /**
+     * @brief Sets the target attitude rate of the vehicle in the body frame and the target thrust force
+     * @param attitude_rate The target attitude rate in the body frame (in degrees/s)
+     * @param thrust_force The target thrust force (in Newton)
+    */
+    virtual void set_attitude_rate(const Eigen::Vector3d& attitude_rate, float thrust_force) {
+        throw std::runtime_error("set_attitude_rate() not implemented in derived class");
+    }
+
+    /**
+     * @brief Sets the target motor speed of the vehicle (from 0-100%)
+    */
+    virtual void set_motor_speed(const Eigen::VectorXd& motor_velocity) {
+        throw std::runtime_error("set_motor_velocity() not implemented in derived class");
+    }
 
 protected:
 
     // The ROS 2 node
     rclcpp::Node::SharedPtr node_{nullptr};
 
-    // The controller object that can be used by each mode to track references
-    Controller::SharedPtr controller_{nullptr};
-
     // Function pointer which will be instantiated with the function pointers passed in the configuration
     std::function<State()> get_vehicle_state{nullptr};
     std::function<VehicleStatus()> get_vehicle_status{nullptr};
     std::function<VehicleConstants()> get_vehicle_constants{nullptr};
-
-    // Function pointer to signal that the mode has finished operating
-    std::function<void()> signal_mode_finished{nullptr};
 };
 
 } // namespace autopilot

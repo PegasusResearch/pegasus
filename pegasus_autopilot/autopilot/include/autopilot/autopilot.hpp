@@ -44,8 +44,6 @@
 #include "nav_msgs/msg/odometry.hpp"
 #include "pegasus_msgs/msg/status.hpp"
 #include "pegasus_msgs/msg/vehicle_constants.hpp"
-#include "pegasus_msgs/msg/control_attitude.hpp"
-#include "pegasus_msgs/msg/control_position.hpp"
 #include "pegasus_msgs/msg/autopilot_status.hpp"
 
 // ROS 2 services
@@ -56,6 +54,7 @@
 // Auxiliary libraries
 #include "mode.hpp"
 #include "state.hpp"
+#include "controller.hpp"
 
 namespace autopilot {
 
@@ -74,11 +73,6 @@ public:
 
     // Function that signals that the current mode has finished its operation and should transition to the fallback mode
     virtual void signal_mode_finished();
-
-    // Functions that set the target position, attitude or attitude rate for the inner-loops to track
-    virtual void set_target_position(const Eigen::Vector3d & position, float yaw);
-    virtual void set_target_attitude(const Eigen::Vector3d & attitude, float thrust_force);
-    virtual void set_target_attitude_rate(const Eigen::Vector3d & attitude_rate, float thrust_force);
 
     // Returns the current mode of operation of the autopilot and state of the vehicle
     inline std::string get_mode() const { return current_mode_; }
@@ -109,9 +103,6 @@ private:
     rclcpp::Service<pegasus_msgs::srv::SetMode>::SharedPtr change_mode_service_;
 
     // ROS2 publishers
-    rclcpp::Publisher<pegasus_msgs::msg::ControlPosition>::SharedPtr position_publisher_;
-    rclcpp::Publisher<pegasus_msgs::msg::ControlAttitude>::SharedPtr attitude_publisher_;
-    rclcpp::Publisher<pegasus_msgs::msg::ControlAttitude>::SharedPtr attitude_rate_publisher_;
     rclcpp::Publisher<pegasus_msgs::msg::AutopilotStatus>::SharedPtr status_publisher_;
     
     // ROS2 subscribers
@@ -120,9 +111,6 @@ private:
     rclcpp::Subscription<pegasus_msgs::msg::VehicleConstants>::SharedPtr vehicle_constants_subscriber_;
 
     // ROS2 messages
-    pegasus_msgs::msg::ControlPosition position_msg_;
-    pegasus_msgs::msg::ControlAttitude attitude_msg_;
-    pegasus_msgs::msg::ControlAttitude attitude_rate_msg_;
     pegasus_msgs::msg::AutopilotStatus status_msg_;
     pegasus_msgs::msg::VehicleConstants vehicle_constants_msg_;
 
@@ -143,6 +131,10 @@ private:
     VehicleStatus status_;
     VehicleConstants vehicle_constants_;
     std::string current_mode_{"Uninitialized"};
+
+    // Low level controllers for reference tracking
+    Controller::SharedPtr controller_;
+    Controller::Config controller_config_;
 
     // Auxiliar counter to keep track when forcing a mode change
     int force_change_counter_{0};

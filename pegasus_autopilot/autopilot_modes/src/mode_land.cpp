@@ -103,7 +103,7 @@ void LandMode::update(double dt) {
     this->target_pos_[2] += this->land_speed_ * dt;
 
     // Set the controller to track the position which is slighlty bellow the vehicle, but keep the original orientation
-    this->set_position(this->target_pos_, this->target_yaw_);
+    this->controller_->set_position(this->target_pos_, this->target_yaw_);
 
     // Check if the position is no longer changing - if so, it means that the drone has landed and we should signal the mode as finished
     if (check_land_complete(curr_state.velocity[2], dt)) signal_mode_finished();

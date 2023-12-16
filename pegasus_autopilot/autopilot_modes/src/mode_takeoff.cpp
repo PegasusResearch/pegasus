@@ -77,7 +77,7 @@ bool TakeoffMode::exit() {
 void TakeoffMode::update(double) {
 
     // Set the controller to track the target position and attitude
-    this->set_position(this->takeoff_pos, this->takeoff_yaw);
+    this->controller_->set_position(this->takeoff_pos, this->takeoff_yaw);
 }
 
 void TakeoffMode::altitude_callback(const pegasus_msgs::srv::Takeoff::Request::SharedPtr request, const pegasus_msgs::srv::Takeoff::Response::SharedPtr response) {

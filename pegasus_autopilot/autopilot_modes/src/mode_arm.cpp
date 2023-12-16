@@ -41,7 +41,7 @@ ArmMode::~ArmMode() {}
 
 void ArmMode::initialize() {
 
-    // // Initialize the ROS 2 service clients
+    // Initialize the ROS 2 service clients
     node_->declare_parameter<std::string>("autopilot.ArmMode.arm_service", "arm");
     node_->declare_parameter<std::string>("autopilot.ArmMode.offboard_service", "offboard");
 
@@ -139,7 +139,7 @@ void ArmMode::send_no_thrust_commands() {
     Eigen::Vector3d target_attitude = Pegasus::Rotations::quaternion_to_euler(state.attitude);
 
     // Set the target attitude and thrust force to the vehicle (0.4 Newtons of thrust)
-    this->set_attitude(target_attitude, 0.4);
+    this->controller_->set_attitude(target_attitude, 0.4);
 }
 
 bool ArmMode::enter() {

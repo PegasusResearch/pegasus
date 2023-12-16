@@ -54,6 +54,32 @@ void Autopilot::initialize() {
 
 void Autopilot::initialize_autopilot() {
 
+    // Read the controller to use from the parameter server
+    this->declare_parameter<std::string>("autopilot.controller", "");
+    rclcpp::Parameter controller_name = this->get_parameter("autopilot.controller");
+
+    // Load the base class that defines the interface for all the controllers
+    pluginlib::ClassLoader<autopilot::Controller> controller_loader("autopilot", "autopilot::Controller");
+
+    // Setup the configurations for the controller
+    controller_config_.node = this->shared_from_this();
+    controller_config_.get_vehicle_state = std::bind(&Autopilot::get_state, this);
+    controller_config_.get_vehicle_status = std::bind(&Autopilot::get_status, this);
+    controller_config_.get_vehicle_constants = std::bind(&Autopilot::get_vehicle_constants, this);
+
+    // Log the controller that is about to be loaded
+    RCLCPP_INFO(this->get_logger(), "Loading controller: %s", controller_name.as_string().c_str());
+
+    // Attempt to load the controller
+    try {
+        // Load the controller and initialize it
+        controller_ = autopilot::Controller::SharedPtr(controller_loader.createUnmanagedInstance("autopilot::" + controller_name.as_string()));
+        controller_->initialize_controller(controller_config_);
+    } catch (const std::exception & e) {
+        RCLCPP_ERROR_STREAM(this->get_logger(), "Exception while loading controller: " << e.what() << ". Controller: " << controller_name.as_string());
+        std::exit(EXIT_FAILURE);
+    }
+
     // Read the list of operation modes from the parameter server
     this->declare_parameter<std::vector<std::string>>("autopilot.modes", std::vector<std::string>());
     rclcpp::Parameter modes = this->get_parameter("autopilot.modes");
@@ -66,10 +92,8 @@ void Autopilot::initialize_autopilot() {
     mode_config_.get_vehicle_state = std::bind(&Autopilot::get_state, this);
     mode_config_.get_vehicle_status = std::bind(&Autopilot::get_status, this);
     mode_config_.get_vehicle_constants = std::bind(&Autopilot::get_vehicle_constants, this);
-    mode_config_.set_position = std::bind(&Autopilot::set_target_position, this, std::placeholders::_1, std::placeholders::_2);
-    mode_config_.set_attitude = std::bind(&Autopilot::set_target_attitude, this, std::placeholders::_1, std::placeholders::_2);
-    mode_config_.set_attitude_rate = std::bind(&Autopilot::set_target_attitude_rate, this, std::placeholders::_1, std::placeholders::_2);
     mode_config_.signal_mode_finished = std::bind(&Autopilot::signal_mode_finished, this);
+    mode_config_.controller = controller_;
 
     // Log all the modes that are to be loaded dynamically
     for (const std::string & mode : modes.as_string_array()) {
@@ -121,21 +145,6 @@ void Autopilot::initialize_autopilot() {
 }
 
 void Autopilot::initialize_publishers() {
-
-    // Initialize the publisher for the position control commands
-    this->declare_parameter<std::string>("autopilot.publishers.control_position", "control_position");
-    position_publisher_ = this->create_publisher<pegasus_msgs::msg::ControlPosition>(
-        this->get_parameter("autopilot.publishers.control_position").as_string(), rclcpp::SensorDataQoS());
-
-    // Initialize the publisher for the attitude control commands
-    this->declare_parameter<std::string>("autopilot.publishers.control_attitude", "control_attitude");
-    attitude_publisher_ = this->create_publisher<pegasus_msgs::msg::ControlAttitude>(
-        this->get_parameter("autopilot.publishers.control_attitude").as_string(), rclcpp::SensorDataQoS());
-
-    // Initialize the publisher for the attitude rate control commands
-    this->declare_parameter<std::string>("autopilot.publishers.control_attitude_rate", "control_attitude_rate");
-    attitude_rate_publisher_ = this->create_publisher<pegasus_msgs::msg::ControlAttitude>(
-        this->get_parameter("autopilot.publishers.control_attitude_rate").as_string(), rclcpp::SensorDataQoS());
 
     // Initialize the publisher for the status of the vehicle
     this->declare_parameter<std::string>("autopilot.publishers.status", "autopilot/status");
@@ -249,42 +258,6 @@ void Autopilot::signal_mode_finished() {
 
     // Signal that the current mode has finished its operation and should transition to the fallback mode
     if (on_finish_modes_[current_mode_] != "") change_mode(on_finish_modes_[current_mode_]);
-}
-
-void Autopilot::set_target_position(const Eigen::Vector3d & position, float yaw) {
-
-    // Set the position control message
-    position_msg_.position[0] = position[0];
-    position_msg_.position[1] = position[1];
-    position_msg_.position[2] = position[2];
-    position_msg_.yaw = yaw;
-
-    // Publish the position control message for the controller to track
-    position_publisher_->publish(position_msg_);
-}
-
-void Autopilot::set_target_attitude(const Eigen::Vector3d & attitude, float thrust_force) {
-
-    // Set the attitude control message
-    attitude_msg_.attitude[0] = attitude[0];
-    attitude_msg_.attitude[1] = attitude[1];
-    attitude_msg_.attitude[2] = attitude[2];
-    attitude_msg_.thrust = thrust_force;
-
-    // Publish the attitude control message for the controller to track
-    attitude_publisher_->publish(attitude_msg_);
-}
-
-void Autopilot::set_target_attitude_rate(const Eigen::Vector3d & attitude_rate, float thrust_force) {
-
-    // Set the attitude rate control message
-    attitude_rate_msg_.attitude[0] = attitude_rate[0];
-    attitude_rate_msg_.attitude[1] = attitude_rate[1];
-    attitude_rate_msg_.attitude[2] = attitude_rate[2];
-    attitude_rate_msg_.thrust = thrust_force;
-
-    // Publish the attitude rate control message for the controller to track
-    attitude_rate_publisher_->publish(attitude_rate_msg_);
 }
 
 void Autopilot::change_mode_callback(const std::shared_ptr<pegasus_msgs::srv::SetMode::Request> request, std::shared_ptr<pegasus_msgs::srv::SetMode::Response> response) {

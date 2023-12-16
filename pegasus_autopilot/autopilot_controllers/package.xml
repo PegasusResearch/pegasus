@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>autopilot_controllers</name>
+  <version>1.0.0</version>
+  <description>Low level controllers that can be used by the Autopilot class</description>
+  <author email="marcelo.jacinto@tecnico.ulisboa.pt">Marcelo Jacinto</author>
+  <maintainer email="marcelo.jacinto@tecnico.ulisboa.pt">Marcelo Jacinto</maintainer>
+  <license>BSD 3-Clause License</license>
+
+  <buildtool_depend>ament_cmake_ros</buildtool_depend>
+
+  <depend>autopilot</depend>
+  <depend>pegasus_msgs</depend>
+  <depend>pluginlib</depend>
+  <depend>eigen</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

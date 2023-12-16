@@ -1,0 +1,8 @@
+<library path="autopilot_controllers">
+
+    <!-- PX4Controller -->
+    <class type="autopilot::PX4Controller" base_class_type="autopilot::Controller">
+        <description>PX4 Controller.</description>
+    </class>
+
+</library>

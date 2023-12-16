@@ -72,7 +72,7 @@ bool WaypointMode::exit() {
 void WaypointMode::update(double) {
 
     // Set the controller to track the target position and attitude
-    this->set_position(this->target_pos, this->target_yaw);
+    this->controller_->set_position(this->target_pos, this->target_yaw);
 }
 
 void WaypointMode::waypoint_callback(const pegasus_msgs::srv::Waypoint::Request::SharedPtr request, const pegasus_msgs::srv::Waypoint::Response::SharedPtr response) {
