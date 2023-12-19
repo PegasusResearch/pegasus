@@ -55,6 +55,7 @@
 #include "mode.hpp"
 #include "state.hpp"
 #include "controller.hpp"
+#include "trajectory_manager.hpp"
 
 namespace autopilot {
 
@@ -133,8 +134,12 @@ private:
     std::string current_mode_{"Uninitialized"};
 
     // Low level controllers for reference tracking
-    Controller::SharedPtr controller_;
+    Controller::SharedPtr controller_{nullptr};
     Controller::Config controller_config_;
+
+    // Trajectory manager to handle complex trajectories and motion planning
+    TrajectoryManager::SharedPtr trajectory_manager_{nullptr};
+    TrajectoryManager::Config trajectory_manager_config_;
 
     // Auxiliar counter to keep track when forcing a mode change
     int force_change_counter_{0};

@@ -34,15 +34,115 @@
 #pragma once
 
 #include <memory>
+#include <Eigen/Core>
+
+#include "state.hpp"
+#include "trajectory.hpp"
+
+// ROS imports
+#include "rclcpp/rclcpp.hpp"
+
+// Custom ROS2 messages and services
+#include "pegasus_msgs/srv/reset_path.hpp"
 
 namespace autopilot {
 
 class TrajectoryManager {
 
+public:
+
     using SharedPtr = std::shared_ptr<TrajectoryManager>;
     using UniquePtr = std::unique_ptr<TrajectoryManager>;
     using WeakPtr = std::weak_ptr<TrajectoryManager>;
 
+    // Configuration for the trajectory manager
+    struct Config {
+        rclcpp::Node::SharedPtr node;                                           // ROS 2 node ptr (in case the mode needs to create publishers, subscribers, etc.)
+        std::function<State()> get_vehicle_state;                               // Function pointer to get the current state of the vehicle      
+        std::function<VehicleStatus()> get_vehicle_status;                      // Function pointer to get the current status of the vehicle  
+        std::function<VehicleConstants()> get_vehicle_constants;                // Function pointer to get the current dynamical constants of the vehicle    
+    };
+
+    
+    inline void initialize_trajectory_manager(const TrajectoryManager::Config& config) {
+        
+        // Initialize the base class
+        node_ = config.node;
+        get_vehicle_state = config.get_vehicle_state;
+        get_vehicle_status = config.get_vehicle_status;
+        get_vehicle_constants = config.get_vehicle_constants;
+
+        // Initialize the derived class
+        initialize();
+    }
+
+    virtual void initialize() = 0;
+    
+    virtual Eigen::Vector3d pd(const double & gamma) const {
+        throw std::runtime_error("pd() not implemented in TrajectoryManager");
+    }
+
+    virtual Eigen::Vector3d d_pd(const double & gamma) const {
+        throw std::runtime_error("d_pd() not implemented in TrajectoryManager");
+    }
+
+    virtual Eigen::Vector3d d2_pd(const double & gamma) const {
+        throw std::runtime_error("d2_pd() not implemented in TrajectoryManager");
+    }
+
+    virtual Eigen::Vector3d d3_pd(const double & gamma) const {
+        throw std::runtime_error("d3_pd() not implemented in TrajectoryManager");
+    }
+
+    virtual Eigen::Vector3d d4_pd(const double & gamma) const {
+        throw std::runtime_error("d4_pd() not implemented in TrajectoryManager");
+    }
+  
+    virtual double vd(const double & gamma) const {
+        throw std::runtime_error("vd() not implemented in TrajectoryManager");
+    }
+
+    virtual double d_vd(const double & gamma) const {
+        throw std::runtime_error("d_vd() not implemented in TrajectoryManager");
+    }
+
+    virtual double d2_vd(const double & gamma) const {
+        throw std::runtime_error("d2_vd() not implemented in TrajectoryManager");
+    }
+
+    virtual double curvature(const double & gamma) const {
+        throw std::runtime_error("curvature() not implemented in TrajectoryManager");
+    }
+
+    virtual double torsion(const double & gamma) const {
+        throw std::runtime_error("torsion() not implemented in TrajectoryManager");
+    }
+
+    virtual double tangent_angle(const double & gamma) const {
+        throw std::runtime_error("tangent_angle() not implemented in TrajectoryManager");
+    }
+
+    virtual double derivate_norm(const double & gamma) const {
+        throw std::runtime_error("derivate_norm() not implemented in TrajectoryManager");
+    }
+
+    virtual double min_gamma() const {
+        throw std::runtime_error("min_gamma() not implemented in TrajectoryManager");
+    }
+
+    virtual double max_gamma() const {
+        throw std::runtime_error("max_gamma() not implemented in TrajectoryManager");
+    }
+
+protected:
+
+    // The ROS2 node
+    rclcpp::Node::SharedPtr node_{nullptr};
+
+    // Function pointer to get the current state of the vehicle
+    std::function<State()> get_vehicle_state{nullptr};
+    std::function<VehicleStatus()> get_vehicle_status{nullptr};
+    std::function<VehicleConstants()> get_vehicle_constants{nullptr};
 };
 
 } // namespace autopilot

@@ -1,0 +1,8 @@
+<library path="static_trajectory_manager">
+
+  <!-- A basic and static trajectory manager -->
+  <class type="autopilot::StaticTrajectoryManager" base_class_type="autopilot::TrajectoryManager">
+      <description>Static Trajectory manager</description>
+  </class>
+
+</library>
