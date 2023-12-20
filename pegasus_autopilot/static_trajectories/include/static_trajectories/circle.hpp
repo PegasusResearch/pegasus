@@ -80,7 +80,13 @@ public:
      */
     virtual Eigen::Vector3d d2_pd(const double gamma) const override;
 
+    double vehicle_speed(const double gamma) const override;
+    double vd(const double gamma) const override;
+
 protected:
+
+    /** @brief The speed in m/s the vehicle should follow the path at */
+    double vehicle_speed_;
 
     /** @brief The starting point of the line */
     Eigen::Vector3d center_;
@@ -100,9 +106,6 @@ protected:
 
     /** @brief The curvature of the circle */
     double curvature_;
-
-    /** @brief The speed in m/s the vehicle should follow the path at */
-    double vehicle_speed_;
 };
 
 class CircleFactory : public StaticTrajectoryFactory {

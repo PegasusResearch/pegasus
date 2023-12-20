@@ -105,6 +105,28 @@ Eigen::Vector3d Circle::d2_pd(const double gamma) const {
     return rotation_ * dd_pd;
 }
 
+
+double Circle::vehicle_speed(const double gamma) const {
+    return vehicle_speed_;
+}
+
+double Circle::vd(const double gamma) const {
+
+    // Define a zero velocity variable
+    double vd = 0.0;
+
+    // Compute the derivative norm
+    double derivative_norm = d_pd(gamma).norm();
+
+    // Convert the speed from the vehicle frame to the path frame
+    if(derivative_norm != 0) vd = vehicle_speed_ / derivative_norm;
+
+    // If the speed exploded because the derivative norm was hill posed, then set it to a very small value as something wrong has happened
+    if(!std::isfinite(vd)) vd = 0.00000001;
+
+    return vd;
+}
+
 void CircleFactory::initialize() {
 
     // Load the service topic from the parameter server

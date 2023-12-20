@@ -36,6 +36,9 @@
 // ROS imports
 #include "rclcpp/rclcpp.hpp"
 
+// Service to setup a lemniscate trajectory
+#include "pegasus_msgs/srv/add_lemniscate.hpp"
+
 // Base class import for defining a static trajectory and the corresponding factory
 #include <static_trajectory_manager/static_trajectory.hpp>
 #include <static_trajectory_manager/static_trajectory_factory.hpp>
@@ -43,11 +46,77 @@
 namespace autopilot {
 
 class Lemniscate : public StaticTrajectory {
-    
+
+public:
+
+    using SharedPtr = std::shared_ptr<Lemniscate>;
+    using UniquePtr = std::unique_ptr<Lemniscate>;
+    using WeakPtr = std::weak_ptr<Lemniscate>;
+
+    /** 
+     * @brief Constructor for a new Lemniscate path section
+     * @param center A 3D vector with the starting point for the line
+     * @param normal The normal vector that defines the plane where the 2D lemniscate will be placed
+     * @param radius The radius of the circle in meters (m)
+     * @param vehicle_speed A shared pointer to a desired vehicle speed */
+    Lemniscate(const Eigen::Vector3d & center, const Eigen::Vector3d & normal, const double radius, const double vehicle_speed);
+
+    /**
+     * @brief The section parametric equation 
+     * @param gamma The path parameter
+     */
+    Eigen::Vector3d pd(const double gamma) const override;
+
+    /**
+     * @brief First derivative of the path section equation with respect to path parameter gamma
+     * @param gamma The path parameter
+     */
+    Eigen::Vector3d d_pd(const double gamma) const override;
+
+    /**
+     * @brief Second derivative of the path section equation with respect to the path parameter gamma
+     * @param gamma  The path parameter
+     */
+    Eigen::Vector3d d2_pd(const double gamma) const override;
+
+    double vehicle_speed(const double gamma) const override;
+    double vd(const double gamma) const override;
+
+protected:
+
+    /** @brief The desired vehicle speed in m/s */
+    double vehicle_speed_;
+
+    /** @brief The starting point of the line */
+    Eigen::Vector3d center_;
+
+    /** @brief The normal vector of the plane where the circle will be located. By default
+     * the circle will be in the xy-plane located in z=center[2], without any fancy rotation
+     * applied to it. If the normal vector has some other value, then a rotation will be applied
+     * to the plane */
+    Eigen::Vector3d normal_{0.0, 0.0, 1.0};
+
+    /** @brief The rotation matrix to apply based on the normal vector to the plane where the circle
+     * should be inscribed. By default, this is the identity matrix */
+    Eigen::Matrix3d rotation_{Eigen::Matrix3d::Identity()};
+
+    /** @brief The radius of the circle */
+    double radius_;
 };
 
 class LemniscateFactory : public StaticTrajectoryFactory {
 
+public:
+
+    virtual void initialize() override;
+
+protected:
+
+    // Service callback to setup a line trajectory
+    void lemniscate_callback(const pegasus_msgs::srv::AddLemniscate::Request::SharedPtr request, const pegasus_msgs::srv::AddLemniscate::Response::SharedPtr response);
+
+    // Service to append a line trajectory to the trajectory manager
+    rclcpp::Service<pegasus_msgs::srv::AddLemniscate>::SharedPtr add_lemniscate_service_{nullptr};
 };
 
 } // namespace autopilot
