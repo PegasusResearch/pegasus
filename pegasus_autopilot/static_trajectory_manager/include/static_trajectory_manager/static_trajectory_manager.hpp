@@ -48,9 +48,11 @@
 #include <autopilot/trajectory_manager.hpp>
 
 // Definition of the static trajectories interface
-#include "static_trajectory_manager/static_trajectory.hpp"
+#include "static_trajectory.hpp"
 
 namespace autopilot {
+
+class StaticTrajectoryFactory;
 
 class StaticTrajectoryManager : public autopilot::TrajectoryManager {
 
@@ -62,19 +64,16 @@ public:
 
     virtual void initialize() override;
 
-    virtual std::optional<Eigen::Vector3d> pd(const double & gamma) const override;
-    virtual std::optional<Eigen::Vector3d> d_pd(const double & gamma) const override;
-    virtual std::optional<Eigen::Vector3d> d2_pd(const double & gamma) const override;
-    virtual std::optional<Eigen::Vector3d> d3_pd(const double & gamma) const override;
-    virtual std::optional<Eigen::Vector3d> d4_pd(const double & gamma) const override;
+    virtual std::optional<Eigen::Vector3d> pd(const double gamma) const override;
+    virtual std::optional<Eigen::Vector3d> d_pd(const double gamma) const override;
+    virtual std::optional<Eigen::Vector3d> d2_pd(const double gamma) const override;
+    virtual std::optional<Eigen::Vector3d> d3_pd(const double gamma) const override;
+    virtual std::optional<Eigen::Vector3d> d4_pd(const double gamma) const override;
 
-    virtual std::optional<double> vd(const double & gamma) const override;
-    virtual std::optional<double> d_vd(const double & gamma) const override;
-    virtual std::optional<double> d2_vd(const double & gamma) const override;
-
-    virtual std::optional<double> curvature(const double & gamma) const override;
-    virtual std::optional<double> torsion(const double & gamma) const override;
-    virtual std::optional<double> tangent_angle(const double & gamma) const override;
+    virtual std::optional<double> vehicle_speed(const double gamma) const override;
+    virtual std::optional<double> vd(const double gamma) const override;
+    virtual std::optional<double> d_vd(const double gamma) const override;
+    virtual std::optional<double> d2_vd(const double gamma) const override;
 
     virtual std::optional<double> min_gamma() const override;
     virtual std::optional<double> max_gamma() const override;
@@ -90,7 +89,7 @@ protected:
     void initialize_services();
 
     // Static trajectories that can be loaded into the trajectory manager
-    std::map<std::string, StaticTrajectory::Factory::UniquePtr> trajectory_factories_;
+    std::map<std::string, std::unique_ptr<StaticTrajectoryFactory>> trajectory_factories_;
 
     // Callback to handle a trajectory reset request
     void reset_callback(const pegasus_msgs::srv::ResetPath::Request::SharedPtr request, const pegasus_msgs::srv::ResetPath::Response::SharedPtr response);
@@ -99,7 +98,7 @@ protected:
     rclcpp::Service<pegasus_msgs::srv::ResetPath>::SharedPtr reset_trajectory_service_{nullptr};
 
     // Definition of the actual trajectories
-    std::vector<Trajectory::SharedPtr> trajectories_;
+    std::vector<StaticTrajectory::SharedPtr> trajectories_;
 };
 
 } // namespace autopilot

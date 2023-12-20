@@ -178,6 +178,22 @@ std::optional<Eigen::Vector3d> StaticTrajectoryManager::d4_pd(const double & gam
     return std::nullopt;
 }
 
+std::optional<double> StaticTrajectoryManager::vehicle_speed(double gamma) const {
+    
+    // Get the index of the section in the sections vector
+    std::optional<unsigned int> index = get_section_index(gamma);
+
+    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
+    if(index.has_value()) {
+        // Make the gamma vary between 0 and 1 for a given path section
+        double normalized_gamma = gamma - static_cast<double>(index.value());
+
+        return std::optional<double>(sections_[index.value()]->vehicle_speed(normalized_gamma));
+    }
+
+    return std::nullopt;
+}
+
 std::optional<double> StaticTrajectoryManager::vd(const double & gamma) const {
     
     // Get the index of the section in the sections vector
@@ -221,54 +237,6 @@ std::optional<double> StaticTrajectoryManager::d2_vd(const double & gamma) const
         double normalized_gamma = gamma - static_cast<double>(index.value());
 
         return std::optional<Eigen::Vector3d>(sections_[index.value()]->d2_vd(normalized_gamma));
-    }
-
-    return std::nullopt;
-}
-
-std::optional<double> StaticTrajectoryManager::curvature(const double & gamma) const {
-
-    // Get the index of the section in the sections vector
-    std::optional<unsigned int> index = get_section_index(gamma);
-
-    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
-    if(index.has_value()) {
-        // Make the gamma vary between 0 and 1 for a given path section
-        double normalized_gamma = gamma - static_cast<double>(index.value());
-
-        return std::optional<Eigen::Vector3d>(sections_[index.value()]->curvature(normalized_gamma));
-    }
-
-    return std::nullopt;
-}
-
-std::optional<double> StaticTrajectoryManager::torsion(const double & gamma) const {
-
-    // Get the index of the section in the sections vector
-    std::optional<unsigned int> index = get_section_index(gamma);
-
-    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
-    if(index.has_value()) {
-        // Make the gamma vary between 0 and 1 for a given path section
-        double normalized_gamma = gamma - static_cast<double>(index.value());
-
-        return std::optional<Eigen::Vector3d>(sections_[index.value()]->torsion(normalized_gamma));
-    }
-
-    return std::nullopt;
-}
-
-std::optional<double> StaticTrajectoryManager::tangent_angle(const double & gamma) const {
-
-    // Get the index of the section in the sections vector
-    std::optional<unsigned int> index = get_section_index(gamma);
-
-    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
-    if(index.has_value()) {
-        // Make the gamma vary between 0 and 1 for a given path section
-        double normalized_gamma = gamma - static_cast<double>(index.value());
-
-        return std::optional<Eigen::Vector3d>(sections_[index.value()]->tangent_angle(normalized_gamma));
     }
 
     return std::nullopt;

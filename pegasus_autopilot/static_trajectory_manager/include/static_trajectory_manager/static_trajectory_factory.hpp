@@ -34,50 +34,30 @@
 #pragma once
 
 #include <memory>
-#include <Eigen/Core>
+
+#include "static_trajectory.hpp"
+#include "static_trajectory_manager.hpp"
 
 namespace autopilot {
+    
+// A factory to instantiate a trajectory object
+class Factory {
 
-/**
- * @brief The Trajectory class is an abstract class that defines the interface
- * to create a trajectory section that can be followed by a trajectory or path following controller
-*/
-class StaticTrajectory {
+public:
+    using SharedPtr = std::shared_ptr<Factory>;
+    using UniquePtr = std::unique_ptr<Factory>;
+    using WeakPtr = std::weak_ptr<Factory>;
 
-    using SharedPtr = std::shared_ptr<StaticTrajectory>;
-    using UniquePtr = std::unique_ptr<StaticTrajectory>;
-    using WeakPtr = std::weak_ptr<StaticTrajectory>;
-
-    /**
-     * @brief The section parametric equation 
-     * @param gamma The path parameter
-     * @return An Eigen::Vector3d with the equation of the path with respect to the path parameter gamma
-     */ 
-    virtual Eigen::Vector3d pd(const double gamma) const = 0;
-    virtual Eigen::Vector3d d_pd(const double gamma) const = 0;
-    virtual Eigen::Vector3d d2_pd(const double gamma) const = 0;
-    virtual Eigen::Vector3d d3_pd(const double gamma) const = 0;
-    virtual Eigen::Vector3d d4_pd(const double gamma) const = 0;
-
-    /**
-     * @brief Default method for getting the desired vehicle speed for a particular 
-     * location in the path section (in m/s)
-     * @param gamma The path parameter
-     * @return double The desired vehicle speed (in m/s)
-     */
-    virtual double vehicle_speed(double gamma) const = 0;
-    virtual double vd(double gamma) const = 0;
-    virtual double d_vd(double gamma) const = 0;
-    virtual double d2_vd(double gamma) const = 0;
+    void add_trajectory_to_server(const StaticTrajectory::SharedPtr trajectory) {
+        trajectory_server_->add_trajectory(trajectory);
+    }
 
 protected:
+    // Protected constructor so that only derived classes can access it
+    Factory(const std::shared_ptr<StaticTrajectoryManager> trajectory_server) : trajectory_server_(trajectory_server) {}
 
-    /**
-     * @brief The minimum and maximum value of the variable that parameterizes the trajectory
-     */
-    double min_gamma_{0.0};
-    double max_gamma_{1.0};
-
+    // A pointer to the trajectory server such that a given trajectory can be added to the server
+    std::shared_ptr<StaticTrajectoryManager> trajectory_server_;
 };
 
 } // namespace autopilot
