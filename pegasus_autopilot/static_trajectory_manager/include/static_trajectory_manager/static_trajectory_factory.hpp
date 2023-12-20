@@ -34,6 +34,9 @@
 #pragma once
 
 #include <memory>
+#include <functional>
+
+#include "rclcpp/rclcpp.hpp"
 
 #include "static_trajectory.hpp"
 #include "static_trajectory_manager.hpp"
@@ -41,23 +44,43 @@
 namespace autopilot {
     
 // A factory to instantiate a trajectory object
-class Factory {
+class StaticTrajectoryFactory {
 
 public:
-    using SharedPtr = std::shared_ptr<Factory>;
-    using UniquePtr = std::unique_ptr<Factory>;
-    using WeakPtr = std::weak_ptr<Factory>;
 
-    void add_trajectory_to_server(const StaticTrajectory::SharedPtr trajectory) {
-        trajectory_server_->add_trajectory(trajectory);
+    using SharedPtr = std::shared_ptr<StaticTrajectoryFactory>;
+    using UniquePtr = std::unique_ptr<StaticTrajectoryFactory>;
+    using WeakPtr = std::weak_ptr<StaticTrajectoryFactory>;
+
+    // Configuration for the trajectory factory
+    struct Config {
+        rclcpp::Node::SharedPtr node;                                                 // ROS 2 node ptr (in case the mode needs to create publishers, subscribers, etc.)
+        std::function<void(StaticTrajectory::SharedPtr)> add_trajectory_to_manager;   // Method that when called with a trajectory adds it to the trajectory server
+    };
+
+    // Method that must be implemented by the derived classes
+    virtual void initialize() = 0;
+
+    // Method called internally by the trajectory server to initialize the factory
+    void initialize_factory(const StaticTrajectoryFactory::Config & config) {
+
+        // Save the node
+        node_ = config.node;
+
+        // Save the method to add a trajectory to the trajectory server
+        add_trajectory_to_manager = config.add_trajectory_to_manager;
+
+        // Perform class specific initialization        
+        initialize();
     }
 
 protected:
-    // Protected constructor so that only derived classes can access it
-    Factory(const std::shared_ptr<StaticTrajectoryManager> trajectory_server) : trajectory_server_(trajectory_server) {}
 
-    // A pointer to the trajectory server such that a given trajectory can be added to the server
-    std::shared_ptr<StaticTrajectoryManager> trajectory_server_;
+    // The ROS 2 node
+    rclcpp::Node::SharedPtr node_{nullptr};
+
+    // Method that when called with a trajectory adds it to the trajectory server
+    std::function<void(StaticTrajectory::SharedPtr)> add_trajectory_to_manager{nullptr};
 };
 
 } // namespace autopilot

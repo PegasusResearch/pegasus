@@ -49,11 +49,13 @@
 
 // Definition of the static trajectories interface
 #include "static_trajectory.hpp"
+#include "static_trajectory_factory.hpp"
 
 namespace autopilot {
 
-class StaticTrajectoryFactory;
-
+// A StaticTrajectoryManager is a TrajectoryManager that can load static trajectories
+// The static trajectories are should be derived from the StaticTrajectory class
+// and are loaded on the fly using the pluginlib library
 class StaticTrajectoryManager : public autopilot::TrajectoryManager {
 
 public:
@@ -88,11 +90,14 @@ protected:
     // Initialize the services that reset the path, etc.
     void initialize_services();
 
-    // Static trajectories that can be loaded into the trajectory manager
-    std::map<std::string, std::unique_ptr<StaticTrajectoryFactory>> trajectory_factories_;
-
     // Callback to handle a trajectory reset request
     void reset_callback(const pegasus_msgs::srv::ResetPath::Request::SharedPtr request, const pegasus_msgs::srv::ResetPath::Response::SharedPtr response);
+
+    // Static trajectories that can be loaded into the trajectory manager
+    std::map<std::string, StaticTrajectoryFactory::UniquePtr> trajectory_factories_;
+
+    // Configurations for the trajectory factories
+    StaticTrajectoryFactory::Config trajectory_config_;
 
     // Service to reset the current trajectory
     rclcpp::Service<pegasus_msgs::srv::ResetPath>::SharedPtr reset_trajectory_service_{nullptr};

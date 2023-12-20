@@ -32,6 +32,8 @@
  *
  ****************************************************************************/
 #include <pluginlib/class_loader.hpp>
+
+#include "static_trajectory_manager/static_trajectory_factory.hpp"
 #include "static_trajectory_manager/static_trajectory_manager.hpp"
 
 namespace autopilot {
@@ -43,22 +45,26 @@ void StaticTrajectoryManager::initialize() {
     rclcpp::Parameter trajectories = node_->get_parameter("autopilot.StaticTrajectoryManager.trajectories");
 
     // Load the base class that defines the interface for all the static trajectories
-    pluginlib::ClassLoader<autopilot::TrajectoryManager> trajectory_loader("autopilot", "autopilot::StaticTrajectory");
+    pluginlib::ClassLoader<autopilot::StaticTrajectoryFactory> trajectory_loader("autopilot", "autopilot::StaticTrajectoryFactory");
+
+    // Setup the configurations for the trajectory factories
+    trajectory_config_.node = node_;
+    trajectory_config_.add_trajectory_to_manager = std::bind(&StaticTrajectoryManager::add_trajectory, this, std::placeholders::_1);
 
     // Log all the trajectory factories that are going to be loaded dynamically
     for(const std::string & trajectory : trajectories.as_string_array()) {
         
         // Log the trajectory factory that is about to be loaded
-        RCLCPP_INFO(node_->get_logger(), "Loading trajectory: %s", mode.c_str());
+        RCLCPP_INFO(node_->get_logger(), "Loading trajectory: %s", trajectory.c_str());
 
         // Attempt to load the trajectory factory
         try {
 
             // Load the trajectory factory
-            trajectory_factories_[trajectory] = autopilot::StaticTrajectory::UniquePtr(trajectory_loader.createUnmanagedInstance("autopilot::" + trajectory));
+            trajectory_factories_[trajectory] = autopilot::StaticTrajectoryFactory::UniquePtr(trajectory_loader.createUnmanagedInstance("autopilot::" + trajectory));
 
             // Initialize the trajectory manager
-            trajectory_factories_[trajectory]->initialize_static_trajectory(trajectory_config_);
+            trajectory_factories_[trajectory]->initialize_factory(trajectory_config_);
 
         } catch(const std::exception & ex) {
             RCLCPP_ERROR_STREAM(node_->get_logger(), "Exception while loading trajectory: " << ex.what() << ". Trajectory: " << trajectory);
@@ -92,7 +98,7 @@ std::optional<unsigned int> StaticTrajectoryManager::get_trajectory_index(const 
     // For now we are assuming that each section is parameterized between 0 and 1. Change this in the future
     // to allow for dynamic parameterizations
     unsigned int index = std::floor(gamma);
-    if(index >= sections_.size()) index = sections_.size() - 1;
+    if(index >= trajectories_.size()) index = trajectories_.size() - 1;
 
     return (!empty()) ? std::make_optional<unsigned int>(index) : std::nullopt;
 }
@@ -108,7 +114,7 @@ std::optional<Eigen::Vector3d> StaticTrajectoryManager::pd(const double & gamma)
         // Make the gamma vary between 0 and 1 for a given path section
         double normalized_gamma = gamma - static_cast<double>(index.value());
 
-        return std::optional<Eigen::Vector3d>(sections_[index.value()]->pd(normalized_gamma));
+        return std::optional<Eigen::Vector3d>(trajectories_[index.value()]->pd(normalized_gamma));
     }
     
     return std::nullopt;
@@ -124,7 +130,7 @@ std::optional<Eigen::Vector3d> StaticTrajectoryManager::d_pd(const double & gamm
         // Make the gamma vary between 0 and 1 for a given path section
         double normalized_gamma = gamma - static_cast<double>(index.value());
 
-        return std::optional<Eigen::Vector3d>(sections_[index.value()]->d_pd(normalized_gamma));
+        return std::optional<Eigen::Vector3d>(trajectories_[index.value()]->d_pd(normalized_gamma));
     }
 
     return std::nullopt;
@@ -140,7 +146,7 @@ std::optional<Eigen::Vector3d> StaticTrajectoryManager::d2_pd(const double & gam
         // Make the gamma vary between 0 and 1 for a given path section
         double normalized_gamma = gamma - static_cast<double>(index.value());
 
-        return std::optional<Eigen::Vector3d>(sections_[index.value()]->d2_pd(normalized_gamma));
+        return std::optional<Eigen::Vector3d>(trajectories_[index.value()]->d2_pd(normalized_gamma));
     }
 
     return std::nullopt;
@@ -156,7 +162,7 @@ std::optional<Eigen::Vector3d> StaticTrajectoryManager::d3_pd(const double & gam
         // Make the gamma vary between 0 and 1 for a given path section
         double normalized_gamma = gamma - static_cast<double>(index.value());
 
-        return std::optional<Eigen::Vector3d>(sections_[index.value()]->d3_pd(normalized_gamma));
+        return std::optional<Eigen::Vector3d>(trajectories_[index.value()]->d3_pd(normalized_gamma));
     }
 
     return std::nullopt;
@@ -172,7 +178,7 @@ std::optional<Eigen::Vector3d> StaticTrajectoryManager::d4_pd(const double & gam
         // Make the gamma vary between 0 and 1 for a given path section
         double normalized_gamma = gamma - static_cast<double>(index.value());
 
-        return std::optional<Eigen::Vector3d>(sections_[index.value()]->d4_pd(normalized_gamma));
+        return std::optional<Eigen::Vector3d>(trajectories_[index.value()]->d4_pd(normalized_gamma));
     }
 
     return std::nullopt;
@@ -188,7 +194,7 @@ std::optional<double> StaticTrajectoryManager::vehicle_speed(double gamma) const
         // Make the gamma vary between 0 and 1 for a given path section
         double normalized_gamma = gamma - static_cast<double>(index.value());
 
-        return std::optional<double>(sections_[index.value()]->vehicle_speed(normalized_gamma));
+        return std::optional<double>(trajectories_[index.value()]->vehicle_speed(normalized_gamma));
     }
 
     return std::nullopt;
@@ -204,7 +210,7 @@ std::optional<double> StaticTrajectoryManager::vd(const double & gamma) const {
         // Make the gamma vary between 0 and 1 for a given path section
         double normalized_gamma = gamma - static_cast<double>(index.value());
 
-        return std::optional<Eigen::Vector3d>(sections_[index.value()]->vd(normalized_gamma));
+        return std::optional<Eigen::Vector3d>(trajectories_[index.value()]->vd(normalized_gamma));
     }
 
     return std::nullopt;
@@ -220,7 +226,7 @@ std::optional<double> StaticTrajectoryManager::d_vd(const double & gamma) const 
         // Make the gamma vary between 0 and 1 for a given path section
         double normalized_gamma = gamma - static_cast<double>(index.value());
 
-        return std::optional<Eigen::Vector3d>(sections_[index.value()]->d_vd(normalized_gamma));
+        return std::optional<Eigen::Vector3d>(trajectories_[index.value()]->d_vd(normalized_gamma));
     }
 
     return std::nullopt;
@@ -236,7 +242,7 @@ std::optional<double> StaticTrajectoryManager::d2_vd(const double & gamma) const
         // Make the gamma vary between 0 and 1 for a given path section
         double normalized_gamma = gamma - static_cast<double>(index.value());
 
-        return std::optional<Eigen::Vector3d>(sections_[index.value()]->d2_vd(normalized_gamma));
+        return std::optional<Eigen::Vector3d>(trajectories_[index.value()]->d2_vd(normalized_gamma));
     }
 
     return std::nullopt;

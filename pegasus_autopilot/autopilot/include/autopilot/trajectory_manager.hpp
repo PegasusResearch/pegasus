@@ -97,6 +97,10 @@ public:
     virtual std::optional<Eigen::Vector3d> d4_pd(const double gamma) const {
         throw std::runtime_error("d4_pd() not implemented in TrajectoryManager");
     }
+
+    virtual std::optional<double> vehicle_speed(const double gamma) const {
+        throw std::runtime_error("vehicle_speed() not implemented in TrajectoryManager");
+    }
   
     virtual std::optional<double> vd(const double gamma) const {
         throw std::runtime_error("vd() not implemented in TrajectoryManager");

@@ -44,6 +44,8 @@ namespace autopilot {
 */
 class StaticTrajectory {
 
+public:
+
     using SharedPtr = std::shared_ptr<StaticTrajectory>;
     using UniquePtr = std::unique_ptr<StaticTrajectory>;
     using WeakPtr = std::weak_ptr<StaticTrajectory>;
