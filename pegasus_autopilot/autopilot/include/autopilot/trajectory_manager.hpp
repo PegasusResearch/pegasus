@@ -34,6 +34,7 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <Eigen/Core>
 
 #include "state.hpp"
@@ -78,59 +79,59 @@ public:
 
     virtual void initialize() = 0;
     
-    virtual Eigen::Vector3d pd(const double & gamma) const {
+    virtual std::optional<Eigen::Vector3d> pd(const double & gamma) const {
         throw std::runtime_error("pd() not implemented in TrajectoryManager");
     }
 
-    virtual Eigen::Vector3d d_pd(const double & gamma) const {
+    virtual std::optional<Eigen::Vector3d> d_pd(const double & gamma) const {
         throw std::runtime_error("d_pd() not implemented in TrajectoryManager");
     }
 
-    virtual Eigen::Vector3d d2_pd(const double & gamma) const {
+    virtual std::optional<Eigen::Vector3d> d2_pd(const double & gamma) const {
         throw std::runtime_error("d2_pd() not implemented in TrajectoryManager");
     }
 
-    virtual Eigen::Vector3d d3_pd(const double & gamma) const {
+    virtual std::optional<Eigen::Vector3d> d3_pd(const double & gamma) const {
         throw std::runtime_error("d3_pd() not implemented in TrajectoryManager");
     }
 
-    virtual Eigen::Vector3d d4_pd(const double & gamma) const {
+    virtual std::optional<Eigen::Vector3d> d4_pd(const double & gamma) const {
         throw std::runtime_error("d4_pd() not implemented in TrajectoryManager");
     }
   
-    virtual double vd(const double & gamma) const {
+    virtual std::optional<double> vd(const double & gamma) const {
         throw std::runtime_error("vd() not implemented in TrajectoryManager");
     }
 
-    virtual double d_vd(const double & gamma) const {
+    virtual std::optional<double> d_vd(const double & gamma) const {
         throw std::runtime_error("d_vd() not implemented in TrajectoryManager");
     }
 
-    virtual double d2_vd(const double & gamma) const {
+    virtual std::optional<double> d2_vd(const double & gamma) const {
         throw std::runtime_error("d2_vd() not implemented in TrajectoryManager");
     }
 
-    virtual double curvature(const double & gamma) const {
+    virtual std::optional<double> curvature(const double & gamma) const {
         throw std::runtime_error("curvature() not implemented in TrajectoryManager");
     }
 
-    virtual double torsion(const double & gamma) const {
+    virtual std::optional<double> torsion(const double & gamma) const {
         throw std::runtime_error("torsion() not implemented in TrajectoryManager");
     }
 
-    virtual double tangent_angle(const double & gamma) const {
+    virtual std::optional<double> tangent_angle(const double & gamma) const {
         throw std::runtime_error("tangent_angle() not implemented in TrajectoryManager");
     }
 
-    virtual double derivate_norm(const double & gamma) const {
+    virtual std::optional<double> derivate_norm(const double & gamma) const {
         throw std::runtime_error("derivate_norm() not implemented in TrajectoryManager");
     }
 
-    virtual double min_gamma() const {
+    virtual std::optional<double> min_gamma() const {
         throw std::runtime_error("min_gamma() not implemented in TrajectoryManager");
     }
 
-    virtual double max_gamma() const {
+    virtual std::optional<double> max_gamma() const {
         throw std::runtime_error("max_gamma() not implemented in TrajectoryManager");
     }
 

@@ -15,17 +15,17 @@
           control_attitude_rate: "fmu/in/force/attitude_rate"
       trajectory_manager: "StaticTrajectoryManager"
       StaticTrajectoryManager:
-        trajectories: ["Arc", "Line", "Circle", "Lemniscate"]
+        trajectories: ["ArcFactory", "LineFactory", "CircleFactory", "LemniscateFactory"]
         services:
           reset_trajectory: "autopilot/trajectory/reset"
         # Individual trajectory setup
-        Arc:
+        ArcFactory:
           service: "autopilot/trajectory/add_arc"
-        Line:
+        LineFactory:
           service: "autopilot/trajectory/add_line"
-        Circle:
+        CircleFactory:
           service: "autopilot/trajectory/add_circle"
-        Lemniscate:
+        LemniscateFactory:
           service: "autopilot/trajectory/add_lemniscate"
       # ---------------------------------------------------------------------------------------------------------
       # Define the default operation mode (the one which the autopilot initializes at)

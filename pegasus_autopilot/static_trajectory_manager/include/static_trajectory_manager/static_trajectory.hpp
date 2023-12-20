@@ -38,15 +38,38 @@
 
 namespace autopilot {
 
+// Declaration of the StaticTrajectoryManager class used by the TrajectoryFactory
+class StaticTrajectoryManager;
+
 /**
  * @brief The Trajectory class is an abstract class that defines the interface
  * to create a trajectory section that can be followed by a trajectory or path following controller
 */
-class Trajectory {
+class StaticTrajectory {
 
-    using SharedPtr = std::shared_ptr<Trajectory>;
-    using UniquePtr = std::unique_ptr<Trajectory>;
-    using WeakPtr = std::weak_ptr<Trajectory>;
+    using SharedPtr = std::shared_ptr<StaticTrajectory>;
+    using UniquePtr = std::unique_ptr<StaticTrajectory>;
+    using WeakPtr = std::weak_ptr<StaticTrajectory>;
+
+    // A factory to instantiate a trajectory object
+    class Factory {
+
+        public:
+            using SharedPtr = std::shared_ptr<Factory>;
+            using UniquePtr = std::unique_ptr<Factory>;
+            using WeakPtr = std::weak_ptr<Factory>;
+
+            void add_trajectory_to_server(const StaticTrajectory::SharedPtr trajectory) {
+                trajectory_server_->add_trajectory(trajectory);
+            }
+
+        protected:
+            // Protected constructor so that only derived classes can access it
+            Factory(const StaticTrajectoryManager::SharedPtr trajectory_server) : trajectory_server_(trajectory_server) {}
+
+            // A pointer to the trajectory server such that a given trajectory can be added to the server
+            StaticTrajectoryManager::SharedPtr trajectory_server_;
+    };
 
     /**
      * @brief The section parametric equation 
