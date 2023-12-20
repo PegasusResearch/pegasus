@@ -34,4 +34,4 @@
 #include "static_trajectories/lemniscate.hpp"
 
 #include <pluginlib/class_list_macros.hpp>
-PLUGINLIB_EXPORT_CLASS(autopilot::Lemniscate::Factory, autopilot::Trajectory::Factory)
+PLUGINLIB_EXPORT_CLASS(autopilot::LemniscateFactory, autopilot::StaticTrajectoryFactory)

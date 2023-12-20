@@ -32,3 +32,22 @@
  *
  ****************************************************************************/
 #pragma once
+
+// ROS imports
+#include "rclcpp/rclcpp.hpp"
+
+// Base class import for defining a static trajectory and the corresponding factory
+#include <static_trajectory_manager/static_trajectory.hpp>
+#include <static_trajectory_manager/static_trajectory_factory.hpp>
+
+namespace autopilot {
+
+class Lemniscate : public StaticTrajectory {
+    
+};
+
+class LemniscateFactory : public StaticTrajectoryFactory {
+
+};
+
+} // namespace autopilot

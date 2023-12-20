@@ -56,10 +56,10 @@ public:
      * @return An Eigen::Vector3d with the equation of the path with respect to the path parameter gamma
      */ 
     virtual Eigen::Vector3d pd(const double gamma) const = 0;
-    virtual Eigen::Vector3d d_pd(const double gamma) const = 0;
-    virtual Eigen::Vector3d d2_pd(const double gamma) const = 0;
-    virtual Eigen::Vector3d d3_pd(const double gamma) const = 0;
-    virtual Eigen::Vector3d d4_pd(const double gamma) const = 0;
+    virtual Eigen::Vector3d d_pd(const double gamma) const { return Eigen::Vector3d::Zero(); }
+    virtual Eigen::Vector3d d2_pd(const double gamma) const { return Eigen::Vector3d::Zero(); }
+    virtual Eigen::Vector3d d3_pd(const double gamma) const { return Eigen::Vector3d::Zero(); }
+    virtual Eigen::Vector3d d4_pd(const double gamma) const { return Eigen::Vector3d::Zero(); }
 
     /**
      * @brief Default method for getting the desired vehicle speed for a particular 
@@ -68,9 +68,10 @@ public:
      * @return double The desired vehicle speed (in m/s)
      */
     virtual double vehicle_speed(double gamma) const = 0;
-    virtual double vd(double gamma) const = 0;
-    virtual double d_vd(double gamma) const = 0;
-    virtual double d2_vd(double gamma) const = 0;
+
+    virtual double vd(const double gamma) const = 0;
+    virtual double d_vd(const double gamma) const { return 0.0; };
+    virtual double d2_vd(const double gamma) const { return 0.0; };
 
 protected:
 

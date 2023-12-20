@@ -39,7 +39,6 @@
 #include "rclcpp/rclcpp.hpp"
 
 #include "static_trajectory.hpp"
-#include "static_trajectory_manager.hpp"
 
 namespace autopilot {
     

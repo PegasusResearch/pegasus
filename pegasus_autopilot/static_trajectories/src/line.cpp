@@ -33,5 +33,70 @@
  ****************************************************************************/
 #include "static_trajectories/line.hpp"
 
+namespace autopilot {
+
+Line::Line(const Eigen::Vector3d& start, const Eigen::Vector3d& end, const double vehicle_speed) : 
+    start_(start), end_(end), vehicle_speed_(vehicle_speed) {    
+    slope_ = end_ - start_;
+}
+
+Eigen::Vector3d Line::pd(const double gamma) const {
+    return start_ + gamma * slope_;
+}
+
+Eigen::Vector3d Line::d_pd(const double gamma) const {
+    return slope_;
+}
+
+double Line::vehicle_speed(const double gamma) const {
+    return vehicle_speed_;
+}
+
+double Line::vd(const double gamma) const {
+    
+    // Define a zero velocity variable
+    double vd = 0.0;
+
+    // Compute the derivative norm
+    double derivative_norm = d_pd(gamma).norm();
+
+    // Convert the speed from the vehicle frame to the path frame
+    if(derivative_norm != 0) vd = vehicle_speed_ / derivative_norm;
+
+    // If the speed exploded because the derivative norm was hill posed, then set it to a very small value as something wrong has happened
+    if(!std::isfinite(vd)) vd = 0.00000001;
+
+    return vd;
+}
+
+void LineFactory::initialize() {
+
+    // Load the service topic from the parameter server
+    node_->declare_parameter<std::string>("autopilot.StaticTrajectoryManager.LineFactory.service", "path/add_line");
+
+    // Advertise the service to add a line to the path
+    add_line_service_ = node_->create_service<pegasus_msgs::srv::AddLine>(node_->get_parameter("autopilot.StaticTrajectoryManager.LineFactory.service").as_string(), std::bind(&LineFactory::line_callback, this, std::placeholders::_1, std::placeholders::_2));
+}
+
+void LineFactory::line_callback(const pegasus_msgs::srv::AddLine::Request::SharedPtr request, const pegasus_msgs::srv::AddLine::Response::SharedPtr response) {
+
+    // Log the parameters of the path section to be added
+    RCLCPP_INFO_STREAM(this->node_->get_logger(), "Adding line to the trajectory. Speed: " << request->speed.parameters[0] << ", start: [" << request->start[0] << "," << request->start[1] << "," << request->start[2] << "], end: [" << request->end[0] << "," << request->end[1] << "," << request->end[2] << "].");
+
+    // Create a new line
+    Line::SharedPtr line = std::make_shared<Line>(Eigen::Vector3d(
+        request->start.data()), 
+        Eigen::Vector3d(request->end.data()), 
+        request->speed.parameters[0]);
+
+    // Add the line to the path
+    this->add_trajectory_to_manager(line);
+
+    // Set the response to true
+    response->success = true;
+}
+
+} // namespace autopilot
+
 #include <pluginlib/class_list_macros.hpp>
-PLUGINLIB_EXPORT_CLASS(autopilot::Line::Factory, autopilot::Trajectory::Factory)
+PLUGINLIB_EXPORT_CLASS(autopilot::LineFactory, autopilot::StaticTrajectoryFactory)

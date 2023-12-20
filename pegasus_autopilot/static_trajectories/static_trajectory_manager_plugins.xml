@@ -1,22 +1,22 @@
 <library path="static_trajectories">
 
   <!-- The class for parameterizing arc curves -->
-  <class type="autopilot::Arc::Factory" base_class_type="autopilot::StaticTrajectoryFactory">
+  <class type="autopilot::ArcFactory" base_class_type="autopilot::StaticTrajectoryFactory">
       <description>Arc trajectory factory</description>
   </class>
 
   <!-- The class for parameterizing line curves -->
-  <class type="autopilot::Line::Factory" base_class_type="autopilot::StaticTrajectoryFactory">
+  <class type="autopilot::LineFactory" base_class_type="autopilot::StaticTrajectoryFactory">
       <description>Line trajectory factory</description>
   </class>
 
   <!-- The class for parameterizing circle curves -->
-  <class type="autopilot::Circle::Factory" base_class_type="autopilot::StaticTrajectoryFactory">
+  <class type="autopilot::CircleFactory" base_class_type="autopilot::StaticTrajectoryFactory">
       <description>Circle trajectory factory</description>
   </class>
 
   <!-- The class for parameterizing lemniscate curves -->
-  <class type="autopilot::Lemniscate::Factory" base_class_type="autopilot::StaticTrajectoryFactory">
+  <class type="autopilot::LemniscateFactory" base_class_type="autopilot::StaticTrajectoryFactory">
       <description>Lemniscate trajectory factory</description>
   </class>
 
