@@ -138,6 +138,7 @@ void Autopilot::initialize_operating_modes() {
     mode_config_.get_vehicle_constants = std::bind(&Autopilot::get_vehicle_constants, this);
     mode_config_.signal_mode_finished = std::bind(&Autopilot::signal_mode_finished, this);
     mode_config_.controller = controller_;
+    mode_config_.trajectory_manager = trajectory_manager_;
 
     // Log all the modes that are to be loaded dynamically
     for (const std::string & mode : modes.as_string_array()) {

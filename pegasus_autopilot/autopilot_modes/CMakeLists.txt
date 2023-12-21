@@ -48,7 +48,6 @@ find_package(ament_cmake_ros REQUIRED)
 find_package(autopilot REQUIRED)
 find_package(pegasus_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
-find_package("paths" REQUIRED)
 find_package(pegasus_utils REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(pid REQUIRED)
@@ -78,7 +77,6 @@ set(dependencies
   autopilot
   pegasus_msgs
   nav_msgs
-  "paths"
   pid
   thrust_curves
   pegasus_utils

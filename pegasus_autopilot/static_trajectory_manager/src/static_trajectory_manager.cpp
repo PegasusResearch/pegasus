@@ -274,11 +274,11 @@ std::optional<double> StaticTrajectoryManager::d2_vd(const double gamma) const {
     return std::nullopt;
 }
 
-std::optional<double> StaticTrajectoryManager::min_gamma() const {
+double StaticTrajectoryManager::min_gamma() const {
     return 0.0;
 }
 
-std::optional<double> StaticTrajectoryManager::max_gamma() const {
+double StaticTrajectoryManager::max_gamma() const {
     return (trajectories_.empty()) ? 0.0 : (double) trajectories_.size();
 }
 

@@ -130,12 +130,16 @@ public:
         throw std::runtime_error("derivate_norm() not implemented in TrajectoryManager");
     }
 
-    virtual std::optional<double> min_gamma() const {
+    virtual double min_gamma() const {
         throw std::runtime_error("min_gamma() not implemented in TrajectoryManager");
     }
 
-    virtual std::optional<double> max_gamma() const {
+    virtual double max_gamma() const {
         throw std::runtime_error("max_gamma() not implemented in TrajectoryManager");
+    }
+
+    virtual bool empty() const {
+        throw std::runtime_error("is_empty() not implemented in TrajectoryManager");
     }
 
 protected:

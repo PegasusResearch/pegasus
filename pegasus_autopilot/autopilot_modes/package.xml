@@ -14,7 +14,6 @@
   <depend>pegasus_msgs</depend>
   <depend>nav_msgs</depend>
   <depend>pegasus_utils</depend>
-  <depend>paths</depend>
   <depend>pluginlib</depend>
   <depend>pid</depend>
   <depend>thrust_curves</depend>

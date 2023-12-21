@@ -43,6 +43,7 @@
 // Pegasus imports
 #include "state.hpp"
 #include "controller.hpp"
+#include "trajectory_manager.hpp"
 
 namespace autopilot {
 
@@ -62,6 +63,7 @@ public:
         std::function<VehicleConstants()> get_vehicle_constants;                // Function pointer to get the current dynamical constants of the vehicle    
         std::function<void()> signal_mode_finished;                             // Function pointer to signal that the mode has finished operating
         Controller::SharedPtr controller;                                       // Controller to be used by the mode
+        TrajectoryManager::SharedPtr trajectory_manager;                        // Trajectory manager that can be used by some modes
     };
 
     // Custom constructor like function - as we must have the default constructor for the pluginlib
@@ -76,6 +78,9 @@ public:
 
         // Initialize the controller
         controller_ = config.controller;
+
+        // Initialize the trajectory manager
+        trajectory_manager_ = config.trajectory_manager;
 
         // Initialize the derived class
         initialize();
@@ -95,6 +100,9 @@ protected:
 
     // The controller object that can be used by each mode to track references
     Controller::SharedPtr controller_{nullptr};
+
+    // The trajectory manager object that can be used by each mode to generate references to track
+    TrajectoryManager::SharedPtr trajectory_manager_{nullptr};
 
     // Function pointer which will be instantiated with the function pointers passed in the configuration
     std::function<State()> get_vehicle_state{nullptr};

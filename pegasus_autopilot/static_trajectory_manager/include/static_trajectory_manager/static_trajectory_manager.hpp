@@ -77,8 +77,8 @@ public:
     virtual std::optional<double> d_vd(const double gamma) const override;
     virtual std::optional<double> d2_vd(const double gamma) const override;
 
-    virtual std::optional<double> min_gamma() const override;
-    virtual std::optional<double> max_gamma() const override;
+    virtual double min_gamma() const override;
+    virtual double max_gamma() const override;
 
     // API to add a trajectory to the trajectory manager
     void add_trajectory(StaticTrajectory::SharedPtr trajectory);
