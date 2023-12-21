@@ -33,38 +33,55 @@
  ****************************************************************************/
 #pragma once
 
-#include <autopilot/mode.hpp>
+#include <Eigen/Core>
+
+// Library that implements PID controllers
+#include <pid/pid.hpp>
+
+// ROS libraries
+#include "rclcpp/rclcpp.hpp"
+
+// ROS2 messages
+#include "pegasus_msgs/msg/pid_statistics.hpp"
+#include "pegasus_msgs/msg/control_attitude.hpp"
+#include "pegasus_msgs/msg/control_position.hpp"
+
+#include <autopilot/controller.hpp>
 
 namespace autopilot {
 
-class FollowTrajectoryMode : public autopilot::Mode {
+class PIDController : public autopilot::Controller {
 
 public:
 
-    ~FollowTrajectoryMode();
+    ~PIDController();
 
     void initialize() override;
-    virtual bool enter();
-    virtual bool exit() override;
-    virtual void update(double dt);
-
+    void reset_controller() override;
+    void set_position(const Eigen::Vector3d& position, const Eigen::Vector3d& velocity, const Eigen::Vector3d& acceleration, const Eigen::Vector3d& jerk, const Eigen::Vector3d& snap, double yaw, double yaw_rate=0, double dt=0) override;
+    void set_attitude(const Eigen::Vector3d& attitude, double thrust_force, double dt=0) override;
+    void set_attitude_rate(const Eigen::Vector3d& attitude_rate, double thrust_force, double dt=0) override;
+    
 protected:
 
-    // Get the desired position, velocity and acceleration from the path
-    void update_reference(double dt);
-    bool check_finished();
+    // Update the statistics of the PID controllers
+    void update_statistics(const Eigen::Vector3d & position_ref);
 
-    // Set the progression speed of the parametric variable
-    double gamma_{0.0};
-    double d_gamma_{0.0};
-    double dd_gamma_{0.0};
-    
-    // Set the desired targets to follow
-    Eigen::Vector3d desired_position_{0.0, 0.0, 0.0};
-    Eigen::Vector3d desired_velocity_{0.0, 0.0, 0.0};
-    Eigen::Vector3d desired_acceleration_{0.0, 0.0, 0.0};
-    double desired_yaw_{0.0};
+    // The mass of the vehicle
+    double mass_;
 
-    
+    // The PID controllers for position tracking
+    std::array<Pegasus::Pid::UniquePtr, 3> controllers_{nullptr};
+
+    // ROS2 messages
+    pegasus_msgs::msg::ControlAttitude attitude_msg_;
+    pegasus_msgs::msg::ControlAttitude attitude_rate_msg_;
+    pegasus_msgs::msg::PidStatistics pid_statistics_msg_;
+
+    // ROS2 publishers
+    rclcpp::Publisher<pegasus_msgs::msg::ControlAttitude>::SharedPtr attitude_publisher_{nullptr};
+    rclcpp::Publisher<pegasus_msgs::msg::ControlAttitude>::SharedPtr attitude_rate_publisher_{nullptr};
+    rclcpp::Publisher<pegasus_msgs::msg::PidStatistics>::SharedPtr statistics_pub_{nullptr};
 };
+
 }

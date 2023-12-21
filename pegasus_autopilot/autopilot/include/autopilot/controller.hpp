@@ -80,12 +80,34 @@ public:
     */
     virtual void initialize() = 0;
 
+    /**
+     * @brief Method that can be used to reset certain parameters of the controller.
+     * This method is called by the autopilot when the vehicle is switched to the disarm mode. If not implemented, it does nothing.
+     */
+    virtual void reset_controller() {};
+
     /** 
      * @brief Sets the target position of the vehicle in the inertial frame and the target yaw (in degres)
      * @param position The target position in the inertial frame
      * @param yaw The target yaw in degrees
     */
-    virtual void set_position(const Eigen::Vector3d& position, float yaw) {
+    virtual void set_position(const Eigen::Vector3d& position, double yaw, double yaw_rate=0, double dt=0) {
+        set_position(position, Eigen::Vector3d::Zero(), yaw, yaw_rate);
+    }
+
+    virtual void set_position(const Eigen::Vector3d& position, const Eigen::Vector3d& velocity, double yaw, double yaw_rate=0, double dt=0) {
+        set_position(position, velocity, Eigen::Vector3d::Zero(), yaw, yaw_rate);
+    }
+
+    virtual void set_position(const Eigen::Vector3d& position, const Eigen::Vector3d& velocity, const Eigen::Vector3d& acceleration, double yaw, double yaw_rate=0, double dt=0) {
+        set_position(position, velocity, acceleration, Eigen::Vector3d::Zero(3), yaw, yaw_rate);
+    }
+
+    virtual void set_position(const Eigen::Vector3d& position, const Eigen::Vector3d& velocity, const Eigen::Vector3d& acceleration, const Eigen::Vector3d& jerk, double yaw, double yaw_rate=0, double dt=0) {
+        set_position(position, velocity, acceleration, jerk, Eigen::Vector3d::Zero(3), yaw, yaw_rate);
+    }
+
+    virtual void set_position(const Eigen::Vector3d& position, const Eigen::Vector3d& velocity, const Eigen::Vector3d& acceleration, const Eigen::Vector3d& jerk, const Eigen::Vector3d& snap, double yaw, double yaw_rate=0, double dt=0) {
         throw std::runtime_error("set_position() not implemented in derived class");
     }
 
@@ -94,7 +116,7 @@ public:
      * @param velocity The target velocity in the inertial frame
      * @param yaw_rate The target yaw rate in degrees/s
     */
-    virtual void set_velocity(const Eigen::Vector3d& velocity, float yaw_rate) {
+    virtual void set_velocity(const Eigen::Vector3d& velocity, double yaw_rate, double dt=0) {
         throw std::runtime_error("set_velocity() not implemented in derived class");
     }
 
@@ -103,7 +125,7 @@ public:
      * @param position The target position in the body frame
      * @param yaw The target yaw in degrees
     */
-    virtual void set_body_velocity(const Eigen::Vector3d& velocity, float yaw_rate) {
+    virtual void set_body_velocity(const Eigen::Vector3d& velocity, double yaw_rate, double dt=0) {
         throw std::runtime_error("set_body_velocity() not implemented in derived class");
     }
 
@@ -112,7 +134,7 @@ public:
      * @param attitude The target attitude in the body frame (in degrees)
      * @param thrust_force The target thrust force (in Newton)
     */
-    virtual void set_attitude(const Eigen::Vector3d& attitude, float thrust_force) {
+    virtual void set_attitude(const Eigen::Vector3d& attitude, double thrust_force, double dt=0) {
         throw std::runtime_error("set_attitude() not implemented in derived class");
     }
 
@@ -121,14 +143,14 @@ public:
      * @param attitude_rate The target attitude rate in the body frame (in degrees/s)
      * @param thrust_force The target thrust force (in Newton)
     */
-    virtual void set_attitude_rate(const Eigen::Vector3d& attitude_rate, float thrust_force) {
+    virtual void set_attitude_rate(const Eigen::Vector3d& attitude_rate, double thrust_force, double dt=0) {
         throw std::runtime_error("set_attitude_rate() not implemented in derived class");
     }
 
     /**
      * @brief Sets the target motor speed of the vehicle (from 0-100%)
     */
-    virtual void set_motor_speed(const Eigen::VectorXd& motor_velocity) {
+    virtual void set_motor_speed(const Eigen::VectorXd& motor_velocity, double dt=0) {
         throw std::runtime_error("set_motor_velocity() not implemented in derived class");
     }
 

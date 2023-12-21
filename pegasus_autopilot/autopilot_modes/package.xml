@@ -14,10 +14,8 @@
   <depend>pegasus_msgs</depend>
   <depend>nav_msgs</depend>
   <depend>pegasus_utils</depend>
+  
   <depend>pluginlib</depend>
-  <depend>pid</depend>
-  <depend>thrust_curves</depend>
-
   <depend>eigen</depend>
 
   <test_depend>ament_lint_auto</test_depend>

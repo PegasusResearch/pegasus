@@ -47,11 +47,9 @@ find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_ros REQUIRED)
 find_package(autopilot REQUIRED)
 find_package(pegasus_msgs REQUIRED)
-find_package(nav_msgs REQUIRED)
 find_package(pegasus_utils REQUIRED)
+find_package(nav_msgs REQUIRED)
 find_package(pluginlib REQUIRED)
-find_package(pid REQUIRED)
-find_package(thrust_curves REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 add_library(${PROJECT_NAME} 
@@ -76,10 +74,8 @@ add_definitions(${EIGEN3_DEFINITIONS})
 set(dependencies 
   autopilot
   pegasus_msgs
-  nav_msgs
-  pid
-  thrust_curves
   pegasus_utils
+  nav_msgs
   pluginlib
 )
 

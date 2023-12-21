@@ -6,13 +6,26 @@
       # ----------------------------------------------------------------------------------------------------------
       # Definition of the controller that will perform the tracking of references of the different operation modes
       # ----------------------------------------------------------------------------------------------------------
-      controller: "PX4Controller"
+      controller: "PIDController"
       # Configurations needed by the PX4 controller
       PX4Controller:
         publishers:
           control_position: "fmu/in/position"
           control_attitude: "fmu/in/force/attitude"
           control_attitude_rate: "fmu/in/force/attitude_rate"
+      PIDController:
+        publishers:
+          control_attitude: "fmu/in/force/attitude"
+          control_attitude_rate: "fmu/in/force/attitude_rate"
+          pid_debug_topic: "autopilot/statistics/pid"
+        # Gains for position PIDs on [x, y, z]
+        gains:
+          kp: [8.0, 8.0, 8.0]   # Proportional gain
+          kd: [3.0, 3.0, 3.0]   # Derivative gain
+          ki: [0.2, 0.2, 0.1]   # Integral gain
+          kff: [0.0, 0.0, 1.0]  # Feed-forward gain
+          min_output: [-20.0, -20.0, -20.0] # Minimum output of each PID
+          max_output: [20.0, 20.0, 20.0]
       # ----------------------------------------------------------------------------------------------------------
       # Definition of the trajectory manager that generates parameterized trajectories to be followed
       # ----------------------------------------------------------------------------------------------------------
@@ -73,23 +86,6 @@
         valid_transitions: ["LandMode", "HoldMode", "WaypointMode", "PassThroughMode"]
         fallback: "HoldMode"
         on_finish: "HoldMode"
-        # Gains for PIDs on [x, y, z]
-        gains:
-          kp: [8.0, 8.0, 8.0]   # Proportional gain
-          kd: [3.0, 3.0, 3.0]   # Derivative gain
-          ki: [0.2, 0.2, 0.1]   # Integral gain
-          kff: [0.0, 0.0, 1.0]  # Feed-forward gain
-          min_output: [-20.0, -20.0, -20.0] # Minimum output of each PID
-          max_output: [20.0, 20.0, 20.0]
-        # Services to generate reference trajectories
-        reset_path_topic: "autopilot/trajectory/reset"
-        add_arc_topic: "autopilot/trajectory/add_arc"
-        add_line_topic: "autopilot/trajectory/add_line"
-        add_circle_topic: "autopilot/trajectory/add_circle"
-        add_lemniscate_topic: "autopilot/trajectory/add_lemniscate"
-        # Topics for debugging
-        sampled_path_topic: "autopilot/trajectory/path"
-        pid_debug_topic: "autopilot/statistics/pid"
       PassThroughMode: 
         valid_transitions: ["DisarmMode", "ArmMode", "TakeoffMode", "LandMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode"]
         fallback: "HoldMode"

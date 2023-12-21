@@ -44,6 +44,9 @@ void TakeoffMode::initialize() {
     node_->declare_parameter<float>("autopilot.TakeoffMode.takeoff_altitude", -1.0f);
     target_altitude = node_->get_parameter("autopilot.TakeoffMode.takeoff_altitude").as_double();
 
+    // Log the default takeoff altitude
+    RCLCPP_INFO(this->node_->get_logger(), "Takeoff altitude set to %.2f m.", this->target_altitude);
+
     // Initialize the service server for setting the takeoff altitude
     node_->declare_parameter<std::string>("autopilot.TakeoffMode.set_takeoff_altitude_service", "set_takeoff_altitude");
     altitude_service_ = node_->create_service<pegasus_msgs::srv::Takeoff>(node_->get_parameter("autopilot.TakeoffMode.set_takeoff_altitude_service").as_string(), std::bind(&TakeoffMode::altitude_callback, this, std::placeholders::_1, std::placeholders::_2));

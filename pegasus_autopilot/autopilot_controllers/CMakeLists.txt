@@ -46,27 +46,34 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_ros REQUIRED)
 
+find_package(pid REQUIRED)
+find_package(pegasus_utils REQUIRED)
+find_package(thrust_curves REQUIRED)
 find_package(autopilot REQUIRED)
 find_package(pegasus_msgs REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 add_library(${PROJECT_NAME}
-    src/px4_controller.cpp
+  src/px4_controller.cpp
+  src/pid_controller.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
-    ${EIGEN3_INCLUDE_DIR}
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+  ${EIGEN3_INCLUDE_DIR}
 )
 
 add_definitions(${EIGEN3_DEFINITIONS})
 
 set(dependencies
-    autopilot
-    pegasus_msgs
-    pluginlib
+  pid
+  autopilot
+  pegasus_msgs
+  pegasus_utils
+  thrust_curves
+  pluginlib
 )
 
 ament_target_dependencies(${PROJECT_NAME} ${dependencies})

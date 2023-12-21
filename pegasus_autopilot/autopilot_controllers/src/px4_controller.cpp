@@ -53,7 +53,15 @@ void PX4Controller::initialize() {
     RCLCPP_INFO(node_->get_logger(), "PX4Controller initialized");
 }
 
-void PX4Controller::set_position(const Eigen::Vector3d & position, float yaw) {
+void PX4Controller::set_position(const Eigen::Vector3d& position, const Eigen::Vector3d& velocity, const Eigen::Vector3d& acceleration, const Eigen::Vector3d& jerk, const Eigen::Vector3d& snap, double yaw, double yaw_rate, double dt) {
+
+    // Ignore the velocity, acceleration, jerk, snap and yaw_rate references
+    (void) velocity;
+    (void) acceleration;
+    (void) jerk;
+    (void) snap;
+    (void) yaw_rate;
+    (void) dt;
 
     // Set the position control message
     position_msg_.position[0] = position[0];
@@ -65,7 +73,10 @@ void PX4Controller::set_position(const Eigen::Vector3d & position, float yaw) {
     position_publisher_->publish(position_msg_);
 }
 
-void PX4Controller::set_attitude(const Eigen::Vector3d & attitude, float thrust_force) {
+void PX4Controller::set_attitude(const Eigen::Vector3d & attitude, double thrust_force, double dt) {
+
+    // Ignore dt
+    (void) dt;
 
     // Set the attitude control message
     attitude_msg_.attitude[0] = attitude[0];
@@ -77,7 +88,10 @@ void PX4Controller::set_attitude(const Eigen::Vector3d & attitude, float thrust_
     attitude_publisher_->publish(attitude_msg_);
 }
 
-void PX4Controller::set_attitude_rate(const Eigen::Vector3d & attitude_rate, float thrust_force) {
+void PX4Controller::set_attitude_rate(const Eigen::Vector3d & attitude_rate, double thrust_force, double dt) {
+
+    // Ignore dt
+    (void) dt;
 
     // Set the attitude rate control message
     attitude_rate_msg_.attitude[0] = attitude_rate[0];
