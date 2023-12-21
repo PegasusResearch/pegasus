@@ -72,6 +72,32 @@ void StaticTrajectoryManager::initialize() {
     }
 }
 
+// Initialize the services that reset the path, etc.
+void StaticTrajectoryManager::initialize_services() {
+
+    node_->declare_parameter<std::string>("autopilot.StaticTrajectoryManager.services.reset_trajectory", "path/reset_trajectory");
+    
+    // Create the service that resets the path
+    reset_trajectory_service_ = node_->create_service<pegasus_msgs::srv::ResetPath>(
+        node_->get_parameter("autopilot.StaticTrajectoryManager.services.reset_trajectory").as_string(),
+        std::bind(&StaticTrajectoryManager::reset_callback, this, std::placeholders::_1, std::placeholders::_2)
+    );
+    
+}
+
+// Callback to handle a trajectory reset request
+void StaticTrajectoryManager::reset_callback(const pegasus_msgs::srv::ResetPath::Request::SharedPtr request, const pegasus_msgs::srv::ResetPath::Response::SharedPtr response) {
+
+    RCLCPP_INFO_STREAM(node_->get_logger(), "Resetting trajectory.");
+
+    // Clear the trajectory
+    reset_trajectory();
+
+    // Make the response of this service to true
+    response->success = true;
+    RCLCPP_INFO_STREAM(node_->get_logger(), "Trajectory empty.");
+}
+
 /**
  * @brief Add a trajectory section shared pointer to the end of the path
  * @param section A shared pointer to a generic path section
@@ -248,6 +274,13 @@ std::optional<double> StaticTrajectoryManager::d2_vd(const double gamma) const {
     return std::nullopt;
 }
 
+std::optional<double> StaticTrajectoryManager::min_gamma() const {
+    return 0.0;
+}
+
+std::optional<double> StaticTrajectoryManager::max_gamma() const {
+    return (trajectories_.empty()) ? 0.0 : (double) trajectories_.size();
+}
 
 } // namespace autopilot
 

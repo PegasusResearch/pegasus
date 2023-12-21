@@ -54,6 +54,18 @@ void Autopilot::initialize() {
 
 void Autopilot::initialize_autopilot() {
 
+    // Initialize the controller
+    initialize_controller();
+
+    // Initialize the trajectory manager
+    initialize_trajectory_manager();
+    
+    // Initialize the operating modes
+    initialize_operating_modes();
+}
+
+void Autopilot::initialize_controller() {
+    
     // Read the controller to use from the parameter server
     this->declare_parameter<std::string>("autopilot.controller", "");
     rclcpp::Parameter controller_name = this->get_parameter("autopilot.controller");
@@ -79,6 +91,38 @@ void Autopilot::initialize_autopilot() {
         RCLCPP_ERROR_STREAM(this->get_logger(), "Exception while loading controller: " << e.what() << ". Controller: " << controller_name.as_string());
         std::exit(EXIT_FAILURE);
     }
+}
+
+void Autopilot::initialize_trajectory_manager() {
+
+    // Read the trajectory manager to use from the parameter server
+    this->declare_parameter<std::string>("autopilot.trajectory_manager", "");
+    rclcpp::Parameter trajectory_manager_name = this->get_parameter("autopilot.trajectory_manager");
+
+    // Load the base class that defines the interface for all the controllers
+    pluginlib::ClassLoader<autopilot::TrajectoryManager> controller_loader("autopilot", "autopilot::TrajectoryManager");
+
+    // Setup the configurations for the trajectory manager
+    trajectory_manager_config_.node = this->shared_from_this();
+    trajectory_manager_config_.get_vehicle_state = std::bind(&Autopilot::get_state, this);
+    trajectory_manager_config_.get_vehicle_status = std::bind(&Autopilot::get_status, this);
+    trajectory_manager_config_.get_vehicle_constants = std::bind(&Autopilot::get_vehicle_constants, this);
+
+    // Log the trajectory manager that is about to be loaded
+    RCLCPP_INFO(this->get_logger(), "Loading trajectory manager: %s", trajectory_manager_name.as_string().c_str());
+
+    // Attempt to load the trajectory manager
+    try {
+        // Load the trajectory manager and initialize it
+        trajectory_manager_ = autopilot::TrajectoryManager::SharedPtr(controller_loader.createUnmanagedInstance("autopilot::" + trajectory_manager_name.as_string()));
+        trajectory_manager_->initialize_trajectory_manager(trajectory_manager_config_);
+    } catch (const std::exception & e) {
+        RCLCPP_ERROR_STREAM(this->get_logger(), "Exception while loading trajectory manager: " << e.what() << ". Trajectory manager: " << trajectory_manager_name.as_string());
+        std::exit(EXIT_FAILURE);
+    }
+}
+
+void Autopilot::initialize_operating_modes() {
 
     // Read the list of operation modes from the parameter server
     this->declare_parameter<std::vector<std::string>>("autopilot.modes", std::vector<std::string>());

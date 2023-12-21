@@ -13,6 +13,9 @@
           control_position: "fmu/in/position"
           control_attitude: "fmu/in/force/attitude"
           control_attitude_rate: "fmu/in/force/attitude_rate"
+      # ----------------------------------------------------------------------------------------------------------
+      # Definition of the trajectory manager that generates parameterized trajectories to be followed
+      # ----------------------------------------------------------------------------------------------------------
       trajectory_manager: "StaticTrajectoryManager"
       StaticTrajectoryManager:
         trajectories: ["ArcFactory", "LineFactory", "CircleFactory", "LemniscateFactory"]

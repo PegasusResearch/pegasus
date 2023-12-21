@@ -86,6 +86,11 @@ public:
 
 private:
 
+    // Pre-initializations of the autopilot
+    void initialize_controller();
+    void initialize_trajectory_manager();
+    void initialize_operating_modes();
+
     // ROS2 node initializations
     void initialize_autopilot();
     void initialize_publishers();
