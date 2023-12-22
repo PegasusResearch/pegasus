@@ -1,0 +1,8 @@
+<library path="box_geofencing">
+
+  <!-- A basic boxy geofencing mechanism -->
+  <class type="autopilot::BoxGeofencing" base_class_type="autopilot::Geofencing">
+      <description>Simple 3D box geofencing mechanism</description>
+  </class>
+
+</library>
