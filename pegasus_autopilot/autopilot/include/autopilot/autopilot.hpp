@@ -40,6 +40,9 @@
 // ROS Libraries
 #include "rclcpp/rclcpp.hpp"
 
+// Plugin libraries
+#include <pluginlib/class_loader.hpp>
+
 // ROS 2 messages
 #include "nav_msgs/msg/odometry.hpp"
 #include "pegasus_msgs/msg/status.hpp"
@@ -126,7 +129,7 @@ private:
     rclcpp::TimerBase::SharedPtr timer_;
 
     // Modes of operation of the autopilot
-    std::map<std::string, Mode::UniquePtr> operating_modes_;
+    std::map<std::string, autopilot::Mode::UniquePtr> operating_modes_;
     std::map<std::string, std::vector<std::string>> valid_transitions_;
     std::map<std::string, std::string> fallback_modes_;
     std::map<std::string, std::string> on_finish_modes_;
@@ -143,21 +146,27 @@ private:
 
     // Low level controllers for reference tracking
     Controller::Config controller_config_;
-    Controller::SharedPtr controller_{nullptr};
+    autopilot::Controller::SharedPtr controller_{nullptr};
 
     // Geofencing object to check if the vehicle is inside the geofence
     Geofencing::Config geofencing_config_;
-    Geofencing::UniquePtr geofencing_{nullptr};
+    autopilot::Geofencing::UniquePtr geofencing_{nullptr};
 
     // Trajectory manager to handle complex trajectories and motion planning
     TrajectoryManager::Config trajectory_manager_config_;
-    TrajectoryManager::SharedPtr trajectory_manager_{nullptr};
+    autopilot::TrajectoryManager::SharedPtr trajectory_manager_{nullptr};
 
     // Auxiliar counter to keep track when forcing a mode change
     int force_change_counter_{0};
 
     // Auxiliar variable used to keep track of time
     rclcpp::Time last_time_;
+
+    // Class loaders for the plugins
+    std::unique_ptr<pluginlib::ClassLoader<autopilot::Mode>> mode_loader_;
+    std::unique_ptr<pluginlib::ClassLoader<autopilot::Controller>> controller_loader_;
+    std::unique_ptr<pluginlib::ClassLoader<autopilot::Geofencing>> geofencing_loader_;
+    std::unique_ptr<pluginlib::ClassLoader<autopilot::TrajectoryManager>> trajectory_manager_loader_;
 };
 
 } // namespace autopilot

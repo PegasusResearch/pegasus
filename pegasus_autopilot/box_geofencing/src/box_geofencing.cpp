@@ -64,6 +64,15 @@ void BoxGeofencing::initialize() {
 } 
 
 bool BoxGeofencing::check_geofencing_violation() {
+
+    // Get the current position of the vehicle
+    Eigen::Vector3d position = get_vehicle_state_().position;
+
+    // Check if the position is outside the limits
+    if(position(0) < limits_x_(0) || position(0) > limits_x_(1) || position(1) < limits_y_(0) || position(1) > limits_y_(1) || position(2) < limits_z_(0) || position(2) > limits_z_(1)) {
+        return true;
+    }
+
     return false;
 }
 

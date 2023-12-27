@@ -33,7 +33,6 @@
  ****************************************************************************/
 #include "autopilot/autopilot.hpp"
 #include "autopilot/mode.hpp"
-#include <pluginlib/class_loader.hpp>
 
 namespace autopilot {
 
@@ -74,7 +73,7 @@ void Autopilot::initialize_controller() {
     rclcpp::Parameter controller_name = this->get_parameter("autopilot.controller");
 
     // Load the base class that defines the interface for all the controllers
-    pluginlib::ClassLoader<autopilot::Controller> controller_loader("autopilot", "autopilot::Controller");
+    controller_loader_ = std::make_unique<pluginlib::ClassLoader<autopilot::Controller>>("autopilot", "autopilot::Controller");
 
     // Setup the configurations for the controller
     controller_config_.node = this->shared_from_this();
@@ -88,7 +87,7 @@ void Autopilot::initialize_controller() {
     // Attempt to load the controller
     try {
         // Load the controller and initialize it
-        controller_ = autopilot::Controller::SharedPtr(controller_loader.createUnmanagedInstance("autopilot::" + controller_name.as_string()));
+        controller_ = controller_loader_->createSharedInstance("autopilot::" + controller_name.as_string());
         controller_->initialize_controller(controller_config_);
     } catch (const std::exception & e) {
         RCLCPP_ERROR_STREAM(this->get_logger(), "Exception while loading controller: " << e.what() << ". Controller: " << controller_name.as_string());
@@ -102,12 +101,11 @@ void Autopilot::initialize_geofencing() {
     this->declare_parameter<std::string>("autopilot.geofencing", "");
     rclcpp::Parameter geofencing_name = this->get_parameter("autopilot.geofencing");
 
+    // Load the base class that defines the interface for all the geofencing mechanisms
+    geofencing_loader_ = std::make_unique<pluginlib::ClassLoader<autopilot::Geofencing>>("autopilot", "autopilot::Geofencing");
 
     // Check if the geofencing mechanism is set to none. If so, do not load any geofencing mechanism
     if (geofencing_name.as_string() != std::string("")) {
-
-        // Load the base class that defines the interface for all the geofencing mechanisms
-        pluginlib::ClassLoader<autopilot::Geofencing> geofencing_loader("autopilot", "autopilot::Geofencing");
 
         // Setup the configurations for the geofencing mechanism
         geofencing_config_.node = this->shared_from_this();
@@ -121,7 +119,7 @@ void Autopilot::initialize_geofencing() {
         // Attempt to load the geofencing mechanism
         try {
             // Load the geofencing mechanism and initialize it
-            geofencing_ = autopilot::Geofencing::UniquePtr(geofencing_loader.createUnmanagedInstance("autopilot::" + geofencing_name.as_string()));
+            geofencing_ = autopilot::Geofencing::UniquePtr(geofencing_loader_->createUnmanagedInstance("autopilot::" + geofencing_name.as_string()));
             geofencing_->initialize_geofencing(geofencing_config_);
         } catch (const std::exception & e) {
             RCLCPP_ERROR_STREAM(this->get_logger(), "Exception while loading geofencing mechanism: " << e.what() << ". Geofencing mechanism: " << geofencing_name.as_string());
@@ -136,8 +134,8 @@ void Autopilot::initialize_trajectory_manager() {
     this->declare_parameter<std::string>("autopilot.trajectory_manager", "");
     rclcpp::Parameter trajectory_manager_name = this->get_parameter("autopilot.trajectory_manager");
 
-    // Load the base class that defines the interface for all the controllers
-    pluginlib::ClassLoader<autopilot::TrajectoryManager> controller_loader("autopilot", "autopilot::TrajectoryManager");
+    // Load the base class that defines the interface for all the trajectory managers
+    trajectory_manager_loader_ = std::make_unique<pluginlib::ClassLoader<autopilot::TrajectoryManager>>("autopilot", "autopilot::TrajectoryManager");
 
     // Setup the configurations for the trajectory manager
     trajectory_manager_config_.node = this->shared_from_this();
@@ -151,7 +149,7 @@ void Autopilot::initialize_trajectory_manager() {
     // Attempt to load the trajectory manager
     try {
         // Load the trajectory manager and initialize it
-        trajectory_manager_ = autopilot::TrajectoryManager::SharedPtr(controller_loader.createUnmanagedInstance("autopilot::" + trajectory_manager_name.as_string()));
+        trajectory_manager_ = trajectory_manager_loader_->createSharedInstance("autopilot::" + trajectory_manager_name.as_string());
         trajectory_manager_->initialize_trajectory_manager(trajectory_manager_config_);
     } catch (const std::exception & e) {
         RCLCPP_ERROR_STREAM(this->get_logger(), "Exception while loading trajectory manager: " << e.what() << ". Trajectory manager: " << trajectory_manager_name.as_string());
@@ -166,7 +164,7 @@ void Autopilot::initialize_operating_modes() {
     rclcpp::Parameter modes = this->get_parameter("autopilot.modes");
 
     // Load the base class that defines the interface for all the operation modes
-    pluginlib::ClassLoader<autopilot::Mode> mode_loader("autopilot", "autopilot::Mode");
+    mode_loader_ = std::make_unique<pluginlib::ClassLoader<autopilot::Mode>>("autopilot", "autopilot::Mode");
 
     // Setup the operation mode configurations
     mode_config_.node = this->shared_from_this();
@@ -186,7 +184,7 @@ void Autopilot::initialize_operating_modes() {
         // Attempt to load the mode
         try {
             // Load the mode and initialize it
-            operating_modes_[mode] = autopilot::Mode::UniquePtr(mode_loader.createUnmanagedInstance("autopilot::" + mode));
+            operating_modes_[mode] = autopilot::Mode::UniquePtr(mode_loader_->createUnmanagedInstance("autopilot::" + mode));
 
             // Initialize the mode
             operating_modes_[mode]->initialize_mode(mode_config_);
@@ -300,7 +298,10 @@ void Autopilot::update() {
 
         // Check if a geofencing violation has occured. If so, and the geofencing violation fallback mode is not empty, transition to the fallback mode
         if (geofencing_ && geofencing_->check_geofencing_violation() && geofencing_violation_fallback_[current_mode_] != "") {
-            RCLCPP_WARN_STREAM(this->get_logger(), "Geofencing violation has occured. Transitioning to mode: " << geofencing_violation_fallback_[current_mode_]);
+            
+            // Log the incident
+            auto steady_clock = rclcpp::Clock();
+            RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), steady_clock, 1000, "Geofencing violation has occured. Transitioning to mode: " << geofencing_violation_fallback_[current_mode_]);
             change_mode(geofencing_violation_fallback_[current_mode_]);
         }
 

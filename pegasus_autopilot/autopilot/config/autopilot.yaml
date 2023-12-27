@@ -33,7 +33,7 @@
       BoxGeofencing:
         limits_x: [-10.0, 10.0]
         limits_y: [-10.0, 10.0]
-        limits_z: [-10.0,  0.0] # NED Coordinades (z-negative is up)
+        limits_z: [-10.0,  1.0] # NED Coordinades (z-negative is up)
       # ----------------------------------------------------------------------------------------------------------
       # Definition of the trajectory manager that generates parameterized trajectories to be followed
       # ----------------------------------------------------------------------------------------------------------
