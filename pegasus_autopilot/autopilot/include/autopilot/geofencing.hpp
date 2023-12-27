@@ -58,7 +58,6 @@ public:
         std::function<State()> get_vehicle_state;                               // Function pointer to get the current state of the vehicle
         std::function<VehicleStatus()> get_vehicle_status;                      // Function pointer to get the current status of the vehicle
         std::function<VehicleConstants()> get_vehicle_constants;                // Function pointer to get the current constants of the vehicle
-        std::function<void()> set_geofencing_violation;                         // Function pointer to signal the autopilot that a geofencing violation has occured
     };
 
     // Custom constructor like function - as we must have the default constructor for the pluginlib
@@ -96,4 +95,4 @@ protected:
     std::function<VehicleConstants()> get_vehicle_constants_;
 };
 
-} //namespace autopilot
+} // namespace autopilot

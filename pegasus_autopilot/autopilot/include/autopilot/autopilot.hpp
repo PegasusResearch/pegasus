@@ -54,6 +54,7 @@
 // Auxiliary libraries
 #include "mode.hpp"
 #include "state.hpp"
+#include "geofencing.hpp"
 #include "controller.hpp"
 #include "trajectory_manager.hpp"
 
@@ -88,6 +89,7 @@ private:
 
     // Pre-initializations of the autopilot
     void initialize_controller();
+    void initialize_geofencing();
     void initialize_trajectory_manager();
     void initialize_operating_modes();
 
@@ -128,6 +130,7 @@ private:
     std::map<std::string, std::vector<std::string>> valid_transitions_;
     std::map<std::string, std::string> fallback_modes_;
     std::map<std::string, std::string> on_finish_modes_;
+    std::map<std::string, std::string> geofencing_violation_fallback_;
 
     // Configuration for the operation modes for the autopilot
     Mode::Config mode_config_;
@@ -139,12 +142,16 @@ private:
     std::string current_mode_{"Uninitialized"};
 
     // Low level controllers for reference tracking
-    Controller::SharedPtr controller_{nullptr};
     Controller::Config controller_config_;
+    Controller::SharedPtr controller_{nullptr};
+
+    // Geofencing object to check if the vehicle is inside the geofence
+    Geofencing::Config geofencing_config_;
+    Geofencing::UniquePtr geofencing_{nullptr};
 
     // Trajectory manager to handle complex trajectories and motion planning
-    TrajectoryManager::SharedPtr trajectory_manager_{nullptr};
     TrajectoryManager::Config trajectory_manager_config_;
+    TrajectoryManager::SharedPtr trajectory_manager_{nullptr};
 
     // Auxiliar counter to keep track when forcing a mode change
     int force_change_counter_{0};

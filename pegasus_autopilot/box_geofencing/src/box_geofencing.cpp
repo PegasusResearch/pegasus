@@ -36,7 +36,31 @@
 namespace autopilot {
 
 void BoxGeofencing::initialize() {
-    // TODO: Initialize the box shape for the geofencing
+
+    // Read the geofencing mechanism to be used from the parameter server
+    node_->declare_parameter<std::vector<double>>("autopilot.BoxGeofencing.limits_x", {-1.0, 1.0});
+    node_->declare_parameter<std::vector<double>>("autopilot.BoxGeofencing.limits_y", {-1.0, 1.0});
+    node_->declare_parameter<std::vector<double>>("autopilot.BoxGeofencing.limits_z", {-1.0, 1.0});
+
+    rclcpp::Parameter limits_x = node_->get_parameter("autopilot.BoxGeofencing.limits_x");
+    rclcpp::Parameter limits_y = node_->get_parameter("autopilot.BoxGeofencing.limits_y");
+    rclcpp::Parameter limits_z = node_->get_parameter("autopilot.BoxGeofencing.limits_z");
+    
+    // Initialize the limits
+    this->limits_x_ = Eigen::Vector2d(limits_x.as_double_array()[0], limits_x.as_double_array()[1]);
+    this->limits_y_ = Eigen::Vector2d(limits_y.as_double_array()[0], limits_y.as_double_array()[1]);
+    this->limits_z_ = Eigen::Vector2d(limits_z.as_double_array()[0], limits_z.as_double_array()[1]);
+
+    // Check that the limits are valid
+    if (this->limits_x_(0) > this->limits_x_(1) || this->limits_y_(0) > this->limits_y_(1) || this->limits_z_(0) > this->limits_z_(1)) {
+        RCLCPP_ERROR(node_->get_logger(), "The limits of the box geofencing are not valid. The lower limit must be smaller than the upper limit");
+        throw std::runtime_error("The limits of the box geofencing are not valid. The lower limit must be smaller than the upper limit");
+    }
+
+    // Log the limits
+    RCLCPP_INFO(node_->get_logger(), "The limits of the box geofencing are: x = [%.2f, %.2f]", this->limits_x_(0), this->limits_x_(1));
+    RCLCPP_INFO(node_->get_logger(), "The limits of the box geofencing are: y = [%.2f, %.2f]", this->limits_y_(0), this->limits_y_(1));
+    RCLCPP_INFO(node_->get_logger(), "The limits of the box geofencing are: z = [%.2f, %.2f]", this->limits_z_(0), this->limits_z_(1));
 } 
 
 bool BoxGeofencing::check_geofencing_violation() {
@@ -44,3 +68,6 @@ bool BoxGeofencing::check_geofencing_violation() {
 }
 
 } // namespace autopilot
+
+#include <pluginlib/class_list_macros.hpp>
+PLUGINLIB_EXPORT_CLASS(autopilot::BoxGeofencing, autopilot::Geofencing)

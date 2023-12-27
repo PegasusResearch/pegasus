@@ -27,6 +27,14 @@
           min_output: [-20.0, -20.0, -20.0] # Minimum output of each PID
           max_output: [20.0, 20.0, 20.0]
       # ----------------------------------------------------------------------------------------------------------
+      # Definition of the geofencing mechanism that will keep the vehicle in safe places
+      # ----------------------------------------------------------------------------------------------------------
+      geofencing: "BoxGeofencing"
+      BoxGeofencing:
+        limits_x: [-10.0, 10.0]
+        limits_y: [-10.0, 10.0]
+        limits_z: [-10.0,  0.0] # NED Coordinades (z-negative is up)
+      # ----------------------------------------------------------------------------------------------------------
       # Definition of the trajectory manager that generates parameterized trajectories to be followed
       # ----------------------------------------------------------------------------------------------------------
       trajectory_manager: "StaticTrajectoryManager"
@@ -60,12 +68,14 @@
       ArmMode: 
         valid_transitions: ["DisarmMode", "TakeoffMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
         fallback: "DisarmMode"
+        geofencing_violation_fallback: "DisarmMode"
         arm_service: "fmu/arm"
         offboard_service: "fmu/offboard"
       TakeoffMode: 
         valid_transitions: ["LandMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
         fallback: "HoldMode"
         on_finish: "HoldMode"
+        geofencing_violation_fallback: "HoldMode"
         takeoff_altitude: -1.0 # m (NED)
         set_takeoff_altitude_service: "autopilot/set_takeoff"
       LandMode: 
@@ -81,14 +91,17 @@
       WaypointMode: 
         valid_transitions: ["LandMode", "HoldMode", "FollowTrajectoryMode", "PassThroughMode"]
         fallback: "HoldMode"
+        geofencing_violation_fallback: "HoldMode"
         set_waypoint_service: "autopilot/set_waypoint"
       FollowTrajectoryMode: 
         valid_transitions: ["LandMode", "HoldMode", "WaypointMode", "PassThroughMode"]
         fallback: "HoldMode"
+        geofencing_violation_fallback: "HoldMode"
         on_finish: "HoldMode"
       PassThroughMode: 
         valid_transitions: ["DisarmMode", "ArmMode", "TakeoffMode", "LandMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode"]
         fallback: "HoldMode"
+        geofencing_violation_fallback: "HoldMode"
       # Topics configurations
       publishers:
         control_position: "fmu/in/position"

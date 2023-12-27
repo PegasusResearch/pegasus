@@ -57,6 +57,9 @@ void Autopilot::initialize_autopilot() {
     // Initialize the controller
     initialize_controller();
 
+    // Initialize geofencing
+    initialize_geofencing();
+
     // Initialize the trajectory manager
     initialize_trajectory_manager();
     
@@ -90,6 +93,40 @@ void Autopilot::initialize_controller() {
     } catch (const std::exception & e) {
         RCLCPP_ERROR_STREAM(this->get_logger(), "Exception while loading controller: " << e.what() << ". Controller: " << controller_name.as_string());
         std::exit(EXIT_FAILURE);
+    }
+}
+
+void Autopilot::initialize_geofencing() {
+
+    // Read the geofencing mechanism to be used from the parameter server
+    this->declare_parameter<std::string>("autopilot.geofencing", "");
+    rclcpp::Parameter geofencing_name = this->get_parameter("autopilot.geofencing");
+
+
+    // Check if the geofencing mechanism is set to none. If so, do not load any geofencing mechanism
+    if (geofencing_name.as_string() != std::string("")) {
+
+        // Load the base class that defines the interface for all the geofencing mechanisms
+        pluginlib::ClassLoader<autopilot::Geofencing> geofencing_loader("autopilot", "autopilot::Geofencing");
+
+        // Setup the configurations for the geofencing mechanism
+        geofencing_config_.node = this->shared_from_this();
+        geofencing_config_.get_vehicle_state = std::bind(&Autopilot::get_state, this);
+        geofencing_config_.get_vehicle_status = std::bind(&Autopilot::get_status, this);
+        geofencing_config_.get_vehicle_constants = std::bind(&Autopilot::get_vehicle_constants, this);
+
+        // Log the geofencing mechanism that is about to be loaded
+        RCLCPP_INFO(this->get_logger(), "Loading geofencing mechanism: %s", geofencing_name.as_string().c_str());
+
+        // Attempt to load the geofencing mechanism
+        try {
+            // Load the geofencing mechanism and initialize it
+            geofencing_ = autopilot::Geofencing::UniquePtr(geofencing_loader.createUnmanagedInstance("autopilot::" + geofencing_name.as_string()));
+            geofencing_->initialize_geofencing(geofencing_config_);
+        } catch (const std::exception & e) {
+            RCLCPP_ERROR_STREAM(this->get_logger(), "Exception while loading geofencing mechanism: " << e.what() << ". Geofencing mechanism: " << geofencing_name.as_string());
+            std::exit(EXIT_FAILURE);
+        }
     }
 }
 
@@ -167,8 +204,33 @@ void Autopilot::initialize_operating_modes() {
             this->declare_parameter<std::string>("autopilot." + mode + ".on_finish", "");
             on_finish_modes_[mode] = this->get_parameter("autopilot." + mode + ".on_finish").as_string();
 
+            // Load the geofencing violation fallback mode for this mode
+            this->declare_parameter<std::string>("autopilot." + mode + ".geofencing_violation_fallback", "");
+            geofencing_violation_fallback_[mode] = this->get_parameter("autopilot." + mode + ".geofencing_violation_fallback").as_string();
+
         } catch (const std::exception & e) {
             RCLCPP_ERROR_STREAM(this->get_logger(), "Exception while loading mode: " << e.what() << ". Mode: " << mode);
+        }
+    }
+
+    // Log all the geofencing violation fallback modes
+    for (const auto & [mode, fallback_mode] : geofencing_violation_fallback_) {
+        RCLCPP_INFO_STREAM(this->get_logger(), "Geofencing fallback for " << mode << " is: " << fallback_mode);
+    }
+
+    // Validate that all fallback modes exist
+    for (const auto & [mode, fallback_mode] : fallback_modes_) {
+        if (!operating_modes_.contains(fallback_mode)) {
+            RCLCPP_ERROR_STREAM(this->get_logger(), "Fallback mode: " << fallback_mode << " was not loaded. Required by " << mode);
+            std::exit(EXIT_FAILURE);
+        }
+    }
+
+    // Validate that all geoefncing violation fallback modes exist
+    for (const auto & [mode, fallback_mode] : geofencing_violation_fallback_) {
+        if (!operating_modes_.contains(fallback_mode) && fallback_mode != "") {
+            RCLCPP_ERROR_STREAM(this->get_logger(), "Geofencing fallback mode: " << fallback_mode << " was not loaded. Required by " << mode);
+            std::exit(EXIT_FAILURE);
         }
     }
 
@@ -232,7 +294,16 @@ void Autopilot::update() {
 
     // Execute the control loop of the current mode
     try {
+
+        // Perform an update of the current mode
         operating_modes_.at(current_mode_)->update(dt);
+
+        // Check if a geofencing violation has occured. If so, and the geofencing violation fallback mode is not empty, transition to the fallback mode
+        if (geofencing_ && geofencing_->check_geofencing_violation() && geofencing_violation_fallback_[current_mode_] != "") {
+            RCLCPP_WARN_STREAM(this->get_logger(), "Geofencing violation has occured. Transitioning to mode: " << geofencing_violation_fallback_[current_mode_]);
+            change_mode(geofencing_violation_fallback_[current_mode_]);
+        }
+
     } catch (const std::exception & e) {
 
         // If an exception is thrown during the operation mode, enter the fallback mode imediately
