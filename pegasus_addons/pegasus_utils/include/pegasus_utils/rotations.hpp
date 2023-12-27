@@ -188,6 +188,18 @@ inline Eigen::Matrix<T, 3, 3> computeSkewSymmetric3(const Eigen::Matrix<T, 3, 1>
     return skew_symmetric;
 }
 
+/** 
+ * @brief Compute the Vee Map of a 3x3 matrix
+ * @param m A 3x3 matrix
+ * @return A 3x1 vector
+*/
+template <typename T>
+inline Eigen::Matrix<T,3,1> computeVeeMap(const Eigen::Matrix<T,3,3> &m) {
+    Eigen::Matrix<T,3,1> v;
+    v << m(2,1), m(0,2), m(1,0);
+    return v;
+}
+
 /**
  * @brief Compute the 2x2 skew-symmetric matrix from a constant (int, float or double)
  * @param v A constant

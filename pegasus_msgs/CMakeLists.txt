@@ -102,6 +102,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/paths/Path.msg"
   "msg/pid/PidStatistic.msg"
   "msg/pid/PidStatistics.msg"
+  "msg/mellinger/MellingerStatistics.msg"
   
   # Depedencies for generating the messages, services and actions
   DEPENDENCIES 

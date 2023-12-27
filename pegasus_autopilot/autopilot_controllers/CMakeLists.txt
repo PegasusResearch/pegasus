@@ -55,8 +55,9 @@ find_package(pluginlib REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 add_library(${PROJECT_NAME}
-  src/px4_controller.cpp
+  src/onboard_controller.cpp
   src/pid_controller.cpp
+  src/mellinger_controller.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC

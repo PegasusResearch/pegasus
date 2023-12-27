@@ -31,29 +31,29 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  ****************************************************************************/
-#include "autopilot_controllers/px4_controller.hpp"
+#include "autopilot_controllers/onboard_controller.hpp"
 
 namespace autopilot {
 
-PX4Controller::~PX4Controller() {}
+OnboardController::~OnboardController() {}
 
-void PX4Controller::initialize() {
+void OnboardController::initialize() {
 
     // Initialize the ROS 2 subscribers to the control topics
-    node_->declare_parameter<std::string>("autopilot.PX4Controller.publishers.control_position", "control_position");
-    node_->declare_parameter<std::string>("autopilot.PX4Controller.publishers.control_attitude", "control_attitude");
-    node_->declare_parameter<std::string>("autopilot.PX4Controller.publishers.control_attitude_rate", "control_attitude_rate");
+    node_->declare_parameter<std::string>("autopilot.OnboardController.publishers.control_position", "control_position");
+    node_->declare_parameter<std::string>("autopilot.OnboardController.publishers.control_attitude", "control_attitude");
+    node_->declare_parameter<std::string>("autopilot.OnboardController.publishers.control_attitude_rate", "control_attitude_rate");
 
     // Create the publishers
-    position_publisher_ = node_->create_publisher<pegasus_msgs::msg::ControlPosition>(node_->get_parameter("autopilot.PX4Controller.publishers.control_position").as_string(), rclcpp::SensorDataQoS());
-    attitude_publisher_ = node_->create_publisher<pegasus_msgs::msg::ControlAttitude>(node_->get_parameter("autopilot.PX4Controller.publishers.control_attitude").as_string(), rclcpp::SensorDataQoS());
-    attitude_rate_publisher_ = node_->create_publisher<pegasus_msgs::msg::ControlAttitude>(node_->get_parameter("autopilot.PX4Controller.publishers.control_attitude_rate").as_string(), rclcpp::SensorDataQoS());
+    position_publisher_ = node_->create_publisher<pegasus_msgs::msg::ControlPosition>(node_->get_parameter("autopilot.OnboardController.publishers.control_position").as_string(), rclcpp::SensorDataQoS());
+    attitude_publisher_ = node_->create_publisher<pegasus_msgs::msg::ControlAttitude>(node_->get_parameter("autopilot.OnboardController.publishers.control_attitude").as_string(), rclcpp::SensorDataQoS());
+    attitude_rate_publisher_ = node_->create_publisher<pegasus_msgs::msg::ControlAttitude>(node_->get_parameter("autopilot.OnboardController.publishers.control_attitude_rate").as_string(), rclcpp::SensorDataQoS());
 
-    // Log that the PX4Controller was initialized
-    RCLCPP_INFO(node_->get_logger(), "PX4Controller initialized");
+    // Log that the OnboardController was initialized
+    RCLCPP_INFO(node_->get_logger(), "OnboardController initialized");
 }
 
-void PX4Controller::set_position(const Eigen::Vector3d& position, const Eigen::Vector3d& velocity, const Eigen::Vector3d& acceleration, const Eigen::Vector3d& jerk, const Eigen::Vector3d& snap, double yaw, double yaw_rate, double dt) {
+void OnboardController::set_position(const Eigen::Vector3d& position, const Eigen::Vector3d& velocity, const Eigen::Vector3d& acceleration, const Eigen::Vector3d& jerk, const Eigen::Vector3d& snap, double yaw, double yaw_rate, double dt) {
 
     // Ignore the velocity, acceleration, jerk, snap and yaw_rate references
     (void) velocity;
@@ -73,7 +73,7 @@ void PX4Controller::set_position(const Eigen::Vector3d& position, const Eigen::V
     position_publisher_->publish(position_msg_);
 }
 
-void PX4Controller::set_attitude(const Eigen::Vector3d & attitude, double thrust_force, double dt) {
+void OnboardController::set_attitude(const Eigen::Vector3d & attitude, double thrust_force, double dt) {
 
     // Ignore dt
     (void) dt;
@@ -88,7 +88,7 @@ void PX4Controller::set_attitude(const Eigen::Vector3d & attitude, double thrust
     attitude_publisher_->publish(attitude_msg_);
 }
 
-void PX4Controller::set_attitude_rate(const Eigen::Vector3d & attitude_rate, double thrust_force, double dt) {
+void OnboardController::set_attitude_rate(const Eigen::Vector3d & attitude_rate, double thrust_force, double dt) {
 
     // Ignore dt
     (void) dt;
@@ -106,4 +106,4 @@ void PX4Controller::set_attitude_rate(const Eigen::Vector3d & attitude_rate, dou
 } // namespace autopilot
 
 #include <pluginlib/class_list_macros.hpp>
-PLUGINLIB_EXPORT_CLASS(autopilot::PX4Controller, autopilot::Controller)
+PLUGINLIB_EXPORT_CLASS(autopilot::OnboardController, autopilot::Controller)

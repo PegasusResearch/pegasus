@@ -1,13 +1,18 @@
 <library path="autopilot_controllers">
 
-    <!-- PX4Controller -->
-    <class type="autopilot::PX4Controller" base_class_type="autopilot::Controller">
-        <description>PX4 Controller.</description>
+    <!-- OnboardController -->
+    <class type="autopilot::OnboardController" base_class_type="autopilot::Controller">
+        <description>Onboard Controller.</description>
     </class>
 
     <!-- PIDController -->
     <class type="autopilot::PIDController" base_class_type="autopilot::Controller">
         <description>PID Controller.</description>
+    </class>
+
+    <!-- MellingerController -->
+    <class type="autopilot::MellingerController" base_class_type="autopilot::Controller">
+        <description>Multirotor controller proposed by Mellinger and Kumar.</description>
     </class>
 
 </library>

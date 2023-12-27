@@ -46,11 +46,11 @@
 
 namespace autopilot {
 
-class PX4Controller : public autopilot::Controller {
+class OnboardController : public autopilot::Controller {
 
 public:
 
-    ~PX4Controller();
+    ~OnboardController();
 
     void initialize() override;
     void set_position(const Eigen::Vector3d& position, const Eigen::Vector3d& velocity, const Eigen::Vector3d& acceleration, const Eigen::Vector3d& jerk, const Eigen::Vector3d& snap, double yaw, double yaw_rate=0, double dt=0) override;
