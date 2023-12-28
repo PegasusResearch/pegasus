@@ -1,6 +1,0 @@
-/**:
-  ros__parameters:
-    publishers:
-      # Topic for the camera
-      camera_topic: "sensors/camera"
-    test: "test"
