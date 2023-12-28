@@ -1,0 +1,125 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<root>
+ <tabbed_widget parent="main_window" name="Main Window">
+  <Tab tab_name="Outputs and References" containers="1">
+   <Container>
+    <DockSplitter count="1" orientation="-" sizes="1">
+     <DockSplitter count="2" orientation="|" sizes="0.500305;0.499695">
+      <DockSplitter count="3" orientation="-" sizes="0.249516;0.249516;0.500967">
+       <DockArea name="...">
+        <plot style="Lines" flip_x="0" mode="TimeSeries" flip_y="0">
+         <range right="193.902214" top="0.100000" left="0.000000" bottom="-0.100000"/>
+         <limitY/>
+         <curve color="#1ac938" name="/drone1/autopilot/statistics/mellinger/desired_angular_rate.0"/>
+         <curve color="#ff7f0e" name="/drone1/autopilot/statistics/mellinger/desired_angular_rate.1"/>
+         <curve color="#f14cc1" name="/drone1/autopilot/statistics/mellinger/desired_angular_rate.2"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot style="Lines" flip_x="0" mode="TimeSeries" flip_y="0">
+         <range right="193.902214" top="8.051615" left="0.000000" bottom="-6.870556"/>
+         <limitY/>
+         <curve color="#1f77b4" name="/drone1/autopilot/statistics/mellinger/attitude_rate_reference.0"/>
+         <curve color="#d62728" name="/drone1/autopilot/statistics/mellinger/attitude_rate_reference.1"/>
+         <curve color="#1ac938" name="/drone1/autopilot/statistics/mellinger/attitude_rate_reference.2"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot style="Lines" flip_x="0" mode="TimeSeries" flip_y="0">
+         <range right="193.902214" top="-9.919793" left="0.000000" bottom="-13.465938"/>
+         <limitY/>
+         <curve color="#ff7f0e" name="/drone1/autopilot/statistics/mellinger/thrust_reference"/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+      <DockSplitter count="2" orientation="-" sizes="0.500483;0.499517">
+       <DockArea name="...">
+        <plot style="Lines" flip_x="0" mode="TimeSeries" flip_y="0">
+         <range right="193.902214" top="10.265721" left="0.000000" bottom="-0.518179"/>
+         <limitY/>
+         <curve color="#f14cc1" name="/drone1/autopilot/statistics/mellinger/pid_statistics.0/reference"/>
+         <curve color="#9467bd" name="/drone1/autopilot/statistics/mellinger/pid_statistics.1/reference"/>
+         <curve color="#17becf" name="/drone1/autopilot/statistics/mellinger/pid_statistics.2/reference"/>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot style="Lines" flip_x="0" mode="TimeSeries" flip_y="0">
+         <range right="193.902214" top="16.274890" left="0.000000" bottom="-13.801944"/>
+         <limitY/>
+         <curve color="#bcbd22" name="/drone1/autopilot/statistics/mellinger/pid_statistics.0/output"/>
+         <curve color="#1f77b4" name="/drone1/autopilot/statistics/mellinger/pid_statistics.1/output"/>
+         <curve color="#d62728" name="/drone1/autopilot/statistics/mellinger/pid_statistics.2/output"/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+     </DockSplitter>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <Tab tab_name="PID terms" containers="1">
+   <Container>
+    <DockSplitter count="2" orientation="-" sizes="0.500483;0.499517">
+     <DockSplitter count="2" orientation="|" sizes="0.500305;0.499695">
+      <DockArea name="...">
+       <plot style="Lines" flip_x="0" mode="TimeSeries" flip_y="0">
+        <range right="193.902214" top="-0.096257" left="0.000000" bottom="-7.431054"/>
+        <limitY/>
+        <curve color="#9467bd" name="/drone1/autopilot/statistics/mellinger/pid_statistics.0/p_term"/>
+        <curve color="#17becf" name="/drone1/autopilot/statistics/mellinger/pid_statistics.1/p_term"/>
+        <curve color="#bcbd22" name="/drone1/autopilot/statistics/mellinger/pid_statistics.2/p_term"/>
+       </plot>
+      </DockArea>
+      <DockArea name="...">
+       <plot style="Lines" flip_x="0" mode="TimeSeries" flip_y="0">
+        <range right="193.902214" top="0.472698" left="0.000000" bottom="-0.310652"/>
+        <limitY/>
+        <curve color="#1f77b4" name="/drone1/autopilot/statistics/mellinger/pid_statistics.0/d_term"/>
+        <curve color="#d62728" name="/drone1/autopilot/statistics/mellinger/pid_statistics.1/d_term"/>
+        <curve color="#1ac938" name="/drone1/autopilot/statistics/mellinger/pid_statistics.2/d_term"/>
+       </plot>
+      </DockArea>
+     </DockSplitter>
+     <DockSplitter count="2" orientation="|" sizes="0.500305;0.499695">
+      <DockArea name="...">
+       <plot style="Lines" flip_x="0" mode="TimeSeries" flip_y="0">
+        <range right="193.902214" top="22.633322" left="0.000000" bottom="-0.552032"/>
+        <limitY/>
+        <curve color="#ff7f0e" name="/drone1/autopilot/statistics/mellinger/pid_statistics.0/i_term"/>
+        <curve color="#f14cc1" name="/drone1/autopilot/statistics/mellinger/pid_statistics.1/i_term"/>
+        <curve color="#9467bd" name="/drone1/autopilot/statistics/mellinger/pid_statistics.2/i_term"/>
+       </plot>
+      </DockArea>
+      <DockArea name="...">
+       <plot style="Lines" flip_x="0" mode="TimeSeries" flip_y="0">
+        <range right="193.902214" top="0.100000" left="0.000000" bottom="-0.100000"/>
+        <limitY/>
+        <curve color="#17becf" name="/drone1/autopilot/statistics/mellinger/pid_statistics.0/anti_windup_discharge"/>
+        <curve color="#bcbd22" name="/drone1/autopilot/statistics/mellinger/pid_statistics.1/anti_windup_discharge"/>
+        <curve color="#1f77b4" name="/drone1/autopilot/statistics/mellinger/pid_statistics.2/anti_windup_discharge"/>
+       </plot>
+      </DockArea>
+     </DockSplitter>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <currentTabIndex index="1"/>
+ </tabbed_widget>
+ <use_relative_time_offset enabled="0"/>
+ <!-- - - - - - - - - - - - - - - -->
+ <!-- - - - - - - - - - - - - - - -->
+ <Plugins>
+  <plugin ID="ROS2 Topic Subscriber">
+   <use_header_stamp value="0"/>
+   <discard_large_arrays value="0"/>
+   <max_array_size value="200"/>
+   <boolean_strings_to_number value="0"/>
+   <remove_suffix_from_strings value="0"/>
+  </plugin>
+ </Plugins>
+ <!-- - - - - - - - - - - - - - - -->
+ <!-- - - - - - - - - - - - - - - -->
+ <customMathEquations/>
+ <snippets/>
+ <!-- - - - - - - - - - - - - - - -->
+</root>
+

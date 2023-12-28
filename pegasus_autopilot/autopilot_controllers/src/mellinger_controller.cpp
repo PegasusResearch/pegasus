@@ -114,7 +114,7 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
     // Compute the desired acceleration output using a PID scheme
     Eigen::Vector3d F_des;
     const Eigen::Vector3d g(0.0, 0.0, 9.81);
-    for(unsigned int i=0; i < 3; i++) F_des[i] = controllers_[i]->compute_output(pos_error[i], vel_error[i], (acceleration[i] * mass_) - g[i], dt);
+    for(unsigned int i=0; i < 3; i++) F_des[i] = controllers_[i]->compute_output(pos_error[i], vel_error[i], (acceleration[i] * mass_) - (g[i] * mass_), dt);
 
     // Get the current axis Z_B (given by the last column of the rotation matrix)
     Eigen::Vector3d Z_B = R.col(2);
@@ -144,7 +144,7 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
 
     // Compute the vee map of the rotation error and project into the coordinates of the manifold
     Eigen::Vector3d e_R;
-    e_R << R_error(2, 1), R_error(0, 2), R_error(1, 0);
+    e_R << -R_error(1,2), R_error(0, 2), -R_error(0,1);
     e_R = 0.5 * e_R;
 
     // Compute the desired angular velocity by projecting the angular velocity in the Xb-Yb plane
@@ -165,8 +165,11 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
         Pegasus::Rotations::rad_to_deg(attitude_rate[1]), 
         Pegasus::Rotations::rad_to_deg(attitude_rate[2]));
 
+    // Negate the signal of the thrust force (since the controller is expecting a negative value)
+    u_1 = -u_1;
+
     // Send the attitude rate and thrust to the attitude-rate controller
-    set_attitude_rate(attitude_rate, -u_1);
+    set_attitude_rate(attitude_rate, u_1);
 
     // Update and publish the statistics
     update_statistics(position, e_R, w_des, u_1, attitude_rate);
