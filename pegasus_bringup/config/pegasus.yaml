@@ -7,7 +7,7 @@
         # with input = [0.0, 100.0]
         identifier: 'Arctan'
         parameter_names: ["a", "b", "c", "d"]
-        parameters: ["22.05413", "0.02235", "-0.86620", "15.62617"]
+        parameters: [22.05413, 0.02235, -0.86620, 15.62617]
     autopilot:
       # Update rate
       rate: 50.0 # Hz

@@ -7,4 +7,4 @@
         # with input = [0.0, 100.0]
         identifier: 'Arctan'
         parameter_names: ["a", "b", "c", "d"]
-        parameters: ["8.84", "2.955", "-1.478", "10.37"]
+        parameters: [8.84, 2.955, -1.478, 10.37]

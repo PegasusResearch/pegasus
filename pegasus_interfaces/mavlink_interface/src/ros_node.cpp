@@ -400,6 +400,9 @@ void ROSNode::attitude_rate_force_callback(const pegasus_msgs::msg::ControlAttit
     // Convert the force received in the message in Newton (N) to a percentage from [0-100]%
     double thrust = thrust_curve_->force_to_percentage(msg->thrust);
 
+    // Log the thrust in percentage
+    //RCLCPP_WARN_STREAM(this->get_logger(), "Thrust in percentage: " << thrust);
+
     // Send the attitude-rate and thrust reference thorugh mavlink for the onboard microcontroller
     mavlink_node_->set_attitude_rate(msg->attitude[0], msg->attitude[1], msg->attitude[2], thrust);
 }

@@ -8,3 +8,4 @@
         identifier: 'Quadratic'
         parameter_names: ["a", "b", "c", "scale"]
         parameters: [34.03, 7.151, -0.012, 100.0]
+        
