@@ -36,7 +36,7 @@
 namespace autopilot {
 
 Line::Line(const Eigen::Vector3d& start, const Eigen::Vector3d& end, const double vehicle_speed) : 
-    start_(start), end_(end), vehicle_speed_(vehicle_speed) {    
+    StaticTrajectory(0.0, 1.0), start_(start), end_(end), vehicle_speed_(vehicle_speed) {    
     slope_ = end_ - start_;
 }
 

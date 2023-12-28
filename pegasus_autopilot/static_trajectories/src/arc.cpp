@@ -35,7 +35,8 @@
 
 namespace autopilot {
 
-Arc::Arc(const Eigen::Vector2d & start, const Eigen::Vector3d & center, const Eigen::Vector3d & normal, const double vehicle_speed, const bool clockwise_direction) : vehicle_speed_(vehicle_speed), start_(start), center_(center), clockwise_direction_(clockwise_direction) {
+Arc::Arc(const Eigen::Vector2d & start, const Eigen::Vector3d & center, const Eigen::Vector3d & normal, const double vehicle_speed, const bool clockwise_direction) : 
+    StaticTrajectory(0.0, 1.0), vehicle_speed_(vehicle_speed), start_(start), center_(center), clockwise_direction_(clockwise_direction) {
 
     // ------------------------
     // Initialize the rotation matrix with the rotation 

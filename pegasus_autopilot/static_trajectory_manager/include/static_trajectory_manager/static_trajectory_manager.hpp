@@ -35,7 +35,6 @@
 
 #include <map>
 #include <memory>
-#include <optional>
 #include <Eigen/Core>
 
 // ROS imports
@@ -66,29 +65,124 @@ public:
 
     virtual void initialize() override;
 
-    virtual std::optional<Eigen::Vector3d> pd(const double gamma) const override;
-    virtual std::optional<Eigen::Vector3d> d_pd(const double gamma) const override;
-    virtual std::optional<Eigen::Vector3d> d2_pd(const double gamma) const override;
-    virtual std::optional<Eigen::Vector3d> d3_pd(const double gamma) const override;
-    virtual std::optional<Eigen::Vector3d> d4_pd(const double gamma) const override;
+    /**
+     * @brief This function returns the desired position of the vehicle at a given time
+     * provided the parameter gamma which paramaterizes the trajectory
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired position of the vehicle at a given time (Eigen::Vector3d)
+     */
+    virtual Eigen::Vector3d pd(const double gamma) const override;
 
-    virtual std::optional<double> vehicle_speed(const double gamma) const override;
-    virtual std::optional<double> vd(const double gamma) const override;
-    virtual std::optional<double> d_vd(const double gamma) const override;
-    virtual std::optional<double> d2_vd(const double gamma) const override;
+    /**
+     * @brief This function returns the desired velocity of the vehicle at a given time
+     * provided the parameter gamma which paramaterizes the trajectory
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired velocity of the vehicle at a given time (Eigen::Vector3d)
+     */
+    virtual Eigen::Vector3d d_pd(const double gamma) const override;
 
-    virtual double min_gamma() const override;
-    virtual double max_gamma() const override;
+    /**
+     * @brief This function returns the desired acceleration of the vehicle at a given time
+     * provided the parameter gamma which paramaterizes the trajectory
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired acceleration of the vehicle at a given time (Eigen::Vector3d)
+     */
+    virtual Eigen::Vector3d d2_pd(const double gamma) const override;
 
-    // API to add a trajectory to the trajectory manager
-    void add_trajectory(StaticTrajectory::SharedPtr trajectory);
-    void reset_trajectory();
-    std::optional<unsigned int> get_trajectory_index(const double gamma) const;
+    /**
+     * @brief This function returns the desired jerk of the vehicle at a given time
+     * provided the parameter gamma which paramaterizes the trajectory
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired jerk of the vehicle at a given time (Eigen::Vector3d)
+     */
+    virtual Eigen::Vector3d d3_pd(const double gamma) const override;
+
+    /**
+     * @brief This function returns the desired snap of the vehicle at a given time
+     * provided the parameter gamma which paramaterizes the trajectory
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired snap of the vehicle at a given time (Eigen::Vector3d)
+     */
+    virtual Eigen::Vector3d d4_pd(const double gamma) const override;
+
+    /**
+     * @brief This function returns the vehicle speed in m/s at any given position in the trajectory
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired speed of the vehicle at a given time (double)
+     */
+    virtual double vehicle_speed(const double gamma) const override;
+
+    /**
+     * @brief This function returns the desired vehicle speed in the trajectory frame
+     * (Note that this is not expressed in m/s as the trajectory can be normalized between 0-1)
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired speed of the vehicle at a given time (double)
+     */
+    virtual double vd(const double gamma) const override;
+
+    /**
+     * @brief This function returns the desired vehicle acceleration in the trajectory frame
+     * (Note that this is not expressed in m/s^2 as the trajectory can be normalized between 0-1)
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired acceleration of the vehicle at a given time (double)
+     */
+    virtual double d_vd(const double gamma) const override;
+
+    /**
+     * @brief This function returns the desired vehicle jerk in the trajectory frame
+     * (Note that this is not expressed in m/s^3 as the trajectory can be normalized between 0-1)
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired jerk of the vehicle at a given time (double)
+     */
+    virtual double d2_vd(const double gamma) const override;
+
+    /**
+     * @brief This function returns the minimum value of the trajectory parameter gamma
+     * @return The minimum value of the trajectory parameter gamma (double)
+     */
+    double min_gamma() const override { return 0.0; }
+
+    /**
+     * @brief This function returns the maximum value of the trajectory parameter gamma
+     * @return The maximum value of the trajectory parameter gamma (double)
+     */
+    double max_gamma() const override { return trajectory_max_values_.back(); }
+
+    /**
+     * @brief This functions returns whether the trajectory is empty or not
+     * @return True if the trajectory is empty, false otherwise
+     */
+    bool empty() const override { return trajectories_.empty(); }
+
+    /**
+     * @brief This function adds a trajectory to the trajectory manager
+     * vector of trajectories
+     */
+    inline void add_trajectory(StaticTrajectory::SharedPtr trajectory) {
+        trajectories_.push_back(trajectory); 
+        trajectory_max_values_.push_back(trajectory_max_values_.back() + trajectory->max_gamma());
+    }
 
 protected:
 
     // Initialize the services that reset the path, etc.
     void initialize_services();
+
+    // Reset the trajectory, i.e. empty the vector of trajectories
+    inline void reset_trajectory() { 
+        trajectories_.clear(); 
+        trajectory_max_values_.clear(); 
+    }
+
+    // Get the index of the trajectory that is currently being followed in the vector of trajectories
+    int get_trajectory_index(const double gamma) const;
+
+    // Get the index of the trajectory that is currently being followed in the vector of trajectories
+    // using a binary search with Olog(n) complexity, where n is the number of trajectories in the vector
+    int binary_search(double gamma, int left, int right) const;
+
+    // Normalize the parameter gamma to the range [0,max_gamma] for the trajectory with index "index"
+    double normalize_parameter(double gamma, int index) const;
 
     // Callback to handle a trajectory reset request
     void reset_callback(const pegasus_msgs::srv::ResetPath::Request::SharedPtr request, const pegasus_msgs::srv::ResetPath::Response::SharedPtr response);
@@ -104,6 +198,9 @@ protected:
 
     // Definition of the actual trajectories
     std::vector<StaticTrajectory::SharedPtr> trajectories_;
+
+    // Vector of the accumulated trajectory parametric lengths (used for the trajectory indexing)
+    std::vector<double> trajectory_max_values_;
 };
 
 } // namespace autopilot

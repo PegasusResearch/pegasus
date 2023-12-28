@@ -34,7 +34,6 @@
 #pragma once
 
 #include <memory>
-#include <optional>
 #include <Eigen/Core>
 
 #include "state.hpp"
@@ -77,67 +76,102 @@ public:
     }
 
     virtual void initialize() = 0;
-    
-    virtual std::optional<Eigen::Vector3d> pd(const double gamma) const {
-        throw std::runtime_error("pd() not implemented in TrajectoryManager");
-    }
 
-    virtual std::optional<Eigen::Vector3d> d_pd(const double gamma) const {
-        throw std::runtime_error("d_pd() not implemented in TrajectoryManager");
-    }
+    /**
+     * @brief This function returns the desired position of the vehicle at a given time
+     * provided the parameter gamma which paramaterizes the trajectory
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired position of the vehicle at a given time (Eigen::Vector3d)
+     */
+    virtual Eigen::Vector3d pd(const double gamma) const { throw std::runtime_error("pd() not implemented in TrajectoryManager"); }
 
-    virtual std::optional<Eigen::Vector3d> d2_pd(const double gamma) const {
-        throw std::runtime_error("d2_pd() not implemented in TrajectoryManager");
-    }
+    /**
+     * @brief This function returns the desired velocity of the vehicle at a given time
+     * provided the parameter gamma which paramaterizes the trajectory
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired velocity of the vehicle at a given time (Eigen::Vector3d)
+     */
+    virtual Eigen::Vector3d d_pd(const double gamma) const { return Eigen::Vector3d::Zero(); }
 
-    virtual std::optional<Eigen::Vector3d> d3_pd(const double gamma) const {
-        throw std::runtime_error("d3_pd() not implemented in TrajectoryManager");
-    }
+    /**
+     * @brief This function returns the desired acceleration of the vehicle at a given time
+     * provided the parameter gamma which paramaterizes the trajectory
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired acceleration of the vehicle at a given time (Eigen::Vector3d)
+     */
+    virtual Eigen::Vector3d d2_pd(const double gamma) const { return Eigen::Vector3d::Zero(); }
 
-    virtual std::optional<Eigen::Vector3d> d4_pd(const double gamma) const {
-        throw std::runtime_error("d4_pd() not implemented in TrajectoryManager");
-    }
+    /**
+     * @brief This function returns the desired jerk of the vehicle at a given time
+     * provided the parameter gamma which paramaterizes the trajectory
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired jerk of the vehicle at a given time (Eigen::Vector3d)
+     */
+    virtual Eigen::Vector3d d3_pd(const double gamma) const { return Eigen::Vector3d::Zero(); }
 
-    virtual std::optional<double> vehicle_speed(const double gamma) const {
+    /**
+     * @brief This function returns the desired snap of the vehicle at a given time
+     * provided the parameter gamma which paramaterizes the trajectory
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired snap of the vehicle at a given time (Eigen::Vector3d)
+     */
+    virtual Eigen::Vector3d d4_pd(const double gamma) const { return Eigen::Vector3d::Zero(); }
+
+    /**
+     * @brief This function returns the vehicle speed in m/s at any given position in the trajectory
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired speed of the vehicle at a given time (double)
+     */
+    virtual double vehicle_speed(const double gamma) const {
         throw std::runtime_error("vehicle_speed() not implemented in TrajectoryManager");
     }
-  
-    virtual std::optional<double> vd(const double gamma) const {
+    
+    /**
+     * @brief This function returns the desired vehicle speed in the trajectory frame
+     * (Note that this is not expressed in m/s as the trajectory can be normalized between 0-1)
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired speed of the vehicle at a given time (double)
+     */
+    virtual double vd(const double gamma) const {
         throw std::runtime_error("vd() not implemented in TrajectoryManager");
     }
 
-    virtual std::optional<double> d_vd(const double gamma) const {
-        throw std::runtime_error("d_vd() not implemented in TrajectoryManager");
-    }
+    /**
+     * @brief This function returns the desired vehicle acceleration in the trajectory frame
+     * (Note that this is not expressed in m/s^2 as the trajectory can be normalized between 0-1)
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired acceleration of the vehicle at a given time (double)
+     */
+    virtual double d_vd(const double gamma) const { return 0.0; }
 
-    virtual std::optional<double> d2_vd(const double gamma) const {
-        throw std::runtime_error("d2_vd() not implemented in TrajectoryManager");
-    }
+    /**
+     * @brief This function returns the desired vehicle jerk in the trajectory frame
+     * (Note that this is not expressed in m/s^3 as the trajectory can be normalized between 0-1)
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired jerk of the vehicle at a given time (double)
+     */
+    virtual double d2_vd(const double gamma) const { return 0.0; }
 
-    virtual std::optional<double> curvature(const double gamma) const {
-        throw std::runtime_error("curvature() not implemented in TrajectoryManager");
-    }
-
-    virtual std::optional<double> torsion(const double gamma) const {
-        throw std::runtime_error("torsion() not implemented in TrajectoryManager");
-    }
-
-    virtual std::optional<double> tangent_angle(const double gamma) const {
-        throw std::runtime_error("tangent_angle() not implemented in TrajectoryManager");
-    }
-
-    virtual std::optional<double> derivate_norm(const double gamma) const {
-        throw std::runtime_error("derivate_norm() not implemented in TrajectoryManager");
-    }
-
+    /**
+     * @brief This function returns the minimum value of the trajectory parameter gamma
+     * @return The minimum value of the trajectory parameter gamma (double)
+     */
     virtual double min_gamma() const {
         throw std::runtime_error("min_gamma() not implemented in TrajectoryManager");
     }
 
+    /**
+     * @brief This function returns the maximum value of the trajectory parameter gamma
+     * @return The maximum value of the trajectory parameter gamma (double)
+     */
     virtual double max_gamma() const {
         throw std::runtime_error("max_gamma() not implemented in TrajectoryManager");
     }
 
+    /**
+     * @brief This functions returns whether the trajectory is empty or not
+     * @return True if the trajectory is empty, false otherwise
+     */
     virtual bool empty() const {
         throw std::runtime_error("is_empty() not implemented in TrajectoryManager");
     }

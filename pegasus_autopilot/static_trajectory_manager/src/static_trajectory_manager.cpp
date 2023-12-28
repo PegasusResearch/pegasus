@@ -98,188 +98,171 @@ void StaticTrajectoryManager::reset_callback(const pegasus_msgs::srv::ResetPath:
     RCLCPP_INFO_STREAM(node_->get_logger(), "Trajectory empty.");
 }
 
-/**
- * @brief Add a trajectory section shared pointer to the end of the path
- * @param section A shared pointer to a generic path section
- */
-void StaticTrajectoryManager::add_trajectory(StaticTrajectory::SharedPtr trajectory) {
-    trajectories_.push_back(trajectory);
+
+int StaticTrajectoryManager::get_trajectory_index(const double gamma) const {
+
+    // If the vector of trajectories is empty, return -1
+    if(trajectories_.empty()) return -1;
+
+    // If the gamma is smaller than the minimum gamma of the first trajectory, return the index of the first trajectory
+    if(gamma < 0) return 0;
+
+    // If the gamma is larger than the maximum gamma of the last trajectory, return the index of the last trajectory
+    if(gamma > trajectory_max_values_.back()) return trajectories_.size() - 1;
+    
+    // Get the index of the trajectory that is currently being followed in the vector of trajectories
+    return binary_search(gamma, 0, trajectories_.size() - 1);
 }
 
-/**
- * @brief Clear the trajectory (removes all segments if any were added)
- */
-void StaticTrajectoryManager::reset_trajectory() {
-    // Empty the trajectories vector
-    trajectories_.clear();
+int StaticTrajectoryManager::binary_search(double gamma, int left, int right) const {
+    
+    // Compute the middle index
+    int mid = left + (right - left) / 2;
+
+    // Get the minimum value for the index mid
+    double min_mid = mid == 0 ? 0 : trajectory_max_values_[mid - 1];
+
+    // Get the maximum value for the index mid
+    double max_mid = trajectory_max_values_[mid];
+
+    // Apply the binary search algorithm
+    if(gamma >= min_mid && gamma <= max_mid) return mid;
+    else if(gamma > max_mid) return binary_search(gamma, mid + 1, right);
+    else return binary_search(gamma, left, mid - 1);
 }
 
-/**
- * @brief Get the index of a given section for a parametric value inside the sections vector
- * @param gamma The parametric value
- * @return unsigned int The index inside the section vector
- */
-std::optional<unsigned int> StaticTrajectoryManager::get_trajectory_index(const double gamma) const {
+double StaticTrajectoryManager::normalize_parameter(double gamma, int index) const {
 
-    // For now we are assuming that each section is parameterized between 0 and 1. 
-    // TODO: Change this in the future to allow for dynamic parameterizations
-    unsigned int index = std::floor(gamma);
-    if(index >= trajectories_.size()) index = trajectories_.size() - 1;
-
-    return (!trajectories_.empty()) ? std::make_optional<unsigned int>(index) : std::nullopt;
+    // If the index is 0, then the gamma is already normalized, 
+    // otherwise subtract the maximum value of the previous trajectory
+    return (index == 0) ? gamma : gamma - trajectory_max_values_[index - 1];
 }
 
-std::optional<Eigen::Vector3d> StaticTrajectoryManager::pd(const double gamma) const {
+Eigen::Vector3d StaticTrajectoryManager::pd(const double gamma) const {
     
     // Get the index of the section in the sections vector
-    std::optional<unsigned int> index = get_trajectory_index(gamma);
+    int index = get_trajectory_index(gamma);
 
-    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
-    if(index.has_value()) {
-       
-        // Make the gamma vary between 0 and 1 for a given path section
-        double normalized_gamma = gamma - static_cast<double>(index.value());
+    // Safety check
+    if (index == -1) return Eigen::Vector3d::Zero();
 
-        return std::optional<Eigen::Vector3d>(trajectories_[index.value()]->pd(normalized_gamma));
-    }
-    
-    return std::nullopt;
+    // Make the gamma vary between 0 and max for a given trajectory section
+    double normalized_gamma = normalize_parameter(gamma, index);
+
+    // Return the position of the trajectory
+    return trajectories_[index]->pd(normalized_gamma);
 }
 
-std::optional<Eigen::Vector3d> StaticTrajectoryManager::d_pd(const double gamma) const {
+Eigen::Vector3d StaticTrajectoryManager::d_pd(const double gamma) const {
     
     // Get the index of the section in the sections vector
-    std::optional<unsigned int> index = get_trajectory_index(gamma);
+    int index = get_trajectory_index(gamma);
 
-    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
-    if(index.has_value()) {
-        // Make the gamma vary between 0 and 1 for a given path section
-        double normalized_gamma = gamma - static_cast<double>(index.value());
+    // Safety check
+    if (index == -1) return Eigen::Vector3d::Zero();
 
-        return std::optional<Eigen::Vector3d>(trajectories_[index.value()]->d_pd(normalized_gamma));
-    }
+    // Make the gamma vary between 0 and max for a given trajectory section
+    double normalized_gamma = normalize_parameter(gamma, index);
 
-    return std::nullopt;
+    return trajectories_[index]->d_pd(normalized_gamma);
 }
 
-std::optional<Eigen::Vector3d> StaticTrajectoryManager::d2_pd(const double gamma) const {
+Eigen::Vector3d StaticTrajectoryManager::d2_pd(const double gamma) const {
+
+    // Get the index of the section in the sections vector
+    int index = get_trajectory_index(gamma);
+
+    // Safety check
+    if (index == -1) return Eigen::Vector3d::Zero();
+
+    // Make the gamma vary between 0 and max for a given trajectory section
+    double normalized_gamma = normalize_parameter(gamma, index);
     
-    // Get the index of the section in the sections vector
-    std::optional<unsigned int> index = get_trajectory_index(gamma);
-
-    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
-    if(index.has_value()) {
-        // Make the gamma vary between 0 and 1 for a given path section
-        double normalized_gamma = gamma - static_cast<double>(index.value());
-
-        return std::optional<Eigen::Vector3d>(trajectories_[index.value()]->d2_pd(normalized_gamma));
-    }
-
-    return std::nullopt;
+    return trajectories_[index]->d2_pd(normalized_gamma);
 }
 
-std::optional<Eigen::Vector3d> StaticTrajectoryManager::d3_pd(const double gamma) const {
+Eigen::Vector3d StaticTrajectoryManager::d3_pd(const double gamma) const {
+
+    // Get the index of the section in the sections vector
+    int index = get_trajectory_index(gamma);
+
+    // Safety check
+    if (index == -1) return Eigen::Vector3d::Zero();
+
+    // Make the gamma vary between 0 and max for a given trajectory section
+    double normalized_gamma = normalize_parameter(gamma, index);
     
-    // Get the index of the section in the sections vector
-    std::optional<unsigned int> index = get_trajectory_index(gamma);
-
-    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
-    if(index.has_value()) {
-        // Make the gamma vary between 0 and 1 for a given path section
-        double normalized_gamma = gamma - static_cast<double>(index.value());
-
-        return std::optional<Eigen::Vector3d>(trajectories_[index.value()]->d3_pd(normalized_gamma));
-    }
-
-    return std::nullopt;
+    return trajectories_[index]->d3_pd(normalized_gamma);
 }
 
-std::optional<Eigen::Vector3d> StaticTrajectoryManager::d4_pd(const double gamma) const {
+Eigen::Vector3d StaticTrajectoryManager::d4_pd(const double gamma) const {
 
     // Get the index of the section in the sections vector
-    std::optional<unsigned int> index = get_trajectory_index(gamma);
+    int index = get_trajectory_index(gamma);
 
-    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
-    if(index.has_value()) {
-        // Make the gamma vary between 0 and 1 for a given path section
-        double normalized_gamma = gamma - static_cast<double>(index.value());
+    // Safety check
+    if (index == -1) return Eigen::Vector3d::Zero();
 
-        return std::optional<Eigen::Vector3d>(trajectories_[index.value()]->d4_pd(normalized_gamma));
-    }
+    // Make the gamma vary between 0 and max for a given trajectory section
+    double normalized_gamma = normalize_parameter(gamma, index);
 
-    return std::nullopt;
+    return trajectories_[index]->d4_pd(normalized_gamma);
 }
 
-std::optional<double> StaticTrajectoryManager::vehicle_speed(double gamma) const {
+double StaticTrajectoryManager::vehicle_speed(double gamma) const {
+
+    // Get the index of the section in the sections vector
+    int index = get_trajectory_index(gamma);
+
+    // Safety check
+    if (index == -1) return 0.0;
+
+    // Make the gamma vary between 0 and max for a given trajectory section
+    double normalized_gamma = normalize_parameter(gamma, index);
     
-    // Get the index of the section in the sections vector
-    std::optional<unsigned int> index = get_trajectory_index(gamma);
-
-    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
-    if(index.has_value()) {
-        // Make the gamma vary between 0 and 1 for a given path section
-        double normalized_gamma = gamma - static_cast<double>(index.value());
-
-        return std::optional<double>(trajectories_[index.value()]->vehicle_speed(normalized_gamma));
-    }
-
-    return std::nullopt;
+    return trajectories_[index]->vehicle_speed(normalized_gamma);
 }
 
-std::optional<double> StaticTrajectoryManager::vd(const double gamma) const {
+double StaticTrajectoryManager::vd(const double gamma) const {
+
+    // Get the index of the section in the sections vector
+    int index = get_trajectory_index(gamma);
+
+    // Safety check
+    if (index == -1) return 0.0;
+
+    // Make the gamma vary between 0 and max for a given trajectory section
+    double normalized_gamma = normalize_parameter(gamma, index);
     
-    // Get the index of the section in the sections vector
-    std::optional<unsigned int> index = get_trajectory_index(gamma);
-
-    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
-    if(index.has_value()) {
-        // Make the gamma vary between 0 and 1 for a given path section
-        double normalized_gamma = gamma - static_cast<double>(index.value());
-
-        return std::optional<double>(trajectories_[index.value()]->vd(normalized_gamma));
-    }
-
-    return std::nullopt;
+    return trajectories_[index]->vd(normalized_gamma);
 }
 
-std::optional<double> StaticTrajectoryManager::d_vd(const double gamma) const {
+double StaticTrajectoryManager::d_vd(const double gamma) const {
+
+    // Get the index of the section in the sections vector
+    int index = get_trajectory_index(gamma);
+
+    // Safety check
+    if (index == -1) return 0.0;
+
+    // Make the gamma vary between 0 and max for a given trajectory section
+    double normalized_gamma = normalize_parameter(gamma, index);
     
-    // Get the index of the section in the sections vector
-    std::optional<unsigned int> index = get_trajectory_index(gamma);
-
-    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
-    if(index.has_value()) {
-        // Make the gamma vary between 0 and 1 for a given path section
-        double normalized_gamma = gamma - static_cast<double>(index.value());
-
-        return std::optional<double>(trajectories_[index.value()]->d_vd(normalized_gamma));
-    }
-
-    return std::nullopt;
+    return trajectories_[index]->d_vd(normalized_gamma);
 }
 
-std::optional<double> StaticTrajectoryManager::d2_vd(const double gamma) const {
+double StaticTrajectoryManager::d2_vd(const double gamma) const {
 
     // Get the index of the section in the sections vector
-    std::optional<unsigned int> index = get_trajectory_index(gamma);
+    int index = get_trajectory_index(gamma);
 
-    // If there is a section for a given gamma, then access it and return the position, otherwise return a null optional
-    if(index.has_value()) {
-        // Make the gamma vary between 0 and 1 for a given path section
-        double normalized_gamma = gamma - static_cast<double>(index.value());
+    // Safety check
+    if (index == -1) return 0.0;
 
-        return std::optional<double>(trajectories_[index.value()]->d2_vd(normalized_gamma));
-    }
+    // Make the gamma vary between 0 and max for a given trajectory section
+    double normalized_gamma = normalize_parameter(gamma, index);
 
-    return std::nullopt;
-}
-
-double StaticTrajectoryManager::min_gamma() const {
-    return 0.0;
-}
-
-double StaticTrajectoryManager::max_gamma() const {
-    return (trajectories_.empty()) ? 0.0 : (double) trajectories_.size();
+    return trajectories_[index]->d2_vd(normalized_gamma);
 }
 
 } // namespace autopilot

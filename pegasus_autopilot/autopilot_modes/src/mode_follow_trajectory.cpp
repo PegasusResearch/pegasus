@@ -73,13 +73,13 @@ bool FollowTrajectoryMode::exit() {
 void FollowTrajectoryMode::update_reference(double dt) {
 
     // Get the desired speed progression of the path at the current location
-    d_gamma_ = trajectory_manager_->vd(gamma_).value();
-    dd_gamma_ = trajectory_manager_->d_vd(gamma_).value();
+    d_gamma_ = trajectory_manager_->vd(gamma_);
+    dd_gamma_ = trajectory_manager_->d_vd(gamma_);
 
     // Update the desired position, velocity and acceleration from the path
-    desired_position_ = trajectory_manager_->pd(gamma_).value();
-    desired_velocity_ = trajectory_manager_->d_pd(gamma_).value() * d_gamma_;
-    desired_acceleration_ = (trajectory_manager_->d2_pd(gamma_).value() * std::pow(d_gamma_, 2)) + (trajectory_manager_->d_pd(gamma_).value() * std::pow(dd_gamma_, 2));
+    desired_position_ = trajectory_manager_->pd(gamma_);
+    desired_velocity_ = trajectory_manager_->d_pd(gamma_) * d_gamma_;
+    desired_acceleration_ = (trajectory_manager_->d2_pd(gamma_) * std::pow(d_gamma_, 2)) + (trajectory_manager_->d_pd(gamma_) * std::pow(dd_gamma_, 2));
 
     // Update the desired yaw from the tangent to the path
     // TODO: make the this more general later on

@@ -36,7 +36,7 @@
 namespace autopilot {
 
 Circle::Circle(const Eigen::Vector3d & center, const Eigen::Vector3d & normal, const double radius, const double vehicle_speed) :
-    vehicle_speed_(vehicle_speed), center_(center), normal_(normal), radius_(radius) {
+    StaticTrajectory(0.0, 1.0), vehicle_speed_(vehicle_speed), center_(center), normal_(normal), radius_(radius) {
 
     // ------------------------
     // Initialize the rotation matrix with the rotation 

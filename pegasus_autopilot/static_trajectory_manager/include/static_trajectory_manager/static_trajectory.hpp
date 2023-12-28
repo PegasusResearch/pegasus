@@ -51,35 +51,99 @@ public:
     using WeakPtr = std::weak_ptr<StaticTrajectory>;
 
     /**
-     * @brief The section parametric equation 
-     * @param gamma The path parameter
-     * @return An Eigen::Vector3d with the equation of the path with respect to the path parameter gamma
+     * @brief This function returns the desired position of the vehicle at a given time
+     * provided the parameter gamma which paramaterizes the trajectory
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired position of the vehicle at a given time (Eigen::Vector3d)
      */ 
     virtual Eigen::Vector3d pd(const double gamma) const = 0;
+
+    /**
+     * @brief This function returns the desired velocity of the vehicle at a given time
+     * provided the parameter gamma which paramaterizes the trajectory
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired velocity of the vehicle at a given time (Eigen::Vector3d)
+     */
     virtual Eigen::Vector3d d_pd(const double gamma) const { return Eigen::Vector3d::Zero(); }
+
+    /**
+     * @brief This function returns the desired acceleration of the vehicle at a given time
+     * provided the parameter gamma which paramaterizes the trajectory
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired acceleration of the vehicle at a given time (Eigen::Vector3d)
+     */
     virtual Eigen::Vector3d d2_pd(const double gamma) const { return Eigen::Vector3d::Zero(); }
+
+    /**
+     * @brief This function returns the desired jerk of the vehicle at a given time
+     * provided the parameter gamma which paramaterizes the trajectory
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired jerk of the vehicle at a given time (Eigen::Vector3d)
+     */
     virtual Eigen::Vector3d d3_pd(const double gamma) const { return Eigen::Vector3d::Zero(); }
+
+    /**
+     * @brief This function returns the desired snap of the vehicle at a given time
+     * provided the parameter gamma which paramaterizes the trajectory
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired snap of the vehicle at a given time (Eigen::Vector3d)
+     */
     virtual Eigen::Vector3d d4_pd(const double gamma) const { return Eigen::Vector3d::Zero(); }
 
     /**
-     * @brief Default method for getting the desired vehicle speed for a particular 
-     * location in the path section (in m/s)
-     * @param gamma The path parameter
-     * @return double The desired vehicle speed (in m/s)
+     * @brief This function returns the vehicle speed in m/s at any given position in the trajectory
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired speed of the vehicle at a given time (double)
      */
     virtual double vehicle_speed(double gamma) const = 0;
 
+    /**
+     * @brief This function returns the desired vehicle speed in the trajectory frame
+     * (Note that this is not expressed in m/s as the trajectory can be normalized between 0-1)
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired speed of the vehicle at a given time (double)
+     */
     virtual double vd(const double gamma) const = 0;
+
+    /**
+     * @brief This function returns the desired vehicle acceleration in the trajectory frame
+     * (Note that this is not expressed in m/s^2 as the trajectory can be normalized between 0-1)
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired acceleration of the vehicle at a given time (double)
+     */
     virtual double d_vd(const double gamma) const { return 0.0; };
+
+    /**
+     * @brief This function returns the desired vehicle jerk in the trajectory frame
+     * (Note that this is not expressed in m/s^3 as the trajectory can be normalized between 0-1)
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired jerk of the vehicle at a given time (double)
+     */
     virtual double d2_vd(const double gamma) const { return 0.0; };
+
+    /**
+     * @brief Getter for the minimum value of the variable that parameterizes the trajectory
+     */
+    inline double min_gamma() const { return min_gamma_; }
+
+    /**
+     * @brief Getter for the maximum value of the variable that parameterizes the trajectory
+     */
+    inline double max_gamma() const { return max_gamma_; }
 
 protected:
 
     /**
+     * @brief Construct a new Trajectory object
+     */
+    StaticTrajectory(double min_gamma=0.0, double max_gamma=1.0) : 
+        min_gamma_(min_gamma), max_gamma_(max_gamma) {}
+
+    /**
      * @brief The minimum and maximum value of the variable that parameterizes the trajectory
      */
-    double min_gamma_{0.0};
-    double max_gamma_{1.0};
+    double min_gamma_;
+    double max_gamma_;
 
 };
 
