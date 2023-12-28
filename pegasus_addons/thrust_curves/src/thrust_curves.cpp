@@ -183,6 +183,70 @@ double QuadraticThrustCurve::get_max_force() {
 /**
  * -------------------------------------------------------------
  * In this section we define all the methods associated with the 
+ *                   ArctangentThrustCurve 
+ * ------------------------------------------------------------- 
+ */
+
+/**
+ * @brief Define the string Idenfifier for this thrust curve
+ */
+const std::string ArctangentThrustCurve::IDENTIFIER = "Arctan";
+
+/**
+ * @brief Register this thrust curve in the ThrustCurveFactory
+ */
+const bool ArctangentThrustCurve::REGISTERED_WITH_FACTORY = ThrustCurveFactory::get_instance().register_creator(ArctangentThrustCurve::IDENTIFIER, ArctangentThrustCurve::create_thrust_curve);
+
+/**
+ * @brief Static method used to instantiate a Arctangent thrust curve object
+ * @return ThrustCurve A shared pointer to a ThrustCurve object
+ */
+ThrustCurve::SharedPtr ArctangentThrustCurve::create_thrust_curve(std::map<std::string, double> gains) {
+    return std::shared_ptr<ArctangentThrustCurve>(new ArctangentThrustCurve(gains["a"], gains["b"], gains["c"], gains["d"]));
+}
+
+ArctangentThrustCurve::ArctangentThrustCurve(double a, double b, double c, double d) : a_(a), b_(b), c_(c), d_(d) {
+
+    max_force_ = percentage_to_force(100.0);
+    parameters_["a"] = a;
+    parameters_["b"] = b;
+    parameters_["c"] = c;
+    parameters_["d"] = d;
+}
+
+double ArctangentThrustCurve::force_to_percentage(double force) {
+
+    // Make sure the desired force is within the limits
+    double f = std::min(std::max(0.0, force), max_force_);
+
+    // Compute the output in percentage
+    double u = (std::tan((f-d_)/a_)-c_)/b_;
+
+    // Output the percentage clipped between 0-100%. It should be, but just in case
+    return std::max(0.0, std::min(u, 100.0));
+}
+
+double ArctangentThrustCurve::percentage_to_force(double percentage) {
+
+    // Clip the percentage between 0-100%
+    double x = std::min(100.0, std::max(0.0, percentage));
+
+    // Return the force in Newtons
+    return (a_ * std::atan(b_ * x + c_)) + d_;
+}
+
+/**
+ * @brief Get the max force that the vehicle can output when given 100% of percentage of thrust
+ * @return double The maximum force the vehicle can apply in Newton (N)
+ */
+double ArctangentThrustCurve::get_max_force() {
+    return max_force_;
+}
+
+
+/**
+ * -------------------------------------------------------------
+ * In this section we define all the methods associated with the 
  *                   LinearExponentialThrustCurve 
  * -------------------------------------------------------------
  */

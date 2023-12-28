@@ -3,10 +3,134 @@
     drone:
       mass: 0.980 #Kg
       thrust_curve:
-        # Formula T(N) = a * arctan(b * input + c) + d
+        # Formula T(N) = a * arctan(b * input + c) + d   
         # with input = [0.0, 100.0]
-        type: 'arctan'
-        a: 22.0541
-        b: 0.0223
-        c: -0.8662
-        d: 15.6262
+        identifier: 'Arctan'
+        parameter_names: ["a", "b", "c", "d"]
+        parameters: ["22.05413", "0.02235", "-0.86620", "15.62617"]
+    autopilot:
+      # Update rate
+      rate: 50.0 # Hz
+      # ----------------------------------------------------------------------------------------------------------
+      # Definition of the controller that will perform the tracking of references of the different operation modes
+      # ----------------------------------------------------------------------------------------------------------
+      controller: "MellingerController"
+      # Configurations needed by the PX4 controller
+      OnboardController:
+        publishers:
+          control_position: "fmu/in/position"
+          control_attitude: "fmu/in/force/attitude"
+          control_attitude_rate: "fmu/in/force/attitude_rate"
+      PIDController:
+        publishers:
+          control_attitude: "fmu/in/force/attitude"
+          control_attitude_rate: "fmu/in/force/attitude_rate"
+          pid_debug_topic: "autopilot/statistics/pid"
+        # Gains for position PIDs on [x, y, z]
+        gains:
+          kp: [8.0, 8.0, 8.0]   # Proportional gain
+          kd: [3.0, 3.0, 3.0]   # Derivative gain
+          ki: [0.2, 0.2, 0.1]   # Integral gain
+          kff: [1.0, 1.0, 1.0]  # Feed-forward gain
+          min_output: [-20.0, -20.0, -20.0] # Minimum output of each PID
+          max_output: [20.0, 20.0, 20.0]
+      MellingerController:
+        publishers:
+          control_attitude: "fmu/in/force/attitude"
+          control_attitude_rate: "fmu/in/force/attitude_rate"
+          debug_topic: "autopilot/statistics/mellinger"
+        gains:
+          kp: [8.0, 8.0, 8.0]    # Proportional gain
+          kd: [4.0, 4.0, 4.0]    # Derivative gain
+          ki: [0.0, 0.0, 0.0]    # Integral gain
+          kr: [10.0, 10.0, 10.0]    # Attitude error gain
+          min_output: [-100.0, -100.0, -100.0]  # Minimum output of each PID
+          max_output: [ 100.0,  100.0,  100.0]  # Maximum output of each PID
+      # ----------------------------------------------------------------------------------------------------------
+      # Definition of the geofencing mechanism that will keep the vehicle in safe places
+      # ----------------------------------------------------------------------------------------------------------
+      geofencing: "BoxGeofencing"
+      BoxGeofencing:
+        limits_x: [-10.0, 10.0]
+        limits_y: [-10.0, 10.0]
+        limits_z: [-10.0,  1.0] # NED Coordinades (z-negative is up)
+      # ----------------------------------------------------------------------------------------------------------
+      # Definition of the trajectory manager that generates parameterized trajectories to be followed
+      # ----------------------------------------------------------------------------------------------------------
+      trajectory_manager: "StaticTrajectoryManager"
+      StaticTrajectoryManager:
+        trajectories: ["ArcFactory", "LineFactory", "CircleFactory", "LemniscateFactory"]
+        services:
+          reset_trajectory: "autopilot/trajectory/reset"
+        # Individual trajectory setup
+        ArcFactory:
+          service: "autopilot/trajectory/add_arc"
+        LineFactory:
+          service: "autopilot/trajectory/add_line"
+        CircleFactory:
+          service: "autopilot/trajectory/add_circle"
+        LemniscateFactory:
+          service: "autopilot/trajectory/add_lemniscate"
+      # ---------------------------------------------------------------------------------------------------------
+      # Define the default operation mode (the one which the autopilot initializes at)
+      # ---------------------------------------------------------------------------------------------------------
+      default_mode: "DisarmMode"
+      # Define all the existing operation modes
+      modes: ["DisarmMode", "ArmMode", "TakeoffMode", "LandMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
+      # Configurations of each operating mode:
+      # 1) Define the valid transitions from a given operation mode to other operation modes
+      # 2) Fallback mode if something goes wrong
+      # 3) Other specific operating mode configuration
+      DisarmMode: 
+        valid_transitions: ["ArmMode"]
+        fallback: "DisarmMode"
+        disarm_service: "fmu/kill_switch"
+      ArmMode: 
+        valid_transitions: ["DisarmMode", "TakeoffMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
+        fallback: "DisarmMode"
+        geofencing_violation_fallback: "DisarmMode"
+        arm_service: "fmu/arm"
+        offboard_service: "fmu/offboard"
+      TakeoffMode: 
+        valid_transitions: ["LandMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
+        fallback: "HoldMode"
+        on_finish: "HoldMode"
+        geofencing_violation_fallback: "HoldMode"
+        takeoff_altitude: -1.0 # m (NED)
+        set_takeoff_altitude_service: "autopilot/set_takeoff"
+      LandMode: 
+        valid_transitions: ["DisarmMode", "ArmMode", "TakeoffMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
+        fallback: "HoldMode"
+        on_finish: "DisarmMode"
+        land_speed: 0.2 # m/s
+        land_detected_treshold: 0.1 # m/s
+        countdown_to_disarm: 3.0 # s
+      HoldMode: 
+        valid_transitions: ["LandMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
+        fallback: "LandMode"
+      WaypointMode: 
+        valid_transitions: ["LandMode", "HoldMode", "FollowTrajectoryMode", "PassThroughMode"]
+        fallback: "HoldMode"
+        geofencing_violation_fallback: "HoldMode"
+        set_waypoint_service: "autopilot/set_waypoint"
+      FollowTrajectoryMode: 
+        valid_transitions: ["LandMode", "HoldMode", "WaypointMode", "PassThroughMode"]
+        fallback: "HoldMode"
+        geofencing_violation_fallback: "HoldMode"
+        on_finish: "HoldMode"
+      PassThroughMode: 
+        valid_transitions: ["DisarmMode", "ArmMode", "TakeoffMode", "LandMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode"]
+        fallback: "HoldMode"
+        geofencing_violation_fallback: "HoldMode"
+      # Topics configurations
+      publishers:
+        control_position: "fmu/in/position"
+        control_attitude: "fmu/in/force/attitude"
+        control_attitude_rate: "fmu/in/force/attitude_rate"
+        status: "autopilot/status"
+      subscribers:
+        state: "fmu/filter/state"
+        status: "fmu/status"
+        constants: "fmu/constants"
+      services:
+        set_mode: "autopilot/change_mode"

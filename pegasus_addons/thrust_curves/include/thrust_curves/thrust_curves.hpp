@@ -152,6 +152,54 @@ private:
     std::map<std::string, ThrustCurveCreator> creators_;
 };
 
+class ArctangentThrustCurve : public ThrustCurve {
+
+public:
+
+    static ThrustCurve::SharedPtr create_thrust_curve(std::map<std::string, double> gains);
+
+    virtual double force_to_percentage(double force);
+    virtual double percentage_to_force(double percentage);
+    virtual double get_max_force();
+    virtual std::string get_type() { return IDENTIFIER; };
+
+    /**
+     * @brief Destructor of the QuadraticThrustCurve base class. This is empty
+     * as no memory allocation is made
+     */
+    ~ArctangentThrustCurve() {};
+
+private:
+    
+    /**
+     * @brief Construct a new Quadratic Thrust Curve object, that will encode a thrust curve of the type
+     * force = a * arctan(b * input + c) + d, with x a percentage between 0-100%
+     * @param a The output gain
+     * @param b The input gain
+     * @param c The input offset
+     * @param d The output offset
+     */
+    ArctangentThrustCurve(double a, double b, double c, double d);
+
+    /**
+     * @brief The max force that the vehicle can output in Newton (N)
+     */
+    double max_force_;
+
+    double a_, b_, c_, d_;
+
+    /**
+     * @brief The unique identifier for this thrust curve
+     */
+    static const std::string IDENTIFIER;
+
+    /**
+     * @brief A Bolean that ensures that the thrust
+     * curve is registered with the factory at compile time
+     */
+    static const bool REGISTERED_WITH_FACTORY;
+};
+
 /**
  * @brief Quadratic thrust curve class that derives from thrust curve base class
  */

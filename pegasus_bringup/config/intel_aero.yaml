@@ -3,10 +3,8 @@
     drone:
       mass: 1.350 #Kg
       thrust_curve:
-        # Formula T(N) = a * arctan(b * input + c) + d
-        # with input = [0.0, 1.0]
-        type: 'arctan'
-        a: 8.84
-        b: 2.955
-        c: -1.478
-        d: 10.37
+        # Formula T(N) = a * arctan(b * input + c) + d   
+        # with input = [0.0, 100.0]
+        identifier: 'Arctan'
+        parameter_names: ["a", "b", "c", "d"]
+        parameters: ["8.84", "2.955", "-1.478", "10.37"]
