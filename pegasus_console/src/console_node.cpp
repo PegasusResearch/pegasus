@@ -77,49 +77,74 @@ ConsoleNode::~ConsoleNode() {}
 
 void ConsoleNode::initialize_subscribers() {
 
+    this->declare_parameter<std::string>("console.subscribers.onboard.status", "/drone1/fmu/status");
+    this->declare_parameter<std::string>("console.subscribers.onboard.state", "/drone1/fmu/filter/state");
+    this->declare_parameter<std::string>("console.subscribers.autopilot.status", "/drone1/autopilot/status");
+
     // Status of the vehicle
     status_sub_ = this->create_subscription<pegasus_msgs::msg::Status>(
-        "/drone1/fmu/status", rclcpp::SensorDataQoS(), std::bind(&ConsoleNode::status_callback, this, std::placeholders::_1));
+        this->get_parameter("console.subscribers.onboard.status").as_string(), 
+        rclcpp::SensorDataQoS(), std::bind(&ConsoleNode::status_callback, this, std::placeholders::_1));
     
     // Subscribe to the state of the vehicle given by its internal EKF filter
     filter_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
-        "/drone1/fmu/filter/state", 
+        this->get_parameter("console.subscribers.onboard.state").as_string(), 
         rclcpp::SensorDataQoS(), std::bind(&ConsoleNode::state_callback, this, std::placeholders::_1));
 
     // Status of the autopilot
     autopilot_status_sub_ = this->create_subscription<pegasus_msgs::msg::AutopilotStatus>(
-        "/drone1/autopilot/status", rclcpp::SensorDataQoS(), std::bind(&ConsoleNode::autopilot_status_callback, this, std::placeholders::_1));
+        this->get_parameter("console.subscribers.autopilot.status").as_string(), 
+        rclcpp::SensorDataQoS(), std::bind(&ConsoleNode::autopilot_status_callback, this, std::placeholders::_1));
 }
 
 void ConsoleNode::initialize_publishers() {
 
+    this->declare_parameter<std::string>("console.publishers.onboard.attitude_rate", "/drone1/fmu/in/throtle/attitude_rate");
+    this->declare_parameter<std::string>("console.publishers.onboard.position", "/drone1/fmu/in/position");
+
     // Publish the attitude setpoints to the vehicle for thrust curve control
     attitude_rate_pub_ = this->create_publisher<pegasus_msgs::msg::ControlAttitude>(
-        "/drone1/fmu/in/throtle/attitude_rate", rclcpp::SensorDataQoS());
+        this->get_parameter("console.publishers.onboard.attitude_rate").as_string(), 
+        rclcpp::SensorDataQoS());
 
     // Publish the setpoints to the vehicle
     position_pub_ = this->create_publisher<pegasus_msgs::msg::ControlPosition>(
-        "/drone1/fmu/in/position", rclcpp::SensorDataQoS());
+        this->get_parameter("console.publishers.onboard.position").as_string(), 
+        rclcpp::SensorDataQoS());
 }
 
 void ConsoleNode::initialize_services() {
 
+    this->declare_parameter<std::string>("console.services.onboard.arm_disarm", "/drone1/fmu/arm");
+    this->declare_parameter<std::string>("console.services.onboard.land", "/drone1/fmu/land");
+    this->declare_parameter<std::string>("console.services.onboard.kill_switch", "/drone1/fmu/kill_switch");
+    this->declare_parameter<std::string>("console.services.onboard.position_hold", "/drone1/fmu/hold");
+    this->declare_parameter<std::string>("console.services.onboard.offboard", "/drone1/fmu/offboard");
+
+    this->declare_parameter<std::string>("console.services.autopilot.set_mode", "/drone1/autopilot/change_mode");
+    this->declare_parameter<std::string>("console.services.autopilot.set_waypoint", "/drone1/autopilot/set_waypoint");
+    this->declare_parameter<std::string>("console.services.autopilot.add_arc", "/drone1/autopilot/trajectory/add_arc");
+    this->declare_parameter<std::string>("console.services.autopilot.add_line", "/drone1/autopilot/trajectory/add_line");
+    this->declare_parameter<std::string>("console.services.autopilot.add_circle", "/drone1/autopilot/trajectory/add_circle");
+    this->declare_parameter<std::string>("console.services.autopilot.add_lemniscate", "/drone1/autopilot/trajectory/add_lemniscate");
+    this->declare_parameter<std::string>("console.services.autopilot.reset_path", "/drone1/autopilot/trajectory/reset");
+
     // Create the service clients
-    arm_disarm_client_ = this->create_client<pegasus_msgs::srv::Arm>("/drone1/fmu/arm");
-    land_client_ = this->create_client<pegasus_msgs::srv::Land>("/drone1/fmu/land");
-    kill_switch_client_ = this->create_client<pegasus_msgs::srv::KillSwitch>("/drone1/fmu/kill_switch");
-    position_hold_client_ = this->create_client<pegasus_msgs::srv::PositionHold>("/drone1/fmu/hold");
-    offboard_client_ = this->create_client<pegasus_msgs::srv::Offboard>("/drone1/fmu/offboard");
+    arm_disarm_client_ = this->create_client<pegasus_msgs::srv::Arm>(this->get_parameter("console.services.onboard.arm_disarm").as_string());
+    land_client_ = this->create_client<pegasus_msgs::srv::Land>(this->get_parameter("console.services.onboard.land").as_string());
+    kill_switch_client_ = this->create_client<pegasus_msgs::srv::KillSwitch>(this->get_parameter("console.services.onboard.kill_switch").as_string());
+    position_hold_client_ = this->create_client<pegasus_msgs::srv::PositionHold>(this->get_parameter("console.services.onboard.position_hold").as_string());
+    offboard_client_ = this->create_client<pegasus_msgs::srv::Offboard>(this->get_parameter("console.services.onboard.offboard").as_string());
 
     // Create the service clients for the autopilot
-    set_mode_client_ = this->create_client<pegasus_msgs::srv::SetMode>("/drone1/autopilot/change_mode");
+    set_mode_client_ = this->create_client<pegasus_msgs::srv::SetMode>(this->get_parameter("console.services.autopilot.set_mode").as_string());
 
-    waypoint_client_ = this->create_client<pegasus_msgs::srv::Waypoint>("/drone1/autopilot/set_waypoint");
-    add_arc_client_ = this->create_client<pegasus_msgs::srv::AddArc>("/drone1/autopilot/trajectory/add_arc");
-    add_line_client_ = this->create_client<pegasus_msgs::srv::AddLine>("/drone1/autopilot/trajectory/add_line");
-    add_circle_client_ = this->create_client<pegasus_msgs::srv::AddCircle>("/drone1/autopilot/trajectory/add_circle");
-    add_lemniscate_client_ = this->create_client<pegasus_msgs::srv::AddLemniscate>("/drone1/autopilot/trajectory/add_lemniscate");
-    reset_path_client_ = this->create_client<pegasus_msgs::srv::ResetPath>("/drone1/autopilot/trajectory/reset");
+    waypoint_client_ = this->create_client<pegasus_msgs::srv::Waypoint>(this->get_parameter("console.services.autopilot.set_waypoint").as_string());
+    add_arc_client_ = this->create_client<pegasus_msgs::srv::AddArc>(this->get_parameter("console.services.autopilot.add_arc").as_string());
+    add_line_client_ = this->create_client<pegasus_msgs::srv::AddLine>(this->get_parameter("console.services.autopilot.add_line").as_string());
+    add_circle_client_ = this->create_client<pegasus_msgs::srv::AddCircle>(this->get_parameter("console.services.autopilot.add_circle").as_string());
+    add_lemniscate_client_ = this->create_client<pegasus_msgs::srv::AddLemniscate>(this->get_parameter("console.services.autopilot.add_lemniscate").as_string());
+    reset_path_client_ = this->create_client<pegasus_msgs::srv::ResetPath>(this->get_parameter("console.services.autopilot.reset_path").as_string());
 }
 
 void ConsoleNode::start() {

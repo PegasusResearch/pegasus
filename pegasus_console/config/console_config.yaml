@@ -1,0 +1,28 @@
+/**:
+  ros__parameters:
+    console:
+      subscribers:
+        autopilot:
+          status: "autopilot/status"
+        onboard:
+          status: "fmu/status"
+          state: "fmu/filter/state"
+      publishers:
+        onboard:
+          attitude_rate: "fmu/in/throtle/attitude_rate"
+          position: "fmu/in/position"
+      services:
+        autopilot:
+          set_mode: "autopilot/change_mode"
+          set_waypoint: "autopilot/set_waypoint"
+          add_arc: "autopilot/trajectory/add_arc"
+          add_line: "autopilot/trajectory/add_line"
+          add_circle: "autopilot/trajectory/add_circle"
+          add_lemniscate: "autopilot/trajectory/add_lemniscate"
+          reset_path: "autopilot/trajectory/reset"
+        onboard:
+          arm_disarm: "fmu/arm"
+          land: "fmu/land"
+          kill_switch: "fmu/kill_switch"
+          hold: "fmu/hold"
+          offboard: "fmu/offboard"
