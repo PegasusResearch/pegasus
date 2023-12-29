@@ -152,6 +152,11 @@ Eigen::Vector3d StaticTrajectoryManager::pd(const double gamma) const {
     // Make the gamma vary between 0 and max for a given trajectory section
     double normalized_gamma = normalize_parameter(gamma, index);
 
+    // Log the index of the trajectory that is being followed
+    RCLCPP_INFO_STREAM(rclcpp::get_logger("static_trajectory_manager"), "Gamma: " << gamma);
+    RCLCPP_INFO_STREAM(rclcpp::get_logger("static_trajectory_manager"), "Trajectory number " << index);
+    RCLCPP_INFO_STREAM(rclcpp::get_logger("static_trajectory_manager"), "Normalized gamma: " << normalized_gamma);
+
     // Return the position of the trajectory
     return trajectories_[index]->pd(normalized_gamma);
 }

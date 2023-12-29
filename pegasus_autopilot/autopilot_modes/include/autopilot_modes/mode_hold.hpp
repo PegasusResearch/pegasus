@@ -53,7 +53,7 @@ protected:
 
     // The target position and attitude for the vehicle to hold to
     Eigen::Vector3d target_pos{Eigen::Vector3d::Zero()};
-    float target_yaw{0.0f};
+    float target_yaw_{0.0f};
 };
 
 }

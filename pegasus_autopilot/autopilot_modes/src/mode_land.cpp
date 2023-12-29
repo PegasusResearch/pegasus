@@ -71,8 +71,8 @@ bool LandMode::enter() {
     this->target_pos_[1] = curr_state.position[1];
     this->target_pos_[2] = curr_state.position[2];
 
-    // Convert the yaw from rad to deg to be used by the target position
-    this->target_yaw_ = Pegasus::Rotations::yaw_from_quaternion(curr_state.attitude);
+    // Set the target yaw to the current yaw of the drone (in degrees)
+    this->target_yaw_ = Pegasus::Rotations::rad_to_deg(Pegasus::Rotations::yaw_from_quaternion(curr_state.attitude));
 
     // Return true to indicate that the mode has been entered successfully
     return true;

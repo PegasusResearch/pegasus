@@ -55,11 +55,11 @@ bool HoldMode::enter() {
     this->target_pos[1] = curr_state.position[1];
     this->target_pos[2] = curr_state.position[2];
 
-    // TODO: Check if we need to convert the yaw from rad to deg to be used by the target position
-    this->target_yaw = Pegasus::Rotations::yaw_from_quaternion(curr_state.attitude);
+    // Set the target yaw to the current yaw of the drone (in degrees)
+    this->target_yaw_ = Pegasus::Rotations::rad_to_deg(Pegasus::Rotations::yaw_from_quaternion(curr_state.attitude));
 
     // Log the Hold position
-    RCLCPP_WARN(this->node_->get_logger(), "Hold position: [%f, %f, %f] and yaw: %f", this->target_pos[0], this->target_pos[1], this->target_pos[2], this->target_yaw);
+    RCLCPP_WARN(this->node_->get_logger(), "Hold position: [%f, %f, %f] and yaw: %f", this->target_pos[0], this->target_pos[1], this->target_pos[2], this->target_yaw_);
 
     // Return true to indicate that the mode has been entered successfully
     return true;
@@ -73,7 +73,7 @@ bool HoldMode::exit() {
 void HoldMode::update(double) {
 
     // Set the controller to track the target position and attitude
-    this->controller_->set_position(this->target_pos, this->target_yaw);
+    this->controller_->set_position(this->target_pos, this->target_yaw_);
 }
 
 } // namespace autopilot
