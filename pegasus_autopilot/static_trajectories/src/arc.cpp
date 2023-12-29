@@ -32,6 +32,7 @@
  *
  ****************************************************************************/
 #include "static_trajectories/arc.hpp"
+#include <iostream>
 
 namespace autopilot {
 
@@ -62,6 +63,16 @@ Arc::Arc(const Eigen::Vector2d & start, const Eigen::Vector3d & center, const Ei
         for(int i = 0; i < 3; i++) rotation_(1,i) = u2(i);
         for(int i = 0; i < 3; i++) rotation_(2,i) = u3(i);
     }
+
+    // Set the clockwise direction variable to be -1 or 1
+    clockwise_direction_ = (clockwise_direction) ? 1.0 : -1.0;
+
+    // Compute the arc radius
+    Eigen::Vector2d circle_planar_center(center[0], center[1]);
+    radius_ = (circle_planar_center - start).norm();
+
+    // Compute the angle of the starting point in the circle
+    init_angle_ = std::atan2(start[1] - center[1], start[0] - center[0]);
 }
 
 Eigen::Vector3d Arc::pd(const double gamma) const {
@@ -78,6 +89,10 @@ Eigen::Vector3d Arc::pd(const double gamma) const {
     // If the "normal_" vector is different than [0.0, 0.0, 1.0], then 
     // rotate the plane where the circle is located. Otherwise, we are just multiplying by the identity matrix
     pd = rotation_ * pd;
+
+    std::cout << "radius: " << radius_ << std::endl;
+    std::cout << "curr_angle: " << curr_angle << std::endl;
+    std::cout << "pd: " << pd.transpose() << std::endl;
 
     // Add theoffset to the circle after the rotation, otherwise the offset would also get rotated
     return pd + center_;

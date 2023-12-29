@@ -355,9 +355,18 @@ bool Autopilot::change_mode(const std::string new_mode, bool force) {
             return false;
     }
 
-    // Attemp to enter the new mode
+    // Attemp to enter the new mode (but do not change the current mode yet, as we still need to exit the current mode)
     try {
-        operating_modes_[new_mode]->enter();
+
+        // Attempt to enter the new mode
+        bool new_mode_success = operating_modes_[new_mode]->enter();
+
+        // If the new mode was not entered successfully, return false
+        if (!new_mode_success) {
+            RCLCPP_ERROR_STREAM(this->get_logger(), "Failed to enter mode: " << new_mode << ". Keeping the operating mode: " << current_mode_);
+            return false;
+        }
+
     } catch (const std::exception & e) {
         RCLCPP_ERROR_STREAM(this->get_logger(), "Exception while entering mode: " << e.what() << ". Mode: " << new_mode << ". Keeping the operating mode: " << current_mode_);
         return false;

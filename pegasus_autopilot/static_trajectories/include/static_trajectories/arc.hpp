@@ -105,9 +105,6 @@ protected:
     /** @brief The radius of the arc */
     double radius_;
 
-    /** @brief The curvature of the arc */
-    double curvature_;
-
     /** @brief The angle of the circle corresponding to the initial position */
     double init_angle_;
 
