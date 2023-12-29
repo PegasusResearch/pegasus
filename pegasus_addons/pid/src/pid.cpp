@@ -79,14 +79,18 @@ double Pid::compute_output(double error_p, double error_d, double feed_forward_r
 
     // Add anti-windup to the integral term (discharge the integral if our output is being saturated)
     double discharge_rate = 0.0;
-    if(output > max_output_ || output < min_output_) {
 
-        // Compute the anti-windup discharge rate
-        discharge_rate = ki_ * (saturated_ouput - output);
+    // TODO: improve the anti-windup part - this is not working properly
+    // because when the integral is zero, but the output is saturated, the
+    // the integral is not discharged, but rather charged in the opositie direction
+    // if(output > max_output_ || output < min_output_) {
 
-        // Anti-windup effect (discharge the integral)
-        error_i_ += discharge_rate;
-    }
+    //     // Compute the anti-windup discharge rate
+    //     discharge_rate = ki_ * (saturated_ouput - output);
+
+    //     // Anti-windup effect (discharge the integral)
+    //     error_i_ -= discharge_rate;
+    // }
 
     // Update the prev error variable
     prev_error_p_ = error_p;

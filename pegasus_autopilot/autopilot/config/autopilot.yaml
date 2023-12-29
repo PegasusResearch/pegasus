@@ -6,7 +6,7 @@
       # ----------------------------------------------------------------------------------------------------------
       # Definition of the controller that will perform the tracking of references of the different operation modes
       # ----------------------------------------------------------------------------------------------------------
-      controller: "OnboardController"
+      controller: "PIDController"
       # Configurations needed by the PX4 controller
       OnboardController:
         publishers:

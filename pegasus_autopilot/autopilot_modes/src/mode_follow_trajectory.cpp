@@ -105,6 +105,8 @@ void FollowTrajectoryMode::update_reference(double dt) {
 
     // Update the desired position, velocity and acceleration from the path
     desired_position_ = trajectory_manager_->pd(gamma_);
+
+    RCLCPP_INFO_STREAM(node_->get_logger(), "Desired position: " << desired_position_.transpose());
     desired_velocity_ = trajectory_manager_->d_pd(gamma_) * d_gamma_;
     desired_acceleration_ = (trajectory_manager_->d2_pd(gamma_) * std::pow(d_gamma_, 2)) + (trajectory_manager_->d_pd(gamma_) * std::pow(dd_gamma_, 2));
 
