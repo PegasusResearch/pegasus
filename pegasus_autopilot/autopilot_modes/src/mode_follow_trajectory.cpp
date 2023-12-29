@@ -54,6 +54,59 @@ bool FollowTrajectoryMode::enter() {
     return true;
 }
 
+void FollowTrajectoryMode::update(double dt) {
+
+    // Update the current reference on the path to follow
+    update_reference(dt);
+
+    // Call the controller
+    controller_->set_position(desired_position_, desired_velocity_, desired_acceleration_, desired_jerk_, desired_yaw_, desired_yaw_rate_, dt);
+
+    // Check if we have reached the end of the path
+    check_finished();
+}
+
+void FollowTrajectoryMode::update_reference(double dt) {
+
+    // Update the desired position, velocity and acceleration from the path
+    desired_position_ = trajectory_manager_->pd(gamma_);
+    desired_velocity_ = trajectory_manager_->d_pd(gamma_) * d_gamma_;
+    desired_acceleration_ = (trajectory_manager_->d2_pd(gamma_) * std::pow(d_gamma_, 2)) + (trajectory_manager_->d_pd(gamma_) * std::pow(dd_gamma_, 2));
+
+    // TODO - check if this is correct for the jerk
+    //desired_jerk_ = trajectory_manager_->d3_pd(gamma_) * std::pow(d_gamma_, 3) + 3 * trajectory_manager_->d2_pd(gamma_) * d_gamma_ * dd_gamma_ + trajectory_manager_->d_pd(gamma_) * std::pow(dd_gamma_, 2);
+
+    // Get the desired yaw and yaw_rate from the trajectory
+    desired_yaw_ = 0.0;
+    desired_yaw_rate_ = 0.0;
+
+    // Integrate the virtual target position over time
+    dd_gamma_ = trajectory_manager_->d_vd(gamma_);
+    d_gamma_ = trajectory_manager_->vd(gamma_);
+    gamma_ += d_gamma_ * dt;
+}
+
+bool FollowTrajectoryMode::check_finished() {
+
+    // Check if the virtual target is already at the end of the trajectory
+    if(gamma_ < trajectory_manager_->max_gamma()) return false;
+
+
+    // Check if the vehicle is close to the final position already
+    Eigen::Vector3d position = get_vehicle_state().position;
+
+    // Compute the position error
+    Eigen::Vector3d pos_error = desired_position_ - position;
+
+    // If the position error is too big, return false
+    if (pos_error.norm() > 0.1) return false;
+
+    // Otherwise, return true
+    RCLCPP_INFO_STREAM(node_->get_logger(), "Trajectory Tracking mission finished.");
+    signal_mode_finished();
+    return true;
+}
+
 bool FollowTrajectoryMode::exit() {
     
     // Reset the parametric values
@@ -65,61 +118,12 @@ bool FollowTrajectoryMode::exit() {
     desired_position_ = Eigen::Vector3d(0.0, 0.0, 0.0);
     desired_velocity_ = Eigen::Vector3d(0.0, 0.0, 0.0);
     desired_acceleration_ = Eigen::Vector3d(0.0, 0.0, 0.0);
+    desired_jerk_ = Eigen::Vector3d(0.0, 0.0, 0.0);
+    desired_yaw_ = 0.0;
+    desired_yaw_rate_ = 0.0;
 
     // Return with success
     return true;
-}
-
-void FollowTrajectoryMode::update_reference(double dt) {
-
-    // Get the desired speed progression of the path at the current location
-    d_gamma_ = trajectory_manager_->vd(gamma_);
-    dd_gamma_ = trajectory_manager_->d_vd(gamma_);
-
-    // Update the desired position, velocity and acceleration from the path
-    desired_position_ = trajectory_manager_->pd(gamma_);
-    desired_velocity_ = trajectory_manager_->d_pd(gamma_) * d_gamma_;
-    desired_acceleration_ = (trajectory_manager_->d2_pd(gamma_) * std::pow(d_gamma_, 2)) + (trajectory_manager_->d_pd(gamma_) * std::pow(dd_gamma_, 2));
-
-    // Update the desired yaw from the tangent to the path
-    // TODO: make the this more general later on
-    desired_yaw_ = 0.0; //path_.tangent_angle(gamma_).value();
-
-    // Integrate the parametric value (virtual target) over time
-    gamma_ += d_gamma_ * dt;
-
-    // Saturate the parametric value
-    gamma_ = std::min(std::max(trajectory_manager_->min_gamma(), gamma_), trajectory_manager_->max_gamma());
-}
-
-bool FollowTrajectoryMode::check_finished() {
-
-    // Get the stats from the PID controllers
-    // Eigen::Vector3d pos_error(
-    //     controllers_[0]->get_statistics().error_p, 
-    //     controllers_[1]->get_statistics().error_p, 
-    //     controllers_[2]->get_statistics().error_p);
-
-    // Compute the norm of the position error
-    // double pos_error_norm = pos_error.norm();
-
-    // // Check if the path is finished
-    // if(gamma_ >= trajectory_manager_->max_gamma() &&  pos_error_norm < 0.1) {
-    //     RCLCPP_INFO_STREAM(node_->get_logger(), "Trajectory Tracking mission finished.");
-    //     signal_mode_finished();
-    //     return true;
-    // }
-
-    return false;
-}
-
-void FollowTrajectoryMode::update(double dt) {
-
-    // Update the current reference on the path to follow
-    update_reference(dt);
-
-    // Check if we have reached the end of the path
-    check_finished();
 }
 
 } // namespace autopilot

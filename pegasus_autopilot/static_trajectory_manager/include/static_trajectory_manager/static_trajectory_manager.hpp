@@ -159,8 +159,22 @@ public:
      * vector of trajectories
      */
     inline void add_trajectory(StaticTrajectory::SharedPtr trajectory) {
-        trajectories_.push_back(trajectory); 
-        trajectory_max_values_.push_back(trajectory_max_values_.back() + trajectory->max_gamma());
+        
+        // Add the trajectory to the vector of trajectories
+        trajectories_.emplace_back(trajectory); 
+
+        // Add the trajectory max value to the vector of max values
+        if (trajectory_max_values_.empty()) {
+            trajectory_max_values_.emplace_back(trajectory->max_gamma());
+        } else {
+            trajectory_max_values_.emplace_back(trajectory_max_values_.back() + trajectory->max_gamma());
+        }
+        
+        // Log the trajectories max values at the moment
+        RCLCPP_INFO_STREAM(rclcpp::get_logger("static_trajectory_manager"), "Added trajectory number" << trajectories_.size() << " to the trajectory manager");
+        for(auto& v : trajectory_max_values_) {
+            RCLCPP_INFO_STREAM(rclcpp::get_logger("static_trajectory_manager"), "Trajectory max value: " << v);
+        }
     }
 
 protected:

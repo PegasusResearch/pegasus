@@ -63,8 +63,10 @@ protected:
     Eigen::Vector3d desired_position_{0.0, 0.0, 0.0};
     Eigen::Vector3d desired_velocity_{0.0, 0.0, 0.0};
     Eigen::Vector3d desired_acceleration_{0.0, 0.0, 0.0};
-    double desired_yaw_{0.0};
+    Eigen::Vector3d desired_jerk_{0.0, 0.0, 0.0};
 
+    double desired_yaw_{0.0};
+    double desired_yaw_rate_{0.0};
     
 };
 }

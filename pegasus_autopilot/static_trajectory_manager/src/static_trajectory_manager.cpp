@@ -70,12 +70,15 @@ void StaticTrajectoryManager::initialize() {
             RCLCPP_ERROR_STREAM(node_->get_logger(), "Exception while loading trajectory: " << ex.what() << ". Trajectory: " << trajectory);
         }
     }
+
+    // Initialize the services that reset the trajectory, etc.
+    initialize_services();
 }
 
 // Initialize the services that reset the path, etc.
 void StaticTrajectoryManager::initialize_services() {
 
-    node_->declare_parameter<std::string>("autopilot.StaticTrajectoryManager.services.reset_trajectory", "path/reset_trajectory");
+    node_->declare_parameter<std::string>("autopilot.StaticTrajectoryManager.services.reset_trajectory", "trajectory/reset_trajectory");
     
     // Create the service that resets the path
     reset_trajectory_service_ = node_->create_service<pegasus_msgs::srv::ResetPath>(
