@@ -57,6 +57,7 @@ add_library(${PROJECT_NAME}
     src/circle.cpp
     src/lemniscate.cpp
     src/line.cpp
+    src/csv.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
@@ -91,10 +92,11 @@ install(
 # which is appropriate when building the dll but not consuming it.
 target_compile_definitions(${PROJECT_NAME} PRIVATE "AUTOPILOT_STATIC_TRAJECTORIES_BUILDING_LIBRARY")
 
-install(
-  DIRECTORY include/
-  DESTINATION include
-)
+# Specify where to install the header files
+install(DIRECTORY include/ DESTINATION include)
+
+# Specify where to install the csv trajectory files
+install(DIRECTORY csv_trajectories DESTINATION share/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

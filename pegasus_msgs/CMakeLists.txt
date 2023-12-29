@@ -76,6 +76,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/trajectories/AddArc.srv"
   "srv/trajectories/AddLine.srv"
   "srv/trajectories/AddCircle.srv"
+  "srv/trajectories/AddCsv.srv"
   "srv/trajectories/AddLemniscate.srv"
   "srv/trajectories/ResetPath.srv"
   

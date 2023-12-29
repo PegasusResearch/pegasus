@@ -20,4 +20,9 @@
       <description>Lemniscate trajectory factory</description>
   </class>
 
+  <!-- The class for loading a trajectory from a csv file -->
+  <class type="autopilot::CSVFactory" base_class_type="autopilot::StaticTrajectoryFactory">
+      <description>CSV trajectory factory</description>
+  </class>
+  
 </library>

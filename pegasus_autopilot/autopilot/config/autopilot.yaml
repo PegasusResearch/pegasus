@@ -51,7 +51,7 @@
       # ----------------------------------------------------------------------------------------------------------
       trajectory_manager: "StaticTrajectoryManager"
       StaticTrajectoryManager:
-        trajectories: ["ArcFactory", "LineFactory", "CircleFactory", "LemniscateFactory"]
+        trajectories: ["ArcFactory", "LineFactory", "CircleFactory", "LemniscateFactory", "CSVFactory"]
         services:
           reset_trajectory: "autopilot/trajectory/reset"
         # Individual trajectory setup
@@ -63,6 +63,8 @@
           service: "autopilot/trajectory/add_circle"
         LemniscateFactory:
           service: "autopilot/trajectory/add_lemniscate"
+        CSVFactory:
+          service: "autopilot/trajectory/add_csv"
       # ---------------------------------------------------------------------------------------------------------
       # Define the default operation mode (the one which the autopilot initializes at)
       # ---------------------------------------------------------------------------------------------------------
