@@ -241,6 +241,8 @@ double StaticTrajectoryManager::vd(const double gamma) const {
 
     // Make the gamma vary between 0 and max for a given trajectory section
     double normalized_gamma = normalize_parameter(gamma, index);
+
+    RCLCPP_INFO_STREAM(rclcpp::get_logger("static_trajectory_manager"), "vd: " << trajectories_[index]->vd(normalized_gamma));
     
     return trajectories_[index]->vd(normalized_gamma);
 }
@@ -255,7 +257,7 @@ double StaticTrajectoryManager::d_vd(const double gamma) const {
 
     // Make the gamma vary between 0 and max for a given trajectory section
     double normalized_gamma = normalize_parameter(gamma, index);
-    
+
     return trajectories_[index]->d_vd(normalized_gamma);
 }
 

@@ -296,6 +296,19 @@ void Autopilot::update() {
         // Perform an update of the current mode
         operating_modes_.at(current_mode_)->update(dt);
 
+        // Check if the mode has finished
+        if (mode_finished_) {
+
+            // Reset the mode finished flag
+            mode_finished_ = false;
+
+            // Log that the current mode has finished and we are transitioning to the next mode
+            RCLCPP_WARN_STREAM(this->get_logger(), "Mode: " << current_mode_ << " has finished its operation. Transitioning to mode: " << on_finish_modes_[current_mode_]);
+
+            // Signal that the current mode has finished its operation and should transition to the fallback mode
+            if (on_finish_modes_[current_mode_] != "") change_mode(on_finish_modes_[current_mode_]);
+        }
+
         // Check if a geofencing violation has occured. If so, and the geofencing violation fallback mode is not empty, transition to the fallback mode
         if (geofencing_ && geofencing_->check_geofencing_violation() && geofencing_violation_fallback_[current_mode_] != "") {
             
@@ -369,12 +382,9 @@ bool Autopilot::change_mode(const std::string new_mode, bool force) {
 }
 
 void Autopilot::signal_mode_finished() {
-
-    // Log that the current mode has finished and we are transitioning to the next mode
-    RCLCPP_WARN_STREAM(this->get_logger(), "Mode: " << current_mode_ << " has finished its operation. Transitioning to mode: " << on_finish_modes_[current_mode_]);
-
-    // Signal that the current mode has finished its operation and should transition to the fallback mode
-    if (on_finish_modes_[current_mode_] != "") change_mode(on_finish_modes_[current_mode_]);
+    
+    // Set the mode finished flag to true
+    mode_finished_ = true;
 }
 
 void Autopilot::change_mode_callback(const std::shared_ptr<pegasus_msgs::srv::SetMode::Request> request, std::shared_ptr<pegasus_msgs::srv::SetMode::Response> response) {

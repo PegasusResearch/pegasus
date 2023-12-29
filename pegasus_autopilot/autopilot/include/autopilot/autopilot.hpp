@@ -162,6 +162,9 @@ private:
     // Auxiliar variable used to keep track of time
     rclcpp::Time last_time_;
 
+    // Auxiliar flag to check if the operating mode has finished
+    bool mode_finished_{false};
+
     // Class loaders for the plugins
     std::unique_ptr<pluginlib::ClassLoader<autopilot::Mode>> mode_loader_;
     std::unique_ptr<pluginlib::ClassLoader<autopilot::Controller>> controller_loader_;

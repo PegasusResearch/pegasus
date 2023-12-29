@@ -31,7 +31,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  ****************************************************************************/
-
+#include "pegasus_utils/rotations.hpp"
 #include "autopilot_modes/mode_follow_trajectory.hpp"
 
 namespace autopilot {
@@ -50,6 +50,19 @@ bool FollowTrajectoryMode::enter() {
         return false;
     }
 
+    // Reset the tracking references
+    gamma_ = 0.0;
+    d_gamma_ = 0.0;
+    dd_gamma_ = 0.0;
+
+    // Reset the desired targets
+    desired_position_ = Eigen::Vector3d(0.0, 0.0, 0.0);
+    desired_velocity_ = Eigen::Vector3d(0.0, 0.0, 0.0);
+    desired_acceleration_ = Eigen::Vector3d(0.0, 0.0, 0.0);
+    desired_jerk_ = Eigen::Vector3d(0.0, 0.0, 0.0);
+    desired_yaw_ = 0.0;
+    desired_yaw_rate_ = 0.0;
+
     // Otherwise, enter the trajectory following mode
     return true;
 }
@@ -67,6 +80,28 @@ void FollowTrajectoryMode::update(double dt) {
 }
 
 void FollowTrajectoryMode::update_reference(double dt) {
+
+    // Check if the trajectory is empty.
+    if(trajectory_manager_->empty()) {
+
+        // Get the vehicle state
+        State curr_state = get_vehicle_state();
+
+        // Set the desired position to the current position
+        desired_position_ = curr_state.position;
+        desired_velocity_ = Eigen::Vector3d(0.0, 0.0, 0.0);
+        desired_acceleration_ = Eigen::Vector3d(0.0, 0.0, 0.0);
+        desired_jerk_ = Eigen::Vector3d(0.0, 0.0, 0.0);
+
+        // Set the desired yaw and yaw rate to the current yaw and yaw rate
+        desired_yaw_ = Pegasus::Rotations::rad_to_deg(Pegasus::Rotations::yaw_from_quaternion(curr_state.attitude));
+        desired_yaw_rate_ = 0.0;
+
+        // Signal the mode is finished
+        RCLCPP_INFO_STREAM(node_->get_logger(), "Trajectory is empty. Changing operation mode.");
+        signal_mode_finished();
+        return;
+    }
 
     // Update the desired position, velocity and acceleration from the path
     desired_position_ = trajectory_manager_->pd(gamma_);
