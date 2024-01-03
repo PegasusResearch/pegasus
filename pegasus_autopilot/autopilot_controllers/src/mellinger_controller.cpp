@@ -120,28 +120,25 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
     const Eigen::Vector3d g(0.0, 0.0, 9.81);
     for(unsigned int i=0; i < 3; i++) F_des[i] = controllers_[i]->compute_output(pos_error[i], vel_error[i], (acceleration[i] * mass_) - (g[i] * mass_), dt);
 
-    // Get the current axis Z_B (given by the last column of the rotation matrix)
-    Eigen::Vector3d Z_B = R.col(2);
+    // Compute the desired body-frame axis Z_b (b3d)
+    Eigen::Vector3d Z_b_des = - F_des / F_des.norm();
 
-    // Get the desired total thrust (in Newtons) in Z_B direction (u_1)
-    double u_1 = F_des.dot(Z_B);
+    // Compute Y_C
+    Eigen::Vector3d Y_C = Eigen::Vector3d(-sin(yaw_rad), cos(yaw_rad), 0.0);
 
-    // Compute the desired body-frame axis Z_b
-    Eigen::Vector3d Z_b_des = F_des / F_des.norm();
+    // Compute X_B_des
+    Eigen::Vector3d X_b_des = Y_C.cross(Z_b_des);
+    X_b_des = X_b_des / X_b_des.norm();
 
-    // Compute X_C_des 
-    Eigen::Vector3d X_c_des(cos(yaw_rad), sin(yaw_rad), 0.0);
-
-    // Compute Y_b_des
-    Eigen::Vector3d Z_b_cross_X_c = Z_b_des.cross(X_c_des);
-    Eigen::Vector3d Y_b_des = Z_b_cross_X_c / Z_b_cross_X_c.norm();
-
-    // Compute X_b_des
-    Eigen::Vector3d X_b_des = Y_b_des.cross(Z_b_des);
+    // Compute Y_B_des
+    Eigen::Vector3d Y_b_des = Z_b_des.cross(X_b_des);
+    Y_b_des = Y_b_des / Y_b_des.norm();
 
     // Compute the desired rotation R_des = [X_b_des | Y_b_des | Z_b_des]
-    Eigen::Matrix3d R_des;                  // Eigen stores matrices in column-major order, so the columns are the vectors
-    R_des << X_b_des, Y_b_des, Z_b_des;     // This is the rotation matrix that transforms from the body frame to the inertial frame
+    Eigen::Matrix3d R_des;
+    R_des.col(0) = X_b_des;
+    R_des.col(1) = Y_b_des;
+    R_des.col(2) = Z_b_des;
 
     // Compute the rotation error
     Eigen::Matrix3d R_error = (R_des.transpose() * R) - (R.transpose() * R_des);
@@ -150,6 +147,10 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
     Eigen::Vector3d e_R;
     e_R << -R_error(1,2), R_error(0, 2), -R_error(0,1);
     e_R = 0.5 * e_R;
+
+    // Get the desired total thrust (in Newtons) in Z_B direction (u_1)
+    Eigen::Vector3d Z_B = R.col(2);
+    double u_1 = F_des.dot(Z_B);
 
     // Compute the desired angular velocity by projecting the angular velocity in the Xb-Yb plane
     // projection of angular velocity on xB - yB plane
@@ -161,7 +162,7 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
     w_des << -hw.dot(Y_b_des), hw.dot(X_b_des), yaw_rate_rad * Z_b_des[2];
 
     // Compute the target attitude rate
-    Eigen::Vector3d attitude_rate = w_des + (kr_ * e_R);
+    Eigen::Vector3d attitude_rate = w_des - (kr_ * e_R);
 
     // Convert the output to rad/s
     attitude_rate = Eigen::Vector3d(
@@ -169,11 +170,8 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
         Pegasus::Rotations::rad_to_deg(attitude_rate[1]), 
         Pegasus::Rotations::rad_to_deg(attitude_rate[2]));
 
-    // Negate the signal of the thrust force (since the controller is expecting a negative value)
-    u_1 = -u_1;
-
     // Send the attitude rate and thrust to the attitude-rate controller
-    set_attitude_rate(attitude_rate, u_1);
+    set_attitude_rate(attitude_rate, -u_1);
 
     // Update and publish the statistics
     update_statistics(position, e_R, w_des, u_1, attitude_rate);
