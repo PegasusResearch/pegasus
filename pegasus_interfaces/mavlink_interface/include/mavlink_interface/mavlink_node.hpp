@@ -239,7 +239,7 @@ private:
      * @brief A MavSDK object and mavSDK configuration object, that sets hearbeat sending,
      * component and system ids of the onboard computer, etc.
      */
-    mavsdk::Mavsdk mavsdk_;
+    mavsdk::Mavsdk mavsdk_{mavsdk::Mavsdk::Configuration{mavsdk::Mavsdk::ComponentType::CompanionComputer}};
     mavsdk::Mavsdk::NewSystemHandle new_system_handle_;
     std::shared_ptr<mavsdk::Mavsdk::Configuration> configuration_{nullptr};
 

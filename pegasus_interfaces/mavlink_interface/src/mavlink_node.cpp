@@ -87,7 +87,7 @@ void MavlinkNode::new_mavlink_system_callback() {
         this->system_id_ = system_->get_system_id();
 
         // Set the configurations to use along with mavsdk (setup for this system to be a companion computer)
-        configuration_ = std::make_shared<mavsdk::Mavsdk::Configuration>(mavsdk::Mavsdk::Configuration::UsageType::CompanionComputer);
+        configuration_ = std::make_shared<mavsdk::Mavsdk::Configuration>(mavsdk::Mavsdk::ComponentType::CompanionComputer);
         configuration_->set_always_send_heartbeats(false);
         
         // Update the configuration settings in the mavsdk object
