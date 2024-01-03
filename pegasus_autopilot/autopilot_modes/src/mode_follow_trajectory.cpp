@@ -53,7 +53,8 @@ bool FollowTrajectoryMode::enter() {
     // Reset the tracking references
     gamma_ = 0.0;
     d_gamma_ = 0.0;
-    dd_gamma_ = 0.0;
+    d2_gamma_ = 0.0;
+    d3_gamma_ = 0.0;
 
     // Reset the desired targets
     desired_position_ = Eigen::Vector3d(0.0, 0.0, 0.0);
@@ -103,22 +104,22 @@ void FollowTrajectoryMode::update_reference(double dt) {
         return;
     }
 
-    // Update the desired position, velocity and acceleration from the path
+    // Update the desired position, velocity, acceleration and jerk from the trajectory
     desired_position_ = trajectory_manager_->pd(gamma_);
-
-    RCLCPP_INFO_STREAM(node_->get_logger(), "Desired position: " << desired_position_.transpose());
     desired_velocity_ = trajectory_manager_->d_pd(gamma_) * d_gamma_;
-    desired_acceleration_ = (trajectory_manager_->d2_pd(gamma_) * std::pow(d_gamma_, 2)) + (trajectory_manager_->d_pd(gamma_) * std::pow(dd_gamma_, 2));
-
-    // TODO - check if this is correct for the jerk
-    //desired_jerk_ = trajectory_manager_->d3_pd(gamma_) * std::pow(d_gamma_, 3) + 3 * trajectory_manager_->d2_pd(gamma_) * d_gamma_ * dd_gamma_ + trajectory_manager_->d_pd(gamma_) * std::pow(dd_gamma_, 2);
+    desired_acceleration_ = (trajectory_manager_->d2_pd(gamma_) * std::pow(d_gamma_, 2)) + (trajectory_manager_->d_pd(gamma_) * std::pow(d2_gamma_, 2));
+    desired_jerk_ = (trajectory_manager_->d3_pd(gamma_) * std::pow(d_gamma_, 3))
+        + (2 * trajectory_manager_->d2_pd(gamma_) * d_gamma_ * d2_gamma_)
+        + (trajectory_manager_->d2_pd(gamma_) * d2_gamma_)
+        + (trajectory_manager_->d_pd(gamma_) * d3_gamma_);
 
     // Get the desired yaw and yaw_rate from the trajectory
     desired_yaw_ = Pegasus::Rotations::rad_to_deg(trajectory_manager_->yaw(gamma_));
     desired_yaw_rate_ = Pegasus::Rotations::rad_to_deg(trajectory_manager_->d_yaw(gamma_));
 
     // Integrate the virtual target position over time
-    dd_gamma_ = trajectory_manager_->d_vd(gamma_);
+    d3_gamma_ = 0.0;
+    d2_gamma_ = trajectory_manager_->d_vd(gamma_);
     d_gamma_ = trajectory_manager_->vd(gamma_);
     gamma_ += d_gamma_ * dt;
 }
@@ -148,7 +149,8 @@ bool FollowTrajectoryMode::exit() {
     // Reset the parametric values
     gamma_ = 0.0;
     d_gamma_ = 0.0;
-    dd_gamma_ = 0.0;
+    d2_gamma_ = 0.0;
+    d3_gamma_ = 0.0;
 
     // Reset the desired targets
     desired_position_ = Eigen::Vector3d(0.0, 0.0, 0.0);

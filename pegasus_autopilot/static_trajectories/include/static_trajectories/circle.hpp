@@ -81,6 +81,14 @@ public:
     virtual Eigen::Vector3d d2_pd(const double gamma) const override;
 
     /**
+     * @brief This function returns the desired jerk of the vehicle at a given time
+     * provided the parameter gamma which paramaterizes the trajectory
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired jerk of the vehicle at a given time (Eigen::Vector3d)
+     */
+    virtual Eigen::Vector3d d3_pd(const double gamma) const override;
+
+    /**
      * @brief This function returns the desired yaw angle (in radians) of the vehicle at a given time
      * provided the parameter gamma which paramaterizes the trajectory
      * @param gamma The parameter that paramaterizes the trajectory

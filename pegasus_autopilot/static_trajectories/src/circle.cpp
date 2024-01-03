@@ -105,6 +105,19 @@ Eigen::Vector3d Circle::d2_pd(const double gamma) const {
     return rotation_ * dd_pd;
 }
 
+Eigen::Vector3d Circle::d3_pd(const double gamma) const {
+
+    // Compute the second derivative of the circle with respect to the parametric value
+    Eigen::Vector3d dd_pd;
+    dd_pd[0] =  radius_ * std::pow(2 * M_PI, 3) * sin(gamma * 2 * M_PI);
+    dd_pd[1] = -radius_ * std::pow(2 * M_PI, 3) * cos(gamma * 2 * M_PI);
+    dd_pd[2] = 0.0;
+
+    // If the "normal_" vector is different than [0.0, 0.0, 1.0], then 
+    // rotate the plane where the circle is located. Otherwise, we are just multiplying by the identity matrix
+    return rotation_ * dd_pd;
+}
+
 double Circle::yaw(const double gamma) const {
     
     // Get the current position

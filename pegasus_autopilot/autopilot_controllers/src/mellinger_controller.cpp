@@ -121,6 +121,7 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
     for(unsigned int i=0; i < 3; i++) F_des[i] = controllers_[i]->compute_output(pos_error[i], vel_error[i], (acceleration[i] * mass_) - (g[i] * mass_), dt);
 
     // Compute the desired body-frame axis Z_b (b3d)
+    // Check [3-eq.12] for more details
     Eigen::Vector3d Z_b_des = - F_des / F_des.norm();
 
     // Compute Y_C

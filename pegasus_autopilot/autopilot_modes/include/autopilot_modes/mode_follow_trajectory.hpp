@@ -57,7 +57,8 @@ protected:
     // Set the progression speed of the parametric variable
     double gamma_{0.0};
     double d_gamma_{0.0};
-    double dd_gamma_{0.0};
+    double d2_gamma_{0.0};
+    double d3_gamma_{0.0};
     
     // Set the desired targets to follow
     Eigen::Vector3d desired_position_{0.0, 0.0, 0.0};

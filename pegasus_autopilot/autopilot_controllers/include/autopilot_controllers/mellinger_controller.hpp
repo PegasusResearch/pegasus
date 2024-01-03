@@ -60,6 +60,9 @@ namespace autopilot {
  * [2] D. Mellinger and V. Kumar, "Minimum snap trajectory generation and control for quadrotors," 
  * 2011 IEEE International Conference on Robotics and Automation, Shanghai, China, 2011, 
  * pp. 2520-2525, doi: 10.1109/ICRA.2011.5980409.
+ * [3] T. Lee, M. Leok and N. H. McClamroch, "Geometric Tracking Control of a Quadrotor UAV on SE(3),"
+ * 49th IEEE Conference on Decision and Control (CDC), Atlanta, GA, USA, 2010, 
+ * pp. 5420-5425, doi: 10.1109/CDC.2010.5717652.
  */
 class MellingerController : public autopilot::Controller {
 
