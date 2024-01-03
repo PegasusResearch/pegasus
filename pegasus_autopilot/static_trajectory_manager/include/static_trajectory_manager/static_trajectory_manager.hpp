@@ -106,6 +106,22 @@ public:
     virtual Eigen::Vector3d d4_pd(const double gamma) const override;
 
     /**
+     * @brief This function returns the desired yaw angle (in radians) of the vehicle at a given time
+     * provided the parameter gamma which paramaterizes the trajectory
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired yaw angle of the vehicle at a given time (radians)
+     */
+    virtual double yaw(const double gamma) const override;
+
+    /**
+     * @brief This function returns the desired yaw rate (in radians/s) of the vehicle at a given time
+     * provided the parameter gamma which paramaterizes the trajectory
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return The desired yaw rate of the vehicle at a given time (radians/s)
+     */
+    virtual double d_yaw(const double gamma) const override;
+
+    /**
      * @brief This function returns the vehicle speed in m/s at any given position in the trajectory
      * @param gamma The parameter that paramaterizes the trajectory
      * @return The desired speed of the vehicle at a given time (double)

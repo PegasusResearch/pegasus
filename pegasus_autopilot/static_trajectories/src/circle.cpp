@@ -105,6 +105,25 @@ Eigen::Vector3d Circle::d2_pd(const double gamma) const {
     return rotation_ * dd_pd;
 }
 
+double Circle::yaw(const double gamma) const {
+    
+    // Get the current position
+    Eigen::Vector3d pd = this->pd(gamma);
+
+    // Compute the vector pointing to the center of the arc
+    Eigen::Vector3d center_to_pd = center_ - pd;
+
+    // Compute the angle between the vector pointing to the center of the arc and the x-axis
+    return std::atan2(center_to_pd[1], center_to_pd[0]);
+}
+
+
+double Circle::d_yaw(const double gamma) const {
+
+    // Make the derivative of the angle approximately zero
+    return 0.0;
+}
+
 
 double Circle::vehicle_speed(const double gamma) const {
     return vehicle_speed_;

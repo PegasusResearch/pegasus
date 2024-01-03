@@ -106,6 +106,10 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
 
     // Get the current attitude in quaternion and generate a rotation matrix
     Eigen::Matrix3d R = state.attitude.toRotationMatrix();
+
+    // Get the current yaw and yaw-rate from degrees to radians
+    double yaw_rad = Pegasus::Rotations::deg_to_rad(yaw);
+    double yaw_rate_rad = Pegasus::Rotations::deg_to_rad(yaw_rate);
     
     // Compute the position error and velocity error using the path desired position and velocity
     Eigen::Vector3d pos_error = position - state.position;
@@ -126,7 +130,7 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
     Eigen::Vector3d Z_b_des = F_des / F_des.norm();
 
     // Compute X_C_des 
-    Eigen::Vector3d X_c_des(cos(yaw), sin(yaw), 0.0);
+    Eigen::Vector3d X_c_des(cos(yaw_rad), sin(yaw_rad), 0.0);
 
     // Compute Y_b_des
     Eigen::Vector3d Z_b_cross_X_c = Z_b_des.cross(X_c_des);
@@ -154,7 +158,7 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
 
     // Compute the desired angular velocity
     Eigen::Vector3d w_des; 
-    w_des << -hw.dot(Y_b_des), hw.dot(X_b_des), yaw_rate * Z_b_des[2];
+    w_des << -hw.dot(Y_b_des), hw.dot(X_b_des), yaw_rate_rad * Z_b_des[2];
 
     // Compute the target attitude rate
     Eigen::Vector3d attitude_rate = w_des + (kr_ * e_R);

@@ -188,6 +188,25 @@ Eigen::Vector3d CSVTrajectory::d3_pd(const double gamma) const {
     return jerk_[idx];
 }
 
+
+double CSVTrajectory::yaw(const double gamma) const {
+
+    // Get the index of the closest time to gamma
+    int idx = get_closest_index(gamma);
+
+    // Return the yaw
+    return yaw_[idx];
+}
+
+double CSVTrajectory::d_yaw(const double gamma) const {
+
+    // Get the index of the closest time to gamma
+    int idx = get_closest_index(gamma);
+
+    // Return the yaw rate
+    return yaw_rate_[idx];
+}
+
 double CSVTrajectory::vehicle_speed(const double gamma) const {
 
     // Get the index of the closest time to gamma

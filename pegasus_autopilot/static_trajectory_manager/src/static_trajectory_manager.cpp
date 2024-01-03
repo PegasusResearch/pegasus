@@ -217,6 +217,36 @@ Eigen::Vector3d StaticTrajectoryManager::d4_pd(const double gamma) const {
     return trajectories_[index]->d4_pd(normalized_gamma);
 }
 
+
+double StaticTrajectoryManager::yaw(const double gamma) const {
+
+    // Get the index of the section in the sections vector
+    int index = get_trajectory_index(gamma);
+
+    // Safety check
+    if (index == -1) return 0.0;
+
+    // Make the gamma vary between 0 and max for a given trajectory section
+    double normalized_gamma = normalize_parameter(gamma, index);
+    
+    return trajectories_[index]->yaw(normalized_gamma);
+}
+
+
+double StaticTrajectoryManager::d_yaw(const double gamma) const {
+
+    // Get the index of the section in the sections vector
+    int index = get_trajectory_index(gamma);
+
+    // Safety check
+    if (index == -1) return 0.0;
+
+    // Make the gamma vary between 0 and max for a given trajectory section
+    double normalized_gamma = normalize_parameter(gamma, index);
+    
+    return trajectories_[index]->d_yaw(normalized_gamma);
+}
+
 double StaticTrajectoryManager::vehicle_speed(double gamma) const {
 
     // Get the index of the section in the sections vector

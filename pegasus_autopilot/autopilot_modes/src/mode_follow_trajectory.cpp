@@ -114,8 +114,8 @@ void FollowTrajectoryMode::update_reference(double dt) {
     //desired_jerk_ = trajectory_manager_->d3_pd(gamma_) * std::pow(d_gamma_, 3) + 3 * trajectory_manager_->d2_pd(gamma_) * d_gamma_ * dd_gamma_ + trajectory_manager_->d_pd(gamma_) * std::pow(dd_gamma_, 2);
 
     // Get the desired yaw and yaw_rate from the trajectory
-    desired_yaw_ = 0.0;
-    desired_yaw_rate_ = 0.0;
+    desired_yaw_ = Pegasus::Rotations::rad_to_deg(trajectory_manager_->yaw(gamma_));
+    desired_yaw_rate_ = Pegasus::Rotations::rad_to_deg(trajectory_manager_->d_yaw(gamma_));
 
     // Integrate the virtual target position over time
     dd_gamma_ = trajectory_manager_->d_vd(gamma_);
@@ -127,7 +127,6 @@ bool FollowTrajectoryMode::check_finished() {
 
     // Check if the virtual target is already at the end of the trajectory
     if(gamma_ < trajectory_manager_->max_gamma()) return false;
-
 
     // Check if the vehicle is close to the final position already
     Eigen::Vector3d position = get_vehicle_state().position;
