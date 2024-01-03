@@ -38,7 +38,7 @@ def generate_launch_description():
     # Define which file to use for the drone parameters
     drone_params_file_arg = DeclareLaunchArgument(
         'drone_params', 
-        default_value=os.path.join(get_package_share_directory('pegasus_bringup'), 'config', 'iris.yaml'),
+        default_value=os.path.join(get_package_share_directory('pegasus_bringup'), 'config', 'pegasus.yaml'),
         description='The directory where the drone parameters such as mass, thrust curve, etc. are defined')
     
     # ----------------------------------------
@@ -59,25 +59,14 @@ def generate_launch_description():
         }.items(),
     )
 
-    # Call autopilot interface package launch file 
-    autopilot_interface_launch_file = IncludeLaunchDescription(
-        # Grab the launch file for the mavlink interface
+    # Call autopilot package launch file
+    autopilot_launch_file = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('autopilot'), 'launch/autopilot.launch.py')),
-        # Define costume launch arguments/parameters used for the mavlink interface
+        # Define costume launch arguments/parameters used 
         launch_arguments={
-            'vehicle_id': LaunchConfiguration('vehicle_id'), 
-            'vehicle_ns': LaunchConfiguration('vehicle_ns'),
-        }.items(),
-    )
-
-    # Call the intel real sense camera interface 
-    real_sense_launch_file=IncludeLaunchDescription(
-        # Grab the launch file for the ueye camera interface
-        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('pegasus_bringup'), 'launch/dev/realsense.launch.py')),
-        # Define costume launch arguments/parameters used for the camera interface
-        launch_arguments={
-            'id': LaunchConfiguration('vehicle_id'), 
-            'namespace': LaunchConfiguration('vehicle_ns')
+            'id': LaunchConfiguration('vehicle_id'),
+            'namespace': LaunchConfiguration('vehicle_ns'),
+            'autopilot_yaml': LaunchConfiguration('drone_params'),
         }.items(),
     )
 
@@ -93,5 +82,5 @@ def generate_launch_description():
         drone_params_file_arg,
         # Launch files
         mavlink_interface_launch_file,
-        #autopilot_interface_launch_file
+        autopilot_launch_file
     ])
