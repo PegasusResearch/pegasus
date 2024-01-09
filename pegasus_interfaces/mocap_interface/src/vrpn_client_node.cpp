@@ -138,7 +138,7 @@ namespace vrpn_client_ros {
     rclcpp::Node::SharedPtr nh = tracker->output_nh_;
     
     if (!tracker->pose_pub_) {
-      tracker->pose_pub_ = nh->create_publisher<geometry_msgs::msg::PoseStamped>("mocap/pose_enu", 1);
+      tracker->pose_pub_ = nh->create_publisher<geometry_msgs::msg::PoseStamped>("/mocap/pose_enu/" + tracker->tracker_name, 1); //
     }
 
     if (tracker->use_server_time_) {

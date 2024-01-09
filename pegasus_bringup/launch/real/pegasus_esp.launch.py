@@ -44,6 +44,18 @@ def generate_launch_description():
     # ----------------------------------------
     # ---- DECLARE THE NODES TO LAUNCH -------
     # ----------------------------------------
+
+    # Call the MOCAP driver launch file
+    mocap_launch_file = IncludeLaunchDescription(
+        # Grab the launch file for the mocap interface
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('mocap_interface'), 'launch/vrpn.launch.py')),
+        # Define costume launch arguments/parameters used for the mocap interface
+        launch_arguments={
+            'id': LaunchConfiguration('vehicle_id'), 
+            'namespace': LaunchConfiguration('vehicle_ns')
+        }.items(),
+        #condition=LaunchConfigurationEquals('activate_mocap', 'True')
+    )
     
     # Call MAVLINK interface package launch file 
     mavlink_interface_launch_file = IncludeLaunchDescription(
@@ -82,5 +94,6 @@ def generate_launch_description():
         drone_params_file_arg,
         # Launch files
         mavlink_interface_launch_file,
-        autopilot_launch_file
+        autopilot_launch_file,
+        mocap_launch_file
     ])
