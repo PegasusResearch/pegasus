@@ -25,6 +25,11 @@ def generate_launch_description():
     # ---- DECLARE THE LAUNCH ARGUMENTS ------
     # ----------------------------------------
 
+    # Define the standard mavlink port to forward mavlink data (so that it can also be viewed internally by qgroundcontrol)
+    udp_local_forward_port = 14559 + vehicle_id
+    udp_local_forward_adress = "udp://192.168.1.69:" + str(udp_local_forward_port)
+    mavlink_forward_addresses = "[" + udp_local_forward_adress + "]"
+
     # Namespace and ID of the vehicle as parameter received by the launch file
     id_arg = DeclareLaunchArgument('vehicle_id', default_value=str(vehicle_id), description='Drone ID in the network')
     namespace_arg = DeclareLaunchArgument('vehicle_ns', default_value='drone', description='Namespace to append to every topic and node name')
@@ -33,10 +38,10 @@ def generate_launch_description():
     # serial:///dev/ttyACM0:921600
     # serial:///dev/ttyTHS0:921600
     # udp://:14550
-    mav_connection_arg = DeclareLaunchArgument('connection', default_value='serial:///dev/ttyACM0:921600', description='The interface used to connect to the vehicle')
+    mav_connection_arg = DeclareLaunchArgument('connection', default_value='serial:///dev/ttyTHS0:921600', description='The interface used to connect to the vehicle')
 
     # Define the drone MAVLINK forward ips and ports
-    mavlink_forward_arg = DeclareLaunchArgument('mavlink_forward', default_value="['']", description='A list of ips where to forward mavlink messages')
+    mavlink_forward_arg = DeclareLaunchArgument('mavlink_forward', default_value=mavlink_forward_addresses, description='A list of ips where to forward mavlink messages')
     
     # Define which file to use for the drone parameters
     drone_params_file_arg = DeclareLaunchArgument(
