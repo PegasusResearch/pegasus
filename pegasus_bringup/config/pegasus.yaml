@@ -4,7 +4,7 @@
     # Low-level configurations
     # ----------------------------------------------------------------------------------------------------------
     dynamics:
-      mass: 0.980 #Kg
+      mass: 0.930 #Kg | 1.085 Kg
       thrust_curve:
         # Formula T(N) = a * arctan(b * input + c) + d   
         # with input = [0.0, 100.0]
