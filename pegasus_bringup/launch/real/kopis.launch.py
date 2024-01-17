@@ -35,7 +35,7 @@ def generate_launch_description():
     namespace_arg = DeclareLaunchArgument('vehicle_ns', default_value='drone', description='Namespace to append to every topic and node name')
     
     # Define the drone MAVLINK IP and PORT
-    mav_connection_arg = DeclareLaunchArgument('connection', default_value='udp://:1455' + str(vehicle_id-1), description='The interface used to connect to the vehicle')
+    mav_connection_arg = DeclareLaunchArgument('connection', default_value='udp://:15007', description='The interface used to connect to the vehicle')
 
     # Define the drone MAVLINK forward ips and ports
     mavlink_forward_arg = DeclareLaunchArgument('mavlink_forward', default_value=mavlink_forward_addresses, description='A list of ips where to forward mavlink messages')
