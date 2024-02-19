@@ -3,15 +3,16 @@
     # ----------------------------------------------------------------------------------------------------------
     # Low-level configurations
     # ----------------------------------------------------------------------------------------------------------
+    # Snapdragon 6 (carbon 6-inch propellers)
+    # Battery 3S and motors controlled via PWM
     dynamics:
-      mass: 0.930 #Kg | 1.085 Kg
+      mass: 0.600 #Kg   (TODO - check the mass of the snapdragons)
       thrust_curve:
         # Formula T(N) = a * arctan(b * input + c) + d   
         # with input = [0.0, 100.0]
         identifier: 'Arctan'
         parameter_names: ["a", "b", "c", "d"]
-        parameters: [18.96362, 0.02335, -0.85863, 13.28857]    # DShot600 configuration
-        #parameters: [22.05413, 0.02235, -0.86620, 15.62617]    # PWM configuration
+        parameters: [16.14072, 0.01612, -0.55606, 8.10590]
     # ----------------------------------------------------------------------------------------------------------
     # Autopilot configurations
     # ----------------------------------------------------------------------------------------------------------

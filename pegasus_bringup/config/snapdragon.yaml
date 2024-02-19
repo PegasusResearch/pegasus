@@ -1,9 +1,0 @@
-/**:
-  ros__parameters:
-    dynamics:
-      mass: 0.600 #Kg
-      thrust_curve:
-        identifier: 'LinearExponential'
-        parameter_names: ["a", "b", "c", "d", "scale"]
-        parameters: [0.1377, 0.02976,  0.003759, -0.05973, 66.67]
-        # SNAP-6 0.23 / 0.345 * 100.0 
