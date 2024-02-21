@@ -109,8 +109,10 @@ void PIDController::set_position(const Eigen::Vector3d& position, const Eigen::V
     // Compute the desired control output acceleration for each controller
     Eigen::Vector3d u;
     const Eigen::Vector3d g(0.0, 0.0, 9.81);
-    for(unsigned int i=0; i < 3; i++) u[i] = controllers_[i]->compute_output(pos_error[i], vel_error[i], (acceleration[i] * mass_) - g[i], dt);
+    for(unsigned int i=0; i < 3; i++) u[i] = controllers_[i]->compute_output(pos_error[i], vel_error[i], acceleration[i], dt); // (acceleration[i] - g[i])* mass_
     
+    u[2] = u[2] - 9.81;
+
     // Convert the acceleration to attitude and thrust
     Eigen::Vector4d attitude_thrust = get_attitude_thrust_from_acceleration(u, mass_, Pegasus::Rotations::deg_to_rad(yaw));
 
