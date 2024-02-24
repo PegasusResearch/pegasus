@@ -1,8 +1,0 @@
----
-bool success
-
-# ---------------------------------
-# Constants Definition for the result
-# --------------------------------- 
-uint8 FALSE = 0
-uint8 TRUE = 1

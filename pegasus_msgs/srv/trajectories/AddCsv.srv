@@ -1,6 +1,0 @@
-# The path to the csv file to be read, containing the path
-string csv_path
-float64[3] offset
-bool check_z_negative       # if true, check if the z value is negative (and if not, invert it)
----
-bool success

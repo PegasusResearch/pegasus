@@ -1,2 +1,0 @@
-bool available
-float64 signal_strength
