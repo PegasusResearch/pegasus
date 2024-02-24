@@ -35,7 +35,9 @@ def generate_launch_description():
     namespace_arg = DeclareLaunchArgument('vehicle_ns', default_value='drone', description='Namespace to append to every topic and node name')
     
     # Define the drone MAVLINK IP and PORT
-    mav_connection_arg = DeclareLaunchArgument('connection', default_value='udp://:15007', description='The interface used to connect to the vehicle')
+    #mav_connection_arg = DeclareLaunchArgument('connection', default_value='udp://:1455' + str(vehicle_id-1), description='The interface used to connect to the vehicle')
+    mav_connection_arg = DeclareLaunchArgument('connection', default_value='udp://:15008', description='The interface used to connect to the vehicle')
+
 
     # Define the drone MAVLINK forward ips and ports
     mavlink_forward_arg = DeclareLaunchArgument('mavlink_forward', default_value=mavlink_forward_addresses, description='A list of ips where to forward mavlink messages')
@@ -43,9 +45,9 @@ def generate_launch_description():
     # Define which file to use for the drone parameters
     drone_params_file_arg = DeclareLaunchArgument(
         'drone_params', 
-        default_value=os.path.join(get_package_share_directory('pegasus_bringup'), 'config', 'kopis.yaml'),
+        default_value=os.path.join(get_package_share_directory('pegasus'), 'config', 'pegasus.yaml'),
         description='The directory where the drone parameters such as mass, thrust curve, etc. are defined')
-    
+
     # ----------------------------------------
     # ---- DECLARE THE NODES TO LAUNCH -------
     # ----------------------------------------
