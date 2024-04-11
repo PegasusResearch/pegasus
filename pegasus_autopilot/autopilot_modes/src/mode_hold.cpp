@@ -70,10 +70,10 @@ bool HoldMode::exit() {
     return true;   // Return true to indicate that the mode has been exited successfully
 }
 
-void HoldMode::update(double) {
+void HoldMode::update(double dt) {
 
     // Set the controller to track the target position and attitude
-    this->controller_->set_position(this->target_pos, this->target_yaw_);
+    this->controller_->set_position(this->target_pos, this->target_yaw_, dt);
 }
 
 } // namespace autopilot

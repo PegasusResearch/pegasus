@@ -10,7 +10,7 @@
 
   <buildtool_depend>ament_cmake_ros</buildtool_depend>
 
-  <depend>pid</depend>
+  <!--<depend>pid</depend>-->
   <depend>autopilot</depend>
   <depend>pegasus_msgs</depend>
   <depend>pegasus_utils</depend>

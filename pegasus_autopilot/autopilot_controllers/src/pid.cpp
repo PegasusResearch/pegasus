@@ -31,7 +31,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  ****************************************************************************/
-#include "pid/pid.hpp"
+#include "autopilot_controllers/pid.hpp"
 
 #include <iostream> // TOdo - remove this only for debugging
 
@@ -74,8 +74,6 @@ double Pid::compute_output(double error_p, double error_d, double feed_forward_r
     double d_term = kd_ * error_d;
     double i_term = error_i_;
     double ff_term = kff_ * feed_forward_ref;
-
-    std::cout << "i_term: " << error_i_ << std::endl;
 
     // Compute the output and saturate it
     double output = p_term + d_term + i_term + ff_term;

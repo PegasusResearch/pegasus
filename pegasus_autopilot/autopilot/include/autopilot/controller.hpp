@@ -91,23 +91,27 @@ public:
      * @param position The target position in the inertial frame
      * @param yaw The target yaw in degrees
     */
-    virtual void set_position(const Eigen::Vector3d& position, double yaw, double yaw_rate=0, double dt=0) {
-        set_position(position, Eigen::Vector3d::Zero(), yaw, yaw_rate);
+   virtual void set_position(const Eigen::Vector3d & position, double yaw, double dt) {
+        set_position(position, yaw, 0.0, dt);
     }
 
-    virtual void set_position(const Eigen::Vector3d& position, const Eigen::Vector3d& velocity, double yaw, double yaw_rate=0, double dt=0) {
-        set_position(position, velocity, Eigen::Vector3d::Zero(), yaw, yaw_rate);
+    virtual void set_position(const Eigen::Vector3d& position, double yaw, double yaw_rate, double dt) {
+        set_position(position, Eigen::Vector3d::Zero(), yaw, yaw_rate, dt);
     }
 
-    virtual void set_position(const Eigen::Vector3d& position, const Eigen::Vector3d& velocity, const Eigen::Vector3d& acceleration, double yaw, double yaw_rate=0, double dt=0) {
-        set_position(position, velocity, acceleration, Eigen::Vector3d::Zero(3), yaw, yaw_rate);
+    virtual void set_position(const Eigen::Vector3d& position, const Eigen::Vector3d& velocity, double yaw, double yaw_rate, double dt) {
+        set_position(position, velocity, Eigen::Vector3d::Zero(), yaw, yaw_rate, dt);
     }
 
-    virtual void set_position(const Eigen::Vector3d& position, const Eigen::Vector3d& velocity, const Eigen::Vector3d& acceleration, const Eigen::Vector3d& jerk, double yaw, double yaw_rate=0, double dt=0) {
-        set_position(position, velocity, acceleration, jerk, Eigen::Vector3d::Zero(3), yaw, yaw_rate);
+    virtual void set_position(const Eigen::Vector3d& position, const Eigen::Vector3d& velocity, const Eigen::Vector3d& acceleration, double yaw, double yaw_rate, double dt) {
+        set_position(position, velocity, acceleration, Eigen::Vector3d::Zero(3), yaw, yaw_rate, dt);
     }
 
-    virtual void set_position(const Eigen::Vector3d& position, const Eigen::Vector3d& velocity, const Eigen::Vector3d& acceleration, const Eigen::Vector3d& jerk, const Eigen::Vector3d& snap, double yaw, double yaw_rate=0, double dt=0) {
+    virtual void set_position(const Eigen::Vector3d& position, const Eigen::Vector3d& velocity, const Eigen::Vector3d& acceleration, const Eigen::Vector3d& jerk, double yaw, double yaw_rate, double dt) {
+        set_position(position, velocity, acceleration, jerk, Eigen::Vector3d::Zero(3), yaw, yaw_rate, dt);
+    }
+
+    virtual void set_position(const Eigen::Vector3d& position, const Eigen::Vector3d& velocity, const Eigen::Vector3d& acceleration, const Eigen::Vector3d& jerk, const Eigen::Vector3d& snap, double yaw, double yaw_rate, double dt) {
         throw std::runtime_error("set_position() not implemented in derived class");
     }
 

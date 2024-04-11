@@ -69,10 +69,10 @@ bool WaypointMode::exit() {
     return true;   // Return true to indicate that the mode has been exited successfully
 }
 
-void WaypointMode::update(double) {
+void WaypointMode::update(double dt) {
 
     // Set the controller to track the target position and attitude
-    this->controller_->set_position(this->target_pos, this->target_yaw);
+    this->controller_->set_position(this->target_pos, this->target_yaw, dt);
 }
 
 void WaypointMode::waypoint_callback(const pegasus_msgs::srv::Waypoint::Request::SharedPtr request, const pegasus_msgs::srv::Waypoint::Response::SharedPtr response) {

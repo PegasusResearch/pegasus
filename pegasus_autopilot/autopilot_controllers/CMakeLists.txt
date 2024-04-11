@@ -46,7 +46,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_ros REQUIRED)
 
-find_package(pid REQUIRED)
+#find_package(pid REQUIRED)
 find_package(pegasus_utils REQUIRED)
 find_package(thrust_curves REQUIRED)
 find_package(autopilot REQUIRED)
@@ -55,6 +55,7 @@ find_package(pluginlib REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 add_library(${PROJECT_NAME}
+  src/pid.cpp
   src/onboard_controller.cpp
   src/pid_controller.cpp
   src/mellinger_controller.cpp
@@ -69,7 +70,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 add_definitions(${EIGEN3_DEFINITIONS})
 
 set(dependencies
-  pid
+  #pid
   autopilot
   pegasus_msgs
   pegasus_utils

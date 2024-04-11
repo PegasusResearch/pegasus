@@ -36,7 +36,7 @@
 #include <Eigen/Core>
 
 // Library that implements PID controllers
-#include <pid/pid.hpp>
+#include "autopilot_controllers/pid.hpp"
 
 // ROS libraries
 #include "rclcpp/rclcpp.hpp"
