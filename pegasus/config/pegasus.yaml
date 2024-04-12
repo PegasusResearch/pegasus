@@ -17,7 +17,7 @@
     # ----------------------------------------------------------------------------------------------------------
     autopilot:
       # Update rate
-      rate: 50.0 # Hz
+      rate: 33.0 # Hz
       # ----------------------------------------------------------------------------------------------------------
       # Definition of the controller that will perform the tracking of references of the different operation modes
       # ----------------------------------------------------------------------------------------------------------
@@ -35,9 +35,9 @@
           pid_debug_topic: "autopilot/statistics/pid"
         # Gains for position PIDs on [x, y, z]
         gains:
-          kp: [6.5, 6.5, 6.5]               # Proportional gain
-          kd: [4.5, 5.0, 5.0]               # Derivative gain
-          ki: [0.1, 0.1, 0.1]               # Integral gain
+          kp: [5.0, 5.0, 3.3]               # Proportional gain
+          kd: [4.0, 4.0, 5.0]               # Derivative gain
+          ki: [0.10, 0.10, 0.25]            # Integral gain
           kff: [1.0, 1.0, 1.0]              # Feed-forward gain
           min_output: [-20.0, -20.0, -20.0] # Minimum output of each PID
           max_output: [ 20.0,  20.0,  20.0]
@@ -58,9 +58,9 @@
       # ----------------------------------------------------------------------------------------------------------
       geofencing: "BoxGeofencing"
       BoxGeofencing:
-        limits_x: [-3.42, 3.38]
-        limits_y: [-2.27, 1.93]
-        limits_z: [-2.2,  1.00] # NED Coordinades (z-negative is up)
+        limits_x: [-10.0, 10.0]
+        limits_y: [-10.0, 10.0]
+        limits_z: [-10.0,  1.0] # NED Coordinades (z-negative is up)
       # ----------------------------------------------------------------------------------------------------------
       # Definition of the trajectory manager that generates parameterized trajectories to be followed
       # ----------------------------------------------------------------------------------------------------------

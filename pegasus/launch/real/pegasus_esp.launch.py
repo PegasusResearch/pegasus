@@ -28,7 +28,8 @@ def generate_launch_description():
     # Define the standard mavlink port to forward mavlink data (so that it can also be viewed internally by qgroundcontrol)
     udp_local_forward_port = 14559 + vehicle_id
     udp_local_forward_adress = "udp://127.0.0.1:" + str(udp_local_forward_port)
-    mavlink_forward_addresses = "[" + udp_local_forward_adress + "]"
+    desktop_arena = "udp://192.168.1.100:15006"
+    mavlink_forward_addresses = "[" + udp_local_forward_adress + ',' + desktop_arena + "]"
 
     # Namespace and ID of the vehicle as parameter received by the launch file
     id_arg = DeclareLaunchArgument('vehicle_id', default_value=str(vehicle_id), description='Drone ID in the network')
