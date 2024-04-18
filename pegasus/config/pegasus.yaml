@@ -4,7 +4,7 @@
     # Low-level configurations
     # ----------------------------------------------------------------------------------------------------------
     dynamics:
-      mass: 0.930 #Kg | 1.085 Kg
+      mass: 0.910 #Kg | 1.036 Kg
       thrust_curve:
         # Formula T(N) = a * arctan(b * input + c) + d   
         # with input = [0.0, 100.0]
@@ -21,7 +21,7 @@
       # ----------------------------------------------------------------------------------------------------------
       # Definition of the controller that will perform the tracking of references of the different operation modes
       # ----------------------------------------------------------------------------------------------------------
-      controller: "OnboardController"
+      controller: "PIDController"
       # Configurations needed by the PX4 controller
       OnboardController:
         publishers:
@@ -35,9 +35,9 @@
           pid_debug_topic: "autopilot/statistics/pid"
         # Gains for position PIDs on [x, y, z]
         gains:
-          kp: [5.0, 5.0, 3.3]               # Proportional gain
-          kd: [4.0, 4.0, 5.0]               # Derivative gain
-          ki: [0.10, 0.10, 0.25]            # Integral gain
+          kp: [5.0, 5.0, 4.0]               # Proportional gain
+          kd: [4.2, 4.2, 5.5]               # Derivative gain
+          ki: [0.0, 0.0, 0.2]               # Integral gain
           kff: [1.0, 1.0, 1.0]              # Feed-forward gain
           min_output: [-20.0, -20.0, -20.0] # Minimum output of each PID
           max_output: [ 20.0,  20.0,  20.0]
