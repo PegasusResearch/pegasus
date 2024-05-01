@@ -41,6 +41,10 @@ This simulation framework is an open-source effort, started by me, Marcelo Jacin
   * [João Pinto](https://github.com/jschpinto)
 * CAD Model
   * [Marcelo Jacinto](https://github.com/MarceloJacinto)
+
+As the author of this work, I would like to thank the support of the following coleagues and friends (in no particular order) during the development and testing of this project.
+[Pedro Trindade](https://scholar.google.com/citations?hl=pt-PT&user=eFG-wQ0AAAAJ), [João Pinto](https://github.com/jschpinto), [Gil Serrano](https://github.com/GilSerrano), [Jose Gomes](https://scholar.google.com/citations?hl=pt-PT&user=PECAagsAAAAJ), Pedro Santos and Joao Lehodey. Not only have you made this project possible, but also crashing drones an enjoyable experience! Checkout their work and contributions in the field of control and robotics.
+
  
 ## Project Sponsors
 The work developed by Marcelo Jacinto and João Pinto was supported by Ph.D. grants funded by Fundação para a Ciência e Tecnologia (FCT).
