@@ -9,3 +9,9 @@ Bill of Materials
 
 PX4 Configuration for Indoor Flight
 -----------------------------------
+
+Pegasus Drone Setup
+-------------------
+
+Realsense Setup
+---------------

@@ -5,3 +5,7 @@ Bill of Materials
 -----------------
 
 This page was edited by Pedro Trindade. 
+
+
+Kopis Drone Setup
+-----------------

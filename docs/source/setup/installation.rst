@@ -13,7 +13,7 @@ Installation
     :target: https://docs.ros.org/en/humble/index.html
     :alt: ROS 2 Humble
 
-Start by installing ROS 2 Humble by following the instructions on the `ROS 2 Humble Documentation <https://docs.ros.org/en/humble/index.html>`__. Only after you have installed ROS 2, you can proceed with the installation of the Pegasus.
+Start by installing ROS 2 Humble by following the instructions on the `ROS 2 Humble Documentation <https://docs.ros.org/en/humble/index.html>`__. Only after you have installed ROS 2, you can proceed with the installation of Pegasus.
 
 Installing External Dependencies
 --------------------------------
@@ -79,6 +79,10 @@ Running Simulations with Pegasus
 
 - To run simulations with the Pegasus Simulator (Isaac Sim), proceed to the page :ref:`Pegasus Simulator`.
 
-Installing Realsense
---------------------
+Running Real Flight with Pegasus
+--------------------------------
+- Setup the Pegasus drone by following the instructions on the :ref:`Pegasus Drone Setup` page.
+
+- Setup the Kopis drone by following the instructions on the :ref:`Kopis Drone Setup` page.
+
 
