@@ -30,7 +30,7 @@ Developer Team
 - CAD model
    - `Marcelo Jacinto <https://github.com/MarceloJacinto>`__
 
-If you find ``Pegasus`` useful in your academic work, please cite the tech report below. It is also available `here <>`_.
+If you find ``Pegasus`` useful in your academic work, please cite the tech report below. It is also available (TODO).
 
 .. code-block:: bibtex
 
@@ -72,16 +72,11 @@ As the author of this work, I would like to thank the support of the following c
 
 Not only have you made this project possible, but also crashing drones an enjoyable experience! Checkout their work and contributions in the field of control and robotics.
 
-Guide
-^^^^^
-
-
 .. toctree::
    :maxdepth: 3
    :caption: Getting Started
 
    source/setup/installation
-   source/setup/developer
 
 .. toctree::
    :maxdepth: 3
@@ -112,12 +107,6 @@ Guide
    :caption: Flight Arena
 
    source/arena/arena
-
-.. toctree::
-   :maxdepth: 3
-   :caption: Source API
-
-   source/api/index
 
 .. toctree::
    :maxdepth: 1

@@ -1,5 +1,4 @@
-License
-=======
+Bibliography
+============
 
-Pegasus License
----------------
+.. bibliography::
