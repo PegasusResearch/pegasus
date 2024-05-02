@@ -11,7 +11,7 @@
     output: 'screen'                          # pipe node output [screen|log]
     depth_module.profile: '848x480x30'        # depth module profile         
     rgb_camera.profile: '848x480x30'          # color image profile                  
-    enable_depth: true                        # enable depth stream
+    enable_depth: false                        # enable depth stream
     rgb_camera.enable_auto_exposure: true     # enable/disable auto exposure for color image
     rgb_camera.auto_exposure_priority: false
     rgb_camera.power_line_frequency: 0
