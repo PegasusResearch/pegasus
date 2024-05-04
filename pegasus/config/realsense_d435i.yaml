@@ -11,7 +11,7 @@
     output: 'screen'                          # pipe node output [screen|log]
     depth_module.profile: '848x480x30'        # depth module profile         
     rgb_camera.profile: '848x480x30'          # color image profile                  
-    enable_depth: true                        # enable depth stream
+    enable_depth: false                       # enable depth stream
     rgb_camera.enable_auto_exposure: true     # enable/disable auto exposure for color image
     rgb_camera.auto_exposure_priority: false
     rgb_camera.power_line_frequency: 0
@@ -20,9 +20,9 @@
     enable_infra1: false                      # enable infra1 stream
     enable_infra2: false                      # enable infra2 stream
     infra_rgb: false                          # enable infra2 stream
-    enable_fisheye1: true                     # enable fisheye1 stream
+    enable_fisheye1: false                    # enable fisheye1 stream
     enable_fisheye2: false                    # enable fisheye2 stream
-    enable_confidence: true                   # enable depth stream'
+    enable_confidence: false                  # enable depth stream'
     gyro_fps: 200
     accel_fps: 63
     enable_gyro: true 
@@ -36,15 +36,15 @@
     accel_qos: 'SENSOR_DATA'                  # SYSTEM_DEFAULT, DEFAULT, PARAMETER_EVENTS, SERVICES_DEFAULT, PARAMETERS, SENSOR_DATA
     pose_qos: 'SENSOR_DATA'                   # SYSTEM_DEFAULT, DEFAULT, PARAMETER_EVENTS, SERVICES_DEFAULT, PARAMETERS, SENSOR_DATA
     pointcloud.enable: false
-    pointcloud.stream_filter: 2                # texture stream for pointcloud
-    pointcloud.stream_index_filter: 0          # texture stream index for pointcloud
-    enable_sync: true                          # TODO - check if this improves the matching or actually makes it worse....
-    align_depth.enable: true                
+    pointcloud.stream_filter: 2               # texture stream for pointcloud
+    pointcloud.stream_index_filter: 0         # texture stream index for pointcloud
+    enable_sync: false                        # TODO - check if this improves the matching or actually makes it worse....
+    align_depth.enable: false                
     linear_accel_cov: 0.01    
     allow_no_texture_points: false 
     pointcloud.ordered_pc: false
     publish_tf: true                          # [bool] enable/disable publishing static & dynamic TF
-    tf_publish_rate: -1.0                      # [double] rate in Hz for publishing dynamic TF
+    tf_publish_rate: -1.0                     # [double] rate in Hz for publishing dynamic TF
     diagnostics_period: 1.0                   # Rate of publishing diagnostics. 0=Disabled -> Sacrifices a little bit of performance but gives diagnostics on the rates
     rosbag_filename: ''                       # A realsense bagfile to run from as a device
     depth_module.enable_auto_exposure: false  # enable/disable auto exposure for depth image
@@ -54,7 +54,7 @@
     depth_module.gain.2: 16                   # Depth module second gain value. Used for hdr_merge filter
     depth_module.exposure: 8500               # Depth module manual exposure value
     depth_module.hdr_enabled: false           # Depth module hdr enablement flag. Used for hdr_merge filter
-    depth_module.emitter_enabled: 1
+    depth_module.emitter_enabled: 0
     hdr_merge.enable: false                   # hdr_merge filter enablement flag - This is disable because it does not work well at 60 FPS in the intel realsense D435i
     wait_for_device_timeout: -1.0             # Timeout for waiting for device to connect (Seconds)
     reconnect_timeout: 10.0                   # Timeout(seconds) between consequtive reconnection attempts'}

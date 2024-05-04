@@ -29,7 +29,8 @@ def generate_launch_description():
     #udp_local_forward_port = 14550 + vehicle_id
     #udp_local_forward_adress = "udp://192.168.55.100:" + str(udp_local_forward_port)
     desktop_arena = "udp://192.168.1.100:15006"
-    mavlink_forward_addresses = "[" + desktop_arena + "]"
+    otg_port = "udp://192.168.55.100:15006"
+    mavlink_forward_addresses = "[" + desktop_arena + "," + otg_port + "]"
 
     # Namespace and ID of the vehicle as parameter received by the launch file
     id_arg = DeclareLaunchArgument('vehicle_id', default_value=str(vehicle_id), description='Drone ID in the network')
@@ -91,6 +92,15 @@ def generate_launch_description():
         }.items(),
     )
 
+    # Call the launch file to start the realsense camera
+    realsense_launch_file = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('pegasus'), 'launch', 'realsense.launch.py')),
+        launch_arguments={
+            'id': LaunchConfiguration('vehicle_id'),
+            'namespace': LaunchConfiguration('vehicle_ns')
+        }.items(),
+    )
+
     # ----------------------------------------
     # ---- RETURN THE LAUNCH DESCRIPTION -----
     # ----------------------------------------
@@ -104,5 +114,6 @@ def generate_launch_description():
         # Launch files
         mavlink_interface_launch_file,
         autopilot_launch_file,
-        mocap_launch_file
+        mocap_launch_file,
+        realsense_launch_file
     ])
