@@ -6,7 +6,7 @@
   <description>Different modes of operation that can be used by an Autopilot class</description>
   <author email="marcelo.jacinto@tecnico.ulisboa.pt">Marcelo Jacinto</author>
   <maintainer email="marcelo.jacinto@tecnico.ulisboa.pt">Marcelo Jacinto</maintainer>
-  <license>BSD 3-Clause License</license>
+  <license>Non-Commercial and Non-Military BSD4 License</license>
 
   <buildtool_depend>ament_cmake_ros</buildtool_depend>
 
