@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pegasus Documentation &mdash; Pegasus Simulator  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation" href="source/setup/installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #000000" >
+
+          
+          
+          <a href="#">
+            
+              <img src="_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/setup/installation.html">Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Features</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/features/autopilot.html">Autopilot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/features/states.html">States</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/features/controllers.html">Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/features/geofencing.html">Geofencing</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/simulation/gazebo_classic.html">Gazebo Classic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/simulation/pegasus_simulator.html">Pegasus Simulator</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Vehicles</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/vehicles/pegasus.html">Pegasus Drone v1.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/vehicles/kopis.html">Kopis 3”</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/vehicles/snapdragon.html">Snapdragon Drone</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Flight Arena</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/arena/arena.html">Taguspark Flight Arena</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/references/license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/references/bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #000000" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">Pegasus Simulator</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Pegasus Documentation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pegasus-documentation">
+<h1>Pegasus Documentation<a class="headerlink" href="#pegasus-documentation" title="Permalink to this heading"></a></h1>
+</section>
+<section id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h1>
+<p><strong>Pegasus</strong> is a quasi open-source Guidance, Navigation and Control (GNC) software package for controlling autonomous drones using ROS 2.
+It is designed to be used with the PX4 flight stack, but open enough to be used with other flight stacks as well. It is mainly written in C++ and Python.</p>
+<p>This work is part of the <strong>Pegasus Project</strong>, a semi-personal side project started by Marcelo Jacinto with the end-goal of supporting experimental validation of his Ph.D. It provides:</p>
+<ul class="simple">
+<li><p>A set of ROS 2 nodes with a modular state machine;</p></li>
+<li><p>A CAD model for a 3D printed drone used in the project;</p></li>
+<li><p>A set of Gazebo plugins to simulate the drone in Gazebo;</p></li>
+</ul>
+<p>This project is provided as is, with no warranty or support. It is intended to be used as a reference for other researchers and developers in the field of control and robotics. It may NOT
+be used for commercial purposes or military applications without the explicit consent from the project founder.</p>
+<section id="developer-team">
+<h2>Developer Team<a class="headerlink" href="#developer-team" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Project Founder</dt><dd><ul>
+<li><p><a class="reference external" href="https://github.com/MarceloJacinto">Marcelo Jacinto</a>, under the supervision of Prof. Rita Cunha (IST/ISR-Lisbon)</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Architecture</dt><dd><ul>
+<li><p><a class="reference external" href="https://github.com/MarceloJacinto">Marcelo Jacinto</a></p></li>
+<li><p><a class="reference external" href="https://github.com/jschpinto">João Pinto</a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>CAD model</dt><dd><ul>
+<li><p><a class="reference external" href="https://github.com/MarceloJacinto">Marcelo Jacinto</a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>If you find <code class="docutils literal notranslate"><span class="pre">Pegasus</span></code> useful in your academic work, please cite the tech report below. It is also available (TODO).</p>
+<div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@misc</span><span class="p">{</span><span class="nl">jacinto2024pegasus</span><span class="p">,</span>
+<span class="w">   </span><span class="na">title</span><span class="p">=</span><span class="s">{Pegasus: A Quasi Open-Source Guidance, Control and Navigation Software Package for Autonomous Drones}</span><span class="p">,</span>
+<span class="w">   </span><span class="na">author</span><span class="p">=</span><span class="s">{Marcelo Jacinto and João Pinto and Rita Cunha}</span><span class="p">,</span>
+<span class="w">   </span><span class="na">year</span><span class="p">=</span><span class="s">{2024}</span><span class="p">,</span>
+<span class="w">   </span><span class="na">eprint</span><span class="p">=</span><span class="s">{}</span><span class="p">,</span>
+<span class="w">   </span><span class="na">archivePrefix</span><span class="p">=</span><span class="s">{arXiv}</span><span class="p">,</span>
+<span class="w">   </span><span class="na">primaryClass</span><span class="p">=</span><span class="s">{cs.RO}</span>
+<span class="w"> </span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="project-sponsors">
+<h1>Project Sponsors<a class="headerlink" href="#project-sponsors" title="Permalink to this heading"></a></h1>
+<p>The work developed by Marcelo Jacinto and João Pinto was supported by Ph.D. grants funded by Fundação para as Ciências e Tecnologias (FCT).</p>
+<p float="left" align="center">
+   <img src="_static/logo_isr.png" width="200" align="center"/>
+   <img src="_static/larsys_logo.png" width="200" align="center"/>
+   <img src="_static/ist_logo.png" width="200" align="center"/>
+   <img src="_static/logo_fct.png" width="200" align="center"/>
+</p><p>As the author of this work, I would like to thank the support of the following coleagues and friends (in no particular order) during the development and testing of this project.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://scholar.google.com/citations?hl=pt-PT&amp;user=eFG-wQ0AAAAJ">Pedro Trindade</a></p></li>
+<li><p><a class="reference external" href="https://github.com/jschpinto">João Pinto</a></p></li>
+<li><p><a class="reference external" href="https://github.com/GilSerrano">Gil Serrano</a></p></li>
+<li><p><a class="reference external" href="https://scholar.google.com/citations?hl=pt-PT&amp;user=PECAagsAAAAJ">Jose Gomes</a></p></li>
+<li><p><cite>Pedro Santos</cite></p></li>
+<li><p><cite>Joao Lehodey</cite></p></li>
+</ul>
+<p>Not only have you made this project possible, but also crashing drones an enjoyable experience! Checkout their work and contributions in the field of control and robotics.</p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/setup/installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="source/setup/installation.html#installing-external-dependencies">Installing External Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/setup/installation.html#installing-pegasus">Installing Pegasus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/setup/installation.html#running-simulations-with-pegasus">Running Simulations with Pegasus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/setup/installation.html#running-real-flight-with-pegasus">Running Real Flight with Pegasus</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Features</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/features/autopilot.html">Autopilot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/features/states.html">States</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/features/controllers.html">Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/features/geofencing.html">Geofencing</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/simulation/gazebo_classic.html">Gazebo Classic</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="source/simulation/gazebo_classic.html#installing-gazebo-classic">Installing Gazebo Classic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/simulation/gazebo_classic.html#installing-px4-autopilot">Installing PX4-Autopilot</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="source/simulation/pegasus_simulator.html">Pegasus Simulator</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Vehicles</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/vehicles/pegasus.html">Pegasus Drone v1.0.0</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="source/vehicles/pegasus.html#cad-model">CAD Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vehicles/pegasus.html#bill-of-materials">Bill of Materials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vehicles/pegasus.html#px4-configuration-for-indoor-flight">PX4 Configuration for Indoor Flight</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vehicles/pegasus.html#pegasus-drone-setup">Pegasus Drone Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vehicles/pegasus.html#realsense-setup">Realsense Setup</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="source/vehicles/kopis.html">Kopis 3”</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="source/vehicles/kopis.html#bill-of-materials">Bill of Materials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vehicles/kopis.html#kopis-drone-setup">Kopis Drone Setup</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="source/vehicles/snapdragon.html">Snapdragon Drone</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Flight Arena</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/arena/arena.html">Taguspark Flight Arena</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/references/license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/references/bibliography.html">Bibliography</a></li>
+</ul>
+</div>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="source/setup/installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Marcelo Jacinto.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

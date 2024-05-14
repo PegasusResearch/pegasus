@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snapdragon Drone &mdash; Pegasus Simulator  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Taguspark Flight Arena" href="../arena/arena.html" />
+    <link rel="prev" title="Kopis 3”" href="kopis.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #000000" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../setup/installation.html">Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Features</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../features/autopilot.html">Autopilot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features/states.html">States</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features/controllers.html">Controllers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features/geofencing.html">Geofencing</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../simulation/gazebo_classic.html">Gazebo Classic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../simulation/pegasus_simulator.html">Pegasus Simulator</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Vehicles</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="pegasus.html">Pegasus Drone v1.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kopis.html">Kopis 3”</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Snapdragon Drone</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Flight Arena</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../arena/arena.html">Taguspark Flight Arena</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../references/license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../references/bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #000000" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Pegasus Simulator</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Snapdragon Drone</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/source/vehicles/snapdragon.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="snapdragon-drone">
+<h1>Snapdragon Drone<a class="headerlink" href="#snapdragon-drone" title="Permalink to this heading"></a></h1>
+<p>## Flashing the Pixhawk
+TODO</p>
+<p>## Setting up the Wifi Connection</p>
+<p>### Flash the ESP8266 with the MAVESP8266 firmware</p>
+<p>1. Download the MAVESP8266 source code and compile
+<code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">https://github.com/tridge/mavesp8266</span>
+<span class="pre">`</span></code>
+or download the latest binary from
+<code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">https://firmware.ardupilot.org/Tools/MAVESP8266/latest/firmware-esp&lt;version&gt;.bin</span>
+<span class="pre">`</span></code></p>
+<p>where the version “01_1m” if for boards with 1MB of memory (the typical),  “01” for boards with 512KB of memory and “12e” for boards with 4MB of flash. An “FTDI Cable” is for the first time the firmware is upload to the device. To flash the firmware, follow the steps:</p>
+<ol class="arabic simple" start="2">
+<li><p>solder a 6pin header to the narrow end of the board that has the TX, RX, VCC and GND pins.</p></li>
+<li><p>connect the device to your computer using the FTDI cable</p></li>
+<li><p>put the device into bootloader mode by pressing both the Reset and GPIO0 buttons, then release the Reset button followed by the GPIO0 button. The red LED should remain dimly lit.</p></li>
+<li><p>If you are flashing from a Windows PC the download and run the NodeMCU flasher, available at:</p></li>
+</ol>
+<p><a class="reference external" href="https://github.com/nodemcu/nodemcu-flasher/blob/master/Win64/Release/ESP8266Flasher.exe">https://github.com/nodemcu/nodemcu-flasher/blob/master/Win64/Release/ESP8266Flasher.exe</a></p>
+<p>and, if flashing from Linux or Mac, use the ESPTool, available at:</p>
+<p><a class="reference external" href="https://github.com/espressif/esptool">https://github.com/espressif/esptool</a></p>
+<ol class="arabic simple" start="6">
+<li><p>On the Advanced page ensure the Flash size is set to 4MByte, 1MByte or 512KB depending on the board version.</p></li>
+<li><p>On the Config page push the gear and select the firmware downloaded above.</p></li>
+<li><p>On the Operation page select the “COM Port” and push the “Flash” button.  If successful the blue bar will slowly stretch from left to right and the icon on the bottom left will turn green.</p></li>
+</ol>
+<p>&lt;img src=”images/esp8266-telemetry-flash.jpg” alt=”ESP86266” style=”float: left; margin-right: 10px;” /&gt;</p>
+<p>### Connect the ESP8266 to the Pixhawk
+The ESP8266 wifi module is a programmable wifi module that attaches to the Pixhawk. If connected to Serial1/Telem1 these parameters should be set on the autopilot (if using another telemetry port, replace the “1” in the parameter name with the telemetry port’s number):</p>
+<ul class="simple">
+<li><p><cite>SERIAL1_PROTOCOL &lt;SERIAL1_PROTOCOL&gt;</cite> = 2 (MAVLink2) or 1 (MAVLink1)</p></li>
+<li><p><cite>SERIAL1_BAUD &lt;SERIAL1_BAUD&gt;</cite> = 921 (921600 baud)</p></li>
+</ul>
+<p>If you have problems connecting, it may help to set:
+- <cite>BRD_SER1_RTSCTS &lt;BRD_SER1_RTSCTS&gt;</cite> = 0</p>
+<p>to disable flow control although this is not normally necessary.</p>
+<p>&lt;img src=”images/esp8266-telemetry-pixhawk.jpg” alt=”ESP86266 and Pixhawk” style=”float: left; margin-right: 10px;” /&gt;</p>
+<blockquote>
+<div><p>Connect from QGroundControl</p>
+</div></blockquote>
+<ol class="arabic simple">
+<li><p>On your PC settings, open the wifi network connections screen and select the wifi access point (SSID “ArduPilot” with a lower case password “ardupilot”).</p></li>
+<li><p>On QGroundControl, set the connection type to UDP and press “Connect”</p></li>
+</ol>
+<p>### Changing the Wifi SSID and Password</p>
+<ol class="arabic simple">
+<li><p>Connect from your PC to the wifi access point (initial access point ID is “ArduPilot”, and password is “ardupilot”)</p></li>
+<li><p>Open a browser to <cite>192.168.4.1</cite></p></li>
+<li><p>Click on the “Setup” link</p></li>
+<li><p>Set the “AP SSID” and “AP Password” fields, push “Save” and reboot.</p></li>
+</ol>
+<p>&lt;img src=”images/esp8266-telemetry-web-setup.png” alt=”ESP86266” style=”float: left; margin-right: 10px;” /&gt;</p>
+<p>This setup page was adpated from the following sources:
+- <a class="reference external" href="https://ardupilot.org/copter/docs/common-esp8266-telemetry.html">https://ardupilot.org/copter/docs/common-esp8266-telemetry.html</a>
+- <a class="reference external" href="https://rays-blog.de/2016/10/21/224/adding-wi-fi-telemetry-to-pixhawk-flight-controller-with-esp8266-module">https://rays-blog.de/2016/10/21/224/adding-wi-fi-telemetry-to-pixhawk-flight-controller-with-esp8266-module</a></p>
+<p>### Selecting the Wifi Mode</p>
+<p>The wifi card (ESP8266) can work in “client mode” or “access point”.</p>
+<ul class="simple">
+<li><p>Client mode - The ESP8266 connects to a pre-specified wifi network and sends/receives data in the UDP port specified in the QGroundControl configuration page. This modes is usefull if we have a “router/access-point” nearby that we can connect to, allowing for a developer to test code while maintaing and active connection of the PC to the network.</p></li>
+<li><p>Access point - The ESP8266 acts as a ‘router/access-point’ to which your PC connects to (the default network SSID is ‘ardupilot’). Afterwards, your PC will be able to send/receive data in the UDP port specified in QGroundControl, but will not have access to the internet. This mode is usefull, for example if flying outside where a router is not available.</p></li>
+</ul>
+<p>This setup can be performed by accessing the IP <cite>192.168.4.1</cite> or QGRoundControl configurations.</p>
+<p>### Setting up the MAVLink UDP Port
+TODO</p>
+<p>sudo tcpdump -n -i any</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="kopis.html" class="btn btn-neutral float-left" title="Kopis 3”" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../arena/arena.html" class="btn btn-neutral float-right" title="Taguspark Flight Arena" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Marcelo Jacinto.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
