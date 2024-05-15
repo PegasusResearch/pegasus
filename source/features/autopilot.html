@@ -54,6 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="states.html">States</a></li>
 <li class="toctree-l1"><a class="reference internal" href="controllers.html">Controllers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="geofencing.html">Geofencing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="static_trajectory_manager.html">Static Trajectory Manager</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Simulation</span></p>
 <ul>
@@ -102,7 +103,12 @@
              
   <section id="autopilot">
 <h1>Autopilot<a class="headerlink" href="#autopilot" title="Permalink to this heading"></a></h1>
-<p>At the center of the Guidance and Control system is the Autopilot.</p>
+<p>At the center of the Guidance and Control system is the Autopilot, implemented in C++. This is located inside the <code class="docutils literal notranslate"><span class="pre">pegasus_autopilot/autopilot</span></code> package.
+The Autopilot is responsible for keeping track of the current operating <code class="docutils literal notranslate"><span class="pre">state</span></code> of the vehicle. It exposes the <code class="docutils literal notranslate"><span class="pre">control</span></code> API</p>
+<p>taking in the current state of the rocket and the desired state of the rocket and outputting the control commands to the rocket. The Autopilot is responsible for the following tasks:</p>
+<div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;test.cpp&gt;</span>
+</pre></div>
+</div>
 </section>
 
 

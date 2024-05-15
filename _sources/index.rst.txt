@@ -86,6 +86,7 @@ Not only have you made this project possible, but also crashing drones an enjoya
    source/features/states
    source/features/controllers
    source/features/geofencing
+   source/features/static_trajectory_manager
 
 .. toctree::
    :maxdepth: 3
