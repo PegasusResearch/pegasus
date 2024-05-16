@@ -25,15 +25,17 @@ Installing External Dependencies
         mkdir -p ~/pegasus_external
         cd ~/pegasus_external
 
+        # Install the dependencies for CasADi (IPOPT)
+        sudo apt install coinor-libipopt-dev
+
 2. Clone the `Pegasus External <https://github.com/PegasusResearch/pegasus_external>`__:
 
     .. code:: bash
 
-        # Clone the repository
+        # Clone the repository (SSH)
         git clone git@github.com:PegasusResearch/pegasus_external.git src
 
         # Compile the code 
-        cd ..
         colcon build --symlink-install
 
 3. Source the workspace in the .bashrc file:
@@ -52,10 +54,10 @@ Installing Pegasus
 
         # Create the workspace
         mkdir -p ~/pegasus/src
-        cd ~/pegasus_ws/src
+        cd ~/pegasus/src
 
-        # Clone the repository
-        git clone git@github.com:PegasusResearch/pegasus.git
+        # Clone the repository (SSH)
+        git clone git@github.com:PegasusResearch/pegasus.git --recursive
 
 2. Compile the code:
 
