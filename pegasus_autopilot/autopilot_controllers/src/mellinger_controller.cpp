@@ -162,6 +162,9 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
     R_des.col(1) = Y_b_des;
     R_des.col(2) = Z_b_des;
 
+    // Get the desired Euler-angles (for debugging purposes only)
+    Eigen::Vector3d euler_angles_des = R_des.eulerAngles(2, 1, 0);
+
     // Compute the rotation error
     Eigen::Matrix3d R_error = (R_des.transpose() * R) - (R.transpose() * R_des);
 
@@ -197,11 +200,11 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
     set_attitude_rate(attitude_rate, -F_des);
 
     // Update and publish the statistics
-    update_statistics(position, e_R, w_des, F_des, attitude_rate, euler_angles);
+    update_statistics(position, e_R, w_des, F_des, attitude_rate, euler_angles, euler_angles_des);
     statistics_pub_->publish(statistics_msg_);
 }
 
-void MellingerController::update_statistics(const Eigen::Vector3d & position_ref, const Eigen::Vector3d & rotation_error, const Eigen::Vector3d & desired_angular_rate, double thrust_reference, const Eigen::Vector3d & attitude_rate_reference, const Eigen::Vector3d & euler_angles) {
+void MellingerController::update_statistics(const Eigen::Vector3d & position_ref, const Eigen::Vector3d & rotation_error, const Eigen::Vector3d & desired_angular_rate, double thrust_reference, const Eigen::Vector3d & attitude_rate_reference, const Eigen::Vector3d & euler_angles, const Eigen::Vector3d & euler_angles_desired) {
     
     for(unsigned int i = 0; i < 3; i++) {
 
@@ -244,6 +247,11 @@ void MellingerController::update_statistics(const Eigen::Vector3d & position_ref
     statistics_msg_.state_roll = Pegasus::Rotations::rad_to_deg(euler_angles[2]);
     statistics_msg_.state_pitch = Pegasus::Rotations::rad_to_deg(euler_angles[1]);
     statistics_msg_.state_yaw = Pegasus::Rotations::rad_to_deg(euler_angles[0]);
+
+    // Fill in with the desired attitude in degrees
+    statistics_msg_.desired_roll = Pegasus::Rotations::rad_to_deg(euler_angles_desired[2]);
+    statistics_msg_.desired_pitch = Pegasus::Rotations::rad_to_deg(euler_angles_desired[1]);
+    statistics_msg_.desired_yaw = Pegasus::Rotations::rad_to_deg(euler_angles_desired[0]);
 }
 
 void MellingerController::set_attitude(const Eigen::Vector3d & attitude, double thrust_force, double dt) {
