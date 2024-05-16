@@ -184,7 +184,7 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
 
     // Compute the desired angular velocity
     Eigen::Vector3d w_des; 
-    w_des << -hw.dot(Y_b_des), hw.dot(X_b_des), yaw_rate_rad * Z_b_des[2];
+    //w_des << -hw.dot(Y_b_des), hw.dot(X_b_des), yaw_rate_rad * Z_b_des[2];
     w_des << 0.0, 0.0, 0.0;
 
     // Compute the target attitude rate
@@ -198,6 +198,14 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
 
     // Send the attitude rate and thrust to the attitude-rate controller
     set_attitude_rate(attitude_rate, -F_des);
+
+    // For debuging - to be removed
+    // Eigen::Vector3d attitude_target = Eigen::Vector3d(
+    //     Pegasus::Rotations::rad_to_deg(euler_angles_des[2]), 
+    //     Pegasus::Rotations::rad_to_deg(euler_angles_des[1]), 
+    //     Pegasus::Rotations::rad_to_deg(euler_angles_des[0]));
+
+    // set_attitude(attitude_target, -F_des);
 
     // Update and publish the statistics
     update_statistics(position, e_R, w_des, F_des, attitude_rate, euler_angles, euler_angles_des);

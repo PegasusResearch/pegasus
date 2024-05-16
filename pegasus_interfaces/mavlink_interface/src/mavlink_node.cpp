@@ -173,7 +173,7 @@ void MavlinkNode::initialize_telemetry() {
     this->telemetry_->subscribe_battery(config_.on_battery_callback);
     this->telemetry_->subscribe_rc_status(config_.on_rc_callback);
 
-    this->telemetry_->set_rate_attitude_quaternion(30.0);
+    this->telemetry_->set_rate_attitude_quaternion(50.0);
     this->telemetry_->set_rate_position_velocity_ned(30.0);
     //this->telemetry_->set_rate_imu(30.0);
 }

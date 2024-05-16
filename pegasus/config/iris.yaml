@@ -16,7 +16,7 @@
     # ----------------------------------------------------------------------------------------------------------
     autopilot:
       # Update rate
-      rate: 50.0 # Hz
+      rate: 33.0 # Hz
       # ----------------------------------------------------------------------------------------------------------
       # Definition of the controller that will perform the tracking of references of the different operation modes
       # ----------------------------------------------------------------------------------------------------------
@@ -49,7 +49,7 @@
           kp: [5.0, 5.0, 3.3]    # Proportional gain
           kd: [4.0, 4.0, 5.0]    # Derivative gain
           ki: [0.0, 0.0, 0.0]    # Integral gain
-          kr: [3.0, 3.0, 3.0]    # Attitude error gain
+          kr: [6.5, 6.5, 6.5]    # Attitude error gain
           min_output: [-100.0, -100.0, -100.0]  # Minimum output of each PID
           max_output: [ 100.0,  100.0,  100.0]  # Maximum output of each PID
       # ----------------------------------------------------------------------------------------------------------
@@ -57,8 +57,8 @@
       # ----------------------------------------------------------------------------------------------------------
       geofencing: "BoxGeofencing"
       BoxGeofencing:
-        limits_x: [-3.42, 3.38]
-        limits_y: [-2.27, 1.93]
+        limits_x: [-10.0, 10.0]
+        limits_y: [-10.0, 10.0]
         limits_z: [-2.2,  1.00] # NED Coordinades (z-negative is up)
       # ----------------------------------------------------------------------------------------------------------
       # Definition of the trajectory manager that generates parameterized trajectories to be followed
