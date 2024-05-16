@@ -107,6 +107,9 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
     // Get the current attitude in quaternion and generate a rotation matrix
     Eigen::Matrix3d R = state.attitude.toRotationMatrix();
 
+    // Get the attitude but in euler angles (for debugging purposes only)
+    Eigen::Vector3d euler_angles = R.eulerAngles(2, 1, 0);
+
     // Get the current yaw and yaw-rate from degrees to radians
     double yaw_rad = Pegasus::Rotations::deg_to_rad(yaw);
     double yaw_rate_rad = Pegasus::Rotations::deg_to_rad(yaw_rate);
@@ -115,14 +118,18 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
     Eigen::Vector3d pos_error = position - state.position;
     Eigen::Vector3d vel_error = velocity - state.velocity;
 
-    // Compute the desired acceleration output using a PID scheme
-    Eigen::Vector3d F_des;
-    const Eigen::Vector3d g(0.0, 0.0, 9.81);
-    for(unsigned int i=0; i < 3; i++) F_des[i] = controllers_[i]->compute_output(pos_error[i], vel_error[i], (acceleration[i] * mass_) - (g[i] * mass_), dt);
+    Eigen::Vector3d external_force = Eigen::Vector3d(0.0, 0.0, 0.0);
+    external_force[0] = mass_* acceleration[0];
+    external_force[1] = mass_* acceleration[1];
+    external_force[2] = mass_* (acceleration[2] - 9.81);
+
+    // Compute the desired force output using a PID scheme
+    Eigen::Vector3d u_des;
+    for(unsigned int i=0; i < 3; i++) u_des[i] = controllers_[i]->compute_output(pos_error[i], vel_error[i], external_force[i], dt);
 
     // Compute the desired body-frame axis Z_b (b3d)
     // Check [3-eq.12] for more details
-    Eigen::Vector3d Z_b_des = - F_des / F_des.norm();
+    Eigen::Vector3d Z_b_des = -u_des / u_des.norm();
 
     // Compute Y_C
     Eigen::Vector3d Y_C = Eigen::Vector3d(-sin(yaw_rad), cos(yaw_rad), 0.0);
@@ -151,16 +158,17 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
 
     // Get the desired total thrust (in Newtons) in Z_B direction (u_1)
     Eigen::Vector3d Z_B = R.col(2);
-    double u_1 = F_des.dot(Z_B);
+    double F_des = u_des.dot(Z_B);
 
     // Compute the desired angular velocity by projecting the angular velocity in the Xb-Yb plane
     // projection of angular velocity on xB - yB plane
     // see eqn (7) from [2].
-    Eigen::Vector3d hw = (this->mass_ / u_1) * (jerk - (Z_b_des.dot(jerk) * Z_b_des));
+    Eigen::Vector3d hw = (this->mass_ / F_des) * (jerk - (Z_b_des.dot(jerk) * Z_b_des));
 
     // Compute the desired angular velocity
     Eigen::Vector3d w_des; 
     w_des << -hw.dot(Y_b_des), hw.dot(X_b_des), yaw_rate_rad * Z_b_des[2];
+    w_des << 0.0, 0.0, 0.0;
 
     // Compute the target attitude rate
     Eigen::Vector3d attitude_rate = w_des - (kr_ * e_R);
@@ -172,14 +180,14 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
         Pegasus::Rotations::rad_to_deg(attitude_rate[2]));
 
     // Send the attitude rate and thrust to the attitude-rate controller
-    set_attitude_rate(attitude_rate, -u_1);
+    set_attitude_rate(attitude_rate, -F_des);
 
     // Update and publish the statistics
-    update_statistics(position, e_R, w_des, u_1, attitude_rate);
+    update_statistics(position, e_R, w_des, F_des, attitude_rate, euler_angles);
     statistics_pub_->publish(statistics_msg_);
 }
 
-void MellingerController::update_statistics(const Eigen::Vector3d & position_ref, const Eigen::Vector3d & rotation_error, const Eigen::Vector3d & desired_angular_rate, double thrust_reference, const Eigen::Vector3d & attitude_rate_reference) {
+void MellingerController::update_statistics(const Eigen::Vector3d & position_ref, const Eigen::Vector3d & rotation_error, const Eigen::Vector3d & desired_angular_rate, double thrust_reference, const Eigen::Vector3d & attitude_rate_reference, const Eigen::Vector3d & euler_angles) {
     
     for(unsigned int i = 0; i < 3; i++) {
 
@@ -217,6 +225,11 @@ void MellingerController::update_statistics(const Eigen::Vector3d & position_ref
 
     // Fill in the thrust reference
     statistics_msg_.thrust_reference = thrust_reference;
+
+    // Fill in with the current attitude in degrees
+    statistics_msg_.state_roll = Pegasus::Rotations::rad_to_deg(euler_angles[2]);
+    statistics_msg_.state_pitch = Pegasus::Rotations::rad_to_deg(euler_angles[1]);
+    statistics_msg_.state_yaw = Pegasus::Rotations::rad_to_deg(euler_angles[0]);
 }
 
 void MellingerController::set_attitude(const Eigen::Vector3d & attitude, double thrust_force, double dt) {

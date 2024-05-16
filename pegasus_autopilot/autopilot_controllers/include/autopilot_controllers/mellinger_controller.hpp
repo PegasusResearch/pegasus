@@ -79,7 +79,7 @@ public:
 protected:
 
     // Update the statistics of the controller
-    void update_statistics(const Eigen::Vector3d & position_ref, const Eigen::Vector3d & rotation_error, const Eigen::Vector3d & desired_angular_rate, double thrust_reference, const Eigen::Vector3d & attitude_rate_reference);
+    void update_statistics(const Eigen::Vector3d & position_ref, const Eigen::Vector3d & rotation_error, const Eigen::Vector3d & desired_angular_rate, double thrust_reference, const Eigen::Vector3d & attitude_rate_reference, const Eigen::Vector3d & euler_angles);
 
     // The mass of the vehicle
     double mass_;

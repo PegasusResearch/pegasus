@@ -20,7 +20,7 @@
       # ----------------------------------------------------------------------------------------------------------
       # Definition of the controller that will perform the tracking of references of the different operation modes
       # ----------------------------------------------------------------------------------------------------------
-      controller: "PIDController"
+      controller: "MellingerController"
       # Configurations needed by the PX4 controller
       OnboardController:
         publishers:
@@ -46,10 +46,10 @@
           control_attitude_rate: "fmu/in/force/attitude_rate"
           debug_topic: "autopilot/statistics/mellinger"
         gains:
-          kp: [5.5, 5.5, 5.5]    # Proportional gain
-          kd: [4.5, 4.5, 4.5]    # Derivative gain
+          kp: [4.5, 4.5, 4.5]    # Proportional gain
+          kd: [4.3, 4.3, 4.3]    # Derivative gain
           ki: [0.0, 0.0, 0.0]    # Integral gain
-          kr: [1.0, 1.0, 1.0]    # Attitude error gain
+          kr: [1.3, 1.3, 1.3]    # Attitude error gain
           min_output: [-100.0, -100.0, -100.0]  # Minimum output of each PID
           max_output: [ 100.0,  100.0,  100.0]  # Maximum output of each PID
       # ----------------------------------------------------------------------------------------------------------

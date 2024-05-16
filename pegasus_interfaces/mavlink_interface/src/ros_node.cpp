@@ -567,9 +567,9 @@ void ROSNode::on_angular_velocity_callback(const mavsdk::Telemetry::AngularVeloc
     filter_state_msg_.header.stamp = rclcpp::Clock().now();
 
     // Set the angular velocity fields
-    filter_state_msg_.twist.twist.angular.x = ang_vel.roll_rad_s;
-    filter_state_msg_.twist.twist.angular.y = ang_vel.pitch_rad_s;
-    filter_state_msg_.twist.twist.angular.z = ang_vel.yaw_rad_s;
+    filter_state_msg_.twist.twist.angular.x = Pegasus::Rotations::rad_to_deg(ang_vel.roll_rad_s);
+    filter_state_msg_.twist.twist.angular.y = Pegasus::Rotations::rad_to_deg(ang_vel.pitch_rad_s);
+    filter_state_msg_.twist.twist.angular.z = Pegasus::Rotations::rad_to_deg(ang_vel.yaw_rad_s);
 
     // Publish the updated message
     filter_state_pub_->publish(filter_state_msg_);
