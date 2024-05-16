@@ -45,7 +45,27 @@ In order to
    :lines: 87-88
    :lineno-start: 87
 
+3. Autopilot Configuration File
+-------------------------------
 
+In order to 
 
+.. literalinclude:: ../../../pegasus_autopilot/autopilot/config/autopilot.yaml
+   :language: yaml
+   :lines: 1-40
+   :lineno-start: 1
 
+.. literalinclude:: ../../../pegasus_autopilot/autopilot/config/autopilot.yaml
+   :language: yaml
+   :lines: 41-48
+   :lineno-start: 41
 
+.. literalinclude:: ../../../pegasus_autopilot/autopilot/config/autopilot.yaml
+   :language: yaml
+   :lines: 49-67
+   :lineno-start: 49
+
+.. literalinclude:: ../../../pegasus_autopilot/autopilot/config/autopilot.yaml
+   :language: yaml
+   :lines: 68-100
+   :lineno-start: 68
