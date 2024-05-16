@@ -16,6 +16,7 @@ Bill of Materials
 In order to replicate the Pegasus Drone, the following components are required:
 
 * 1x `Nvidia Jetson Orin Nano Developer Kit <https://developer.nvidia.com/embedded/learn/get-started-jetson-orin-nano-devkit>`_
+* 1x 256GB NVMe SSD PCIe 4.0
 * 1x `Kakute H7 v1.3 stack (Microcontroller + 4in1 ESC) <https://holybro.com/products/kakute-h7-v1-stacks?variant=42833125277885>`_ 
 * 4x `T-motor V2306 V2 2400KV <https://store.tmotor.com/product/v2306-v2-fpv-motor.html>`_
 * 1x `Micro M8N GPS <https://holybro.com/collections/standard-gps-module/products/micro-m8n-gps>`_
@@ -23,12 +24,16 @@ In order to replicate the Pegasus Drone, the following components are required:
 * 1x `Realsense d435i <https://www.intelrealsense.com/depth-camera-d435i/>`_
 * 4x `Propellers Dalprop Cyclone T5050 <http://www.dalprop.com>`_
 * 1x Battery 4S 4300mAh
+* 1x Set of jumper dupont wires
+* 1x XT60 cable connector
 
 PX4 Configuration for Indoor Flight
 -----------------------------------
+
 
 Pegasus Drone Setup
 -------------------
 
 Realsense Setup
 ---------------
+
