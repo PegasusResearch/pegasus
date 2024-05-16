@@ -7,14 +7,14 @@
      <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
       <DockArea name="...">
        <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-        <range left="142.705111" right="146.614312" top="15.019882" bottom="14.925729"/>
+        <range left="1687.701268" right="1698.424611" top="5.819030" bottom="2.943274"/>
         <limitY/>
         <curve name="/drone1/fmu/in/force/attitude_rate/thrust" color="#1ac938"/>
        </plot>
       </DockArea>
       <DockArea name="...">
        <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-        <range left="142.705111" right="146.614312" top="0.847458" bottom="-0.876498"/>
+        <range left="1687.701268" right="1698.424611" top="46.371537" bottom="-19.021216"/>
         <limitY/>
         <curve name="/drone1/fmu/in/force/attitude_rate/attitude[0]" color="#ff7f0e"/>
         <curve name="/drone1/fmu/in/force/attitude_rate/attitude[1]" color="#f14cc1"/>
@@ -32,7 +32,7 @@
       <DockSplitter orientation="-" count="2" sizes="0.5;0.5">
        <DockArea name="...">
         <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-         <range left="142.705173" right="146.614672" top="0.001912" bottom="-0.001849"/>
+         <range left="1687.701147" right="1698.424564" top="0.110661" bottom="-0.269779"/>
          <limitY/>
          <curve name="/drone1/autopilot/statistics/mellinger/rotation_error[0]" color="#1f77b4"/>
          <curve name="/drone1/autopilot/statistics/mellinger/rotation_error[1]" color="#d62728"/>
@@ -41,7 +41,7 @@
        </DockArea>
        <DockArea name="...">
         <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-         <range left="142.705173" right="146.614672" top="0.847458" bottom="-0.876498"/>
+         <range left="1687.701147" right="1698.424564" top="46.371537" bottom="-19.021216"/>
          <limitY/>
          <curve name="/drone1/autopilot/statistics/mellinger/attitude_rate_reference[0]" color="#f14cc1"/>
          <curve name="/drone1/autopilot/statistics/mellinger/attitude_rate_reference[1]" color="#9467bd"/>
@@ -52,14 +52,14 @@
       <DockSplitter orientation="-" count="2" sizes="0.5;0.5">
        <DockArea name="...">
         <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-         <range left="142.705173" right="146.614672" top="-14.925729" bottom="-15.019882"/>
+         <range left="1687.701147" right="1698.424564" top="-2.943274" bottom="-5.819030"/>
          <limitY/>
          <curve name="/drone1/autopilot/statistics/mellinger/thrust_reference" color="#ff7f0e"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-         <range left="142.705173" right="146.614672" top="0.100000" bottom="-0.100000"/>
+         <range left="1687.701147" right="1698.424564" top="0.100000" bottom="-0.100000"/>
          <limitY/>
          <curve name="/drone1/autopilot/statistics/mellinger/desired_angular_rate[0]" color="#bcbd22"/>
          <curve name="/drone1/autopilot/statistics/mellinger/desired_angular_rate[1]" color="#1f77b4"/>
@@ -78,7 +78,7 @@
       <DockSplitter orientation="-" count="2" sizes="0.5;0.5">
        <DockArea name="...">
         <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-         <range left="142.704223" right="146.628341" top="-0.004068" bottom="-0.059886"/>
+         <range left="1516.025308" right="1716.020222" top="1.186969" bottom="-5.479945"/>
          <limitY/>
          <curve name="/drone1/autopilot/statistics/mellinger/pid_statistics[0]/reference" color="#1ac938"/>
          <curve name="/drone1/fmu/filter/state/pose/pose/position/x" color="#9467bd"/>
@@ -86,7 +86,7 @@
        </DockArea>
        <DockArea name="...">
         <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-         <range left="142.704223" right="146.628341" top="0.003694" bottom="-0.039998"/>
+         <range left="1516.025308" right="1716.020222" top="2.055633" bottom="-2.622114"/>
          <limitY/>
          <curve name="/drone1/autopilot/statistics/mellinger/pid_statistics[1]/reference" color="#ff7f0e"/>
          <curve name="/drone1/fmu/filter/state/pose/pose/position/y" color="#17becf"/>
@@ -96,7 +96,7 @@
       <DockSplitter orientation="-" count="2" sizes="0.5;0.5">
        <DockArea name="...">
         <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-         <range left="142.704223" right="146.628341" top="-0.766808" bottom="-0.991770"/>
+         <range left="1516.025308" right="1716.020222" top="0.406446" bottom="-1.773428"/>
          <limitY/>
          <curve name="/drone1/autopilot/statistics/mellinger/pid_statistics[2]/reference" color="#f14cc1"/>
          <curve name="/drone1/fmu/filter/state/pose/pose/position/z" color="#bcbd22"/>
@@ -104,7 +104,7 @@
        </DockArea>
        <DockArea name="...">
         <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-         <range left="142.704223" right="146.628341" top="91.702667" bottom="91.621052"/>
+         <range left="1516.025308" right="1716.020222" top="177.046897" bottom="171.949500"/>
          <limitY/>
          <curve name="/drone1/autopilot/statistics/mellinger/state_yaw" color="#9467bd"/>
          <curve name="/drone1/autopilot/statistics/mellinger/desired_yaw" color="#1ac938"/>
@@ -121,7 +121,7 @@
      <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
       <DockArea name="...">
        <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-        <range left="142.705173" right="146.614672" top="0.059324" bottom="-0.220922"/>
+        <range left="1687.701147" right="1698.424564" top="0.419358" bottom="-1.034676"/>
         <limitY/>
         <curve name="/drone1/autopilot/statistics/mellinger/pid_statistics[0]/error_p" color="#ff7f0e"/>
         <curve name="/drone1/autopilot/statistics/mellinger/pid_statistics[1]/error_p" color="#9467bd"/>
@@ -130,7 +130,7 @@
       </DockArea>
       <DockArea name="...">
        <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-        <range left="142.705173" right="146.614672" top="0.102062" bottom="-0.027386"/>
+        <range left="1687.701147" right="1698.424564" top="1.378168" bottom="-0.816472"/>
         <limitY/>
         <curve name="/drone1/autopilot/statistics/mellinger/pid_statistics[0]/error_d" color="#f14cc1"/>
         <curve name="/drone1/autopilot/statistics/mellinger/pid_statistics[1]/error_d" color="#17becf"/>
@@ -148,7 +148,7 @@
       <DockSplitter orientation="-" count="2" sizes="0.5;0.5">
        <DockArea name="...">
         <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-         <range left="142.705173" right="146.614672" top="0.287514" bottom="-0.731280"/>
+         <range left="1687.701147" right="1698.424564" top="0.838716" bottom="-2.069351"/>
          <limitY/>
          <curve name="/drone1/autopilot/statistics/mellinger/pid_statistics[0]/p_term" color="#1ac938"/>
          <curve name="/drone1/autopilot/statistics/mellinger/pid_statistics[1]/p_term" color="#ff7f0e"/>
@@ -157,7 +157,7 @@
        </DockArea>
        <DockArea name="...">
         <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-         <range left="142.705173" right="146.614672" top="0.100000" bottom="-0.100000"/>
+         <range left="1687.701147" right="1698.424564" top="0.100000" bottom="-0.100000"/>
          <limitY/>
          <curve name="/drone1/autopilot/statistics/mellinger/pid_statistics[0]/i_term" color="#1ac938"/>
          <curve name="/drone1/autopilot/statistics/mellinger/pid_statistics[1]/i_term" color="#9467bd"/>
@@ -168,7 +168,7 @@
       <DockSplitter orientation="-" count="2" sizes="0.5;0.5">
        <DockArea name="...">
         <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-         <range left="142.705173" right="146.614672" top="0.510312" bottom="-0.136928"/>
+         <range left="1687.701147" right="1698.424564" top="2.067253" bottom="-1.224708"/>
          <limitY/>
          <curve name="/drone1/autopilot/statistics/mellinger/pid_statistics[0]/d_term" color="#d62728"/>
          <curve name="/drone1/autopilot/statistics/mellinger/pid_statistics[1]/d_term" color="#f14cc1"/>
@@ -177,7 +177,7 @@
        </DockArea>
        <DockArea name="...">
         <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-         <range left="142.705173" right="146.614672" top="0.636380" bottom="-15.397096"/>
+         <range left="1687.701147" right="1698.424564" top="0.284158" bottom="-5.899490"/>
          <limitY/>
          <curve name="/drone1/autopilot/statistics/mellinger/pid_statistics[0]/output" color="#d62728"/>
          <curve name="/drone1/autopilot/statistics/mellinger/pid_statistics[1]/output" color="#1ac938"/>
@@ -195,7 +195,7 @@
      <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
       <DockArea name="...">
        <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-        <range left="142.705173" right="146.614672" top="0.100000" bottom="-0.100000"/>
+        <range left="1687.701147" right="1698.424564" top="0.100000" bottom="-0.100000"/>
         <limitY/>
         <curve name="/drone1/autopilot/statistics/mellinger/pid_statistics[0]/anti_windup_discharge" color="#f14cc1"/>
         <curve name="/drone1/autopilot/statistics/mellinger/pid_statistics[1]/anti_windup_discharge" color="#9467bd"/>
@@ -205,7 +205,7 @@
       <DockSplitter orientation="-" count="2" sizes="0.5;0.5">
        <DockArea name="...">
         <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-         <range left="142.705173" right="146.614672" top="0.636380" bottom="-15.397096"/>
+         <range left="1687.701147" right="1698.424564" top="0.284158" bottom="-5.899490"/>
          <limitY/>
          <curve name="/drone1/autopilot/statistics/mellinger/pid_statistics[0]/output_pre_sat" color="#bcbd22"/>
          <curve name="/drone1/autopilot/statistics/mellinger/pid_statistics[1]/output_pre_sat" color="#1f77b4"/>
@@ -214,7 +214,7 @@
        </DockArea>
        <DockArea name="...">
         <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-         <range left="142.705173" right="146.614672" top="0.636380" bottom="-15.397096"/>
+         <range left="1687.701147" right="1698.424564" top="0.284158" bottom="-5.899490"/>
          <limitY/>
          <curve name="/drone1/autopilot/statistics/mellinger/pid_statistics[0]/output" color="#d62728"/>
          <curve name="/drone1/autopilot/statistics/mellinger/pid_statistics[1]/output" color="#1ac938"/>
@@ -233,14 +233,14 @@
       <DockSplitter orientation="-" count="2" sizes="0.5;0.5">
        <DockArea name="...">
         <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-         <range left="0.000000" right="146.620451" top="16.142600" bottom="15.991401"/>
+         <range left="0.000000" right="1715.840490" top="16.454901" bottom="15.913101"/>
          <limitY/>
          <curve name="/drone1/fmu/status/battery/voltage" color="#17becf"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-         <range left="0.000000" right="146.620451" top="100.100000" bottom="99.900000"/>
+         <range left="0.000000" right="1715.840490" top="94.025000" bottom="92.975000"/>
          <limitY/>
          <curve name="/drone1/fmu/status/battery/percentage" color="#bcbd22"/>
         </plot>
@@ -249,14 +249,14 @@
       <DockSplitter orientation="-" count="2" sizes="0.5;0.5">
        <DockArea name="...">
         <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-         <range left="0.000000" right="146.620451" top="-0.900000" bottom="-1.100000"/>
+         <range left="0.000000" right="1715.840490" top="3.207750" bottom="-0.057750"/>
          <limitY/>
          <curve name="/drone1/fmu/status/battery/current" color="#1f77b4"/>
         </plot>
        </DockArea>
        <DockArea name="...">
         <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-         <range left="0.000000" right="146.620451" top="0.100000" bottom="-0.100000"/>
+         <range left="0.000000" right="1715.840490" top="0.100000" bottom="-0.100000"/>
          <limitY/>
          <curve name="/drone1/fmu/status/battery/temperature" color="#d62728"/>
         </plot>
@@ -272,7 +272,7 @@
      <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
       <DockArea name="...">
        <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-        <range left="142.704223" right="146.628341" top="0.792885" bottom="-0.875039"/>
+        <range left="1516.025308" right="1716.020222" top="231.133532" bottom="-196.190590"/>
         <limitY/>
         <curve name="/drone1/autopilot/statistics/mellinger/attitude_rate_reference[0]" color="#17becf"/>
         <curve name="/drone1/fmu/filter/state/twist/twist/angular/x" color="#1f77b4"/>
@@ -280,7 +280,7 @@
       </DockArea>
       <DockArea name="...">
        <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-        <range left="142.704223" right="146.628341" top="1.142210" bottom="-0.913625"/>
+        <range left="1516.025308" right="1716.020222" top="216.136233" bottom="-296.772963"/>
         <limitY/>
         <curve name="/drone1/autopilot/statistics/mellinger/attitude_rate_reference[1]" color="#bcbd22"/>
         <curve name="/drone1/fmu/filter/state/twist/twist/angular/y" color="#d62728"/>
@@ -289,7 +289,7 @@
      </DockSplitter>
      <DockArea name="...">
       <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-       <range left="142.704223" right="146.628341" top="0.420891" bottom="-0.394245"/>
+       <range left="1516.025308" right="1716.020222" top="192.345465" bottom="-199.000875"/>
        <limitY/>
        <curve name="/drone1/autopilot/statistics/mellinger/attitude_rate_reference[2]" color="#1f77b4"/>
        <curve name="/drone1/fmu/filter/state/twist/twist/angular/z" color="#1ac938"/>
@@ -304,7 +304,7 @@
      <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
       <DockArea name="...">
        <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-        <range left="142.705173" right="146.614672" top="-0.680999" bottom="-0.995124"/>
+        <range left="1687.701147" right="1698.424564" top="188.998831" bottom="-188.993271"/>
         <limitY/>
         <curve name="/drone1/autopilot/statistics/mellinger/desired_roll" color="#1f77b4"/>
         <curve name="/drone1/autopilot/statistics/mellinger/state_roll" color="#ff7f0e"/>
@@ -312,7 +312,7 @@
       </DockArea>
       <DockArea name="...">
        <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-        <range left="142.705173" right="146.614672" top="-0.293155" bottom="-0.636290"/>
+        <range left="1687.701147" right="1698.424564" top="188.977504" bottom="-188.996783"/>
         <limitY/>
         <curve name="/drone1/autopilot/statistics/mellinger/desired_pitch" color="#d62728"/>
         <curve name="/drone1/autopilot/statistics/mellinger/state_pitch" color="#f14cc1"/>
@@ -321,7 +321,7 @@
      </DockSplitter>
      <DockArea name="...">
       <plot mode="TimeSeries" flip_y="false" flip_x="false" style="Lines">
-       <range left="142.705173" right="146.614672" top="91.702667" bottom="91.621052"/>
+       <range left="1687.701147" right="1698.424564" top="177.046897" bottom="171.949500"/>
        <limitY/>
        <curve name="/drone1/autopilot/statistics/mellinger/desired_yaw" color="#1ac938"/>
        <curve name="/drone1/autopilot/statistics/mellinger/state_yaw" color="#9467bd"/>
