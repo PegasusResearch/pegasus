@@ -30,7 +30,6 @@ In order to replicate the Pegasus Drone, the following components are required:
 PX4 Configuration for Indoor Flight
 -----------------------------------
 
-
 Pegasus Drone Setup
 -------------------
 

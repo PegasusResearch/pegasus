@@ -10,6 +10,11 @@ The Autopilot is responsible for keeping track of the current operating ``mode``
 
 It also provides each mode with the current ``state`` of the vehicle, which includes the current position, velocity, attitude, etc.
 
+.. image:: /_static/features/autopilot/autopilot_architecture.png
+            :width: 400px
+            :align: center
+            :alt: Autopilot Architecture
+
 The autopilot operation ``modes``, ``controllers``, ``geofencing`` and ``trajectory manager`` are implemented as ROS 2 plugins. This allows for easy extensibility and customization of the Autopilot, without having
 to modify the base autopilot packages. The Autopilot is responsible for loading the plugins at runtime and managing the communication between them.
 
@@ -27,13 +32,16 @@ The default operating modes provided by the Autopilot are:
 * ``Waypoint`` - The vehicle goes to a waypoint.
 
 
-1. Autopilot Code
------------------
+1. Autopilot Interface
+----------------------
+
+The Autopilot is defined in the under the ``pegasus_autopilot/autopilot/include/autopilot/autopilot.hpp`` header file.
 
 .. literalinclude:: ../../../pegasus_autopilot/autopilot/include/autopilot/autopilot.hpp
    :language: c++
-   :emphasize-lines: 87-88, 90-91, 93-94, 102-103, 127-128, 130-131, 133-136, 182-186 
-   :linenos:
+   :emphasize-lines: 87-88
+   :lines: 78-189
+   :lineno-start: 1
 
 2. Explanation
 --------------
