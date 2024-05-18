@@ -84,8 +84,11 @@ For instance, if you want to check the implementation of the provided base modes
 2. Adding Custom Modes to the State Machine
 -------------------------------------------
 
-1. In this section we will implement a custom operating mode that drives the vehicle to a pre-defined waypoint.
-Start by creating a new ROS 2 package inside your workspace, where you will implement the custom operating mode.
+In this section we will implement a custom waypoint operating mode. In this mode, we will subscribe to a ROS 2 topic that publishes the desired waypoint
+and drive the vehicle to that waypoint. This is a simple example to show how to implement a custom operating mode. You can implement more complex modes
+by following the same steps.
+
+1. Start by creating a new ROS 2 package inside your workspace, where you will implement the custom operating mode.
 
 .. code:: bash
 
@@ -149,9 +152,6 @@ must inherit from the ``autopilot::Mode`` class and implement the following meth
 .. code-block:: c++
    :linenos:
    :emphasize-lines: 1
-
-
-
 
 4. Modify the ``package.xml`` file to include the following dependencies ``autopilot`` and ``pluginlib``, according to the code snippet below.
 This is necessary to let ROS 2 know that the package depends on the autopilot and pluginlib packages.
