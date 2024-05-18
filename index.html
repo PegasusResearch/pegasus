@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pegasus Documentation &mdash; Pegasus Simulator  documentation</title>
+  <title>Pegasus Documentation &mdash; Pegasus  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -50,10 +50,11 @@
 <p class="caption" role="heading"><span class="caption-text">Features</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="source/features/autopilot.html">Autopilot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="source/features/states.html">States</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/features/modes.html">Modes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="source/features/controllers.html">Controllers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="source/features/geofencing.html">Geofencing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="source/features/static_trajectory_manager.html">Static Trajectory Manager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/features/trajectory_manager.html">Trajectory Manager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/console/terminal_console.html">Terminal console</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Simulation</span></p>
 <ul>
@@ -82,7 +83,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #000000" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">Pegasus Simulator</a>
+          <a href="#">Pegasus</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -156,7 +157,7 @@ be used for commercial purposes or military applications without the explicit co
 </section>
 <section id="project-sponsors">
 <h1>Project Sponsors<a class="headerlink" href="#project-sponsors" title="Permalink to this heading"></a></h1>
-<p>The work developed by Marcelo Jacinto and João Pinto was supported by Ph.D. grants funded by Fundação para as Ciências e Tecnologias (FCT).</p>
+<p>The work developed by Marcelo Jacinto and João Pinto was supported by Ph.D. grants funded by Fundação para a Ciências e a Tecnologia (FCT).</p>
 <p float="left" align="center">
    <img src="_static/logo_isr.png" width="200" align="center"/>
    <img src="_static/larsys_logo.png" width="200" align="center"/>
@@ -189,15 +190,15 @@ be used for commercial purposes or military applications without the explicit co
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="source/features/autopilot.html">Autopilot</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="source/features/autopilot.html#operating-modes">0. Operating Modes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="source/features/autopilot.html#autopilot-code">1. Autopilot Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/features/autopilot.html#autopilot-interface">1. Autopilot Interface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="source/features/autopilot.html#explanation">2. Explanation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="source/features/autopilot.html#autopilot-configuration-file">3. Autopilot Configuration File</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="source/features/states.html">States</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="source/features/states.html#definition-of-the-state-machine-mode-interface">0. Definition of the State Machine Mode Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="source/features/states.html#provided-state-machine-modes">1. Provided State Machine Modes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="source/features/states.html#adding-custom-modes-to-the-state-machine">2. Adding Custom Modes to the State Machine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/features/modes.html">Modes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="source/features/modes.html#mode-interface">0. Mode Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/features/modes.html#provided-state-machine-modes">1. Provided State Machine Modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/features/modes.html#adding-custom-modes-to-the-state-machine">2. Adding Custom Modes to the State Machine</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="source/features/controllers.html">Controllers</a><ul>
@@ -208,12 +209,13 @@ be used for commercial purposes or military applications without the explicit co
 <li class="toctree-l2"><a class="reference internal" href="source/features/geofencing.html#definition-of-the-geofencing-interface">0. Definition of the Geofencing Interface</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="source/features/static_trajectory_manager.html">Static Trajectory Manager</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="source/features/static_trajectory_manager.html#definition-of-the-trajectory-interface">0. Definition of the Trajectory Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="source/features/static_trajectory_manager.html#provided-trajectories">1. Provided Trajectories</a></li>
-<li class="toctree-l2"><a class="reference internal" href="source/features/static_trajectory_manager.html#adding-custom-static-trajectories">2. Adding Custom Static Trajectories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/features/trajectory_manager.html">Trajectory Manager</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="source/features/trajectory_manager.html#definition-of-the-trajectory-interface">0. Definition of the Trajectory Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/features/trajectory_manager.html#provided-trajectories">1. Provided Trajectories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/features/trajectory_manager.html#adding-custom-static-trajectories">2. Adding Custom Static Trajectories</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="source/console/terminal_console.html">Terminal console</a></li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">

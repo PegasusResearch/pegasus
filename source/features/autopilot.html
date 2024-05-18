@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Autopilot &mdash; Pegasus Simulator  documentation</title>
+  <title>Autopilot &mdash; Pegasus  documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -20,7 +20,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="States" href="states.html" />
+    <link rel="next" title="Modes" href="modes.html" />
     <link rel="prev" title="Installation" href="../setup/installation.html" /> 
 </head>
 
@@ -52,15 +52,16 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Autopilot</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#operating-modes">0. Operating Modes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#autopilot-code">1. Autopilot Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#autopilot-interface">1. Autopilot Interface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#explanation">2. Explanation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#autopilot-configuration-file">3. Autopilot Configuration File</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="states.html">States</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modes.html">Modes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="controllers.html">Controllers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="geofencing.html">Geofencing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="static_trajectory_manager.html">Static Trajectory Manager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trajectory_manager.html">Trajectory Manager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../console/terminal_console.html">Terminal console</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Simulation</span></p>
 <ul>
@@ -89,7 +90,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #000000" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../index.html">Pegasus Simulator</a>
+          <a href="../../index.html">Pegasus</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -117,6 +118,7 @@ The Autopilot is responsible for keeping track of the current operating <code cl
 <li><p><code class="docutils literal notranslate"><span class="pre">Trajectory</span> <span class="pre">Manager</span></code> - Manages desired trajectories for the vehicle to follow.</p></li>
 </ul>
 <p>It also provides each mode with the current <code class="docutils literal notranslate"><span class="pre">state</span></code> of the vehicle, which includes the current position, velocity, attitude, etc.</p>
+<a class="reference internal image-reference" href="../../_images/autopilot_architecture.png"><img alt="Autopilot Architecture" class="align-center" src="../../_images/autopilot_architecture.png" style="width: 400px;" /></a>
 <p>The autopilot operation <code class="docutils literal notranslate"><span class="pre">modes</span></code>, <code class="docutils literal notranslate"><span class="pre">controllers</span></code>, <code class="docutils literal notranslate"><span class="pre">geofencing</span></code> and <code class="docutils literal notranslate"><span class="pre">trajectory</span> <span class="pre">manager</span></code> are implemented as ROS 2 plugins. This allows for easy extensibility and customization of the Autopilot, without having
 to modify the base autopilot packages. The Autopilot is responsible for loading the plugins at runtime and managing the communication between them.</p>
 <section id="operating-modes">
@@ -132,197 +134,121 @@ to modify the base autopilot packages. The Autopilot is responsible for loading 
 <li><p><code class="docutils literal notranslate"><span class="pre">Waypoint</span></code> - The vehicle goes to a waypoint.</p></li>
 </ul>
 </section>
-<section id="autopilot-code">
-<h2>1. Autopilot Code<a class="headerlink" href="#autopilot-code" title="Permalink to this heading"></a></h2>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="cm">/*****************************************************************************</span>
-<span class="linenos">  2</span><span class="cm"> * </span>
-<span class="linenos">  3</span><span class="cm"> *   Author: Marcelo Jacinto &lt;marcelo.jacinto@tecnico.ulisboa.pt&gt;</span>
-<span class="linenos">  4</span><span class="cm"> *   Copyright (c) 2024, Marcelo Jacinto. All rights reserved.</span>
-<span class="linenos">  5</span><span class="cm"> * </span>
-<span class="linenos">  6</span><span class="cm"> * Redistribution and use in source and binary forms, with or without </span>
-<span class="linenos">  7</span><span class="cm"> * modification, are permitted provided that the following conditions </span>
-<span class="linenos">  8</span><span class="cm"> * are met:</span>
-<span class="linenos">  9</span><span class="cm"> *</span>
-<span class="linenos"> 10</span><span class="cm"> * 1. Redistributions of source code must retain the above copyright </span>
-<span class="linenos"> 11</span><span class="cm"> * notice, this list of conditions and the following disclaimer.</span>
-<span class="linenos"> 12</span><span class="cm"> * 2. Redistributions in binary form must reproduce the above copyright </span>
-<span class="linenos"> 13</span><span class="cm"> * notice, this list of conditions and the following disclaimer in </span>
-<span class="linenos"> 14</span><span class="cm"> * the documentation and/or other materials provided with the distribution.</span>
-<span class="linenos"> 15</span><span class="cm"> * 3. All advertising materials mentioning features or use of this </span>
-<span class="linenos"> 16</span><span class="cm"> * software must display the following acknowledgement: This product </span>
-<span class="linenos"> 17</span><span class="cm"> * includes software developed by Project Pegasus.</span>
-<span class="linenos"> 18</span><span class="cm"> * 4. Neither the name of the copyright holder nor the names of its </span>
-<span class="linenos"> 19</span><span class="cm"> * contributors may be used to endorse or promote products derived </span>
-<span class="linenos"> 20</span><span class="cm"> * from this software without specific prior written permission.</span>
-<span class="linenos"> 21</span><span class="cm"> *</span>
-<span class="linenos"> 22</span><span class="cm"> * Additional Restrictions:</span>
-<span class="linenos"> 23</span><span class="cm"> * 4. The Software shall be used for non-commercial purposes only. </span>
-<span class="linenos"> 24</span><span class="cm"> * This includes, but is not limited to, academic research, personal </span>
-<span class="linenos"> 25</span><span class="cm"> * projects, and non-profit organizations. Any commercial use of the </span>
-<span class="linenos"> 26</span><span class="cm"> * Software is strictly prohibited without prior written permission </span>
-<span class="linenos"> 27</span><span class="cm"> * from the copyright holders.</span>
-<span class="linenos"> 28</span><span class="cm"> * 5. The Software shall not be used, directly or indirectly, for </span>
-<span class="linenos"> 29</span><span class="cm"> * military purposes, including but not limited to the development </span>
-<span class="linenos"> 30</span><span class="cm"> * of weapons, military simulations, or any other military applications. </span>
-<span class="linenos"> 31</span><span class="cm"> * Any military use of the Software is strictly prohibited without </span>
-<span class="linenos"> 32</span><span class="cm"> * prior written permission from the copyright holders.</span>
-<span class="linenos"> 33</span><span class="cm"> * 6. The Software may be utilized for academic research purposes, </span>
-<span class="linenos"> 34</span><span class="cm"> * with the condition that proper acknowledgment is given in all </span>
-<span class="linenos"> 35</span><span class="cm"> * corresponding publications.</span>
-<span class="linenos"> 36</span><span class="cm"> *</span>
-<span class="linenos"> 37</span><span class="cm"> * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;</span>
-<span class="linenos"> 38</span><span class="cm"> * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE</span>
-<span class="linenos"> 39</span><span class="cm"> * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE</span>
-<span class="linenos"> 40</span><span class="cm"> * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE</span>
-<span class="linenos"> 41</span><span class="cm"> * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL</span>
-<span class="linenos"> 42</span><span class="cm"> * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR</span>
-<span class="linenos"> 43</span><span class="cm"> * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER</span>
-<span class="linenos"> 44</span><span class="cm"> * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,</span>
-<span class="linenos"> 45</span><span class="cm"> * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE</span>
-<span class="linenos"> 46</span><span class="cm"> * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
-<span class="linenos"> 47</span><span class="cm"> ****************************************************************************/</span>
-<span class="linenos"> 48</span><span class="cp">#pragma once</span>
+<section id="autopilot-interface">
+<h2>1. Autopilot Interface<a class="headerlink" href="#autopilot-interface" title="Permalink to this heading"></a></h2>
+<p>The Autopilot is defined in the under the <code class="docutils literal notranslate"><span class="pre">pegasus_autopilot/autopilot/include/autopilot/autopilot.hpp</span></code> header file.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="k">namespace</span><span class="w"> </span><span class="nn">autopilot</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">  2</span>
+<span class="linenos">  3</span><span class="k">class</span><span class="w"> </span><span class="nc">Autopilot</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">rclcpp</span><span class="o">::</span><span class="n">Node</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">  4</span>
+<span class="linenos">  5</span><span class="k">public</span><span class="o">:</span>
+<span class="linenos">  6</span>
+<span class="linenos">  7</span><span class="w">    </span><span class="n">Autopilot</span><span class="p">();</span>
+<span class="linenos">  8</span><span class="w">    </span><span class="o">~</span><span class="n">Autopilot</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
+<span class="linenos">  9</span>
+<span class="linenos"> 10</span><span class="w">    </span><span class="c1">// Function that executes periodically the control loop of each operation mode</span>
+<span class="linenos"> 11</span><span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">update</span><span class="p">();</span>
+<span class="linenos"> 12</span><span class="w">    </span>
+<span class="linenos"> 13</span><span class="w">    </span><span class="c1">// Function that establishes the state machine to transition between operating modes</span>
+<span class="linenos"> 14</span><span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">change_mode</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">new_mode</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">force</span><span class="o">=</span><span class="nb">false</span><span class="p">);</span>
+<span class="linenos"> 15</span>
+<span class="linenos"> 16</span><span class="w">    </span><span class="c1">// Function that signals that the current mode has finished its operation and should transition to the fallback mode</span>
+<span class="linenos"> 17</span><span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">signal_mode_finished</span><span class="p">();</span>
+<span class="linenos"> 18</span>
+<span class="linenos"> 19</span><span class="w">    </span><span class="c1">// Returns the current mode of operation of the autopilot and state of the vehicle</span>
+<span class="linenos"> 20</span><span class="w">    </span><span class="kr">inline</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">get_mode</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">current_mode_</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="linenos"> 21</span><span class="w">    </span><span class="kr">inline</span><span class="w"> </span><span class="n">State</span><span class="w"> </span><span class="nf">get_state</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">state_</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="linenos"> 22</span><span class="w">    </span><span class="kr">inline</span><span class="w"> </span><span class="n">VehicleStatus</span><span class="w"> </span><span class="nf">get_status</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">status_</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="linenos"> 23</span><span class="w">    </span><span class="kr">inline</span><span class="w"> </span><span class="n">VehicleConstants</span><span class="w"> </span><span class="nf">get_vehicle_constants</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">vehicle_constants_</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="linenos"> 24</span>
+<span class="linenos"> 25</span><span class="w">    </span><span class="c1">// Initializes the autopilot to run</span>
+<span class="linenos"> 26</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize</span><span class="p">();</span>
+<span class="linenos"> 27</span>
+<span class="linenos"> 28</span><span class="k">private</span><span class="o">:</span>
+<span class="linenos"> 29</span>
+<span class="linenos"> 30</span><span class="w">    </span><span class="c1">// Pre-initializations of the autopilot</span>
+<span class="linenos"> 31</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">initialize_controller</span><span class="p">();</span>
+<span class="linenos"> 32</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize_geofencing</span><span class="p">();</span>
+<span class="linenos"> 33</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize_trajectory_manager</span><span class="p">();</span>
+<span class="linenos"> 34</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize_operating_modes</span><span class="p">();</span>
+<span class="linenos"> 35</span>
+<span class="linenos"> 36</span><span class="w">    </span><span class="c1">// ROS2 node initializations</span>
+<span class="linenos"> 37</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize_autopilot</span><span class="p">();</span>
+<span class="linenos"> 38</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize_publishers</span><span class="p">();</span>
+<span class="linenos"> 39</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize_subscribers</span><span class="p">();</span>
+<span class="linenos"> 40</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize_services</span><span class="p">();</span>
+<span class="linenos"> 41</span>
+<span class="linenos"> 42</span><span class="w">    </span><span class="c1">// Subscriber callbacks to get the current state of the vehicle</span>
+<span class="linenos"> 43</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">state_callback</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">nav_msgs</span><span class="o">::</span><span class="n">msg</span><span class="o">::</span><span class="n">Odometry</span><span class="o">::</span><span class="n">ConstSharedPtr</span><span class="w"> </span><span class="n">msg</span><span class="p">);</span>
+<span class="linenos"> 44</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">status_callback</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">msg</span><span class="o">::</span><span class="n">Status</span><span class="o">::</span><span class="n">ConstSharedPtr</span><span class="w"> </span><span class="n">msg</span><span class="p">);</span>
+<span class="linenos"> 45</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">vehicle_constants_callback</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">msg</span><span class="o">::</span><span class="n">VehicleConstants</span><span class="o">::</span><span class="n">ConstSharedPtr</span><span class="w"> </span><span class="n">msg</span><span class="p">);</span>
+<span class="linenos"> 46</span>
+<span class="linenos"> 47</span><span class="w">    </span><span class="c1">// Services callbacks to set the operation mode of the autopilot</span>
+<span class="linenos"> 48</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">change_mode_callback</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">srv</span><span class="o">::</span><span class="n">SetMode</span><span class="o">::</span><span class="n">Request</span><span class="o">&gt;</span><span class="w"> </span><span class="n">request</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">srv</span><span class="o">::</span><span class="n">SetMode</span><span class="o">::</span><span class="n">Response</span><span class="o">&gt;</span><span class="w"> </span><span class="n">response</span><span class="p">);</span>
 <span class="linenos"> 49</span>
-<span class="linenos"> 50</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;map&gt;</span>
-<span class="linenos"> 51</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span>
-<span class="linenos"> 52</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Eigen/Core&gt;</span>
-<span class="linenos"> 53</span>
-<span class="linenos"> 54</span><span class="c1">// ROS Libraries</span>
-<span class="linenos"> 55</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;rclcpp/rclcpp.hpp&quot;</span>
-<span class="linenos"> 56</span>
-<span class="linenos"> 57</span><span class="c1">// Plugin libraries</span>
-<span class="linenos"> 58</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;pluginlib/class_loader.hpp&gt;</span>
-<span class="linenos"> 59</span>
-<span class="linenos"> 60</span><span class="c1">// ROS 2 messages</span>
-<span class="linenos"> 61</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;nav_msgs/msg/odometry.hpp&quot;</span>
-<span class="linenos"> 62</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;pegasus_msgs/msg/status.hpp&quot;</span>
-<span class="linenos"> 63</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;pegasus_msgs/msg/vehicle_constants.hpp&quot;</span>
-<span class="linenos"> 64</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;pegasus_msgs/msg/autopilot_status.hpp&quot;</span>
-<span class="linenos"> 65</span>
-<span class="linenos"> 66</span><span class="c1">// ROS 2 services</span>
-<span class="linenos"> 67</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;pegasus_msgs/srv/arm.hpp&quot;</span>
-<span class="linenos"> 68</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;pegasus_msgs/srv/offboard.hpp&quot;</span>
-<span class="linenos"> 69</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;pegasus_msgs/srv/set_mode.hpp&quot;</span>
-<span class="linenos"> 70</span>
-<span class="linenos"> 71</span><span class="c1">// Auxiliary libraries</span>
-<span class="linenos"> 72</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;mode.hpp&quot;</span>
-<span class="linenos"> 73</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;state.hpp&quot;</span>
-<span class="linenos"> 74</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;geofencing.hpp&quot;</span>
-<span class="linenos"> 75</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;controller.hpp&quot;</span>
-<span class="linenos"> 76</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;trajectory_manager.hpp&quot;</span>
+<span class="linenos"> 50</span><span class="w">    </span><span class="c1">// ROS 2 service to change the operation mode</span>
+<span class="linenos"> 51</span><span class="w">    </span><span class="n">rclcpp</span><span class="o">::</span><span class="n">Service</span><span class="o">&lt;</span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">srv</span><span class="o">::</span><span class="n">SetMode</span><span class="o">&gt;::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">change_mode_service_</span><span class="p">;</span>
+<span class="linenos"> 52</span>
+<span class="linenos"> 53</span><span class="w">    </span><span class="c1">// ROS2 publishers</span>
+<span class="linenos"> 54</span><span class="w">    </span><span class="n">rclcpp</span><span class="o">::</span><span class="n">Publisher</span><span class="o">&lt;</span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">msg</span><span class="o">::</span><span class="n">AutopilotStatus</span><span class="o">&gt;::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">status_publisher_</span><span class="p">;</span>
+<span class="linenos"> 55</span><span class="w">    </span>
+<span class="linenos"> 56</span><span class="w">    </span><span class="c1">// ROS2 subscribers</span>
+<span class="linenos"> 57</span><span class="w">    </span><span class="n">rclcpp</span><span class="o">::</span><span class="n">Subscription</span><span class="o">&lt;</span><span class="n">nav_msgs</span><span class="o">::</span><span class="n">msg</span><span class="o">::</span><span class="n">Odometry</span><span class="o">&gt;::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">state_subscriber_</span><span class="p">;</span>
+<span class="linenos"> 58</span><span class="w">    </span><span class="n">rclcpp</span><span class="o">::</span><span class="n">Subscription</span><span class="o">&lt;</span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">msg</span><span class="o">::</span><span class="n">Status</span><span class="o">&gt;::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">status_subscriber_</span><span class="p">;</span>
+<span class="linenos"> 59</span><span class="w">    </span><span class="n">rclcpp</span><span class="o">::</span><span class="n">Subscription</span><span class="o">&lt;</span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">msg</span><span class="o">::</span><span class="n">VehicleConstants</span><span class="o">&gt;::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">vehicle_constants_subscriber_</span><span class="p">;</span>
+<span class="linenos"> 60</span>
+<span class="linenos"> 61</span><span class="w">    </span><span class="c1">// ROS2 messages</span>
+<span class="linenos"> 62</span><span class="w">    </span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">msg</span><span class="o">::</span><span class="n">AutopilotStatus</span><span class="w"> </span><span class="n">status_msg_</span><span class="p">;</span>
+<span class="linenos"> 63</span><span class="w">    </span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">msg</span><span class="o">::</span><span class="n">VehicleConstants</span><span class="w"> </span><span class="n">vehicle_constants_msg_</span><span class="p">;</span>
+<span class="linenos"> 64</span>
+<span class="linenos"> 65</span><span class="w">    </span><span class="c1">// ROS 2 timer to handle the control modes, update the controllers and publish the control commands</span>
+<span class="linenos"> 66</span><span class="w">    </span><span class="n">rclcpp</span><span class="o">::</span><span class="n">TimerBase</span><span class="o">::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">timer_</span><span class="p">;</span>
+<span class="linenos"> 67</span>
+<span class="linenos"> 68</span><span class="w">    </span><span class="c1">// Modes of operation of the autopilot</span>
+<span class="linenos"> 69</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">autopilot</span><span class="o">::</span><span class="n">Mode</span><span class="o">::</span><span class="n">UniquePtr</span><span class="o">&gt;</span><span class="w"> </span><span class="n">operating_modes_</span><span class="p">;</span>
+<span class="linenos"> 70</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">valid_transitions_</span><span class="p">;</span>
+<span class="linenos"> 71</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">fallback_modes_</span><span class="p">;</span>
+<span class="linenos"> 72</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">on_finish_modes_</span><span class="p">;</span>
+<span class="linenos"> 73</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">geofencing_violation_fallback_</span><span class="p">;</span>
+<span class="linenos"> 74</span>
+<span class="linenos"> 75</span><span class="w">    </span><span class="c1">// Configuration for the operation modes for the autopilot</span>
+<span class="linenos"> 76</span><span class="w">    </span><span class="n">Mode</span><span class="o">::</span><span class="n">Config</span><span class="w"> </span><span class="n">mode_config_</span><span class="p">;</span>
 <span class="linenos"> 77</span>
-<span class="linenos"> 78</span><span class="k">namespace</span><span class="w"> </span><span class="nn">autopilot</span><span class="w"> </span><span class="p">{</span>
-<span class="linenos"> 79</span>
-<span class="linenos"> 80</span><span class="k">class</span><span class="w"> </span><span class="nc">Autopilot</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">rclcpp</span><span class="o">::</span><span class="n">Node</span><span class="w"> </span><span class="p">{</span>
-<span class="linenos"> 81</span>
-<span class="linenos"> 82</span><span class="k">public</span><span class="o">:</span>
+<span class="linenos"> 78</span><span class="w">    </span><span class="c1">// Current state and status of the vehicle</span>
+<span class="linenos"> 79</span><span class="w">    </span><span class="n">State</span><span class="w"> </span><span class="n">state_</span><span class="p">;</span>
+<span class="linenos"> 80</span><span class="w">    </span><span class="n">VehicleStatus</span><span class="w"> </span><span class="n">status_</span><span class="p">;</span>
+<span class="linenos"> 81</span><span class="w">    </span><span class="n">VehicleConstants</span><span class="w"> </span><span class="n">vehicle_constants_</span><span class="p">;</span>
+<span class="linenos"> 82</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">current_mode_</span><span class="p">{</span><span class="s">&quot;Uninitialized&quot;</span><span class="p">};</span>
 <span class="linenos"> 83</span>
-<span class="linenos"> 84</span><span class="w">    </span><span class="n">Autopilot</span><span class="p">();</span>
-<span class="linenos"> 85</span><span class="w">    </span><span class="o">~</span><span class="n">Autopilot</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
-<span class="linenos"> 86</span>
-<span class="hll"><span class="linenos"> 87</span><span class="w">    </span><span class="c1">// Function that executes periodically the control loop of each operation mode</span>
-</span><span class="hll"><span class="linenos"> 88</span><span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">update</span><span class="p">();</span>
-</span><span class="linenos"> 89</span><span class="w">    </span>
-<span class="hll"><span class="linenos"> 90</span><span class="w">    </span><span class="c1">// Function that establishes the state machine to transition between operating modes</span>
-</span><span class="hll"><span class="linenos"> 91</span><span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">change_mode</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">new_mode</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">force</span><span class="o">=</span><span class="nb">false</span><span class="p">);</span>
-</span><span class="linenos"> 92</span>
-<span class="hll"><span class="linenos"> 93</span><span class="w">    </span><span class="c1">// Function that signals that the current mode has finished its operation and should transition to the fallback mode</span>
-</span><span class="hll"><span class="linenos"> 94</span><span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">signal_mode_finished</span><span class="p">();</span>
-</span><span class="linenos"> 95</span>
-<span class="linenos"> 96</span><span class="w">    </span><span class="c1">// Returns the current mode of operation of the autopilot and state of the vehicle</span>
-<span class="linenos"> 97</span><span class="w">    </span><span class="kr">inline</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">get_mode</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">current_mode_</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
-<span class="linenos"> 98</span><span class="w">    </span><span class="kr">inline</span><span class="w"> </span><span class="n">State</span><span class="w"> </span><span class="nf">get_state</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">state_</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
-<span class="linenos"> 99</span><span class="w">    </span><span class="kr">inline</span><span class="w"> </span><span class="n">VehicleStatus</span><span class="w"> </span><span class="nf">get_status</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">status_</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
-<span class="linenos">100</span><span class="w">    </span><span class="kr">inline</span><span class="w"> </span><span class="n">VehicleConstants</span><span class="w"> </span><span class="nf">get_vehicle_constants</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">vehicle_constants_</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="linenos"> 84</span><span class="w">    </span><span class="c1">// Low level controllers for reference tracking</span>
+<span class="linenos"> 85</span><span class="w">    </span><span class="n">Controller</span><span class="o">::</span><span class="n">Config</span><span class="w"> </span><span class="n">controller_config_</span><span class="p">;</span>
+<span class="linenos"> 86</span><span class="w">    </span><span class="n">autopilot</span><span class="o">::</span><span class="n">Controller</span><span class="o">::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">controller_</span><span class="p">{</span><span class="k">nullptr</span><span class="p">};</span>
+<span class="hll"><span class="linenos"> 87</span>
+</span><span class="hll"><span class="linenos"> 88</span><span class="w">    </span><span class="c1">// Geofencing object to check if the vehicle is inside the geofence</span>
+</span><span class="linenos"> 89</span><span class="w">    </span><span class="n">Geofencing</span><span class="o">::</span><span class="n">Config</span><span class="w"> </span><span class="n">geofencing_config_</span><span class="p">;</span>
+<span class="linenos"> 90</span><span class="w">    </span><span class="n">autopilot</span><span class="o">::</span><span class="n">Geofencing</span><span class="o">::</span><span class="n">UniquePtr</span><span class="w"> </span><span class="n">geofencing_</span><span class="p">{</span><span class="k">nullptr</span><span class="p">};</span>
+<span class="linenos"> 91</span>
+<span class="linenos"> 92</span><span class="w">    </span><span class="c1">// Trajectory manager to handle complex trajectories and motion planning</span>
+<span class="linenos"> 93</span><span class="w">    </span><span class="n">TrajectoryManager</span><span class="o">::</span><span class="n">Config</span><span class="w"> </span><span class="n">trajectory_manager_config_</span><span class="p">;</span>
+<span class="linenos"> 94</span><span class="w">    </span><span class="n">autopilot</span><span class="o">::</span><span class="n">TrajectoryManager</span><span class="o">::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">trajectory_manager_</span><span class="p">{</span><span class="k">nullptr</span><span class="p">};</span>
+<span class="linenos"> 95</span>
+<span class="linenos"> 96</span><span class="w">    </span><span class="c1">// Auxiliar counter to keep track when forcing a mode change</span>
+<span class="linenos"> 97</span><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">force_change_counter_</span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+<span class="linenos"> 98</span>
+<span class="linenos"> 99</span><span class="w">    </span><span class="c1">// Auxiliar variable used to keep track of time</span>
+<span class="linenos">100</span><span class="w">    </span><span class="n">rclcpp</span><span class="o">::</span><span class="n">Time</span><span class="w"> </span><span class="n">last_time_</span><span class="p">;</span>
 <span class="linenos">101</span>
-<span class="hll"><span class="linenos">102</span><span class="w">    </span><span class="c1">// Initializes the autopilot to run</span>
-</span><span class="hll"><span class="linenos">103</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize</span><span class="p">();</span>
-</span><span class="linenos">104</span>
-<span class="linenos">105</span><span class="k">private</span><span class="o">:</span>
-<span class="linenos">106</span>
-<span class="linenos">107</span><span class="w">    </span><span class="c1">// Pre-initializations of the autopilot</span>
-<span class="linenos">108</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">initialize_controller</span><span class="p">();</span>
-<span class="linenos">109</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize_geofencing</span><span class="p">();</span>
-<span class="linenos">110</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize_trajectory_manager</span><span class="p">();</span>
-<span class="linenos">111</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize_operating_modes</span><span class="p">();</span>
-<span class="linenos">112</span>
-<span class="linenos">113</span><span class="w">    </span><span class="c1">// ROS2 node initializations</span>
-<span class="linenos">114</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize_autopilot</span><span class="p">();</span>
-<span class="linenos">115</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize_publishers</span><span class="p">();</span>
-<span class="linenos">116</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize_subscribers</span><span class="p">();</span>
-<span class="linenos">117</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize_services</span><span class="p">();</span>
-<span class="linenos">118</span>
-<span class="linenos">119</span><span class="w">    </span><span class="c1">// Subscriber callbacks to get the current state of the vehicle</span>
-<span class="linenos">120</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">state_callback</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">nav_msgs</span><span class="o">::</span><span class="n">msg</span><span class="o">::</span><span class="n">Odometry</span><span class="o">::</span><span class="n">ConstSharedPtr</span><span class="w"> </span><span class="n">msg</span><span class="p">);</span>
-<span class="linenos">121</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">status_callback</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">msg</span><span class="o">::</span><span class="n">Status</span><span class="o">::</span><span class="n">ConstSharedPtr</span><span class="w"> </span><span class="n">msg</span><span class="p">);</span>
-<span class="linenos">122</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">vehicle_constants_callback</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">msg</span><span class="o">::</span><span class="n">VehicleConstants</span><span class="o">::</span><span class="n">ConstSharedPtr</span><span class="w"> </span><span class="n">msg</span><span class="p">);</span>
-<span class="linenos">123</span>
-<span class="linenos">124</span><span class="w">    </span><span class="c1">// Services callbacks to set the operation mode of the autopilot</span>
-<span class="linenos">125</span><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">change_mode_callback</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">srv</span><span class="o">::</span><span class="n">SetMode</span><span class="o">::</span><span class="n">Request</span><span class="o">&gt;</span><span class="w"> </span><span class="n">request</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">srv</span><span class="o">::</span><span class="n">SetMode</span><span class="o">::</span><span class="n">Response</span><span class="o">&gt;</span><span class="w"> </span><span class="n">response</span><span class="p">);</span>
-<span class="linenos">126</span>
-<span class="hll"><span class="linenos">127</span><span class="w">    </span><span class="c1">// ROS 2 service to change the operation mode</span>
-</span><span class="hll"><span class="linenos">128</span><span class="w">    </span><span class="n">rclcpp</span><span class="o">::</span><span class="n">Service</span><span class="o">&lt;</span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">srv</span><span class="o">::</span><span class="n">SetMode</span><span class="o">&gt;::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">change_mode_service_</span><span class="p">;</span>
-</span><span class="linenos">129</span>
-<span class="hll"><span class="linenos">130</span><span class="w">    </span><span class="c1">// ROS2 publishers</span>
-</span><span class="hll"><span class="linenos">131</span><span class="w">    </span><span class="n">rclcpp</span><span class="o">::</span><span class="n">Publisher</span><span class="o">&lt;</span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">msg</span><span class="o">::</span><span class="n">AutopilotStatus</span><span class="o">&gt;::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">status_publisher_</span><span class="p">;</span>
-</span><span class="linenos">132</span><span class="w">    </span>
-<span class="hll"><span class="linenos">133</span><span class="w">    </span><span class="c1">// ROS2 subscribers</span>
-</span><span class="hll"><span class="linenos">134</span><span class="w">    </span><span class="n">rclcpp</span><span class="o">::</span><span class="n">Subscription</span><span class="o">&lt;</span><span class="n">nav_msgs</span><span class="o">::</span><span class="n">msg</span><span class="o">::</span><span class="n">Odometry</span><span class="o">&gt;::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">state_subscriber_</span><span class="p">;</span>
-</span><span class="hll"><span class="linenos">135</span><span class="w">    </span><span class="n">rclcpp</span><span class="o">::</span><span class="n">Subscription</span><span class="o">&lt;</span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">msg</span><span class="o">::</span><span class="n">Status</span><span class="o">&gt;::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">status_subscriber_</span><span class="p">;</span>
-</span><span class="hll"><span class="linenos">136</span><span class="w">    </span><span class="n">rclcpp</span><span class="o">::</span><span class="n">Subscription</span><span class="o">&lt;</span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">msg</span><span class="o">::</span><span class="n">VehicleConstants</span><span class="o">&gt;::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">vehicle_constants_subscriber_</span><span class="p">;</span>
-</span><span class="linenos">137</span>
-<span class="linenos">138</span><span class="w">    </span><span class="c1">// ROS2 messages</span>
-<span class="linenos">139</span><span class="w">    </span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">msg</span><span class="o">::</span><span class="n">AutopilotStatus</span><span class="w"> </span><span class="n">status_msg_</span><span class="p">;</span>
-<span class="linenos">140</span><span class="w">    </span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">msg</span><span class="o">::</span><span class="n">VehicleConstants</span><span class="w"> </span><span class="n">vehicle_constants_msg_</span><span class="p">;</span>
-<span class="linenos">141</span>
-<span class="linenos">142</span><span class="w">    </span><span class="c1">// ROS 2 timer to handle the control modes, update the controllers and publish the control commands</span>
-<span class="linenos">143</span><span class="w">    </span><span class="n">rclcpp</span><span class="o">::</span><span class="n">TimerBase</span><span class="o">::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">timer_</span><span class="p">;</span>
-<span class="linenos">144</span>
-<span class="linenos">145</span><span class="w">    </span><span class="c1">// Modes of operation of the autopilot</span>
-<span class="linenos">146</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">autopilot</span><span class="o">::</span><span class="n">Mode</span><span class="o">::</span><span class="n">UniquePtr</span><span class="o">&gt;</span><span class="w"> </span><span class="n">operating_modes_</span><span class="p">;</span>
-<span class="linenos">147</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">valid_transitions_</span><span class="p">;</span>
-<span class="linenos">148</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">fallback_modes_</span><span class="p">;</span>
-<span class="linenos">149</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">on_finish_modes_</span><span class="p">;</span>
-<span class="linenos">150</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">geofencing_violation_fallback_</span><span class="p">;</span>
-<span class="linenos">151</span>
-<span class="linenos">152</span><span class="w">    </span><span class="c1">// Configuration for the operation modes for the autopilot</span>
-<span class="linenos">153</span><span class="w">    </span><span class="n">Mode</span><span class="o">::</span><span class="n">Config</span><span class="w"> </span><span class="n">mode_config_</span><span class="p">;</span>
-<span class="linenos">154</span>
-<span class="linenos">155</span><span class="w">    </span><span class="c1">// Current state and status of the vehicle</span>
-<span class="linenos">156</span><span class="w">    </span><span class="n">State</span><span class="w"> </span><span class="n">state_</span><span class="p">;</span>
-<span class="linenos">157</span><span class="w">    </span><span class="n">VehicleStatus</span><span class="w"> </span><span class="n">status_</span><span class="p">;</span>
-<span class="linenos">158</span><span class="w">    </span><span class="n">VehicleConstants</span><span class="w"> </span><span class="n">vehicle_constants_</span><span class="p">;</span>
-<span class="linenos">159</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">current_mode_</span><span class="p">{</span><span class="s">&quot;Uninitialized&quot;</span><span class="p">};</span>
-<span class="linenos">160</span>
-<span class="linenos">161</span><span class="w">    </span><span class="c1">// Low level controllers for reference tracking</span>
-<span class="linenos">162</span><span class="w">    </span><span class="n">Controller</span><span class="o">::</span><span class="n">Config</span><span class="w"> </span><span class="n">controller_config_</span><span class="p">;</span>
-<span class="linenos">163</span><span class="w">    </span><span class="n">autopilot</span><span class="o">::</span><span class="n">Controller</span><span class="o">::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">controller_</span><span class="p">{</span><span class="k">nullptr</span><span class="p">};</span>
-<span class="linenos">164</span>
-<span class="linenos">165</span><span class="w">    </span><span class="c1">// Geofencing object to check if the vehicle is inside the geofence</span>
-<span class="linenos">166</span><span class="w">    </span><span class="n">Geofencing</span><span class="o">::</span><span class="n">Config</span><span class="w"> </span><span class="n">geofencing_config_</span><span class="p">;</span>
-<span class="linenos">167</span><span class="w">    </span><span class="n">autopilot</span><span class="o">::</span><span class="n">Geofencing</span><span class="o">::</span><span class="n">UniquePtr</span><span class="w"> </span><span class="n">geofencing_</span><span class="p">{</span><span class="k">nullptr</span><span class="p">};</span>
-<span class="linenos">168</span>
-<span class="linenos">169</span><span class="w">    </span><span class="c1">// Trajectory manager to handle complex trajectories and motion planning</span>
-<span class="linenos">170</span><span class="w">    </span><span class="n">TrajectoryManager</span><span class="o">::</span><span class="n">Config</span><span class="w"> </span><span class="n">trajectory_manager_config_</span><span class="p">;</span>
-<span class="linenos">171</span><span class="w">    </span><span class="n">autopilot</span><span class="o">::</span><span class="n">TrajectoryManager</span><span class="o">::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">trajectory_manager_</span><span class="p">{</span><span class="k">nullptr</span><span class="p">};</span>
-<span class="linenos">172</span>
-<span class="linenos">173</span><span class="w">    </span><span class="c1">// Auxiliar counter to keep track when forcing a mode change</span>
-<span class="linenos">174</span><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">force_change_counter_</span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
-<span class="linenos">175</span>
-<span class="linenos">176</span><span class="w">    </span><span class="c1">// Auxiliar variable used to keep track of time</span>
-<span class="linenos">177</span><span class="w">    </span><span class="n">rclcpp</span><span class="o">::</span><span class="n">Time</span><span class="w"> </span><span class="n">last_time_</span><span class="p">;</span>
-<span class="linenos">178</span>
-<span class="linenos">179</span><span class="w">    </span><span class="c1">// Auxiliar flag to check if the operating mode has finished</span>
-<span class="linenos">180</span><span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">mode_finished_</span><span class="p">{</span><span class="nb">false</span><span class="p">};</span>
-<span class="linenos">181</span>
-<span class="hll"><span class="linenos">182</span><span class="w">    </span><span class="c1">// Class loaders for the plugins</span>
-</span><span class="hll"><span class="linenos">183</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">pluginlib</span><span class="o">::</span><span class="n">ClassLoader</span><span class="o">&lt;</span><span class="n">autopilot</span><span class="o">::</span><span class="n">Mode</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">mode_loader_</span><span class="p">;</span>
-</span><span class="hll"><span class="linenos">184</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">pluginlib</span><span class="o">::</span><span class="n">ClassLoader</span><span class="o">&lt;</span><span class="n">autopilot</span><span class="o">::</span><span class="n">Controller</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">controller_loader_</span><span class="p">;</span>
-</span><span class="hll"><span class="linenos">185</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">pluginlib</span><span class="o">::</span><span class="n">ClassLoader</span><span class="o">&lt;</span><span class="n">autopilot</span><span class="o">::</span><span class="n">Geofencing</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">geofencing_loader_</span><span class="p">;</span>
-</span><span class="hll"><span class="linenos">186</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">pluginlib</span><span class="o">::</span><span class="n">ClassLoader</span><span class="o">&lt;</span><span class="n">autopilot</span><span class="o">::</span><span class="n">TrajectoryManager</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">trajectory_manager_loader_</span><span class="p">;</span>
-</span><span class="linenos">187</span><span class="p">};</span>
-<span class="linenos">188</span>
-<span class="linenos">189</span><span class="p">}</span><span class="w"> </span><span class="c1">// namespace autopilot</span>
+<span class="linenos">102</span><span class="w">    </span><span class="c1">// Auxiliar flag to check if the operating mode has finished</span>
+<span class="linenos">103</span><span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">mode_finished_</span><span class="p">{</span><span class="nb">false</span><span class="p">};</span>
+<span class="linenos">104</span>
+<span class="linenos">105</span><span class="w">    </span><span class="c1">// Class loaders for the plugins</span>
+<span class="linenos">106</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">pluginlib</span><span class="o">::</span><span class="n">ClassLoader</span><span class="o">&lt;</span><span class="n">autopilot</span><span class="o">::</span><span class="n">Mode</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">mode_loader_</span><span class="p">;</span>
+<span class="linenos">107</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">pluginlib</span><span class="o">::</span><span class="n">ClassLoader</span><span class="o">&lt;</span><span class="n">autopilot</span><span class="o">::</span><span class="n">Controller</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">controller_loader_</span><span class="p">;</span>
+<span class="linenos">108</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">pluginlib</span><span class="o">::</span><span class="n">ClassLoader</span><span class="o">&lt;</span><span class="n">autopilot</span><span class="o">::</span><span class="n">Geofencing</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">geofencing_loader_</span><span class="p">;</span>
+<span class="linenos">109</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">pluginlib</span><span class="o">::</span><span class="n">ClassLoader</span><span class="o">&lt;</span><span class="n">autopilot</span><span class="o">::</span><span class="n">TrajectoryManager</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">trajectory_manager_loader_</span><span class="p">;</span>
+<span class="linenos">110</span><span class="p">};</span>
+<span class="linenos">111</span>
+<span class="linenos">112</span><span class="p">}</span><span class="w"> </span><span class="c1">// namespace autopilot</span>
 </pre></div>
 </div>
 </section>
@@ -453,7 +379,7 @@ to modify the base autopilot packages. The Autopilot is responsible for loading 
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../setup/installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="states.html" class="btn btn-neutral float-right" title="States" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="modes.html" class="btn btn-neutral float-right" title="Modes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Taguspark Flight Arena &mdash; Pegasus  documentation</title>
+  <title>Terminal console &mdash; Pegasus  documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -20,8 +20,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="License" href="../references/license.html" />
-    <link rel="prev" title="Snapdragon Drone" href="../vehicles/snapdragon.html" /> 
+    <link rel="next" title="Gazebo Classic" href="../simulation/gazebo_classic.html" />
+    <link rel="prev" title="Trajectory Manager" href="../features/trajectory_manager.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,13 +49,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../setup/installation.html">Installation</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Features</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../features/autopilot.html">Autopilot</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../features/modes.html">Modes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../features/controllers.html">Controllers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../features/geofencing.html">Geofencing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../features/trajectory_manager.html">Trajectory Manager</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../console/terminal_console.html">Terminal console</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Terminal console</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Simulation</span></p>
 <ul>
@@ -69,11 +69,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../vehicles/snapdragon.html">Snapdragon Drone</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Flight Arena</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Taguspark Flight Arena</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#setting-up-optitrack-with-motive">Setting up Optitrack with Motive</a></li>
-</ul>
-</li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../arena/arena.html">Taguspark Flight Arena</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
@@ -95,9 +92,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Taguspark Flight Arena</li>
+      <li class="breadcrumb-item active">Terminal console</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/source/arena/arena.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/source/console/terminal_console.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -105,64 +102,16 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="taguspark-flight-arena">
-<h1>Taguspark Flight Arena<a class="headerlink" href="#taguspark-flight-arena" title="Permalink to this heading"></a></h1>
-<section id="setting-up-optitrack-with-motive">
-<h2>Setting up Optitrack with Motive<a class="headerlink" href="#setting-up-optitrack-with-motive" title="Permalink to this heading"></a></h2>
-<ol class="arabic" start="0">
-<li><p>Turn the arena computer and router</p></li>
-<li><p>TODO …</p>
-<blockquote>
-<div><a class="reference internal image-reference" href="../../_images/0_Motive.jpg"><img alt="Motive application" class="align-center" src="../../_images/0_Motive.jpg" style="width: 600px;" /></a>
-</div></blockquote>
-</li>
-<li><p>TODO …</p>
-<blockquote>
-<div><a class="reference internal image-reference" href="../../_images/1_mask_visible.png"><img alt="Mask visible reflective regions" class="align-center" src="../../_images/1_mask_visible.png" style="width: 600px;" /></a>
-</div></blockquote>
-</li>
-<li><p>TODO …</p>
-<blockquote>
-<div><a class="reference internal image-reference" href="../../_images/2_start_wanding.png"><img alt="Start wanding" class="align-center" src="../../_images/2_start_wanding.png" style="width: 600px;" /></a>
-</div></blockquote>
-</li>
-<li><p>TODO …</p>
-<blockquote>
-<div><a class="reference internal image-reference" href="../../_images/3_calibration_done.png"><img alt="Performing the camera calibration" class="align-center" src="../../_images/3_calibration_done.png" style="width: 600px;" /></a>
-</div></blockquote>
-</li>
-<li><p>TODO …</p>
-<blockquote>
-<div><a class="reference internal image-reference" href="../../_images/4_set_ground_plane.png"><img alt="Set the ground plane" class="align-center" src="../../_images/4_set_ground_plane.png" style="width: 600px;" /></a>
-</div></blockquote>
-</li>
-</ol>
-<p>Defining the standard orientation received in ROS 2. The data is received in the ENU format, with the attitude following the FLU of the body with respect to the ENU inertial, expressed in the ENU inertial frame.</p>
-<dl>
-<dt>This data is converted in the mavlink interface to the NED format with the attitude following the FRD of the body with respect to the NED inertial, expressed in the NED inertial frame.</dt><dd><a class="reference internal image-reference" href="../../_images/4_1_ground_plane_standard.jpg"><img alt="Ground plane standard" class="align-center" src="../../_images/4_1_ground_plane_standard.jpg" style="width: 600px;" /></a>
-</dd>
-</dl>
-<ol class="arabic" start="6">
-<li><p>TODO …</p>
-<blockquote>
-<div><a class="reference internal image-reference" href="../../_images/5_selecting_the_vehicle.png"><img alt="Selecting the markers that will represent the vehicle" class="align-center" src="../../_images/5_selecting_the_vehicle.png" style="width: 600px;" /></a>
-</div></blockquote>
-</li>
-<li><p>TODO …</p>
-<blockquote>
-<div><a class="reference internal image-reference" href="../../_images/6_creating_the_rigid_body.png"><img alt="Creating the rigid body from the marker selection" class="align-center" src="../../_images/6_creating_the_rigid_body.png" style="width: 600px;" /></a>
-</div></blockquote>
-</li>
-</ol>
-</section>
+  <section id="terminal-console">
+<h1>Terminal console<a class="headerlink" href="#terminal-console" title="Permalink to this heading"></a></h1>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../vehicles/snapdragon.html" class="btn btn-neutral float-left" title="Snapdragon Drone" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../references/license.html" class="btn btn-neutral float-right" title="License" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../features/trajectory_manager.html" class="btn btn-neutral float-left" title="Trajectory Manager" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../simulation/gazebo_classic.html" class="btn btn-neutral float-right" title="Gazebo Classic" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
