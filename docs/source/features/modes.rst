@@ -392,10 +392,16 @@ with the custom mode.
    # Create a yaml file inside the package directory
    touch config/custom_modes.yaml
 
-The content of the ``custom_modes.yaml`` file should be as follows:
+The content of the ``custom_modes.yaml`` file should be as follows. In line 8, we define the modes that will be loaded by the autopilot. In this case, we are adding the custom waypoint mode to the list of modes.
+
+Lines 23-26 define the configuration parameters for each mode, including the newly created custom waypoint mode. In this case, we are defining the topic where the waypoint is published.
+
+We also define the valid_transitions, which define which modes are allowed to transition to from the custom waypoint mode. In this case, the custom waypoint mode can transition to the ``Hold`` and ``Land`` modes.
+Moreover we define the fallback mode, which is the mode that the autopilot will transition to if the custom waypoint mode is not able to execute its logic.
 
 .. code-block:: yaml
    :linenos:
+   :emphasize-lines: 8, 23-26
 
    /**:
    ros__parameters:
@@ -419,6 +425,13 @@ The content of the ``custom_modes.yaml`` file should be as follows:
          HoldMode: 
             valid_transitions: ["LandMode", "CustomWaypointMode"]
             fallback: "LandMode"
+         LandMode: 
+            valid_transitions: ["DisarmMode", "ArmMode", "TakeoffMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
+            fallback: "HoldMode"
+            on_finish: "DisarmMode"
+            land_speed: 0.2 # m/s
+            land_detected_treshold: 0.1 # m/s
+            countdown_to_disarm: 3.0 # s
          CustomWaypointMode:
             valid_transitions: ["HoldMode", "LandMode"]
             fallback: "HoldMode"
@@ -459,3 +472,36 @@ The content of the ``custom_modes.yaml`` file should be as follows:
          StaticTrajectoryManager:
             services:
                reset_trajectory: "autopilot/trajectory/reset"
+
+8. Create a launch file named ``custom_modes.launch.py`` inside the package directory. This file will launch the autopilot with the configurations provided in the ``custom_modes.yaml`` file.
+
+.. code:: bash
+
+   # Create a launch file inside the package directory
+   touch launch/custom_modes.launch.py
+
+The content of the ``custom_modes.launch.py`` file should be as follows:
+
+.. code-block:: python
+   :linenos:
+
+   from launch import LaunchDescription
+   from launch_ros.actions import Node
+   from launch.actions import DeclareLaunchArgument
+   from launch.substitutions import LaunchConfiguration
+
+   def generate_launch_description():
+      return LaunchDescription([
+         DeclareLaunchArgument(
+            'config_file',
+            default_value='custom_modes.yaml',
+            description='Path to the configuration file for the autopilot'
+         ),
+         Node(
+            package='autopilot',
+            executable='autopilot_node',
+            name='autopilot',
+            output='screen',
+            parameters=[LaunchConfiguration('config_file')]
+         )
+      ])
