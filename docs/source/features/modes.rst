@@ -142,6 +142,11 @@ must inherit from the ``autopilot::Mode`` class and implement the following meth
    };
    }
 
+* The ``initialize`` is called by the autopilot when it is loading all the operating modes into memory. This is where you should initialize the ROS 2 publishers, subscribers and services if needed.
+* The ``enter`` is called by the autopilot when the mode is about to be entered. This is where you should check if the mode can be entered and set the necessary flags. If the mode cannot be entered, return false, and the autopilot will not enter this mode and will keep the current operation mode.
+* The ``exit`` is called by the autopilot when the mode is about to be exited. This is where you should reset the flags and clean up any resources that were allocated.
+* The ``update`` is called by the autopilot at every iteration of the control loop. This is where you should implement the logic of the mode.
+
 3. Inside the ``src`` directory, create a new source file named ``mode_custom_waypoint.cpp``.
 
 .. code:: bash
