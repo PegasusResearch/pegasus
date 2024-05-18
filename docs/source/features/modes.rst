@@ -104,12 +104,12 @@ by following the same steps.
    # Create a xml file where you are going to define your custom mode as a plugin
    touch custom_modes_plugins.xml
 
-2. Inside the ``include/custom_modes`` directory, create a new header file named ``mode_fixed_waypoint.hpp``.
+2. Inside the ``include/custom_modes`` directory, create a new header file named ``mode_custom_waypoint.hpp``.
 
 .. code:: bash
 
    # Create a new header file inside the include directory of the custom_modes package
-   touch include/custom_modes/mode_fixed_waypoint.hpp
+   touch include/custom_modes/mode_custom_waypoint.hpp
 
 This file will contain the definition of the custom operating mode that drives the vehicle to a pre-defined waypoint. Your operation mode
 must inherit from the ``autopilot::Mode`` class and implement the following methods: ``initialize``, ``enter``, ``exit`` and ``update``.
@@ -124,11 +124,11 @@ must inherit from the ``autopilot::Mode`` class and implement the following meth
 
    namespace autopilot {
 
-   class FixedWaypointMode : public autopilot::Mode {
+   class CustomWaypointMode : public autopilot::Mode {
 
    public:
 
-      ~FixedWaypointMode();
+      ~CustomWaypointMode();
       void initialize() override;
       bool enter() override;
       bool exit() override;
@@ -142,16 +142,84 @@ must inherit from the ``autopilot::Mode`` class and implement the following meth
    };
    }
 
-3. Inside the ``src`` directory, create a new source file named ``mode_fixed_waypoint.cpp``.
+3. Inside the ``src`` directory, create a new source file named ``mode_custom_waypoint.cpp``.
 
 .. code:: bash
 
    # Go to the src directory of the custom_modes package
-   touch src/mode_fixed_waypoint.cpp
+   touch src/mode_custom_waypoint.cpp
 
 .. code-block:: c++
    :linenos:
    :emphasize-lines: 1
+
+   #include "autopilot_modes/mode_waypoint.hpp"
+
+   namespace autopilot {
+
+   CustomWaypointMode::~WaypointMode() {
+      // Terminate the waypoint service
+      this->waypoint_service_.reset();
+   }
+
+   void CustomWaypointMode::initialize() {
+
+      // Create the waypoint service server
+      node_->declare_parameter<std::string>("autopilot.WaypointMode.set_waypoint_service", "set_waypoint"); 
+      this->waypoint_service_ = this->node_->create_service<pegasus_msgs::srv::Waypoint>(node_->get_parameter("autopilot.WaypointMode.set_waypoint_service").as_string(), std::bind(&WaypointMode::waypoint_callback, this, std::placeholders::_1, std::placeholders::_2));
+      RCLCPP_INFO(this->node_->get_logger(), "WaypointMode initialized");
+   }
+
+   bool CustomWaypointMode::enter() {
+
+      // Check if the waypoint was already set - if not, then do not enter the waypoint mode
+      if (!this->waypoint_set_) {
+         RCLCPP_ERROR(this->node_->get_logger(), "Waypoint not set - cannot enter waypoint mode.");
+         return false;
+      }
+
+      // Reset the waypoint flag (to make sure we do not enter twice in this mode without setting a new waypoint)
+      this->waypoint_set_ = false;
+
+      // Return true to indicate that the mode has been entered successfully
+      return true;
+   }
+
+   bool CustomWaypointMode::exit() {
+
+      this->waypoint_set_ = false;
+      
+      // Nothing to do here
+      return true;   // Return true to indicate that the mode has been exited successfully
+   }
+
+   void CustomWaypointMode::update(double dt) {
+
+      // Set the controller to track the target position and attitude
+      this->controller_->set_position(this->target_pos, this->target_yaw, dt);
+   }
+
+   void CustomWaypointMode::waypoint_callback(const pegasus_msgs::srv::Waypoint::Request::SharedPtr request, const pegasus_msgs::srv::Waypoint::Response::SharedPtr response) {
+      
+      // Set the waypoint
+      this->target_pos[0] = request->position[0];
+      this->target_pos[1] = request->position[1];
+      this->target_pos[2] = request->position[2];
+      this->target_yaw = request->yaw;
+
+      // Set the waypoint flag
+      this->waypoint_set_ = true;
+
+      // Return true to indicate that the waypoint has been set successfully
+      response->success = true;
+      RCLCPP_WARN(this->node_->get_logger(), "Waypoint set to (%f, %f, %f) with yaw %f", this->target_pos[0], this->target_pos[1], this->target_pos[2], this->target_yaw);
+   }
+
+   } // namespace autopilot
+
+   #include <pluginlib/class_list_macros.hpp>
+   PLUGINLIB_EXPORT_CLASS(autopilot::CustomWaypointMode, autopilot::Mode)
+
 
 4. Modify the ``package.xml`` file to include the following dependencies ``autopilot`` and ``pluginlib``, according to the code snippet below.
 This is necessary to let ROS 2 know that the package depends on the autopilot and pluginlib packages.
