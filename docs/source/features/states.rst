@@ -40,4 +40,19 @@ The autopilot provides the following operating modes:
 
 2. Adding Custom Modes to the State Machine
 -------------------------------------------
-TODO
+
+Start by creating a new ROS 2 package inside your workspace, where you will implement the custom operating mode.
+
+.. code:: bash
+
+   # Go to the src directory of your workspace
+   cd ~/pegasus/src
+
+   # Create a C++ ROS 2 package where you are going to implement the custom modes
+   ros2 pkg create --build-type ament_cmake custom_modes
+
+   # Go inside the package directory
+   cd custom_modes
+
+   # Create a xml file where you are going to define your custom mode as a plugin
+   touch custom_modes_plugins.xml
