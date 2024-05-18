@@ -15,7 +15,7 @@ import sys
 
 # -- Project information -----------------------------------------------------
 
-project = "Pegasus Simulator"
+project = "Pegasus"
 copyright = "2024, Marcelo Jacinto"
 author = "Marcelo Jacinto"
 version = "1.0.0"

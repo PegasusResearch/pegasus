@@ -1,5 +1,5 @@
-Static Trajectory Manager
-=========================
+Trajectory Manager
+==================
 
 0. Definition of the Trajectory Interface
 -----------------------------------------

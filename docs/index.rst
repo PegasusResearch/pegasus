@@ -83,10 +83,10 @@ Not only have you made this project possible, but also crashing drones an enjoya
    :caption: Features
 
    source/features/autopilot
-   source/features/states
+   source/features/modes
    source/features/controllers
    source/features/geofencing
-   source/features/static_trajectory_manager
+   source/features/trajectory_manager
 
 .. toctree::
    :maxdepth: 3
