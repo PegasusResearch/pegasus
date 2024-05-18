@@ -1,10 +1,21 @@
 Pegasus Simulator
 =================
 
+.. image:: https://github.com/PegasusSimulator/PegasusSimulator/blob/main/docs/_static/pegasus_cover.png?raw=true
+            :width: 600px
+            :align: center
+            :alt: Autopilot Architecture
+
 To use the Pegasus GNC code with the Pegasus Simulator, start by following the installation instructions in :ref:`Installation` page. After this step:
 
 1. Follow the installation instructions for the Pegasus Simulator in the
 `Pegasus Simulator Documentation <https://pegasussimulator.github.io/PegasusSimulator/source/setup/installation.html>`__. An NVIDIA RTX graphics card is required to run the simulator.
+
+    ..  youtube:: YCp5E8nazag
+        :width: 100%
+        :align: center
+        :privacy_mode:
+
 
 2. On the Pegasus workspace, clone the following repository:
 

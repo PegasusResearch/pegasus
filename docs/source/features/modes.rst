@@ -116,11 +116,14 @@ must inherit from the ``autopilot::Mode`` class and implement the following meth
 
 .. code-block:: c++
    :linenos:
-   :emphasize-lines: 3, 7, 11-15
+   :emphasize-lines: 3, 10, 14-18
 
    #pragma once
    #include <Eigen/Core>
    #include <autopilot/mode.hpp>
+   #include "pegasus_msgs/msg/control_position.hpp"
+
+   #include "rclcpp/rclcpp.hpp"
 
    namespace autopilot {
 
@@ -136,9 +139,16 @@ must inherit from the ``autopilot::Mode`` class and implement the following meth
 
    protected:
 
-      // The target position and attitude waypoint to be at
+      // ROS 2 subscriber for the waypoint topic
+      rclcpp::Subscription<pegasus_msgs::msg::ControlPosition>::SharedPtr waypoint_subscriber_;
+
+      // Callback for the waypoint subscriber
+      void waypoint_callback(const pegasus_msgs::msg::ControlPosition::ConstSharedPtr msg);
+
+      // Stores the latest target position and attitude waypoint to be at
       Eigen::Vector3d target_pos{1.0, 1.0, -1.5};
       float target_yaw{0.0f};
+      bool waypoint_set_{false};
    };
    }
 
@@ -154,27 +164,39 @@ must inherit from the ``autopilot::Mode`` class and implement the following meth
    # Go to the src directory of the custom_modes package
    touch src/mode_custom_waypoint.cpp
 
+
+This file will contain the implementation of the custom operating mode that drives the vehicle to a given waypoint.
+
 .. code-block:: c++
    :linenos:
-   :emphasize-lines: 1
+   :emphasize-lines: 1, 10-11, 26-27, 42-43, 51-52, 61-62, 79-80
 
-   #include "autopilot_modes/mode_waypoint.hpp"
+   #include "custom_modes/mode_custom_waypoint.hpp"
 
    namespace autopilot {
 
-   CustomWaypointMode::~WaypointMode() {
-      // Terminate the waypoint service
-      this->waypoint_service_.reset();
+   CustomWaypointMode::~CustomWaypointMode() {
+      // Terminate the waypoint subscriber
+      this->waypoint_subscriber_.reset();
    }
 
+   // This method is called when the autopilot loads all the modes into memory
    void CustomWaypointMode::initialize() {
 
-      // Create the waypoint service server
-      node_->declare_parameter<std::string>("autopilot.WaypointMode.set_waypoint_service", "set_waypoint"); 
-      this->waypoint_service_ = this->node_->create_service<pegasus_msgs::srv::Waypoint>(node_->get_parameter("autopilot.WaypointMode.set_waypoint_service").as_string(), std::bind(&WaypointMode::waypoint_callback, this, std::placeholders::_1, std::placeholders::_2));
-      RCLCPP_INFO(this->node_->get_logger(), "WaypointMode initialized");
+      // Get the name of the topic where the waypoint is published from the ROS 2 parameter server
+      node_->declare_parameter<std::string>("autopilot.CustomWaypointMode.waypoint_topic", "waypoint"); 
+
+      // Create a subscriber to the waypoint topic (to get the desired waypoint to track)
+      this->waypoint_subscriber_ = this->node_->create_subscription<pegasus_msgs::msg::ControlPosition>(
+         node_->get_parameter("autopilot.CustomWaypointMode.waypoint_topic").as_string(),
+         rclcpp::SystemDefaultsQoS(),
+         std::bind(&CustomWaypointMode::waypoint_callback, this, std::placeholders::_1));
+      
+      // Log that the waypoint mode has been initialized correctly
+      RCLCPP_INFO(this->node_->get_logger(), "CustomWaypointMode initialized");
    }
 
+   // This method is called when the autopilot is about to enter the waypoint mode
    bool CustomWaypointMode::enter() {
 
       // Check if the waypoint was already set - if not, then do not enter the waypoint mode
@@ -190,6 +212,7 @@ must inherit from the ``autopilot::Mode`` class and implement the following meth
       return true;
    }
 
+   // This method is called when the autopilot is about to exit the waypoint mode and enter another mode
    bool CustomWaypointMode::exit() {
 
       this->waypoint_set_ = false;
@@ -198,25 +221,29 @@ must inherit from the ``autopilot::Mode`` class and implement the following meth
       return true;   // Return true to indicate that the mode has been exited successfully
    }
 
+   // This method is called at every iteration of the control loop by the autopilot
    void CustomWaypointMode::update(double dt) {
 
       // Set the controller to track the target position and attitude
+      // In this case we do not which to implement a low-level controller, so we will use the set_position method from the controller interface
+      // and use whatever controller is currently active in the autopilot.
+      // Note: we could also have a custom implementation here and send lower level controls using the controller interface
       this->controller_->set_position(this->target_pos, this->target_yaw, dt);
    }
 
-   void CustomWaypointMode::waypoint_callback(const pegasus_msgs::srv::Waypoint::Request::SharedPtr request, const pegasus_msgs::srv::Waypoint::Response::SharedPtr response) {
+   // ROS 2 callback for the waypoint subscriber - this is called whenever a new waypoint is published
+   void CustomWaypointMode::waypoint_callback(const pegasus_msgs::msg::ControlPosition::ConstSharedPtr msg) {
       
       // Set the waypoint
-      this->target_pos[0] = request->position[0];
-      this->target_pos[1] = request->position[1];
-      this->target_pos[2] = request->position[2];
-      this->target_yaw = request->yaw;
+      this->target_pos[0] = msg->position[0];
+      this->target_pos[1] = msg->position[1];
+      this->target_pos[2] = msg->position[2];
+      this->target_yaw = msg->yaw;
 
       // Set the waypoint flag
       this->waypoint_set_ = true;
 
-      // Return true to indicate that the waypoint has been set successfully
-      response->success = true;
+      // Log that the waypoint has been set successfully
       RCLCPP_WARN(this->node_->get_logger(), "Waypoint set to (%f, %f, %f) with yaw %f", this->target_pos[0], this->target_pos[1], this->target_pos[2], this->target_yaw);
    }
 
@@ -225,13 +252,14 @@ must inherit from the ``autopilot::Mode`` class and implement the following meth
    #include <pluginlib/class_list_macros.hpp>
    PLUGINLIB_EXPORT_CLASS(autopilot::CustomWaypointMode, autopilot::Mode)
 
+The last 2 lines of the code snippet above are necessary to export the custom mode as a plugin. The ``pluginlib`` package uses these lines to load the plugin at runtime.
 
 4. Modify the ``package.xml`` file to include the following dependencies ``autopilot`` and ``pluginlib``, according to the code snippet below.
-This is necessary to let ROS 2 know that the package depends on the autopilot and pluginlib packages.
+Additionally, we also need to include the ``pegasus_msgs`` package as a dependency, since we are subscribing to a ROS 2 topic that publishes messages from this package.
 
 .. code-block:: xml
    :linenos:
-   :emphasize-lines: 4-8, 12-13
+   :emphasize-lines: 4-8, 12-14
 
    <?xml version="1.0"?>
    <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
@@ -246,6 +274,7 @@ This is necessary to let ROS 2 know that the package depends on the autopilot an
 
       <depend>autopilot</depend>
       <depend>pluginlib</depend>
+      <depend>pegasus_msgs</depend>
 
       <test_depend>ament_lint_auto</test_depend>
       <test_depend>ament_lint_common</test_depend>
