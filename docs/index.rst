@@ -45,7 +45,7 @@ If you find ``Pegasus`` useful in your academic work, please cite the tech repor
 
 Project Sponsors
 ================
-The work developed by Marcelo Jacinto and João Pinto was supported by Ph.D. grants funded by Fundação para as Ciências e Tecnologias (FCT).
+The work developed by Marcelo Jacinto and João Pinto was supported by Ph.D. grants funded by Fundação para a Ciências e a Tecnologia (FCT).
 
 .. raw:: html
 
@@ -83,10 +83,11 @@ Not only have you made this project possible, but also crashing drones an enjoya
    :caption: Features
 
    source/features/autopilot
-   source/features/states
+   source/features/modes
    source/features/controllers
    source/features/geofencing
-   source/features/static_trajectory_manager
+   source/features/trajectory_manager
+   source/console/terminal_console
 
 .. toctree::
    :maxdepth: 3
