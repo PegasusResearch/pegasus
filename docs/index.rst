@@ -45,7 +45,7 @@ If you find ``Pegasus`` useful in your academic work, please cite the tech repor
 
 Project Sponsors
 ================
-The work developed by Marcelo Jacinto and João Pinto was supported by Ph.D. grants funded by Fundação para a Ciências e a Tecnologia (FCT).
+The work developed by Marcelo Jacinto and João Pinto was supported by Ph.D. grants funded by Fundação para a Ciência e a Tecnologia (FCT).
 
 .. raw:: html
 

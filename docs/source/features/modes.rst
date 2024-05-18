@@ -284,11 +284,11 @@ Additionally, we also need to include the ``pegasus_msgs`` package as a dependen
       </export>
    </package>
 
-5. Also modify the ``CMakeLists.txt`` file to include the following dependencies ``autopilot`` and ``pluginlib``, according to the code snippet below.
+5. Also modify the ``CMakeLists.txt`` file to include the following dependencies ``autopilot``, ``pegasus_msgs`` and ``pluginlib``, according to the code snippet below. Additionally, we need to include the ``Eigen3`` package as a dependency, since we are using Eigen for linear algebra operations.
 
 .. code-block:: cmake
    :linenos:
-   :emphasize-lines: 9, 14-16, 19, 30-33, 37-38
+   :emphasize-lines: 9, 13-17, 19-21, 31-35, 39-40, 50-52
 
    cmake_minimum_required(VERSION 3.8)
    project(custom_modes)
@@ -305,10 +305,11 @@ Additionally, we also need to include the ``pegasus_msgs`` package as a dependen
    find_package(ament_cmake REQUIRED)
    find_package(autopilot REQUIRED)
    find_package(pluginlib REQUIRED)
+   find_package(pegasus_msgs REQUIRED)
    find_package(Eigen3 REQUIRED)
 
    add_library(${PROJECT_NAME} 
-      src/mode_fixed_waypoint.cpp
+      src/mode_custom_waypoint.cpp
    )
 
    target_include_directories(${PROJECT_NAME} PUBLIC
@@ -322,6 +323,7 @@ Additionally, we also need to include the ``pegasus_msgs`` package as a dependen
    set(dependencies 
       autopilot
       pluginlib
+      pegasus_msgs
    )
 
    ament_target_dependencies(${PROJECT_NAME} ${dependencies})
@@ -339,7 +341,7 @@ Additionally, we also need to include the ``pegasus_msgs`` package as a dependen
 
    # Causes the visibility macros to use dllexport rather than dllimport,
    # which is appropriate when building the dll but not consuming it.
-   target_compile_definitions(${PROJECT_NAME} PRIVATE "AUTOPILOT_MODES_BUILDING_LIBRARY")
+   target_compile_definitions(${PROJECT_NAME} PRIVATE "CUSTOM_MODES_BUILDING_LIBRARY")
 
    install(
       DIRECTORY include/
@@ -363,3 +365,97 @@ Additionally, we also need to include the ``pegasus_msgs`` package as a dependen
    ament_export_dependencies(${dependencies})
    ament_export_targets(export_${PROJECT_NAME})
    ament_package()
+
+6. Create a xml file named ``custom_modes_plugins.xml`` inside the package directory. This file will contain the definition of the custom mode as a plugin.
+
+.. code:: bash
+
+   # Create a xml file inside the package directory
+   touch custom_modes_plugins.xml
+
+The content of the ``custom_modes_plugins.xml`` file should be as follows:
+
+.. code-block:: xml
+   :linenos:
+
+   <library path="custom_modes">
+      <class type="autopilot::CustomWaypointMode" base_class_type="autopilot::Mode">
+         <description>A custom waypoint mode that drives the vehicle to a given waypoint.</description>
+      </class>
+   </library>
+
+7. Create a configuration file named ``custom_modes.yaml`` inside the package directory. This file will contain the configuration parameters for launching the autopilot
+with the custom mode.
+
+.. code:: bash
+
+   # Create a yaml file inside the package directory
+   touch config/custom_modes.yaml
+
+The content of the ``custom_modes.yaml`` file should be as follows:
+
+.. code-block:: yaml
+   :linenos:
+
+   /**:
+   ros__parameters:
+      autopilot:
+         # Update rate
+         rate: 50.0 # Hz
+         default_mode: "DisarmMode"
+         # Define all the existing operation modes
+         modes: ["DisarmMode", "ArmMode", "LandMode", "HoldMode", "CustomWaypointMode"]
+         # Configurations of each operating mode:
+         DisarmMode: 
+            valid_transitions: ["ArmMode"]
+            fallback: "DisarmMode"
+            disarm_service: "fmu/kill_switch"
+         ArmMode: 
+            valid_transitions: ["DisarmMode", "CustomWaypointMode"]
+            fallback: "DisarmMode"
+            geofencing_violation_fallback: "DisarmMode"
+            arm_service: "fmu/arm"
+            offboard_service: "fmu/offboard"
+         HoldMode: 
+            valid_transitions: ["LandMode", "CustomWaypointMode"]
+            fallback: "LandMode"
+         CustomWaypointMode:
+            valid_transitions: ["HoldMode", "LandMode"]
+            fallback: "HoldMode"
+            waypoint_topic: "waypoint"
+         # Topics configurations for the autopilot to communicate with the rest of the system
+         publishers:
+            control_position: "fmu/in/position"
+            control_attitude: "fmu/in/force/attitude"
+            control_attitude_rate: "fmu/in/force/attitude_rate"
+            status: "autopilot/status"
+         subscribers:
+            state: "fmu/filter/state"
+            status: "fmu/status"
+            constants: "fmu/constants"
+         services:
+            set_mode: "autopilot/change_mode"
+         # ----------------------------------------------------------------------------------------------------------
+         # Definition of the controller that will perform the tracking of references of the different operation modes
+         # ----------------------------------------------------------------------------------------------------------
+         controller: "OnboardController"
+         OnboardController:
+            publishers:
+               control_position: "fmu/in/position"
+               control_attitude: "fmu/in/force/attitude"
+               control_attitude_rate: "fmu/in/force/attitude_rate"
+         # ----------------------------------------------------------------------------------------------------------
+         # Definition of the geofencing mechanism that will keep the vehicle in safe places
+         # ----------------------------------------------------------------------------------------------------------
+         geofencing: "BoxGeofencing"
+         BoxGeofencing:
+            limits_x: [-10.0, 10.0]
+            limits_y: [-10.0, 10.0]
+            limits_z: [-10.0,  1.0] # NED Coordinades (z-negative is up)
+         # ----------------------------------------------------------------------------------------------------------
+         # Definition of the trajectory manager that generates parameterized trajectories to be followed
+         # ----------------------------------------------------------------------------------------------------------
+         trajectory_manager: "StaticTrajectoryManager"
+         StaticTrajectoryManager:
+            services:
+               reset_trajectory: "autopilot/trajectory/reset"
