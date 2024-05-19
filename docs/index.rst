@@ -8,7 +8,7 @@ Overview
 **Pegasus** is a quasi open-source Guidance, Navigation and Control (GNC) software package for controlling autonomous drones using ROS 2. 
 It is designed to be used with the PX4 flight stack, but open enough to be used with other flight stacks as well. It is mainly written in C++ and Python.
 
-This work is part of the **Pegasus Project**, a semi-personal side project started by Marcelo Jacinto with the end-goal of supporting experimental validation of his Ph.D. It provides:
+This work is part of **Project Pegasus**, a semi-personal side project started by Marcelo Jacinto with the end-goal of supporting experimental validation of his Ph.D. It provides:
 
 - A set of ROS 2 nodes with a modular state machine;
 
