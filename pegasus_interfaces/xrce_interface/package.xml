@@ -12,6 +12,7 @@
 
  <!-- Packages Dependencies -->
  <depend>rclcpp</depend>
+ <depend>sensor_msgs</depend>
 
  <depend>thrust_curves</depend>
  <depend>pegasus_msgs</depend>

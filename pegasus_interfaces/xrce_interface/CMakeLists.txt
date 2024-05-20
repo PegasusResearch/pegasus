@@ -58,6 +58,7 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 find_package(pegasus_msgs REQUIRED)
 find_package(pegasus_utils REQUIRED)
@@ -82,6 +83,7 @@ add_executable(${PROJECT_NAME}
 # Add the ROS2 packages to link against
 ament_target_dependencies(${PROJECT_NAME}
   rclcpp 
+  sensor_msgs
   pegasus_msgs
   pegasus_utils
   thrust_curves
