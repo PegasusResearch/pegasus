@@ -298,26 +298,36 @@ must inherit from the <code class="docutils literal notranslate"><span class="pr
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="cp">#pragma once</span>
 <span class="linenos"> 2</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Eigen/Core&gt;</span>
 <span class="hll"><span class="linenos"> 3</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;autopilot/mode.hpp&gt;</span>
-</span><span class="linenos"> 4</span>
-<span class="linenos"> 5</span><span class="k">namespace</span><span class="w"> </span><span class="nn">autopilot</span><span class="w"> </span><span class="p">{</span>
-<span class="linenos"> 6</span>
-<span class="hll"><span class="linenos"> 7</span><span class="k">class</span><span class="w"> </span><span class="nc">CustomWaypointMode</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">autopilot</span><span class="o">::</span><span class="n">Mode</span><span class="w"> </span><span class="p">{</span>
-</span><span class="linenos"> 8</span>
-<span class="linenos"> 9</span><span class="k">public</span><span class="o">:</span>
-<span class="linenos">10</span>
-<span class="hll"><span class="linenos">11</span><span class="w">   </span><span class="o">~</span><span class="n">CustomWaypointMode</span><span class="p">();</span>
-</span><span class="hll"><span class="linenos">12</span><span class="w">   </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize</span><span class="p">()</span><span class="w"> </span><span class="k">override</span><span class="p">;</span>
-</span><span class="hll"><span class="linenos">13</span><span class="w">   </span><span class="kt">bool</span><span class="w"> </span><span class="nf">enter</span><span class="p">()</span><span class="w"> </span><span class="k">override</span><span class="p">;</span>
-</span><span class="hll"><span class="linenos">14</span><span class="w">   </span><span class="kt">bool</span><span class="w"> </span><span class="nf">exit</span><span class="p">()</span><span class="w"> </span><span class="k">override</span><span class="p">;</span>
-</span><span class="hll"><span class="linenos">15</span><span class="w">   </span><span class="kt">void</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">dt</span><span class="p">)</span><span class="w"> </span><span class="k">override</span><span class="p">;</span>
-</span><span class="linenos">16</span>
-<span class="linenos">17</span><span class="k">protected</span><span class="o">:</span>
-<span class="linenos">18</span>
-<span class="linenos">19</span><span class="w">   </span><span class="c1">// The target position and attitude waypoint to be at</span>
-<span class="linenos">20</span><span class="w">   </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">target_pos</span><span class="p">{</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">-1.5</span><span class="p">};</span>
-<span class="linenos">21</span><span class="w">   </span><span class="kt">float</span><span class="w"> </span><span class="n">target_yaw</span><span class="p">{</span><span class="mf">0.0f</span><span class="p">};</span>
-<span class="linenos">22</span><span class="p">};</span>
-<span class="linenos">23</span><span class="p">}</span>
+</span><span class="linenos"> 4</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;pegasus_msgs/msg/control_position.hpp&quot;</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;rclcpp/rclcpp.hpp&quot;</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="k">namespace</span><span class="w"> </span><span class="nn">autopilot</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos"> 9</span>
+<span class="hll"><span class="linenos">10</span><span class="k">class</span><span class="w"> </span><span class="nc">CustomWaypointMode</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">autopilot</span><span class="o">::</span><span class="n">Mode</span><span class="w"> </span><span class="p">{</span>
+</span><span class="linenos">11</span>
+<span class="linenos">12</span><span class="k">public</span><span class="o">:</span>
+<span class="linenos">13</span>
+<span class="hll"><span class="linenos">14</span><span class="w">   </span><span class="o">~</span><span class="n">CustomWaypointMode</span><span class="p">();</span>
+</span><span class="hll"><span class="linenos">15</span><span class="w">   </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize</span><span class="p">()</span><span class="w"> </span><span class="k">override</span><span class="p">;</span>
+</span><span class="hll"><span class="linenos">16</span><span class="w">   </span><span class="kt">bool</span><span class="w"> </span><span class="nf">enter</span><span class="p">()</span><span class="w"> </span><span class="k">override</span><span class="p">;</span>
+</span><span class="hll"><span class="linenos">17</span><span class="w">   </span><span class="kt">bool</span><span class="w"> </span><span class="nf">exit</span><span class="p">()</span><span class="w"> </span><span class="k">override</span><span class="p">;</span>
+</span><span class="hll"><span class="linenos">18</span><span class="w">   </span><span class="kt">void</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">dt</span><span class="p">)</span><span class="w"> </span><span class="k">override</span><span class="p">;</span>
+</span><span class="linenos">19</span>
+<span class="linenos">20</span><span class="k">protected</span><span class="o">:</span>
+<span class="linenos">21</span>
+<span class="linenos">22</span><span class="w">   </span><span class="c1">// ROS 2 subscriber for the waypoint topic</span>
+<span class="linenos">23</span><span class="w">   </span><span class="n">rclcpp</span><span class="o">::</span><span class="n">Subscription</span><span class="o">&lt;</span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">msg</span><span class="o">::</span><span class="n">ControlPosition</span><span class="o">&gt;::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">waypoint_subscriber_</span><span class="p">;</span>
+<span class="linenos">24</span>
+<span class="linenos">25</span><span class="w">   </span><span class="c1">// Callback for the waypoint subscriber</span>
+<span class="linenos">26</span><span class="w">   </span><span class="kt">void</span><span class="w"> </span><span class="nf">waypoint_callback</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">msg</span><span class="o">::</span><span class="n">ControlPosition</span><span class="o">::</span><span class="n">ConstSharedPtr</span><span class="w"> </span><span class="n">msg</span><span class="p">);</span>
+<span class="linenos">27</span>
+<span class="linenos">28</span><span class="w">   </span><span class="c1">// Stores the latest target position and attitude waypoint to be at</span>
+<span class="linenos">29</span><span class="w">   </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">target_pos</span><span class="p">{</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">-1.5</span><span class="p">};</span>
+<span class="linenos">30</span><span class="w">   </span><span class="kt">float</span><span class="w"> </span><span class="n">target_yaw</span><span class="p">{</span><span class="mf">0.0f</span><span class="p">};</span>
+<span class="linenos">31</span><span class="w">   </span><span class="kt">bool</span><span class="w"> </span><span class="n">waypoint_set_</span><span class="p">{</span><span class="nb">false</span><span class="p">};</span>
+<span class="linenos">32</span><span class="p">};</span>
+<span class="linenos">33</span><span class="p">}</span>
 </pre></div>
 </div>
 <ul class="simple">
@@ -333,76 +343,92 @@ must inherit from the <code class="docutils literal notranslate"><span class="pr
 touch<span class="w"> </span>src/mode_custom_waypoint.cpp
 </pre></div>
 </div>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="linenos"> 1</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;autopilot_modes/mode_waypoint.hpp&quot;</span>
+<p>This file will contain the implementation of the custom operating mode that drives the vehicle to a given waypoint.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="linenos"> 1</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;custom_modes/mode_custom_waypoint.hpp&quot;</span>
 </span><span class="linenos"> 2</span>
 <span class="linenos"> 3</span><span class="k">namespace</span><span class="w"> </span><span class="nn">autopilot</span><span class="w"> </span><span class="p">{</span>
 <span class="linenos"> 4</span>
-<span class="linenos"> 5</span><span class="n">CustomWaypointMode</span><span class="o">::~</span><span class="n">WaypointMode</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="linenos"> 6</span><span class="w">   </span><span class="c1">// Terminate the waypoint service</span>
-<span class="linenos"> 7</span><span class="w">   </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">waypoint_service_</span><span class="p">.</span><span class="n">reset</span><span class="p">();</span>
+<span class="linenos"> 5</span><span class="n">CustomWaypointMode</span><span class="o">::~</span><span class="n">CustomWaypointMode</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos"> 6</span><span class="w">   </span><span class="c1">// Terminate the waypoint subscriber</span>
+<span class="linenos"> 7</span><span class="w">   </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">waypoint_subscriber_</span><span class="p">.</span><span class="n">reset</span><span class="p">();</span>
 <span class="linenos"> 8</span><span class="p">}</span>
 <span class="linenos"> 9</span>
-<span class="linenos">10</span><span class="kt">void</span><span class="w"> </span><span class="n">CustomWaypointMode</span><span class="o">::</span><span class="n">initialize</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="linenos">11</span>
-<span class="linenos">12</span><span class="w">   </span><span class="c1">// Create the waypoint service server</span>
-<span class="linenos">13</span><span class="w">   </span><span class="n">node_</span><span class="o">-&gt;</span><span class="n">declare_parameter</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;autopilot.WaypointMode.set_waypoint_service&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;set_waypoint&quot;</span><span class="p">);</span>
-<span class="linenos">14</span><span class="w">   </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">waypoint_service_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">node_</span><span class="o">-&gt;</span><span class="n">create_service</span><span class="o">&lt;</span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">srv</span><span class="o">::</span><span class="n">Waypoint</span><span class="o">&gt;</span><span class="p">(</span><span class="n">node_</span><span class="o">-&gt;</span><span class="n">get_parameter</span><span class="p">(</span><span class="s">&quot;autopilot.WaypointMode.set_waypoint_service&quot;</span><span class="p">).</span><span class="n">as_string</span><span class="p">(),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">bind</span><span class="p">(</span><span class="o">&amp;</span><span class="n">WaypointMode</span><span class="o">::</span><span class="n">waypoint_callback</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">placeholders</span><span class="o">::</span><span class="n">_1</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">placeholders</span><span class="o">::</span><span class="n">_2</span><span class="p">));</span>
-<span class="linenos">15</span><span class="w">   </span><span class="n">RCLCPP_INFO</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">node_</span><span class="o">-&gt;</span><span class="n">get_logger</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;WaypointMode initialized&quot;</span><span class="p">);</span>
-<span class="linenos">16</span><span class="p">}</span>
-<span class="linenos">17</span>
-<span class="linenos">18</span><span class="kt">bool</span><span class="w"> </span><span class="n">CustomWaypointMode</span><span class="o">::</span><span class="n">enter</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="linenos">19</span>
-<span class="linenos">20</span><span class="w">   </span><span class="c1">// Check if the waypoint was already set - if not, then do not enter the waypoint mode</span>
-<span class="linenos">21</span><span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">waypoint_set_</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="linenos">22</span><span class="w">      </span><span class="n">RCLCPP_ERROR</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">node_</span><span class="o">-&gt;</span><span class="n">get_logger</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;Waypoint not set - cannot enter waypoint mode.&quot;</span><span class="p">);</span>
-<span class="linenos">23</span><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
-<span class="linenos">24</span><span class="w">   </span><span class="p">}</span>
+<span class="hll"><span class="linenos">10</span><span class="c1">// This method is called when the autopilot loads all the modes into memory</span>
+</span><span class="hll"><span class="linenos">11</span><span class="kt">void</span><span class="w"> </span><span class="n">CustomWaypointMode</span><span class="o">::</span><span class="n">initialize</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span class="linenos">12</span>
+<span class="linenos">13</span><span class="w">   </span><span class="c1">// Get the name of the topic where the waypoint is published from the ROS 2 parameter server</span>
+<span class="linenos">14</span><span class="w">   </span><span class="n">node_</span><span class="o">-&gt;</span><span class="n">declare_parameter</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;autopilot.CustomWaypointMode.waypoint_topic&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;waypoint&quot;</span><span class="p">);</span>
+<span class="linenos">15</span>
+<span class="linenos">16</span><span class="w">   </span><span class="c1">// Create a subscriber to the waypoint topic (to get the desired waypoint to track)</span>
+<span class="linenos">17</span><span class="w">   </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">waypoint_subscriber_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">node_</span><span class="o">-&gt;</span><span class="n">create_subscription</span><span class="o">&lt;</span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">msg</span><span class="o">::</span><span class="n">ControlPosition</span><span class="o">&gt;</span><span class="p">(</span>
+<span class="linenos">18</span><span class="w">      </span><span class="n">node_</span><span class="o">-&gt;</span><span class="n">get_parameter</span><span class="p">(</span><span class="s">&quot;autopilot.CustomWaypointMode.waypoint_topic&quot;</span><span class="p">).</span><span class="n">as_string</span><span class="p">(),</span>
+<span class="linenos">19</span><span class="w">      </span><span class="n">rclcpp</span><span class="o">::</span><span class="n">SystemDefaultsQoS</span><span class="p">(),</span>
+<span class="linenos">20</span><span class="w">      </span><span class="n">std</span><span class="o">::</span><span class="n">bind</span><span class="p">(</span><span class="o">&amp;</span><span class="n">CustomWaypointMode</span><span class="o">::</span><span class="n">waypoint_callback</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">placeholders</span><span class="o">::</span><span class="n">_1</span><span class="p">));</span>
+<span class="linenos">21</span>
+<span class="linenos">22</span><span class="w">   </span><span class="c1">// Log that the waypoint mode has been initialized correctly</span>
+<span class="linenos">23</span><span class="w">   </span><span class="n">RCLCPP_INFO</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">node_</span><span class="o">-&gt;</span><span class="n">get_logger</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;CustomWaypointMode initialized&quot;</span><span class="p">);</span>
+<span class="linenos">24</span><span class="p">}</span>
 <span class="linenos">25</span>
-<span class="linenos">26</span><span class="w">   </span><span class="c1">// Reset the waypoint flag (to make sure we do not enter twice in this mode without setting a new waypoint)</span>
-<span class="linenos">27</span><span class="w">   </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">waypoint_set_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
-<span class="linenos">28</span>
-<span class="linenos">29</span><span class="w">   </span><span class="c1">// Return true to indicate that the mode has been entered successfully</span>
-<span class="linenos">30</span><span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
-<span class="linenos">31</span><span class="p">}</span>
-<span class="linenos">32</span>
-<span class="linenos">33</span><span class="kt">bool</span><span class="w"> </span><span class="n">CustomWaypointMode</span><span class="o">::</span><span class="n">exit</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="hll"><span class="linenos">26</span><span class="c1">// This method is called when the autopilot is about to enter the waypoint mode</span>
+</span><span class="hll"><span class="linenos">27</span><span class="kt">bool</span><span class="w"> </span><span class="n">CustomWaypointMode</span><span class="o">::</span><span class="n">enter</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span class="linenos">28</span>
+<span class="linenos">29</span><span class="w">   </span><span class="c1">// Check if the waypoint was already set - if not, then do not enter the waypoint mode</span>
+<span class="linenos">30</span><span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">waypoint_set_</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">31</span><span class="w">      </span><span class="n">RCLCPP_ERROR</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">node_</span><span class="o">-&gt;</span><span class="n">get_logger</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;Waypoint not set - cannot enter waypoint mode.&quot;</span><span class="p">);</span>
+<span class="linenos">32</span><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="linenos">33</span><span class="w">   </span><span class="p">}</span>
 <span class="linenos">34</span>
-<span class="linenos">35</span><span class="w">   </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">waypoint_set_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
-<span class="linenos">36</span>
-<span class="linenos">37</span><span class="w">   </span><span class="c1">// Nothing to do here</span>
-<span class="linenos">38</span><span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w">   </span><span class="c1">// Return true to indicate that the mode has been exited successfully</span>
-<span class="linenos">39</span><span class="p">}</span>
-<span class="linenos">40</span>
-<span class="linenos">41</span><span class="kt">void</span><span class="w"> </span><span class="n">CustomWaypointMode</span><span class="o">::</span><span class="n">update</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">dt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="linenos">42</span>
-<span class="linenos">43</span><span class="w">   </span><span class="c1">// Set the controller to track the target position and attitude</span>
-<span class="linenos">44</span><span class="w">   </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">controller_</span><span class="o">-&gt;</span><span class="n">set_position</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">target_pos</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">target_yaw</span><span class="p">,</span><span class="w"> </span><span class="n">dt</span><span class="p">);</span>
-<span class="linenos">45</span><span class="p">}</span>
+<span class="linenos">35</span><span class="w">   </span><span class="c1">// Reset the waypoint flag (to make sure we do not enter twice in this mode without setting a new waypoint)</span>
+<span class="linenos">36</span><span class="w">   </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">waypoint_set_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="linenos">37</span>
+<span class="linenos">38</span><span class="w">   </span><span class="c1">// Return true to indicate that the mode has been entered successfully</span>
+<span class="linenos">39</span><span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="linenos">40</span><span class="p">}</span>
+<span class="linenos">41</span>
+<span class="hll"><span class="linenos">42</span><span class="c1">// This method is called when the autopilot is about to exit the waypoint mode and enter another mode</span>
+</span><span class="hll"><span class="linenos">43</span><span class="kt">bool</span><span class="w"> </span><span class="n">CustomWaypointMode</span><span class="o">::</span><span class="n">exit</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span class="linenos">44</span>
+<span class="linenos">45</span><span class="w">   </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">waypoint_set_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
 <span class="linenos">46</span>
-<span class="linenos">47</span><span class="kt">void</span><span class="w"> </span><span class="n">CustomWaypointMode</span><span class="o">::</span><span class="n">waypoint_callback</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">srv</span><span class="o">::</span><span class="n">Waypoint</span><span class="o">::</span><span class="n">Request</span><span class="o">::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">request</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">srv</span><span class="o">::</span><span class="n">Waypoint</span><span class="o">::</span><span class="n">Response</span><span class="o">::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">response</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="linenos">48</span>
-<span class="linenos">49</span><span class="w">   </span><span class="c1">// Set the waypoint</span>
-<span class="linenos">50</span><span class="w">   </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">target_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="o">-&gt;</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
-<span class="linenos">51</span><span class="w">   </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">target_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="o">-&gt;</span><span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
-<span class="linenos">52</span><span class="w">   </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">target_pos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="o">-&gt;</span><span class="n">position</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
-<span class="linenos">53</span><span class="w">   </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">target_yaw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="o">-&gt;</span><span class="n">yaw</span><span class="p">;</span>
-<span class="linenos">54</span>
-<span class="linenos">55</span><span class="w">   </span><span class="c1">// Set the waypoint flag</span>
-<span class="linenos">56</span><span class="w">   </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">waypoint_set_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
-<span class="linenos">57</span>
-<span class="linenos">58</span><span class="w">   </span><span class="c1">// Return true to indicate that the waypoint has been set successfully</span>
-<span class="linenos">59</span><span class="w">   </span><span class="n">response</span><span class="o">-&gt;</span><span class="n">success</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
-<span class="linenos">60</span><span class="w">   </span><span class="n">RCLCPP_WARN</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">node_</span><span class="o">-&gt;</span><span class="n">get_logger</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;Waypoint set to (%f, %f, %f) with yaw %f&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">target_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">target_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">target_pos</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">target_yaw</span><span class="p">);</span>
-<span class="linenos">61</span><span class="p">}</span>
-<span class="linenos">62</span>
-<span class="linenos">63</span><span class="p">}</span><span class="w"> </span><span class="c1">// namespace autopilot</span>
-<span class="linenos">64</span>
-<span class="linenos">65</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;pluginlib/class_list_macros.hpp&gt;</span>
-<span class="linenos">66</span><span class="n">PLUGINLIB_EXPORT_CLASS</span><span class="p">(</span><span class="n">autopilot</span><span class="o">::</span><span class="n">CustomWaypointMode</span><span class="p">,</span><span class="w"> </span><span class="n">autopilot</span><span class="o">::</span><span class="n">Mode</span><span class="p">)</span>
-</pre></div>
+<span class="linenos">47</span><span class="w">   </span><span class="c1">// Nothing to do here</span>
+<span class="linenos">48</span><span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w">   </span><span class="c1">// Return true to indicate that the mode has been exited successfully</span>
+<span class="linenos">49</span><span class="p">}</span>
+<span class="linenos">50</span>
+<span class="hll"><span class="linenos">51</span><span class="c1">// This method is called at every iteration of the control loop by the autopilot</span>
+</span><span class="hll"><span class="linenos">52</span><span class="kt">void</span><span class="w"> </span><span class="n">CustomWaypointMode</span><span class="o">::</span><span class="n">update</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">dt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span class="linenos">53</span>
+<span class="linenos">54</span><span class="w">   </span><span class="c1">// Set the controller to track the target position and attitude</span>
+<span class="linenos">55</span><span class="w">   </span><span class="c1">// In this case we do not which to implement a low-level controller, so we will use the set_position method from the controller interface</span>
+<span class="linenos">56</span><span class="w">   </span><span class="c1">// and use whatever controller is currently active in the autopilot.</span>
+<span class="linenos">57</span><span class="w">   </span><span class="c1">// Note: we could also have a custom implementation here and send lower level controls using the controller interface</span>
+<span class="linenos">58</span><span class="w">   </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">controller_</span><span class="o">-&gt;</span><span class="n">set_position</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">target_pos</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">target_yaw</span><span class="p">,</span><span class="w"> </span><span class="n">dt</span><span class="p">);</span>
+<span class="linenos">59</span><span class="p">}</span>
+<span class="linenos">60</span>
+<span class="hll"><span class="linenos">61</span><span class="c1">// ROS 2 callback for the waypoint subscriber - this is called whenever a new waypoint is published</span>
+</span><span class="hll"><span class="linenos">62</span><span class="kt">void</span><span class="w"> </span><span class="n">CustomWaypointMode</span><span class="o">::</span><span class="n">waypoint_callback</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">pegasus_msgs</span><span class="o">::</span><span class="n">msg</span><span class="o">::</span><span class="n">ControlPosition</span><span class="o">::</span><span class="n">ConstSharedPtr</span><span class="w"> </span><span class="n">msg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span class="linenos">63</span>
+<span class="linenos">64</span><span class="w">   </span><span class="c1">// Set the waypoint</span>
+<span class="linenos">65</span><span class="w">   </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">target_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">msg</span><span class="o">-&gt;</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="linenos">66</span><span class="w">   </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">target_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">msg</span><span class="o">-&gt;</span><span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+<span class="linenos">67</span><span class="w">   </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">target_pos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">msg</span><span class="o">-&gt;</span><span class="n">position</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<span class="linenos">68</span><span class="w">   </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">target_yaw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">msg</span><span class="o">-&gt;</span><span class="n">yaw</span><span class="p">;</span>
+<span class="linenos">69</span>
+<span class="linenos">70</span><span class="w">   </span><span class="c1">// Set the waypoint flag</span>
+<span class="linenos">71</span><span class="w">   </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">waypoint_set_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="linenos">72</span>
+<span class="linenos">73</span><span class="w">   </span><span class="c1">// Log that the waypoint has been set successfully</span>
+<span class="linenos">74</span><span class="w">   </span><span class="n">RCLCPP_WARN</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">node_</span><span class="o">-&gt;</span><span class="n">get_logger</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;Waypoint set to (%f, %f, %f) with yaw %f&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">target_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">target_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">target_pos</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">target_yaw</span><span class="p">);</span>
+<span class="linenos">75</span><span class="p">}</span>
+<span class="linenos">76</span>
+<span class="linenos">77</span><span class="p">}</span><span class="w"> </span><span class="c1">// namespace autopilot</span>
+<span class="linenos">78</span>
+<span class="hll"><span class="linenos">79</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;pluginlib/class_list_macros.hpp&gt;</span>
+</span><span class="hll"><span class="linenos">80</span><span class="n">PLUGINLIB_EXPORT_CLASS</span><span class="p">(</span><span class="n">autopilot</span><span class="o">::</span><span class="n">CustomWaypointMode</span><span class="p">,</span><span class="w"> </span><span class="n">autopilot</span><span class="o">::</span><span class="n">Mode</span><span class="p">)</span>
+</span></pre></div>
 </div>
+<p>The last 2 lines of the code snippet above are necessary to export the custom mode as a plugin. The <code class="docutils literal notranslate"><span class="pre">pluginlib</span></code> package uses these lines to load the plugin at runtime.</p>
 <p>4. Modify the <code class="docutils literal notranslate"><span class="pre">package.xml</span></code> file to include the following dependencies <code class="docutils literal notranslate"><span class="pre">autopilot</span></code> and <code class="docutils literal notranslate"><span class="pre">pluginlib</span></code>, according to the code snippet below.
-This is necessary to let ROS 2 know that the package depends on the autopilot and pluginlib packages.</p>
+Additionally, we also need to include the <code class="docutils literal notranslate"><span class="pre">pegasus_msgs</span></code> package as a dependency, since we are subscribing to a ROS 2 topic that publishes messages from this package.</p>
 <div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
 <span class="linenos"> 2</span><span class="cp">&lt;?xml-model href=&quot;http://download.ros.org/schema/package_format3.xsd&quot; schematypens=&quot;http://www.w3.org/2001/XMLSchema&quot;?&gt;</span>
 <span class="linenos"> 3</span><span class="nt">&lt;package</span><span class="w"> </span><span class="na">format=</span><span class="s">&quot;3&quot;</span><span class="nt">&gt;</span>
@@ -416,18 +442,19 @@ This is necessary to let ROS 2 know that the package depends on the autopilot an
 <span class="linenos">11</span>
 <span class="hll"><span class="linenos">12</span><span class="w">   </span><span class="nt">&lt;depend&gt;</span>autopilot<span class="nt">&lt;/depend&gt;</span>
 </span><span class="hll"><span class="linenos">13</span><span class="w">   </span><span class="nt">&lt;depend&gt;</span>pluginlib<span class="nt">&lt;/depend&gt;</span>
-</span><span class="linenos">14</span>
-<span class="linenos">15</span><span class="w">   </span><span class="nt">&lt;test_depend&gt;</span>ament_lint_auto<span class="nt">&lt;/test_depend&gt;</span>
-<span class="linenos">16</span><span class="w">   </span><span class="nt">&lt;test_depend&gt;</span>ament_lint_common<span class="nt">&lt;/test_depend&gt;</span>
-<span class="linenos">17</span>
-<span class="linenos">18</span><span class="w">   </span><span class="nt">&lt;export&gt;</span>
-<span class="linenos">19</span><span class="w">      </span><span class="nt">&lt;build_type&gt;</span>ament_cmake<span class="nt">&lt;/build_type&gt;</span>
-<span class="linenos">20</span><span class="w">   </span><span class="nt">&lt;/export&gt;</span>
-<span class="linenos">21</span><span class="nt">&lt;/package&gt;</span>
+</span><span class="hll"><span class="linenos">14</span><span class="w">   </span><span class="nt">&lt;depend&gt;</span>pegasus_msgs<span class="nt">&lt;/depend&gt;</span>
+</span><span class="linenos">15</span>
+<span class="linenos">16</span><span class="w">   </span><span class="nt">&lt;test_depend&gt;</span>ament_lint_auto<span class="nt">&lt;/test_depend&gt;</span>
+<span class="linenos">17</span><span class="w">   </span><span class="nt">&lt;test_depend&gt;</span>ament_lint_common<span class="nt">&lt;/test_depend&gt;</span>
+<span class="linenos">18</span>
+<span class="linenos">19</span><span class="w">   </span><span class="nt">&lt;export&gt;</span>
+<span class="linenos">20</span><span class="w">      </span><span class="nt">&lt;build_type&gt;</span>ament_cmake<span class="nt">&lt;/build_type&gt;</span>
+<span class="linenos">21</span><span class="w">   </span><span class="nt">&lt;/export&gt;</span>
+<span class="linenos">22</span><span class="nt">&lt;/package&gt;</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="5">
-<li><p>Also modify the <code class="docutils literal notranslate"><span class="pre">CMakeLists.txt</span></code> file to include the following dependencies <code class="docutils literal notranslate"><span class="pre">autopilot</span></code> and <code class="docutils literal notranslate"><span class="pre">pluginlib</span></code>, according to the code snippet below.</p></li>
+<li><p>Also modify the <code class="docutils literal notranslate"><span class="pre">CMakeLists.txt</span></code> file to include the following dependencies <code class="docutils literal notranslate"><span class="pre">autopilot</span></code>, <code class="docutils literal notranslate"><span class="pre">pegasus_msgs</span></code> and <code class="docutils literal notranslate"><span class="pre">pluginlib</span></code>, according to the code snippet below. Additionally, we need to include the <code class="docutils literal notranslate"><span class="pre">Eigen3</span></code> package as a dependency, since we are using Eigen for linear algebra operations.</p></li>
 </ol>
 <div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">VERSION</span><span class="w"> </span><span class="s">3.8</span><span class="p">)</span>
 <span class="linenos"> 2</span><span class="nb">project</span><span class="p">(</span><span class="s">custom_modes</span><span class="p">)</span>
@@ -441,67 +468,195 @@ This is necessary to let ROS 2 know that the package depends on the autopilot an
 </span><span class="linenos">10</span><span class="nb">endif</span><span class="p">()</span>
 <span class="linenos">11</span>
 <span class="linenos">12</span><span class="c"># find dependencies</span>
-<span class="linenos">13</span><span class="nb">find_package</span><span class="p">(</span><span class="s">ament_cmake</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
-<span class="hll"><span class="linenos">14</span><span class="nb">find_package</span><span class="p">(</span><span class="s">autopilot</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
+<span class="hll"><span class="linenos">13</span><span class="nb">find_package</span><span class="p">(</span><span class="s">ament_cmake</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
+</span><span class="hll"><span class="linenos">14</span><span class="nb">find_package</span><span class="p">(</span><span class="s">autopilot</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
 </span><span class="hll"><span class="linenos">15</span><span class="nb">find_package</span><span class="p">(</span><span class="s">pluginlib</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
-</span><span class="hll"><span class="linenos">16</span><span class="nb">find_package</span><span class="p">(</span><span class="s">Eigen3</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
-</span><span class="linenos">17</span>
-<span class="linenos">18</span><span class="nb">add_library</span><span class="p">(</span><span class="o">${</span><span class="nv">PROJECT_NAME</span><span class="o">}</span>
-<span class="hll"><span class="linenos">19</span><span class="w">   </span><span class="s">src/mode_fixed_waypoint.cpp</span>
-</span><span class="linenos">20</span><span class="p">)</span>
-<span class="linenos">21</span>
-<span class="linenos">22</span><span class="nb">target_include_directories</span><span class="p">(</span><span class="o">${</span><span class="nv">PROJECT_NAME</span><span class="o">}</span><span class="w"> </span><span class="s">PUBLIC</span>
-<span class="linenos">23</span><span class="w">   </span><span class="o">$&lt;</span><span class="nv">BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include</span><span class="o">&gt;</span>
-<span class="linenos">24</span><span class="w">   </span><span class="o">$&lt;</span><span class="nv">INSTALL_INTERFACE:include</span><span class="o">&gt;</span>
-<span class="linenos">25</span><span class="w">   </span><span class="o">${</span><span class="nv">EIGEN3_INCLUDE_DIRS</span><span class="o">}</span>
-<span class="linenos">26</span><span class="p">)</span>
-<span class="linenos">27</span>
-<span class="linenos">28</span><span class="nb">add_definitions</span><span class="p">(</span><span class="o">${</span><span class="nv">EIGEN3_DEFINITIONS</span><span class="o">}</span><span class="p">)</span>
-<span class="linenos">29</span>
-<span class="hll"><span class="linenos">30</span><span class="nb">set</span><span class="p">(</span><span class="s">dependencies</span>
-</span><span class="hll"><span class="linenos">31</span><span class="w">   </span><span class="s">autopilot</span>
-</span><span class="hll"><span class="linenos">32</span><span class="w">   </span><span class="s">pluginlib</span>
-</span><span class="hll"><span class="linenos">33</span><span class="p">)</span>
-</span><span class="linenos">34</span>
-<span class="linenos">35</span><span class="nb">ament_target_dependencies</span><span class="p">(</span><span class="o">${</span><span class="nv">PROJECT_NAME</span><span class="o">}</span><span class="w"> </span><span class="o">${</span><span class="nv">dependencies</span><span class="o">}</span><span class="p">)</span>
-<span class="linenos">36</span>
-<span class="hll"><span class="linenos">37</span><span class="c"># Export the pluginlib description (package containing the base class and the derived classes information in XML format)</span>
-</span><span class="hll"><span class="linenos">38</span><span class="nb">pluginlib_export_plugin_description_file</span><span class="p">(</span><span class="s">autopilot</span><span class="w"> </span><span class="s">custom_modes_plugins.xml</span><span class="p">)</span>
-</span><span class="linenos">39</span>
-<span class="linenos">40</span><span class="nb">install</span><span class="p">(</span>
-<span class="linenos">41</span><span class="w">   </span><span class="s">TARGETS</span><span class="w"> </span><span class="o">${</span><span class="nv">PROJECT_NAME</span><span class="o">}</span>
-<span class="linenos">42</span><span class="w">   </span><span class="s">EXPORT</span><span class="w"> </span><span class="s">export_</span><span class="o">${</span><span class="nv">PROJECT_NAME</span><span class="o">}</span>
-<span class="linenos">43</span><span class="w">   </span><span class="s">ARCHIVE</span><span class="w"> </span><span class="s">DESTINATION</span><span class="w"> </span><span class="s">lib</span>
-<span class="linenos">44</span><span class="w">   </span><span class="s">LIBRARY</span><span class="w"> </span><span class="s">DESTINATION</span><span class="w"> </span><span class="s">lib</span>
-<span class="linenos">45</span><span class="w">   </span><span class="s">RUNTIME</span><span class="w"> </span><span class="s">DESTINATION</span><span class="w"> </span><span class="s">bin</span>
-<span class="linenos">46</span><span class="p">)</span>
-<span class="linenos">47</span>
-<span class="linenos">48</span><span class="c"># Causes the visibility macros to use dllexport rather than dllimport,</span>
-<span class="linenos">49</span><span class="c"># which is appropriate when building the dll but not consuming it.</span>
-<span class="linenos">50</span><span class="nb">target_compile_definitions</span><span class="p">(</span><span class="o">${</span><span class="nv">PROJECT_NAME</span><span class="o">}</span><span class="w"> </span><span class="s">PRIVATE</span><span class="w"> </span><span class="s2">&quot;AUTOPILOT_MODES_BUILDING_LIBRARY&quot;</span><span class="p">)</span>
-<span class="linenos">51</span>
-<span class="linenos">52</span><span class="nb">install</span><span class="p">(</span>
-<span class="linenos">53</span><span class="w">   </span><span class="s">DIRECTORY</span><span class="w"> </span><span class="s">include/</span>
-<span class="linenos">54</span><span class="w">   </span><span class="s">DESTINATION</span><span class="w"> </span><span class="s">include</span>
-<span class="linenos">55</span><span class="p">)</span>
-<span class="linenos">56</span>
-<span class="linenos">57</span><span class="nb">if</span><span class="p">(</span><span class="s">BUILD_TESTING</span><span class="p">)</span>
-<span class="linenos">58</span><span class="nb">find_package</span><span class="p">(</span><span class="s">ament_lint_auto</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
-<span class="linenos">59</span><span class="c"># the following line skips the linter which checks for copyrights</span>
-<span class="linenos">60</span><span class="c"># comment the line when a copyright and license is added to all source files</span>
-<span class="linenos">61</span><span class="nb">set</span><span class="p">(</span><span class="s">ament_cmake_copyright_FOUND</span><span class="w"> </span><span class="s">TRUE</span><span class="p">)</span>
-<span class="linenos">62</span><span class="c"># the following line skips cpplint (only works in a git repo)</span>
-<span class="linenos">63</span><span class="c"># comment the line when this package is in a git repo and when</span>
-<span class="linenos">64</span><span class="c"># a copyright and license is added to all source files</span>
-<span class="linenos">65</span><span class="nb">set</span><span class="p">(</span><span class="s">ament_cmake_cpplint_FOUND</span><span class="w"> </span><span class="s">TRUE</span><span class="p">)</span>
-<span class="linenos">66</span><span class="nb">ament_lint_auto_find_test_dependencies</span><span class="p">()</span>
-<span class="linenos">67</span><span class="nb">endif</span><span class="p">()</span>
-<span class="linenos">68</span>
-<span class="linenos">69</span><span class="nb">ament_export_include_directories</span><span class="p">(</span><span class="s">include</span><span class="p">)</span>
-<span class="linenos">70</span><span class="nb">ament_export_libraries</span><span class="p">(</span><span class="o">${</span><span class="nv">PROJECT_NAME</span><span class="o">}</span><span class="p">)</span>
-<span class="linenos">71</span><span class="nb">ament_export_dependencies</span><span class="p">(</span><span class="o">${</span><span class="nv">dependencies</span><span class="o">}</span><span class="p">)</span>
-<span class="linenos">72</span><span class="nb">ament_export_targets</span><span class="p">(</span><span class="s">export_</span><span class="o">${</span><span class="nv">PROJECT_NAME</span><span class="o">}</span><span class="p">)</span>
-<span class="linenos">73</span><span class="nb">ament_package</span><span class="p">()</span>
+</span><span class="hll"><span class="linenos">16</span><span class="nb">find_package</span><span class="p">(</span><span class="s">pegasus_msgs</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
+</span><span class="hll"><span class="linenos">17</span><span class="nb">find_package</span><span class="p">(</span><span class="s">Eigen3</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
+</span><span class="linenos">18</span>
+<span class="hll"><span class="linenos">19</span><span class="nb">add_library</span><span class="p">(</span><span class="o">${</span><span class="nv">PROJECT_NAME</span><span class="o">}</span>
+</span><span class="hll"><span class="linenos">20</span><span class="w">   </span><span class="s">src/mode_custom_waypoint.cpp</span>
+</span><span class="hll"><span class="linenos">21</span><span class="p">)</span>
+</span><span class="linenos">22</span>
+<span class="linenos">23</span><span class="nb">target_include_directories</span><span class="p">(</span><span class="o">${</span><span class="nv">PROJECT_NAME</span><span class="o">}</span><span class="w"> </span><span class="s">PUBLIC</span>
+<span class="linenos">24</span><span class="w">   </span><span class="o">$&lt;</span><span class="nv">BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include</span><span class="o">&gt;</span>
+<span class="linenos">25</span><span class="w">   </span><span class="o">$&lt;</span><span class="nv">INSTALL_INTERFACE:include</span><span class="o">&gt;</span>
+<span class="linenos">26</span><span class="w">   </span><span class="o">${</span><span class="nv">EIGEN3_INCLUDE_DIRS</span><span class="o">}</span>
+<span class="linenos">27</span><span class="p">)</span>
+<span class="linenos">28</span>
+<span class="linenos">29</span><span class="nb">add_definitions</span><span class="p">(</span><span class="o">${</span><span class="nv">EIGEN3_DEFINITIONS</span><span class="o">}</span><span class="p">)</span>
+<span class="linenos">30</span>
+<span class="hll"><span class="linenos">31</span><span class="nb">set</span><span class="p">(</span><span class="s">dependencies</span>
+</span><span class="hll"><span class="linenos">32</span><span class="w">   </span><span class="s">autopilot</span>
+</span><span class="hll"><span class="linenos">33</span><span class="w">   </span><span class="s">pluginlib</span>
+</span><span class="hll"><span class="linenos">34</span><span class="w">   </span><span class="s">pegasus_msgs</span>
+</span><span class="hll"><span class="linenos">35</span><span class="p">)</span>
+</span><span class="linenos">36</span>
+<span class="linenos">37</span><span class="nb">ament_target_dependencies</span><span class="p">(</span><span class="o">${</span><span class="nv">PROJECT_NAME</span><span class="o">}</span><span class="w"> </span><span class="o">${</span><span class="nv">dependencies</span><span class="o">}</span><span class="p">)</span>
+<span class="linenos">38</span>
+<span class="hll"><span class="linenos">39</span><span class="c"># Export the pluginlib description (package containing the base class and the derived classes information in XML format)</span>
+</span><span class="hll"><span class="linenos">40</span><span class="nb">pluginlib_export_plugin_description_file</span><span class="p">(</span><span class="s">autopilot</span><span class="w"> </span><span class="s">custom_modes_plugins.xml</span><span class="p">)</span>
+</span><span class="linenos">41</span>
+<span class="linenos">42</span><span class="nb">install</span><span class="p">(</span>
+<span class="linenos">43</span><span class="w">   </span><span class="s">TARGETS</span><span class="w"> </span><span class="o">${</span><span class="nv">PROJECT_NAME</span><span class="o">}</span>
+<span class="linenos">44</span><span class="w">   </span><span class="s">EXPORT</span><span class="w"> </span><span class="s">export_</span><span class="o">${</span><span class="nv">PROJECT_NAME</span><span class="o">}</span>
+<span class="linenos">45</span><span class="w">   </span><span class="s">ARCHIVE</span><span class="w"> </span><span class="s">DESTINATION</span><span class="w"> </span><span class="s">lib</span>
+<span class="linenos">46</span><span class="w">   </span><span class="s">LIBRARY</span><span class="w"> </span><span class="s">DESTINATION</span><span class="w"> </span><span class="s">lib</span>
+<span class="linenos">47</span><span class="w">   </span><span class="s">RUNTIME</span><span class="w"> </span><span class="s">DESTINATION</span><span class="w"> </span><span class="s">bin</span>
+<span class="linenos">48</span><span class="p">)</span>
+<span class="linenos">49</span>
+<span class="hll"><span class="linenos">50</span><span class="c"># Causes the visibility macros to use dllexport rather than dllimport,</span>
+</span><span class="hll"><span class="linenos">51</span><span class="c"># which is appropriate when building the dll but not consuming it.</span>
+</span><span class="hll"><span class="linenos">52</span><span class="nb">target_compile_definitions</span><span class="p">(</span><span class="o">${</span><span class="nv">PROJECT_NAME</span><span class="o">}</span><span class="w"> </span><span class="s">PRIVATE</span><span class="w"> </span><span class="s2">&quot;CUSTOM_MODES_BUILDING_LIBRARY&quot;</span><span class="p">)</span>
+</span><span class="linenos">53</span>
+<span class="linenos">54</span><span class="nb">install</span><span class="p">(</span>
+<span class="linenos">55</span><span class="w">   </span><span class="s">DIRECTORY</span><span class="w"> </span><span class="s">include/</span>
+<span class="linenos">56</span><span class="w">   </span><span class="s">DESTINATION</span><span class="w"> </span><span class="s">include</span>
+<span class="linenos">57</span><span class="p">)</span>
+<span class="linenos">58</span>
+<span class="linenos">59</span><span class="nb">if</span><span class="p">(</span><span class="s">BUILD_TESTING</span><span class="p">)</span>
+<span class="linenos">60</span><span class="nb">find_package</span><span class="p">(</span><span class="s">ament_lint_auto</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
+<span class="linenos">61</span><span class="c"># the following line skips the linter which checks for copyrights</span>
+<span class="linenos">62</span><span class="c"># comment the line when a copyright and license is added to all source files</span>
+<span class="linenos">63</span><span class="nb">set</span><span class="p">(</span><span class="s">ament_cmake_copyright_FOUND</span><span class="w"> </span><span class="s">TRUE</span><span class="p">)</span>
+<span class="linenos">64</span><span class="c"># the following line skips cpplint (only works in a git repo)</span>
+<span class="linenos">65</span><span class="c"># comment the line when this package is in a git repo and when</span>
+<span class="linenos">66</span><span class="c"># a copyright and license is added to all source files</span>
+<span class="linenos">67</span><span class="nb">set</span><span class="p">(</span><span class="s">ament_cmake_cpplint_FOUND</span><span class="w"> </span><span class="s">TRUE</span><span class="p">)</span>
+<span class="linenos">68</span><span class="nb">ament_lint_auto_find_test_dependencies</span><span class="p">()</span>
+<span class="linenos">69</span><span class="nb">endif</span><span class="p">()</span>
+<span class="linenos">70</span>
+<span class="linenos">71</span><span class="nb">ament_export_include_directories</span><span class="p">(</span><span class="s">include</span><span class="p">)</span>
+<span class="linenos">72</span><span class="nb">ament_export_libraries</span><span class="p">(</span><span class="o">${</span><span class="nv">PROJECT_NAME</span><span class="o">}</span><span class="p">)</span>
+<span class="linenos">73</span><span class="nb">ament_export_dependencies</span><span class="p">(</span><span class="o">${</span><span class="nv">dependencies</span><span class="o">}</span><span class="p">)</span>
+<span class="linenos">74</span><span class="nb">ament_export_targets</span><span class="p">(</span><span class="s">export_</span><span class="o">${</span><span class="nv">PROJECT_NAME</span><span class="o">}</span><span class="p">)</span>
+<span class="linenos">75</span><span class="nb">ament_package</span><span class="p">()</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li><p>Create a xml file named <code class="docutils literal notranslate"><span class="pre">custom_modes_plugins.xml</span></code> inside the package directory. This file will contain the definition of the custom mode as a plugin.</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a xml file inside the package directory</span>
+touch<span class="w"> </span>custom_modes_plugins.xml
+</pre></div>
+</div>
+<p>The content of the <code class="docutils literal notranslate"><span class="pre">custom_modes_plugins.xml</span></code> file should be as follows:</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="nt">&lt;library</span><span class="w"> </span><span class="na">path=</span><span class="s">&quot;custom_modes&quot;</span><span class="nt">&gt;</span>
+<span class="linenos">2</span><span class="w">   </span><span class="nt">&lt;class</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;autopilot::CustomWaypointMode&quot;</span><span class="w"> </span><span class="na">base_class_type=</span><span class="s">&quot;autopilot::Mode&quot;</span><span class="nt">&gt;</span>
+<span class="linenos">3</span><span class="w">      </span><span class="nt">&lt;description&gt;</span>A<span class="w"> </span>custom<span class="w"> </span>waypoint<span class="w"> </span>mode<span class="w"> </span>that<span class="w"> </span>drives<span class="w"> </span>the<span class="w"> </span>vehicle<span class="w"> </span>to<span class="w"> </span>a<span class="w"> </span>given<span class="w"> </span>waypoint.<span class="nt">&lt;/description&gt;</span>
+<span class="linenos">4</span><span class="w">   </span><span class="nt">&lt;/class&gt;</span>
+<span class="linenos">5</span><span class="nt">&lt;/library&gt;</span>
+</pre></div>
+</div>
+<p>7. Create a configuration file named <code class="docutils literal notranslate"><span class="pre">custom_modes.yaml</span></code> inside the package directory. This file will contain the configuration parameters for launching the autopilot
+with the custom mode.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a yaml file inside the package directory</span>
+touch<span class="w"> </span>config/custom_modes.yaml
+</pre></div>
+</div>
+<p>The content of the <code class="docutils literal notranslate"><span class="pre">custom_modes.yaml</span></code> file should be as follows. In line 8, we define the modes that will be loaded by the autopilot. In this case, we are adding the custom waypoint mode to the list of modes.</p>
+<p>Lines 23-26 define the configuration parameters for each mode, including the newly created custom waypoint mode. In this case, we are defining the topic where the waypoint is published.</p>
+<p>We also define the valid_transitions, which define which modes are allowed to transition to from the custom waypoint mode. In this case, the custom waypoint mode can transition to the <code class="docutils literal notranslate"><span class="pre">Hold</span></code> and <code class="docutils literal notranslate"><span class="pre">Land</span></code> modes.
+Moreover we define the fallback mode, which is the mode that the autopilot will transition to if the custom waypoint mode is not able to execute its logic.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="nt">/**</span><span class="p">:</span>
+<span class="linenos"> 2</span><span class="nt">ros__parameters</span><span class="p">:</span>
+<span class="linenos"> 3</span><span class="w">   </span><span class="nt">autopilot</span><span class="p">:</span>
+<span class="linenos"> 4</span><span class="w">      </span><span class="c1"># Update rate</span>
+<span class="linenos"> 5</span><span class="w">      </span><span class="nt">rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50.0</span><span class="w"> </span><span class="c1"># Hz</span>
+<span class="linenos"> 6</span><span class="w">      </span><span class="nt">default_mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;DisarmMode&quot;</span>
+<span class="linenos"> 7</span><span class="w">      </span><span class="c1"># Define all the existing operation modes</span>
+<span class="hll"><span class="linenos"> 8</span><span class="w">      </span><span class="nt">modes</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;DisarmMode&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;ArmMode&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;LandMode&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;HoldMode&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;CustomWaypointMode&quot;</span><span class="p p-Indicator">]</span>
+</span><span class="linenos"> 9</span><span class="w">      </span><span class="c1"># Configurations of each operating mode:</span>
+<span class="linenos">10</span><span class="w">      </span><span class="nt">DisarmMode</span><span class="p">:</span>
+<span class="linenos">11</span><span class="w">         </span><span class="nt">valid_transitions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;ArmMode&quot;</span><span class="p p-Indicator">]</span>
+<span class="linenos">12</span><span class="w">         </span><span class="nt">fallback</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;DisarmMode&quot;</span>
+<span class="linenos">13</span><span class="w">         </span><span class="nt">disarm_service</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;fmu/kill_switch&quot;</span>
+<span class="linenos">14</span><span class="w">      </span><span class="nt">ArmMode</span><span class="p">:</span>
+<span class="linenos">15</span><span class="w">         </span><span class="nt">valid_transitions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;DisarmMode&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;CustomWaypointMode&quot;</span><span class="p p-Indicator">]</span>
+<span class="linenos">16</span><span class="w">         </span><span class="nt">fallback</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;DisarmMode&quot;</span>
+<span class="linenos">17</span><span class="w">         </span><span class="nt">geofencing_violation_fallback</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;DisarmMode&quot;</span>
+<span class="linenos">18</span><span class="w">         </span><span class="nt">arm_service</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;fmu/arm&quot;</span>
+<span class="linenos">19</span><span class="w">         </span><span class="nt">offboard_service</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;fmu/offboard&quot;</span>
+<span class="linenos">20</span><span class="w">      </span><span class="nt">HoldMode</span><span class="p">:</span>
+<span class="linenos">21</span><span class="w">         </span><span class="nt">valid_transitions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;LandMode&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;CustomWaypointMode&quot;</span><span class="p p-Indicator">]</span>
+<span class="linenos">22</span><span class="w">         </span><span class="nt">fallback</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;LandMode&quot;</span>
+<span class="hll"><span class="linenos">23</span><span class="w">      </span><span class="nt">LandMode</span><span class="p">:</span>
+</span><span class="hll"><span class="linenos">24</span><span class="w">         </span><span class="nt">valid_transitions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;DisarmMode&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;ArmMode&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;TakeoffMode&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;HoldMode&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;WaypointMode&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;FollowTrajectoryMode&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;PassThroughMode&quot;</span><span class="p p-Indicator">]</span>
+</span><span class="hll"><span class="linenos">25</span><span class="w">         </span><span class="nt">fallback</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;HoldMode&quot;</span>
+</span><span class="hll"><span class="linenos">26</span><span class="w">         </span><span class="nt">on_finish</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;DisarmMode&quot;</span>
+</span><span class="linenos">27</span><span class="w">         </span><span class="nt">land_speed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.2</span><span class="w"> </span><span class="c1"># m/s</span>
+<span class="linenos">28</span><span class="w">         </span><span class="nt">land_detected_treshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span><span class="w"> </span><span class="c1"># m/s</span>
+<span class="linenos">29</span><span class="w">         </span><span class="nt">countdown_to_disarm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3.0</span><span class="w"> </span><span class="c1"># s</span>
+<span class="linenos">30</span><span class="w">      </span><span class="nt">CustomWaypointMode</span><span class="p">:</span>
+<span class="linenos">31</span><span class="w">         </span><span class="nt">valid_transitions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;HoldMode&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;LandMode&quot;</span><span class="p p-Indicator">]</span>
+<span class="linenos">32</span><span class="w">         </span><span class="nt">fallback</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;HoldMode&quot;</span>
+<span class="linenos">33</span><span class="w">         </span><span class="nt">waypoint_topic</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;waypoint&quot;</span>
+<span class="linenos">34</span><span class="w">      </span><span class="c1"># Topics configurations for the autopilot to communicate with the rest of the system</span>
+<span class="linenos">35</span><span class="w">      </span><span class="nt">publishers</span><span class="p">:</span>
+<span class="linenos">36</span><span class="w">         </span><span class="nt">control_position</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;fmu/in/position&quot;</span>
+<span class="linenos">37</span><span class="w">         </span><span class="nt">control_attitude</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;fmu/in/force/attitude&quot;</span>
+<span class="linenos">38</span><span class="w">         </span><span class="nt">control_attitude_rate</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;fmu/in/force/attitude_rate&quot;</span>
+<span class="linenos">39</span><span class="w">         </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;autopilot/status&quot;</span>
+<span class="linenos">40</span><span class="w">      </span><span class="nt">subscribers</span><span class="p">:</span>
+<span class="linenos">41</span><span class="w">         </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;fmu/filter/state&quot;</span>
+<span class="linenos">42</span><span class="w">         </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;fmu/status&quot;</span>
+<span class="linenos">43</span><span class="w">         </span><span class="nt">constants</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;fmu/constants&quot;</span>
+<span class="linenos">44</span><span class="w">      </span><span class="nt">services</span><span class="p">:</span>
+<span class="linenos">45</span><span class="w">         </span><span class="nt">set_mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;autopilot/change_mode&quot;</span>
+<span class="linenos">46</span><span class="w">      </span><span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+<span class="linenos">47</span><span class="w">      </span><span class="c1"># Definition of the controller that will perform the tracking of references of the different operation modes</span>
+<span class="linenos">48</span><span class="w">      </span><span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+<span class="linenos">49</span><span class="w">      </span><span class="nt">controller</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;OnboardController&quot;</span>
+<span class="linenos">50</span><span class="w">      </span><span class="nt">OnboardController</span><span class="p">:</span>
+<span class="linenos">51</span><span class="w">         </span><span class="nt">publishers</span><span class="p">:</span>
+<span class="linenos">52</span><span class="w">            </span><span class="nt">control_position</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;fmu/in/position&quot;</span>
+<span class="linenos">53</span><span class="w">            </span><span class="nt">control_attitude</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;fmu/in/force/attitude&quot;</span>
+<span class="linenos">54</span><span class="w">            </span><span class="nt">control_attitude_rate</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;fmu/in/force/attitude_rate&quot;</span>
+<span class="linenos">55</span><span class="w">      </span><span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+<span class="linenos">56</span><span class="w">      </span><span class="c1"># Definition of the geofencing mechanism that will keep the vehicle in safe places</span>
+<span class="linenos">57</span><span class="w">      </span><span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+<span class="linenos">58</span><span class="w">      </span><span class="nt">geofencing</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;BoxGeofencing&quot;</span>
+<span class="linenos">59</span><span class="w">      </span><span class="nt">BoxGeofencing</span><span class="p">:</span>
+<span class="linenos">60</span><span class="w">         </span><span class="nt">limits_x</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">-10.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">10.0</span><span class="p p-Indicator">]</span>
+<span class="linenos">61</span><span class="w">         </span><span class="nt">limits_y</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">-10.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">10.0</span><span class="p p-Indicator">]</span>
+<span class="linenos">62</span><span class="w">         </span><span class="nt">limits_z</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">-10.0</span><span class="p p-Indicator">,</span><span class="w">  </span><span class="nv">1.0</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="c1"># NED Coordinades (z-negative is up)</span>
+<span class="linenos">63</span><span class="w">      </span><span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+<span class="linenos">64</span><span class="w">      </span><span class="c1"># Definition of the trajectory manager that generates parameterized trajectories to be followed</span>
+<span class="linenos">65</span><span class="w">      </span><span class="c1"># ----------------------------------------------------------------------------------------------------------</span>
+<span class="linenos">66</span><span class="w">      </span><span class="nt">trajectory_manager</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;StaticTrajectoryManager&quot;</span>
+<span class="linenos">67</span><span class="w">      </span><span class="nt">StaticTrajectoryManager</span><span class="p">:</span>
+<span class="linenos">68</span><span class="w">         </span><span class="nt">services</span><span class="p">:</span>
+<span class="linenos">69</span><span class="w">            </span><span class="nt">reset_trajectory</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;autopilot/trajectory/reset&quot;</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="8">
+<li><p>Create a launch file named <code class="docutils literal notranslate"><span class="pre">custom_modes.launch.py</span></code> inside the package directory. This file will launch the autopilot with the configurations provided in the <code class="docutils literal notranslate"><span class="pre">custom_modes.yaml</span></code> file.</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a launch file inside the package directory</span>
+touch<span class="w"> </span>launch/custom_modes.launch.py
+</pre></div>
+</div>
+<p>The content of the <code class="docutils literal notranslate"><span class="pre">custom_modes.launch.py</span></code> file should be as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">from</span> <span class="nn">launch</span> <span class="kn">import</span> <span class="n">LaunchDescription</span>
+<span class="linenos"> 2</span><span class="kn">from</span> <span class="nn">launch_ros.actions</span> <span class="kn">import</span> <span class="n">Node</span>
+<span class="linenos"> 3</span><span class="kn">from</span> <span class="nn">launch.actions</span> <span class="kn">import</span> <span class="n">DeclareLaunchArgument</span>
+<span class="linenos"> 4</span><span class="kn">from</span> <span class="nn">launch.substitutions</span> <span class="kn">import</span> <span class="n">LaunchConfiguration</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="k">def</span> <span class="nf">generate_launch_description</span><span class="p">():</span>
+<span class="linenos"> 7</span>   <span class="k">return</span> <span class="n">LaunchDescription</span><span class="p">([</span>
+<span class="linenos"> 8</span>      <span class="n">DeclareLaunchArgument</span><span class="p">(</span>
+<span class="linenos"> 9</span>         <span class="s1">&#39;config_file&#39;</span><span class="p">,</span>
+<span class="linenos">10</span>         <span class="n">default_value</span><span class="o">=</span><span class="s1">&#39;custom_modes.yaml&#39;</span><span class="p">,</span>
+<span class="linenos">11</span>         <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Path to the configuration file for the autopilot&#39;</span>
+<span class="linenos">12</span>      <span class="p">),</span>
+<span class="linenos">13</span>      <span class="n">Node</span><span class="p">(</span>
+<span class="linenos">14</span>         <span class="n">package</span><span class="o">=</span><span class="s1">&#39;autopilot&#39;</span><span class="p">,</span>
+<span class="linenos">15</span>         <span class="n">executable</span><span class="o">=</span><span class="s1">&#39;autopilot_node&#39;</span><span class="p">,</span>
+<span class="linenos">16</span>         <span class="n">name</span><span class="o">=</span><span class="s1">&#39;autopilot&#39;</span><span class="p">,</span>
+<span class="linenos">17</span>         <span class="n">output</span><span class="o">=</span><span class="s1">&#39;screen&#39;</span><span class="p">,</span>
+<span class="linenos">18</span>         <span class="n">parameters</span><span class="o">=</span><span class="p">[</span><span class="n">LaunchConfiguration</span><span class="p">(</span><span class="s1">&#39;config_file&#39;</span><span class="p">)]</span>
+<span class="linenos">19</span>      <span class="p">)</span>
+<span class="linenos">20</span>   <span class="p">])</span>
 </pre></div>
 </div>
 </section>
