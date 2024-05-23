@@ -17,6 +17,8 @@
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"]], "displayMath": [["\\[", "\\]"]]}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -55,9 +57,10 @@
 <li class="toctree-l1"><a class="reference internal" href="controllers.html">Controllers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="geofencing.html">Geofencing</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Trajectory Manager</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#definition-of-the-trajectory-interface">0. Definition of the Trajectory Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#provided-trajectories">1. Provided Trajectories</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#adding-custom-static-trajectories">2. Adding Custom Static Trajectories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mathematical-background">0. Mathematical Background</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#definition-of-the-trajectory-interface">1. Definition of the Trajectory Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#provided-trajectories">2. Provided Trajectories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#adding-custom-static-trajectories">3. Adding Custom Static Trajectories</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../console/terminal_console.html">Terminal console</a></li>
@@ -109,8 +112,33 @@
              
   <section id="trajectory-manager">
 <h1>Trajectory Manager<a class="headerlink" href="#trajectory-manager" title="Permalink to this heading"></a></h1>
+<p>In this section, we explain how the define parametric paths or trajectories to be followed by the vehicle.</p>
+<section id="mathematical-background">
+<h2>0. Mathematical Background<a class="headerlink" href="#mathematical-background" title="Permalink to this heading"></a></h2>
+<p>Consider an arbitrary path/trajectory parameterized by a parameter <span class="math notranslate nohighlight">\(\gamma(t)\)</span> given by the Trajectory Manager. Consider the desired position to be given by <span class="math notranslate nohighlight">\(p_d(\gamma) \in \mathbb{R}^3\)</span>, such that:</p>
+<ol class="arabic">
+<li><p>The desired velocity to be tracked in the inertial frame is given by</p>
+<div class="math notranslate nohighlight">
+\[\dot{p}_d(\gamma) = \frac{\partial p_d(\gamma)}{\partial \gamma}\dot{\gamma}\]</div>
+</li>
+<li><p>The desired acceleration to be tracked in the inertial frame is given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\ddot{p}_d(\gamma) &amp;=\frac{d}{dt} \left(\frac{\partial p_d(\gamma)}{\partial \gamma}\dot{\gamma}\right) \\
+                   &amp;= \frac{d}{dt} \left(\frac{\partial p_d(\gamma)}{\partial \gamma}\right)\dot{\gamma} + \frac{\partial p_d(\gamma)}{\partial \gamma} \ddot{\gamma}\\
+                   &amp;= \frac{\partial p_d^2(\gamma)}{\partial \gamma^2}\dot{\gamma}^2 + \frac{\partial p_d(\gamma)}{\partial \gamma} \ddot{\gamma}\end{split}\]</div>
+</li>
+<li><p>The desired jerk to be tracked in the inertial frame is given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\dddot{p}_d(\gamma) &amp;= \frac{d}{dt}\left(\frac{\partial p_d^2(\gamma)}{\partial \gamma^2}\dot{\gamma}^2 + \frac{\partial p_d(\gamma)}{\partial \gamma} \ddot{\gamma}\right) \\
+                    &amp;=  \frac{d}{dt}\left(\frac{\partial p_d^2(\gamma)}{\partial \gamma^2}\dot{\gamma}^2\right) + \frac{d}{dt}\left(\frac{\partial p_d(\gamma)}{\partial \gamma} \ddot{\gamma}\right) \\
+                    &amp;= \frac{\partial p_d^3(\gamma)}{\partial \gamma^3}\dot{\gamma}^3 + 2\frac{\partial p_d^2(\gamma)}{\partial \gamma^2}\dot{\gamma}\ddot{\gamma} +
+                    \frac{\partial p_d^2(\gamma)}{\partial \gamma^2} \dot{\gamma}\ddot{\gamma} + \frac{\partial p_d(\gamma)}{\partial \gamma} \dddot{\gamma} \\
+                    &amp;= \frac{\partial p_d^3(\gamma)}{\partial \gamma^3}\dot{\gamma}^3 + 3\frac{\partial p_d^2(\gamma)}{\partial \gamma^2}\dot{\gamma}\ddot{\gamma} + \frac{\partial p_d(\gamma)}{\partial \gamma} \dddot{\gamma}\end{split}\]</div>
+</li>
+</ol>
+</section>
 <section id="definition-of-the-trajectory-interface">
-<h2>0. Definition of the Trajectory Interface<a class="headerlink" href="#definition-of-the-trajectory-interface" title="Permalink to this heading"></a></h2>
+<h2>1. Definition of the Trajectory Interface<a class="headerlink" href="#definition-of-the-trajectory-interface" title="Permalink to this heading"></a></h2>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="k">namespace</span><span class="w"> </span><span class="nn">autopilot</span><span class="w"> </span><span class="p">{</span>
 <span class="linenos">  2</span>
 <span class="linenos">  3</span><span class="cm">/**</span>
@@ -243,11 +271,11 @@
 </div>
 </section>
 <section id="provided-trajectories">
-<h2>1. Provided Trajectories<a class="headerlink" href="#provided-trajectories" title="Permalink to this heading"></a></h2>
+<h2>2. Provided Trajectories<a class="headerlink" href="#provided-trajectories" title="Permalink to this heading"></a></h2>
 <p>TODO</p>
 </section>
 <section id="adding-custom-static-trajectories">
-<h2>2. Adding Custom Static Trajectories<a class="headerlink" href="#adding-custom-static-trajectories" title="Permalink to this heading"></a></h2>
+<h2>3. Adding Custom Static Trajectories<a class="headerlink" href="#adding-custom-static-trajectories" title="Permalink to this heading"></a></h2>
 <p>TODO</p>
 </section>
 </section>
