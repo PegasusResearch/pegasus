@@ -42,3 +42,10 @@ can render the system globally assymptotically stable (GAS). From the equality
 
 we can take the total thrust (in Newton) to be given by :math:`T = || u ||`` and the body z-axis of the vehicle
 to be given by :math:`z_b = R e_3 = \frac{u}{||u||}`.
+
+The corresponding code is implemented in:
+
+.. literalinclude:: ../../../pegasus_autopilot/autopilot_controllers/src/pid_controller.cpp
+   :language: c++
+   :lines: 109-145
+   :lineno-start: 1
