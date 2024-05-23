@@ -122,10 +122,7 @@ void FollowTrajectoryMode::update_reference(double dt) {
     desired_position_ = trajectory_manager_->pd(gamma_);
     desired_velocity_ = trajectory_manager_->d_pd(gamma_) * d_gamma_;
     desired_acceleration_ = (trajectory_manager_->d2_pd(gamma_) * std::pow(d_gamma_, 2)) + (trajectory_manager_->d_pd(gamma_) * std::pow(d2_gamma_, 2));
-    desired_jerk_ = (trajectory_manager_->d3_pd(gamma_) * std::pow(d_gamma_, 3))
-        + (2 * trajectory_manager_->d2_pd(gamma_) * d_gamma_ * d2_gamma_)
-        + (trajectory_manager_->d2_pd(gamma_) * d2_gamma_)
-        + (trajectory_manager_->d_pd(gamma_) * d3_gamma_);
+    desired_jerk_ = (trajectory_manager_->d3_pd(gamma_) * std::pow(d_gamma_, 3)) + (3 * trajectory_manager_->d2_pd(gamma_) * d_gamma_ * d2_gamma_) + (trajectory_manager_->d_pd(gamma_) * d3_gamma_);
 
     // Get the desired yaw and yaw_rate from the trajectory
     desired_yaw_ = Pegasus::Rotations::rad_to_deg(trajectory_manager_->yaw(gamma_));
