@@ -161,6 +161,12 @@ To get the desired total thrust to apply to the vehicle, we must project the des
 
    T = F_{des} \cdot z_b
 
+From the Newton's equation of motion, we also have that
+
+.. math::
+
+   \frac{T}{m}Re_3 = -a + ge_3 \Rightarrow T = m ||-a + ge_3|| 
+
 To compute the desired angular velocity, we must first obtain an expression of the dynamics in terms of the jerk. Take the time-derivative of Newton's linear motion equation to get
 
 .. math::
@@ -168,7 +174,8 @@ To compute the desired angular velocity, we must first obtain an expression of t
       \frac{d}{dt}(ma) &= \frac{d}{dt}(mge_3) - \frac{d}{dt}(TRe_3) \\
       \Leftrightarrow m\dot{a} &= -\dot{T}Re_3 - T\frac{d}{dt}\Big(Re_3 \Big) \\
                                &= -\dot{T}Re_3 - T\dot{R}e_3 \\
-                               &= -\dot{T}Re_3 - TR(\omega)_{\times} e_3
+                               &= -\dot{T}Re_3 - TR(\omega)_{\times} e_3 \\
+                               &= -\dot{T}Re_3 - m ||-a + ge_3|| R(\omega)_{\times} e_3
 
 where :math:`(\omega)_{\times}` is the skew-symmetric matrix of the angular velocity vector.
 
