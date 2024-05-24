@@ -37,7 +37,6 @@
           kp: [8.0, 8.0, 8.0]   # Proportional gain
           kd: [3.0, 3.0, 3.0]   # Derivative gain
           ki: [0.2, 0.2, 0.1]   # Integral gain
-          kff: [1.0, 1.0, 1.0]  # Feed-forward gain
           min_output: [-20.0, -20.0, -20.0] # Minimum output of each PID
           max_output: [ 20.0,  20.0,  20.0]
       MellingerController:

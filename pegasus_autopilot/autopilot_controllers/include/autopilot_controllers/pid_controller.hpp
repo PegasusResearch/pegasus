@@ -78,6 +78,20 @@ public:
     
 protected:
 
+    /**
+     * @brief Method that given a desired acceleration to apply to the multirotor,
+     * its mass and desired yaw angle (in radian), computes the desired attitude to apply to the vehicle.
+     * It returns an Eigen::Vector4d object which contains [roll, pitch, yaw, thrust]
+     * with each element expressed in the following units [rad, rad, rad, Newton] respectively.
+     * 
+     * @param u The desired acceleration to apply to the vehicle in m/s^2
+     * @param mass The mass of the vehicle in Kg
+     * @param yaw The desired yaw angle of the vehicle in radians
+     * @return Eigen::Vector4d object which contains [roll, pitch, yaw, thrust]
+     * with each element expressed in the following units [rad, rad, rad, Newton] respectively.
+     */
+    Eigen::Vector4d get_attitude_thrust_from_acceleration(const Eigen::Vector3d & u, double mass, double yaw);
+    
     // Update the statistics of the PID controllers
     void update_statistics(const Eigen::Vector3d & position_ref);
 
