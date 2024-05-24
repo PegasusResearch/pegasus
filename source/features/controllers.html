@@ -319,30 +319,28 @@ This is the same algorithm used in <span id="id1">[<a class="reference internal"
 <span class="linenos">37</span><span class="p">}</span>
 </pre></div>
 </div>
-<p>The code for converting the desired acceleration into a set of desired roll and pitch angles + total thrust is implemented in
-<code class="docutils literal notranslate"><span class="pre">pegasus_addons/thrust_curves/include/thrust_curves/acceleration_to_attitude.hpp</span></code>. The code is shown below:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kr">inline</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector4d</span><span class="w"> </span><span class="nf">get_attitude_thrust_from_acceleration</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">acceleration</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">mass</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">yaw</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<p>The code for converting the desired acceleration into a set of desired roll and pitch angles + total thrust is shown below:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector4d</span><span class="w"> </span><span class="nf">PIDController::get_attitude_thrust_from_acceleration</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">mass</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">yaw</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="linenos"> 2</span>
 <span class="linenos"> 3</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Matrix3d</span><span class="w"> </span><span class="n">RzT</span><span class="p">;</span>
-<span class="linenos"> 4</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">r3d</span><span class="p">,</span><span class="w"> </span><span class="n">u_bar</span><span class="p">;</span>
+<span class="linenos"> 4</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">r3d</span><span class="p">;</span>
 <span class="linenos"> 5</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector4d</span><span class="w"> </span><span class="n">attitude_thrust</span><span class="p">;</span>
 <span class="linenos"> 6</span>
 <span class="linenos"> 7</span><span class="w">    </span><span class="cm">/* Compute the normalized thrust and r3d vector */</span>
-<span class="linenos"> 8</span><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mass</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">acceleration</span><span class="p">.</span><span class="n">norm</span><span class="p">();</span>
-<span class="linenos"> 9</span><span class="w">    </span><span class="n">r3d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">acceleration</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">acceleration</span><span class="p">.</span><span class="n">norm</span><span class="p">();</span>
-<span class="linenos">10</span>
-<span class="linenos">11</span><span class="w">    </span><span class="cm">/* Compute the rotation matrix about the Z-axis */</span>
-<span class="linenos">12</span><span class="w">    </span><span class="n">RzT</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">cos</span><span class="p">(</span><span class="n">yaw</span><span class="p">),</span><span class="w"> </span><span class="n">sin</span><span class="p">(</span><span class="n">yaw</span><span class="p">),</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
-<span class="linenos">13</span><span class="w">          </span><span class="o">-</span><span class="n">sin</span><span class="p">(</span><span class="n">yaw</span><span class="p">),</span><span class="w"> </span><span class="n">cos</span><span class="p">(</span><span class="n">yaw</span><span class="p">),</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
-<span class="linenos">14</span><span class="w">                </span><span class="mf">0.0</span><span class="p">,</span><span class="w">      </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
-<span class="linenos">15</span>
-<span class="linenos">16</span><span class="w">    </span><span class="cm">/* Compute the normalized rotation */</span>
-<span class="linenos">17</span><span class="w">    </span><span class="n">u_bar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RzT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">r3d</span><span class="p">;</span>
-<span class="linenos">18</span>
-<span class="linenos">19</span><span class="w">    </span><span class="cm">/* Compute the actual attitude and setup the desired thrust to apply to the vehicle */</span>
-<span class="linenos">20</span><span class="w">    </span><span class="n">attitude_thrust</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">asin</span><span class="p">(</span><span class="o">-</span><span class="n">u_bar</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span><span class="w"> </span><span class="n">atan2</span><span class="p">(</span><span class="n">u_bar</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">u_bar</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span><span class="w"> </span><span class="n">yaw</span><span class="p">,</span><span class="w"> </span><span class="n">T</span><span class="p">;</span>
-<span class="linenos">21</span><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">attitude_thrust</span><span class="p">;</span>
-<span class="linenos">22</span><span class="p">}</span>
+<span class="linenos"> 8</span><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mass</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">norm</span><span class="p">();</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="w">    </span><span class="cm">/* Compute the rotation matrix about the Z-axis */</span>
+<span class="linenos">11</span><span class="w">    </span><span class="n">RzT</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">cos</span><span class="p">(</span><span class="n">yaw</span><span class="p">),</span><span class="w"> </span><span class="n">sin</span><span class="p">(</span><span class="n">yaw</span><span class="p">),</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="linenos">12</span><span class="w">          </span><span class="o">-</span><span class="n">sin</span><span class="p">(</span><span class="n">yaw</span><span class="p">),</span><span class="w"> </span><span class="n">cos</span><span class="p">(</span><span class="n">yaw</span><span class="p">),</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="linenos">13</span><span class="w">                </span><span class="mf">0.0</span><span class="p">,</span><span class="w">      </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
+<span class="linenos">14</span>
+<span class="linenos">15</span><span class="w">    </span><span class="cm">/* Compute the normalized rotation */</span>
+<span class="linenos">16</span><span class="w">    </span><span class="n">r3d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">RzT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">u</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">norm</span><span class="p">();</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span><span class="w">    </span><span class="cm">/* Compute the actual attitude and setup the desired thrust to apply to the vehicle */</span>
+<span class="linenos">19</span><span class="w">    </span><span class="n">attitude_thrust</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">asin</span><span class="p">(</span><span class="o">-</span><span class="n">r3d</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span><span class="w"> </span><span class="n">atan2</span><span class="p">(</span><span class="n">r3d</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">r3d</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span><span class="w"> </span><span class="n">yaw</span><span class="p">,</span><span class="w"> </span><span class="n">T</span><span class="p">;</span>
+<span class="linenos">20</span><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">attitude_thrust</span><span class="p">;</span>
+<span class="linenos">21</span><span class="p">}</span>
 </pre></div>
 </div>
 <div class="admonition-integral-action admonition">
@@ -352,6 +350,182 @@ This is the same algorithm used in <span id="id1">[<a class="reference internal"
 </section>
 <section id="mellinger-controller-mathematical-background">
 <h2>2. Mellinger Controller - Mathematical Background<a class="headerlink" href="#mellinger-controller-mathematical-background" title="Permalink to this heading"></a></h2>
+<p>In this section we detail the mathematical background for the Mellinger controller that is implemented in the Pegasus Autopilot, which sends attitude-rate and total thrust coomands for the inner-loops of the vehicle to track.
+This is an adapted version of the algorithm proposed in <span id="id2">[<a class="reference internal" href="../references/bibliography.html#id4" title="Daniel Mellinger and Vijay Kumar. Minimum snap trajectory generation and control for quadrotors. In 2011 IEEE International Conference on Robotics and Automation, volume, 2520-2525. 2011. doi:10.1109/ICRA.2011.5980409.">MK11</a>, <a class="reference internal" href="../references/bibliography.html#id5" title="João Pinto, Bruno J Guerreiro, and Rita Cunha. Planning Parcel Relay Manoeuvres for Quadrotors. In 2021 International Conference on Unmanned Aircraft Systems (ICUAS), 137–145. IEEE, 2021.">PGC21</a>]</span>.</p>
+<p>Consider the linear motion of the vehicle to be described by Newton’s equation of motion</p>
+<div class="math notranslate nohighlight">
+\[m\dot{v} = mge_3 - TRe_3\]</div>
+<p>Consider the position and velocity trackign error given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}e_p &amp;= p - p_d \\
+\dot{e}_p &amp;= e_v = v - v_d\end{split}\]</div>
+<p>Consider the total force to be applied to the vehicle body to be given by</p>
+<div class="math notranslate nohighlight">
+\[F_{des} = -K_p e_p - K_d e_v - mge_3 + m\ddot{p}_d\]</div>
+<p>Next, compute the desired <span class="math notranslate nohighlight">\(z_b\)</span> axis direction from the desired total force vector</p>
+<div class="math notranslate nohighlight">
+\[z_b^{des} = -\frac{F_{des}}{||F_{des}||}\]</div>
+<div class="admonition-reference-frames admonition">
+<p class="admonition-title">Reference Frames</p>
+<p>Reminder that the reference frames are defined as follows:
+- The inertial frame <span class="math notranslate nohighlight">\(\mathcal{I}\)</span> is defined according to the North-East-Down (NED) convention.
+- The body frame: <span class="math notranslate nohighlight">\(\mathcal{B}\)</span> is defined according to the Forward-Right-Down (FRD) convention.</p>
+<p>Therefore, a minus sign appears in the <span class="math notranslate nohighlight">\(z_b^{des}\)</span> as the body z-axis is pointing downwards, but the force vector is pointing in the oposite direction.</p>
+</div>
+<p>From the desired yaw angle <span class="math notranslate nohighlight">\(\psi_{des}\)</span> reference of the body aligned with the inertial frame, we can compute</p>
+<div class="math notranslate nohighlight">
+\[y_c = \begin{bmatrix} -sin(\psi_{des}) &amp; cos(\psi_{des}) &amp; 0 \end{bmatrix}^\top\]</div>
+<p>The desired <span class="math notranslate nohighlight">\(x_b^{des}\)</span> axis direction is then given by</p>
+<div class="math notranslate nohighlight">
+\[x_b^{des} = \frac{y_c^{des} \times z_b^{des}}{||y_c^{des} \times z_b^{des}||}\]</div>
+<p>Finally, the desired <span class="math notranslate nohighlight">\(y_b^{des}\)</span> axis direction is given by</p>
+<div class="math notranslate nohighlight">
+\[y_b^{des} = z_b^{des} \times x_b^{des}\]</div>
+<p>The desired attitute of the vehicle can then be encoded in the rotation matrix</p>
+<div class="math notranslate nohighlight">
+\[R_{des} = \begin{bmatrix} x_b^{des} &amp; y_b^{des} &amp; z_b^{des} \end{bmatrix}  \text{ and } R = \begin{bmatrix} x_b &amp; y_b &amp; z_b \end{bmatrix}\]</div>
+<p>The rotation error can be computed according to</p>
+<div class="math notranslate nohighlight">
+\[e_R = \frac{1}{2}(R_{des}^\top R - R^\top R_{des})^\vee\]</div>
+<p>where <span class="math notranslate nohighlight">\(R\)</span> is the current rotation matrix of the vehicle. The operator <span class="math notranslate nohighlight">\(\vee\)</span> is the vee operator that maps a skew-symmetric matrix to a vector and it is defined as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix} 0 &amp; -a_3 &amp; a_2 \\ a_3 &amp; 0 &amp; -a_1 \\ -a_2 &amp; a_1 &amp; 0 \end{bmatrix}^\vee = \begin{bmatrix} a_1 \\ a_2 \\ a_3 \end{bmatrix}\end{split}\]</div>
+<p>To get the desired total thrust to apply to the vehicle, we must project the desired force vector into actual the body z-axis direction (not the desired one that we computed before). This is done by</p>
+<div class="math notranslate nohighlight">
+\[T = -F_{des} \cdot z_b\]</div>
+<p>To derive the references for the attitude-rate in order to drive the attitude error to zero, we must first compute the feed-forward terms for the desired angular velocity. From the Newton’s equation of motion, we also have that</p>
+<div class="math notranslate nohighlight">
+\[\frac{T}{m}\underbrace{Re_3}_{z_b} = -a + ge_3 \Rightarrow T = m z_b^{\top}(-a + ge_3)\]</div>
+<p>To compute the desired angular velocity, we must first obtain an expression of the dynamics in terms of the jerk. Take the time-derivative of Newton’s linear motion equation to get</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\frac{d}{dt}(ma) &amp;= \frac{d}{dt}(mge_3) - \frac{d}{dt}(TRe_3) \\
+\Leftrightarrow m j = m\dot{a} &amp;= -\dot{T}Re_3 - T\frac{d}{dt}\Big(Re_3 \Big) \\
+                         &amp;= -\dot{T}Re_3 - T\dot{R}e_3 \\
+                         &amp;= -\dot{T}z_b - TR(\omega)_{\times} e_3 \\
+                         &amp;= -\dot{T}z_b + T R(e_3)_{\times}\omega  \\
+                         &amp;= -\dot{T}z_b + T R \begin{bmatrix} -q \\ p \\ 0\end{bmatrix} \\
+                         &amp;= -\dot{T}z_b + T (-q x_b + p y_b)\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\((\omega)_{\times}\)</span> is the skew-symmetric matrix of the angular velocity vector, and <span class="math notranslate nohighlight">\(\omega = \begin{bmatrix}p &amp; q &amp; r\end{bmatrix}^\top\)</span>.</p>
+<ul class="simple">
+<li><p>If we left multiply the jerk equation by <span class="math notranslate nohighlight">\(x_b^{\top}\)</span> we get</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}m x_b^{\top}j &amp;= \underbrace{-\dot{T}x_b^{\top}z_b}_{0} + T (\underbrace{-q x_b^\top x_b}_{-q} + \underbrace{p y_b^\top x_b}_{0}) \\
+\Leftrightarrow q &amp;= -\frac{m}{T}x_b^{\top}j\end{split}\]</div>
+<ul class="simple">
+<li><p>If we left multiply the jerk equation by <span class="math notranslate nohighlight">\(y_b^{\top}\)</span> we get</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}m y_b^{\top}j &amp;= \underbrace{-\dot{T}y_b^{\top}z_b}_{0} + T (\underbrace{-q x_b^\top y_b}_{0} + \underbrace{p y_b^\top y_b}_{p}) \\
+\Leftrightarrow p &amp;= \frac{m}{T}y_b^{\top}j\end{split}\]</div>
+<ul class="simple">
+<li><p>To get the yaw-rate, it is enough to consider the desired yaw-rate reference <span class="math notranslate nohighlight">\(\dot{\psi}_{des}\)</span>. Then the desired angular velocity about the z-axis is given by</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[r = \dot{\psi}_{des} e_3^\top z_b\]</div>
+<div class="admonition-feed-forward-references admonition">
+<p class="admonition-title">Feed-forward references</p>
+<p>Note that we have expressed <span class="math notranslate nohighlight">\(p\)</span>, <span class="math notranslate nohighlight">\(q\)</span> and <span class="math notranslate nohighlight">\(r\)</span> angular-velocities as a function of <span class="math notranslate nohighlight">\(x_b\)</span>, <span class="math notranslate nohighlight">\(y_b\)</span> and <span class="math notranslate nohighlight">\(z_b\)</span> axis, but our goal is to get the desired feed-forward
+terms for the angular velocities to feed to a proportional controller. Therefore, we must compute <span class="math notranslate nohighlight">\(p_{des}\)</span>, <span class="math notranslate nohighlight">\(q_{des}\)</span> and <span class="math notranslate nohighlight">\(r_{des}\)</span> using <span class="math notranslate nohighlight">\(x_b^{des}\)</span>, <span class="math notranslate nohighlight">\(y_b^{des}\)</span> and <span class="math notranslate nohighlight">\(z_b^{des}\)</span>.</p>
+</div>
+<p>Finally, the desired angular velocity is given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\omega_{des} = \begin{bmatrix} p_{des} \\ q_{des} \\ r_{des} \end{bmatrix} = \begin{bmatrix} \frac{m}{T}{y^{des}_b}^{\top}j \\ -\frac{m}{T}{x^{des}_b}^{\top}j \\ \dot{\psi}_{des} e_3^\top z_b^{des} \end{bmatrix}\end{split}\]</div>
+<p>Finally, the reference for the attitude-rate controller is given by</p>
+<div class="math notranslate nohighlight">
+\[\omega_{ref} = \omega_{des} - K_R e_R\]</div>
+<p>The corresponding code for this controller is implemented in <code class="docutils literal notranslate"><span class="pre">pegasus_autopilot/autopilot_controllers/src/mellinger_controller.cpp</span></code>. The code is shown below:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kt">void</span><span class="w"> </span><span class="nf">MellingerController::set_position</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="o">&amp;</span><span class="w"> </span><span class="n">position</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="o">&amp;</span><span class="w"> </span><span class="n">velocity</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="o">&amp;</span><span class="w"> </span><span class="n">acceleration</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="o">&amp;</span><span class="w"> </span><span class="n">jerk</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="o">&amp;</span><span class="w"> </span><span class="n">snap</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">yaw</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">yaw_rate</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">dt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="w">    </span><span class="c1">// Ignore snap references</span>
+<span class="linenos"> 4</span><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="n">snap</span><span class="p">;</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="w">    </span><span class="c1">// Get the current state of the vehicle</span>
+<span class="linenos"> 7</span><span class="w">    </span><span class="n">State</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_vehicle_state</span><span class="p">();</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="w">    </span><span class="c1">// Get the current attitude in quaternion and generate a rotation matrix</span>
+<span class="linenos">10</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Matrix3d</span><span class="w"> </span><span class="n">R</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">attitude</span><span class="p">.</span><span class="n">toRotationMatrix</span><span class="p">();</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span><span class="w">    </span><span class="c1">// Get the attitude but in euler angles (for debugging purposes only)</span>
+<span class="linenos">13</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">euler_angles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">R</span><span class="p">.</span><span class="n">eulerAngles</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="linenos">14</span>
+<span class="linenos">15</span><span class="w">    </span><span class="c1">// Get the current yaw and yaw-rate from degrees to radians</span>
+<span class="linenos">16</span><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">yaw_rad</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Pegasus</span><span class="o">::</span><span class="n">Rotations</span><span class="o">::</span><span class="n">deg_to_rad</span><span class="p">(</span><span class="n">yaw</span><span class="p">);</span>
+<span class="linenos">17</span><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">yaw_rate_rad</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Pegasus</span><span class="o">::</span><span class="n">Rotations</span><span class="o">::</span><span class="n">deg_to_rad</span><span class="p">(</span><span class="n">yaw_rate</span><span class="p">);</span>
+<span class="linenos">18</span><span class="w">    </span>
+<span class="linenos">19</span><span class="w">    </span><span class="c1">// Compute the position error and velocity error using the path desired position and velocity</span>
+<span class="linenos">20</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">pos_error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">position</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">position</span><span class="p">;</span>
+<span class="linenos">21</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">vel_error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">velocity</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">velocity</span><span class="p">;</span>
+<span class="linenos">22</span>
+<span class="linenos">23</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">external_force</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">);</span>
+<span class="linenos">24</span><span class="w">    </span><span class="n">external_force</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mass_</span><span class="o">*</span><span class="w"> </span><span class="n">acceleration</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="linenos">25</span><span class="w">    </span><span class="n">external_force</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mass_</span><span class="o">*</span><span class="w"> </span><span class="n">acceleration</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+<span class="linenos">26</span><span class="w">    </span><span class="n">external_force</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mass_</span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">acceleration</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">9.81</span><span class="p">);</span>
+<span class="linenos">27</span>
+<span class="linenos">28</span><span class="w">    </span><span class="c1">// Compute the desired force output using a PID scheme</span>
+<span class="linenos">29</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">F_des</span><span class="p">;</span>
+<span class="linenos">30</span><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="n">F_des</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">controllers_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">compute_output</span><span class="p">(</span><span class="n">pos_error</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">vel_error</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">external_force</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">dt</span><span class="p">);</span>
+<span class="linenos">31</span>
+<span class="linenos">32</span><span class="w">    </span><span class="c1">// Compute the desired body-frame axis Z_b (b3d)</span>
+<span class="linenos">33</span><span class="w">    </span><span class="c1">// Check [3-eq.12] for more details</span>
+<span class="linenos">34</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">Z_b_des</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">F_des</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">F_des</span><span class="p">.</span><span class="n">norm</span><span class="p">();</span>
+<span class="linenos">35</span>
+<span class="linenos">36</span><span class="w">    </span><span class="c1">// Compute Y_C</span>
+<span class="linenos">37</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">Y_C</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="p">(</span><span class="o">-</span><span class="n">sin</span><span class="p">(</span><span class="n">yaw_rad</span><span class="p">),</span><span class="w"> </span><span class="n">cos</span><span class="p">(</span><span class="n">yaw_rad</span><span class="p">),</span><span class="w"> </span><span class="mf">0.0</span><span class="p">);</span>
+<span class="linenos">38</span>
+<span class="linenos">39</span><span class="w">    </span><span class="c1">// Compute X_B_des</span>
+<span class="linenos">40</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">X_b_des</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Y_C</span><span class="p">.</span><span class="n">cross</span><span class="p">(</span><span class="n">Z_b_des</span><span class="p">);</span>
+<span class="linenos">41</span><span class="w">    </span><span class="n">X_b_des</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">X_b_des</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">X_b_des</span><span class="p">.</span><span class="n">norm</span><span class="p">();</span>
+<span class="linenos">42</span>
+<span class="linenos">43</span><span class="w">    </span><span class="c1">// Compute Y_B_des</span>
+<span class="linenos">44</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">Y_b_des</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z_b_des</span><span class="p">.</span><span class="n">cross</span><span class="p">(</span><span class="n">X_b_des</span><span class="p">);</span>
+<span class="linenos">45</span><span class="w">    </span><span class="n">Y_b_des</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Y_b_des</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">Y_b_des</span><span class="p">.</span><span class="n">norm</span><span class="p">();</span>
+<span class="linenos">46</span>
+<span class="linenos">47</span><span class="w">    </span><span class="c1">// Compute the desired rotation R_des = [X_b_des | Y_b_des | Z_b_des]</span>
+<span class="linenos">48</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Matrix3d</span><span class="w"> </span><span class="n">R_des</span><span class="p">;</span>
+<span class="linenos">49</span><span class="w">    </span><span class="n">R_des</span><span class="p">.</span><span class="n">col</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">X_b_des</span><span class="p">;</span>
+<span class="linenos">50</span><span class="w">    </span><span class="n">R_des</span><span class="p">.</span><span class="n">col</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Y_b_des</span><span class="p">;</span>
+<span class="linenos">51</span><span class="w">    </span><span class="n">R_des</span><span class="p">.</span><span class="n">col</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Z_b_des</span><span class="p">;</span>
+<span class="linenos">52</span>
+<span class="linenos">53</span><span class="w">    </span><span class="c1">// Get the desired Euler-angles (for debugging purposes only)</span>
+<span class="linenos">54</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">euler_angles_des</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">R_des</span><span class="p">.</span><span class="n">eulerAngles</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="linenos">55</span>
+<span class="linenos">56</span><span class="w">    </span><span class="c1">// Compute the rotation error</span>
+<span class="linenos">57</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Matrix3d</span><span class="w"> </span><span class="n">R_error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">R_des</span><span class="p">.</span><span class="n">transpose</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">R</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="n">R</span><span class="p">.</span><span class="n">transpose</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">R_des</span><span class="p">);</span>
+<span class="linenos">58</span>
+<span class="linenos">59</span><span class="w">    </span><span class="c1">// Compute the vee map of the rotation error and project into the coordinates of the manifold</span>
+<span class="linenos">60</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">e_R</span><span class="p">;</span>
+<span class="linenos">61</span><span class="w">    </span><span class="n">e_R</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="o">-</span><span class="n">R_error</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">R_error</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="o">-</span><span class="n">R_error</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+<span class="linenos">62</span><span class="w">    </span><span class="n">e_R</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.5</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">e_R</span><span class="p">;</span>
+<span class="linenos">63</span>
+<span class="linenos">64</span><span class="w">    </span><span class="c1">// Get the desired total thrust (in Newtons) in Z_B direction (u_1)</span>
+<span class="linenos">65</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">Z_B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">R</span><span class="p">.</span><span class="n">col</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="linenos">66</span><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">F_des</span><span class="p">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Z_B</span><span class="p">);</span>
+<span class="linenos">67</span>
+<span class="linenos">68</span><span class="w">    </span><span class="c1">// Compute the desired angular velocity for the feed-forward terms</span>
+<span class="linenos">69</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">w_des</span><span class="p">;</span>
+<span class="linenos">70</span><span class="w">    </span><span class="n">w_des</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">mass_</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">Y_b_des</span><span class="p">.</span><span class="n">dot</span><span class="p">(</span><span class="n">jerk</span><span class="p">);</span>
+<span class="linenos">71</span><span class="w">    </span><span class="n">w_des</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">mass_</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">X_b_des</span><span class="p">.</span><span class="n">dot</span><span class="p">(</span><span class="n">jerk</span><span class="p">);</span>
+<span class="linenos">72</span><span class="w">    </span><span class="n">w_des</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">yaw_rate_rad</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">Z_b_des</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<span class="linenos">73</span>
+<span class="linenos">74</span><span class="w">    </span><span class="c1">// Compute the target attitude rate</span>
+<span class="linenos">75</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">attitude_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">w_des</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="n">kr_</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">e_R</span><span class="p">);</span>
+<span class="linenos">76</span>
+<span class="linenos">77</span><span class="w">    </span><span class="c1">// Convert the output to rad/s</span>
+<span class="linenos">78</span><span class="w">    </span><span class="n">attitude_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="p">(</span>
+<span class="linenos">79</span><span class="w">        </span><span class="n">Pegasus</span><span class="o">::</span><span class="n">Rotations</span><span class="o">::</span><span class="n">rad_to_deg</span><span class="p">(</span><span class="n">attitude_rate</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="w"> </span>
+<span class="linenos">80</span><span class="w">        </span><span class="n">Pegasus</span><span class="o">::</span><span class="n">Rotations</span><span class="o">::</span><span class="n">rad_to_deg</span><span class="p">(</span><span class="n">attitude_rate</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span><span class="w"> </span>
+<span class="linenos">81</span><span class="w">        </span><span class="n">Pegasus</span><span class="o">::</span><span class="n">Rotations</span><span class="o">::</span><span class="n">rad_to_deg</span><span class="p">(</span><span class="n">attitude_rate</span><span class="p">[</span><span class="mi">2</span><span class="p">]));</span>
+<span class="linenos">82</span>
+<span class="linenos">83</span><span class="w">    </span><span class="c1">// Send the attitude rate and thrust to the attitude-rate controller</span>
+<span class="linenos">84</span><span class="w">    </span><span class="n">set_attitude_rate</span><span class="p">(</span><span class="n">attitude_rate</span><span class="p">,</span><span class="w"> </span><span class="n">T</span><span class="p">);</span>
+<span class="linenos">85</span>
+<span class="linenos">86</span><span class="w">    </span><span class="c1">// Update and publish the statistics</span>
+<span class="linenos">87</span><span class="w">    </span><span class="n">update_statistics</span><span class="p">(</span><span class="n">position</span><span class="p">,</span><span class="w"> </span><span class="n">e_R</span><span class="p">,</span><span class="w"> </span><span class="n">w_des</span><span class="p">,</span><span class="w"> </span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">attitude_rate</span><span class="p">,</span><span class="w"> </span><span class="n">euler_angles</span><span class="p">,</span><span class="w"> </span><span class="n">euler_angles_des</span><span class="p">);</span>
+<span class="linenos">88</span><span class="w">    </span><span class="n">statistics_pub_</span><span class="o">-&gt;</span><span class="n">publish</span><span class="p">(</span><span class="n">statistics_msg_</span><span class="p">);</span>
+<span class="linenos">89</span><span class="p">}</span>
+</pre></div>
+</div>
 </section>
 </section>
 
