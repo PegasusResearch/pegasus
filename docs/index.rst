@@ -27,8 +27,14 @@ Developer Team
 - Architecture
    - `Marcelo Jacinto <https://github.com/MarceloJacinto>`__
    - `João Pinto <https://github.com/jschpinto>`__
+- Controllers
+   - `Marcelo Jacinto <https://github.com/MarceloJacinto>`__
+   - `João Pinto <https://github.com/jschpinto>`__
 - CAD model
    - `Marcelo Jacinto <https://github.com/MarceloJacinto>`__
+- Documentation
+   - `Marcelo Jacinto <https://github.com/MarceloJacinto>`__
+   - `João Pinto <https://github.com/jschpinto>`__
 
 If you find ``Pegasus`` useful in your academic work, please cite the tech report below. It is also available (TODO).
 

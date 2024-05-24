@@ -138,12 +138,12 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
     external_force[2] = mass_* (acceleration[2] - 9.81);
 
     // Compute the desired force output using a PID scheme
-    Eigen::Vector3d u_des;
-    for(unsigned int i=0; i < 3; i++) u_des[i] = controllers_[i]->compute_output(pos_error[i], vel_error[i], external_force[i], dt);
+    Eigen::Vector3d F_des;
+    for(unsigned int i=0; i < 3; i++) F_des[i] = controllers_[i]->compute_output(pos_error[i], vel_error[i], external_force[i], dt);
 
     // Compute the desired body-frame axis Z_b (b3d)
     // Check [3-eq.12] for more details
-    Eigen::Vector3d Z_b_des = -u_des / u_des.norm();
+    Eigen::Vector3d Z_b_des = -F_des / F_des.norm();
 
     // Compute Y_C
     Eigen::Vector3d Y_C = Eigen::Vector3d(-sin(yaw_rad), cos(yaw_rad), 0.0);
@@ -175,17 +175,13 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
 
     // Get the desired total thrust (in Newtons) in Z_B direction (u_1)
     Eigen::Vector3d Z_B = R.col(2);
-    double F_des = u_des.dot(Z_B);
+    double T = -F_des.dot(Z_B);
 
-    // Compute the desired angular velocity by projecting the angular velocity in the Xb-Yb plane
-    // projection of angular velocity on xB - yB plane
-    // see eqn (7) from [2].
-    Eigen::Vector3d hw = (this->mass_ / F_des) * (jerk - (Z_b_des.dot(jerk) * Z_b_des));
-
-    // Compute the desired angular velocity
-    Eigen::Vector3d w_des; 
-    //w_des << -hw.dot(Y_b_des), hw.dot(X_b_des), yaw_rate_rad * Z_b_des[2];
-    w_des << 0.0, 0.0, 0.0;
+    // Compute the desired angular velocity for the feed-forward terms
+    Eigen::Vector3d w_des;
+    w_des(0) =  mass_ / T * Y_b_des.dot(jerk);
+    w_des(1) = -mass_ / T * X_b_des.dot(jerk);
+    w_des(2) = yaw_rate_rad * Z_b_des[2];
 
     // Compute the target attitude rate
     Eigen::Vector3d attitude_rate = w_des - (kr_ * e_R);
@@ -197,18 +193,10 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
         Pegasus::Rotations::rad_to_deg(attitude_rate[2]));
 
     // Send the attitude rate and thrust to the attitude-rate controller
-    set_attitude_rate(attitude_rate, -F_des);
-
-    // For debuging - to be removed
-    // Eigen::Vector3d attitude_target = Eigen::Vector3d(
-    //     Pegasus::Rotations::rad_to_deg(euler_angles_des[2]), 
-    //     Pegasus::Rotations::rad_to_deg(euler_angles_des[1]), 
-    //     Pegasus::Rotations::rad_to_deg(euler_angles_des[0]));
-
-    // set_attitude(attitude_target, -F_des);
+    set_attitude_rate(attitude_rate, T);
 
     // Update and publish the statistics
-    update_statistics(position, e_R, w_des, F_des, attitude_rate, euler_angles, euler_angles_des);
+    update_statistics(position, e_R, w_des, T, attitude_rate, euler_angles, euler_angles_des);
     statistics_pub_->publish(statistics_msg_);
 }
 

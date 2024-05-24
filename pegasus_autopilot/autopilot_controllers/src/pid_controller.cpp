@@ -46,9 +46,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 #include "autopilot_controllers/pid_controller.hpp"
-
 #include <pegasus_utils/rotations.hpp>
-#include <thrust_curves/acceleration_to_attitude.hpp>
 
 namespace autopilot {
 
@@ -60,19 +58,17 @@ void PIDController::initialize() {
     node_->declare_parameter<std::vector<double>>("autopilot.PIDController.gains.kp", std::vector<double>());
     node_->declare_parameter<std::vector<double>>("autopilot.PIDController.gains.kd", std::vector<double>());
     node_->declare_parameter<std::vector<double>>("autopilot.PIDController.gains.ki", std::vector<double>());
-    node_->declare_parameter<std::vector<double>>("autopilot.PIDController.gains.kff", std::vector<double>());
     node_->declare_parameter<std::vector<double>>("autopilot.PIDController.gains.min_output", std::vector<double>());
     node_->declare_parameter<std::vector<double>>("autopilot.PIDController.gains.max_output", std::vector<double>());
 
     auto kp = node_->get_parameter("autopilot.PIDController.gains.kp").as_double_array();
     auto kd = node_->get_parameter("autopilot.PIDController.gains.kd").as_double_array();
     auto ki = node_->get_parameter("autopilot.PIDController.gains.ki").as_double_array();
-    auto kff = node_->get_parameter("autopilot.PIDController.gains.kff").as_double_array();
     auto min_output = node_->get_parameter("autopilot.PIDController.gains.min_output").as_double_array();
     auto max_output = node_->get_parameter("autopilot.PIDController.gains.max_output").as_double_array();
 
     // Safety check on the gains (make sure they are there)
-    if(kp.size() != 3 || kd.size() != 3 || ki.size() != 3 || kff.size() != 3 || min_output.size() != 3 || max_output.size() != 3) {
+    if(kp.size() != 3 || kd.size() != 3 || ki.size() != 3 || min_output.size() != 3 || max_output.size() != 3) {
         RCLCPP_ERROR_STREAM(node_->get_logger(), "Could not read PID position controller gains correctly.");
         throw std::runtime_error("Gains vector was empty");
     }
@@ -81,11 +77,11 @@ void PIDController::initialize() {
     RCLCPP_INFO_STREAM(node_->get_logger(), "PID gains: kp = [" << kp[0] << ", " << kp[1] << ", " << kp[2] << "]");
     RCLCPP_INFO_STREAM(node_->get_logger(), "PID gains: kd = [" << kd[0] << ", " << kd[1] << ", " << kd[2] << "]");
     RCLCPP_INFO_STREAM(node_->get_logger(), "PID gains: ki = [" << ki[0] << ", " << ki[1] << ", " << ki[2] << "]");
-    RCLCPP_INFO_STREAM(node_->get_logger(), "PID gains: kff = [" << kff[0] << ", " << kff[1] << ", " << kff[2] << "]");
     RCLCPP_INFO_STREAM(node_->get_logger(), "PID min_output = [" << min_output[0] << ", " << min_output[1] << ", " << min_output[2] << "]");
     RCLCPP_INFO_STREAM(node_->get_logger(), "PID max_output = [" << max_output[0] << ", " << max_output[1] << ", " << max_output[2] << "]");
 
     // Create the 3 PID controllers for x, y and z axis
+    Eigen::Vector3d kff(1.0, 1.0, 1.0);
     for(unsigned int i=0; i < 3; i++) controllers_[i] = std::make_unique<Pegasus::Pid>(kp[i], kd[i], ki[i], kff[i], min_output[i], max_output[i]);
 
     // Get the mass of the vehicle (used to get the thrust from the acceleration)
@@ -142,6 +138,40 @@ void PIDController::set_position(const Eigen::Vector3d& position, const Eigen::V
     // Update and publish the PID statistics
     update_statistics(position);
     statistics_pub_->publish(pid_statistics_msg_);
+}
+
+/**
+ * @brief Method that given a desired acceleration to apply to the multirotor,
+ * its mass and desired yaw angle (in radian), computes the desired attitude to apply to the vehicle.
+ * It returns an Eigen::Vector4d object which contains [roll, pitch, yaw, thrust]
+ * with each element expressed in the following units [rad, rad, rad, Newton] respectively.
+ * 
+ * @param u The desired acceleration to apply to the vehicle in m/s^2
+ * @param mass The mass of the vehicle in Kg
+ * @param yaw The desired yaw angle of the vehicle in radians
+ * @return Eigen::Vector4d object which contains [roll, pitch, yaw, thrust]
+ * with each element expressed in the following units [rad, rad, rad, Newton] respectively.
+ */
+Eigen::Vector4d PIDController::get_attitude_thrust_from_acceleration(const Eigen::Vector3d & u, double mass, double yaw) {
+
+    Eigen::Matrix3d RzT;
+    Eigen::Vector3d r3d;
+    Eigen::Vector4d attitude_thrust;
+
+    /* Compute the normalized thrust and r3d vector */
+    double T = mass * u.norm();
+
+    /* Compute the rotation matrix about the Z-axis */
+    RzT << cos(yaw), sin(yaw), 0.0,
+          -sin(yaw), cos(yaw), 0.0,
+                0.0,      0.0, 1.0;
+
+    /* Compute the normalized rotation */
+    r3d = -RzT * u / u.norm();
+
+    /* Compute the actual attitude and setup the desired thrust to apply to the vehicle */
+    attitude_thrust << asin(-r3d[1]), atan2(r3d[0], r3d[2]), yaw, T;
+    return attitude_thrust;
 }
 
 void PIDController::update_statistics(const Eigen::Vector3d & position_ref) {

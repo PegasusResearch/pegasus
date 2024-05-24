@@ -74,15 +74,14 @@ The corresponding code for computing the desired acceleration is implemented in 
 
 .. literalinclude:: ../../../pegasus_autopilot/autopilot_controllers/src/pid_controller.cpp
    :language: c++
-   :lines: 109-145
+   :lines: 105-141
    :lineno-start: 1
 
-The code for converting the desired acceleration into a set of desired roll and pitch angles + total thrust is implemented in
-``pegasus_addons/thrust_curves/include/thrust_curves/acceleration_to_attitude.hpp``. The code is shown below:
+The code for converting the desired acceleration into a set of desired roll and pitch angles + total thrust is shown below:
 
-.. literalinclude:: ../../../pegasus_addons/thrust_curves/include/thrust_curves/acceleration_to_attitude.hpp
+.. literalinclude:: ../../../pegasus_autopilot/autopilot_controllers/src/pid_controller.cpp
    :language: c++
-   :lines: 64-85
+   :lines: 155-175
    :lineno-start: 1
 
 .. admonition:: Integral Action
@@ -111,7 +110,7 @@ Consider the total force to be applied to the vehicle body to be given by
 
 .. math::
 
-   F_{des} = -K_p e_p - K_d e_v + mge_3 + m\ddot{p}_d
+   F_{des} = -K_p e_p - K_d e_v - mge_3 + m\ddot{p}_d
 
 Next, compute the desired :math:`z_b` axis direction from the desired total force vector
 
@@ -156,7 +155,7 @@ The rotation error can be computed according to
 
 .. math::
    
-      e_R = (R_{des}^\top R - R^\top R_{des})^\vee
+      e_R = \frac{1}{2}(R_{des}^\top R - R^\top R_{des})^\vee
 
 where :math:`R` is the current rotation matrix of the vehicle. The operator :math:`\vee` is the vee operator that maps a skew-symmetric matrix to a vector and it is defined as
 
@@ -168,7 +167,7 @@ To get the desired total thrust to apply to the vehicle, we must project the des
 
 .. math::
 
-   T = F_{des} \cdot z_b
+   T = -F_{des} \cdot z_b
 
 To derive the references for the attitude-rate in order to drive the attitude error to zero, we must first compute the feed-forward terms for the desired angular velocity. From the Newton's equation of motion, we also have that
 
@@ -231,5 +230,5 @@ The corresponding code for this controller is implemented in ``pegasus_autopilot
 
 .. literalinclude:: ../../../pegasus_autopilot/autopilot_controllers/src/mellinger_controller.cpp
    :language: c++
-   :lines: 113-213
+   :lines: 113-201
    :lineno-start: 1
