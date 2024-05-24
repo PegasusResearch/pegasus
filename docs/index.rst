@@ -77,6 +77,7 @@ Not only have you made this project possible, but also crashing drones an enjoya
    :caption: Getting Started
 
    source/setup/installation
+   source/setup/reference_frames
 
 .. toctree::
    :maxdepth: 3
