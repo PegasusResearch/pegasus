@@ -117,7 +117,16 @@ Next, compute the desired :math:`z_b` axis direction from the desired total forc
 
 .. math::
 
-   z_b^{des} = \frac{F_{des}}{||F_{des}||}
+   z_b^{des} = -\frac{F_{des}}{||F_{des}||}
+
+.. admonition:: Reference Frames
+
+   Reminder that the reference frames are defined as follows:
+   - The inertial frame :math:`\mathcal{I}` is defined according to the North-East-Down (NED) convention.
+   - The body frame: :math:`\mathcal{B}` is defined according to the Forward-Right-Down (FRD) convention.
+
+   Therefore, a minus sign appears in the :math:`z_b^{des}` as the body z-axis is pointing downwards, but the force vector is pointing in the oposite direction.
+
 
 From the desired yaw angle :math:`\psi_{des}` reference of the body aligned with the inertial frame, we can compute
 
@@ -161,24 +170,62 @@ To get the desired total thrust to apply to the vehicle, we must project the des
 
    T = F_{des} \cdot z_b
 
-From the Newton's equation of motion, we also have that
+To derive the references for the attitude-rate in order to drive the attitude error to zero, we must first compute the feed-forward terms for the desired angular velocity. From the Newton's equation of motion, we also have that
 
 .. math::
 
-   \frac{T}{m}Re_3 = -a + ge_3 \Rightarrow T = m ||-a + ge_3|| 
+   \frac{T}{m}\underbrace{Re_3}_{z_b} = -a + ge_3 \Rightarrow T = m z_b^{\top}(-a + ge_3)
 
 To compute the desired angular velocity, we must first obtain an expression of the dynamics in terms of the jerk. Take the time-derivative of Newton's linear motion equation to get
 
 .. math::
 
       \frac{d}{dt}(ma) &= \frac{d}{dt}(mge_3) - \frac{d}{dt}(TRe_3) \\
-      \Leftrightarrow m\dot{a} &= -\dot{T}Re_3 - T\frac{d}{dt}\Big(Re_3 \Big) \\
+      \Leftrightarrow m j = m\dot{a} &= -\dot{T}Re_3 - T\frac{d}{dt}\Big(Re_3 \Big) \\
                                &= -\dot{T}Re_3 - T\dot{R}e_3 \\
-                               &= -\dot{T}Re_3 - TR(\omega)_{\times} e_3 \\
-                               &= -\dot{T}Re_3 - m ||-a + ge_3|| R(\omega)_{\times} e_3
+                               &= -\dot{T}z_b - TR(\omega)_{\times} e_3 \\
+                               &= -\dot{T}z_b + T R(e_3)_{\times}\omega  \\
+                               &= -\dot{T}z_b + T R \begin{bmatrix} -q \\ p \\ 0\end{bmatrix} \\
+                               &= -\dot{T}z_b + T (-q x_b + p y_b) 
 
-where :math:`(\omega)_{\times}` is the skew-symmetric matrix of the angular velocity vector.
+where :math:`(\omega)_{\times}` is the skew-symmetric matrix of the angular velocity vector, and :math:`\omega = \begin{bmatrix}p & q & r\end{bmatrix}^\top`.
 
+* If we left multiply the jerk equation by :math:`x_b^{\top}` we get
+
+.. math::
+
+   m x_b^{\top}j &= \underbrace{-\dot{T}x_b^{\top}z_b}_{0} + T (\underbrace{-q x_b^\top x_b}_{-q} + \underbrace{p y_b^\top x_b}_{0}) \\
+   \Leftrightarrow q &= -\frac{m}{T}x_b^{\top}j
+
+* If we left multiply the jerk equation by :math:`y_b^{\top}` we get
+
+.. math::
+
+   m y_b^{\top}j &= \underbrace{-\dot{T}y_b^{\top}z_b}_{0} + T (\underbrace{-q x_b^\top y_b}_{0} + \underbrace{p y_b^\top y_b}_{p}) \\
+   \Leftrightarrow p &= \frac{m}{T}y_b^{\top}j
+
+* To get the yaw-rate, it is enough to consider the desired yaw-rate reference :math:`\dot{\psi}_{des}`. Then the desired angular velocity about the z-axis is given by
+
+.. math::
+
+   r = \dot{\psi}_{des} e_3^\top z_b
+
+.. admonition:: Feed-forward references
+
+   Note that we have expressed :math:`p`, :math:`q` and :math:`r` angular-velocities as a function of :math:`x_b`, :math:`y_b` and :math:`z_b` axis, but our goal is to get the desired feed-forward
+   terms for the angular velocities to feed to a proportional controller. Therefore, we must compute :math:`p_{des}`, :math:`q_{des}` and :math:`r_{des}` using :math:`x_b^{des}`, :math:`y_b^{des}` and :math:`z_b^{des}`.
+
+Finally, the desired angular velocity is given by
+
+.. math::
+
+   \omega_{des} = \begin{bmatrix} p_{des} \\ q_{des} \\ r_{des} \end{bmatrix} = \begin{bmatrix} \frac{m}{T}{y^{des}_b}^{\top}j \\ -\frac{m}{T}{x^{des}_b}^{\top}j \\ \dot{\psi}_{des} e_3^\top z_b^{des} \end{bmatrix}
+
+Finally, the reference for the attitude-rate controller is given by
+
+.. math::
+   
+   \omega_{ref} = \omega_{des} - K_R e_R
 
 The corresponding code for this controller is implemented in ``pegasus_autopilot/autopilot_controllers/src/mellinger_controller.cpp``. The code is shown below:
 
