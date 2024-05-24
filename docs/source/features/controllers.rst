@@ -91,3 +91,82 @@ The code for converting the desired acceleration into a set of desired roll and 
 
 2. Mellinger Controller - Mathematical Background
 -------------------------------------------------
+
+In this section we detail the mathematical background for the Mellinger controller that is implemented in the Pegasus Autopilot, which sends attitude-rate and total thrust coomands for the inner-loops of the vehicle to track.
+This is an adapted version of the algorithm proposed in :cite:p:`Mellinger, Pinto2021`.
+
+Consider the linear motion of the vehicle to be described by Newton's equation of motion
+
+.. math::
+
+   m\dot{v} = mge_3 - TRe_3
+
+Consider the position and velocity trackign error given by
+
+.. math::
+   e_p &= p - p_d \\
+   \dot{e}_p &= e_v = v - v_d
+
+Consider the total force to be applied to the vehicle body to be given by
+
+.. math::
+
+   F_{des} = -K_p e_p - K_d e_v + mge_3 + m\ddot{p}_d
+
+Next, compute the desired :math:`z_b` axis direction from the desired total force vector
+
+.. math::
+
+   z_b^{des} = \frac{F_{des}}{||F_{des}||}
+
+From the desired yaw angle :math:`\psi_{des}` reference of the body aligned with the inertial frame, we can compute
+
+.. math::
+
+   y_c = \begin{bmatrix} -sin(\psi_{des}) & cos(\psi_{des}) & 0 \end{bmatrix}^\top
+
+The desired :math:`x_b^{des}` axis direction is then given by
+
+.. math::
+
+   x_b^{des} = \frac{y_c^{des} \times z_b^{des}}{||y_c^{des} \times z_b^{des}||}
+
+Finally, the desired :math:`y_b^{des}` axis direction is given by
+
+.. math::
+
+   y_b^{des} = z_b^{des} \times x_b^{des}
+
+The desired attitute of the vehicle can then be encoded in the rotation matrix
+
+.. math::
+
+   R_{des} = \begin{bmatrix} x_b^{des} & y_b^{des} & z_b^{des} \end{bmatrix}  \text{ and } R = \begin{bmatrix} x_b & y_b & z_b \end{bmatrix}
+
+The rotation error can be computed according to
+
+.. math::
+   
+      e_R = (R_{des}^\top R - R^\top R_{des})^\vee
+
+where :math:`R` is the current rotation matrix of the vehicle. The operator :math:`\vee` is the vee operator that maps a skew-symmetric matrix to a vector and it is defined as
+
+.. math::
+
+   \begin{bmatrix} 0 & -a_3 & a_2 \\ a_3 & 0 & -a_1 \\ -a_2 & a_1 & 0 \end{bmatrix}^\vee = \begin{bmatrix} a_1 \\ a_2 \\ a_3 \end{bmatrix}
+
+To get the desired total thrust to apply to the vehicle, we must project the desired force vector into actual the body z-axis direction (not the desired one that we computed before). This is done by
+
+.. math::
+
+   T = F_{des} \cdot z_b
+
+To compute the desired angular velocity, we must project the jerk expression along the :math:`z_b` axis direction. This is done by
+
+
+The corresponding code for this controller is implemented in ``pegasus_autopilot/autopilot_controllers/src/mellinger_controller.cpp``. The code is shown below:
+
+.. literalinclude:: ../../../pegasus_autopilot/autopilot_controllers/src/mellinger_controller.cpp
+   :language: c++
+   :lines: 113-213
+   :lineno-start: 1
