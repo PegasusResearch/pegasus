@@ -48,12 +48,17 @@
 #pragma once
 
 #include "rclcpp/rclcpp.hpp"
+#include "thrust_curves/thrust_curves.hpp"
 
 // Messages for the sensor data (IMU, barometer, GPS, etc.)
 #include "sensor_msgs/msg/imu.hpp"
 #include "pegasus_msgs/msg/sensor_barometer.hpp"
 #include "pegasus_msgs/msg/sensor_gps.hpp"
 #include "pegasus_msgs/msg/sensor_gps_info.hpp"
+
+// Messages for the state of the vehicle (pose, velocity, angular velocity, etc. provided by EKF)
+#include "nav_msgs/msg/odometry.hpp"
+#include "pegasus_msgs/msg/rpy.hpp"
 
 // Messages for the current status of the vehicle (armed, landed, etc.) and the vehicle constants such as mass and thrust curve
 #include "pegasus_msgs/msg/status.hpp"
@@ -85,6 +90,7 @@ private:
     void initialize_publishers();
     void intialize_subscribers();
     void initialize_services();
+    void init_thrust_curve();
 
     /**
      * @ingroup initFunctions
@@ -201,5 +207,91 @@ private:
      * @param response The response in this service uint8
      */
     void position_hold_callback(const pegasus_msgs::srv::PositionHold::Request::SharedPtr, const pegasus_msgs::srv::PositionHold::Response::SharedPtr response);
+    
+    /**
+     * @ingroup messages
+     * Messages corresponding to the sensors of the vehicles
+     */
+    sensor_msgs::msg::Imu imu_msg_;
+    pegasus_msgs::msg::SensorBarometer baro_msg_;
+    pegasus_msgs::msg::SensorGps gps_msg_;
+    pegasus_msgs::msg::SensorGpsInfo gps_info_msg_;
 
+    /**
+     * @ingroup messages
+     * Message corresponding to the filtered state of the vehicle (from internal EKF) */
+    nav_msgs::msg::Odometry filter_state_msg_;
+    pegasus_msgs::msg::RPY filter_state_rpy_msg_;
+
+    /**
+     * @ingroup messages
+     * Message corresponding to the status of the vehicle */
+    pegasus_msgs::msg::Status status_msg_;
+    pegasus_msgs::msg::VehicleConstants vehicle_constants_msg_;
+
+    /**
+     * @ingroup publishers 
+     * @brief FMU sensors publishers 
+     */
+    rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_{nullptr};
+    rclcpp::Publisher<pegasus_msgs::msg::SensorBarometer>::SharedPtr baro_pub_{nullptr};
+    rclcpp::Publisher<pegasus_msgs::msg::SensorGps>::SharedPtr gps_pub_{nullptr};
+    rclcpp::Publisher<pegasus_msgs::msg::SensorGpsInfo>::SharedPtr gps_info_pub_{nullptr};
+    
+    /**
+     * @ingroup publishers
+     * @brief FMU EKF filter state
+     */
+    rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr filter_state_pub_{nullptr};
+    rclcpp::Publisher<pegasus_msgs::msg::RPY>::SharedPtr filter_state_rpy_pub_{nullptr};
+
+    /**
+     * @ingroup publishers
+     * @brief 
+     */
+    rclcpp::Publisher<pegasus_msgs::msg::Status>::SharedPtr status_pub_{nullptr};
+    rclcpp::Publisher<pegasus_msgs::msg::VehicleConstants>::SharedPtr vehicle_constants_pub_{nullptr};
+
+    /**
+     * @defgroup services ROS2 Services
+     * This group defines all the ROS services
+     */
+
+    /**
+     * @ingroup services
+     * @brief Service server to arm the vehicle
+     */
+    rclcpp::Service<pegasus_msgs::srv::Arm>::SharedPtr arm_service_{nullptr};
+
+    /**
+     * @ingroup services
+     * @brief Service server to disarm the vehicle
+     */
+    rclcpp::Service<pegasus_msgs::srv::KillSwitch>::SharedPtr kill_switch_service_{nullptr};
+
+    /**
+     * @ingroup services
+     * @brief Service server to auto-land the vehicle using the 
+     * microcontroller embeded control algorithm
+     */
+    rclcpp::Service<pegasus_msgs::srv::Land>::SharedPtr land_service_{nullptr};
+
+    /**
+     * @ingroup services
+     * @brief Service server to set the vehicle into the offboard mode 
+     */
+    rclcpp::Service<pegasus_msgs::srv::Offboard>::SharedPtr offboard_service_{nullptr};
+
+    /**
+     * @ingroup services
+     * @brief Service server to set the vehicle into the hold position mode
+     */
+    rclcpp::Service<pegasus_msgs::srv::PositionHold>::SharedPtr position_hold_service_{nullptr};
+
+    /**
+     * @brief Thrust curve object used to set the conversion from thrust in Newton (N) to percentage
+     * which is then sent to the mavlink onboard controller (initialized by the init_thrust_curve) which will
+     * read this parameter from the ROS parameter server
+     */
+    std::shared_ptr<Pegasus::ThrustCurve> thrust_curve_{nullptr};
 };

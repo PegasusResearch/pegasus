@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import sys
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
@@ -12,13 +13,19 @@ def generate_launch_description():
     # ----------------------------------------
     # ---- DECLARE THE LAUNCH ARGUMENTS ------
     # ----------------------------------------
+
+    # Set the connection port from the argument (limitation from ROS2 launch files)
+    connection_arguments = "udp4 -p 8888"
+    for arg in sys.argv:
+        if arg.startswith('connection:='):
+            connection_arguments = str(arg.split(':=')[1])
     
     # Namespace and ID of the vehicle as parameter received by the launch file
     id_arg = DeclareLaunchArgument('vehicle_id', default_value='1', description='Drone ID in the network')
     namespace_arg = DeclareLaunchArgument('vehicle_ns', default_value='drone', description='Namespace to append to every topic and node name')
     
     # Define the drone MAVLINK IP and PORT
-    connection_arg = DeclareLaunchArgument('connection', default_value="udp4 -p 8888", description='The interface used to connect to the vehicle')
+    connection_arg = DeclareLaunchArgument('connection', default_value=connection_arguments, description='The interface used to connect to the vehicle')
     
     # Define which file to use for the drone parameters
     drone_params_yaml_arg = DeclareLaunchArgument(
@@ -34,7 +41,7 @@ def generate_launch_description():
 
     # MicroDDS XRCE Interface program (which is not a standard ROS2 node)
     microdds_xrce_process = ExecuteProcess(
-        cmd=['ros2', 'run', 'micro_xrce_vendor', 'MicroXRCEAgent', LaunchConfiguration('connection')],
+        cmd=['ros2', 'run', 'micro_xrce_vendor', 'MicroXRCEAgent'] + connection_arguments.split(' '),
         output='screen',
         shell=False,
         on_exit=Shutdown()
