@@ -106,6 +106,12 @@
   <section id="terminal-console">
 <h1>Terminal console<a class="headerlink" href="#terminal-console" title="Permalink to this heading"></a></h1>
 <a class="reference internal image-reference" href="../../_images/terminal_console.png"><img alt="Terminal Console" class="align-center" src="../../_images/terminal_console.png" style="width: 700px;" /></a>
+<p>To execute the terminal console you need to run the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>run<span class="w"> </span>pegasus_console<span class="w"> </span>pegasus_console<span class="w"> </span>-i<span class="w"> </span>&lt;vehicle_id&gt;<span class="w"> </span>-n<span class="w"> </span>&lt;namespace&gt;
+</pre></div>
+</div>
+<p>You should replace the <code class="docutils literal notranslate"><span class="pre">&lt;vehicle_id&gt;</span></code> with the vehicle id you want to connect to. If not option is provided, the console will attempt to connect to ID 1.
+If you want to connect to a specific namespace, you should replace the <code class="docutils literal notranslate"><span class="pre">&lt;namespace&gt;</span></code> with the desired namespace. If no namespace is provided, the console will connect to the default namespace “drone”.</p>
 </section>
 
 
