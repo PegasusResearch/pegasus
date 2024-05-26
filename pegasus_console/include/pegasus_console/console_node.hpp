@@ -79,7 +79,7 @@ class ConsoleNode : public rclcpp::Node {
 
 public:
     
-    ConsoleNode(const unsigned int vehicle_id);
+    ConsoleNode(const std::string vehicle_namespace, const unsigned int vehicle_id);
     ~ConsoleNode();
 
     void initialize_subscribers();

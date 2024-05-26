@@ -57,8 +57,9 @@ int main(int argc, char * argv[]) {
     // Default vehicle id
     int ch;
     unsigned int vehicle_id = 1;
+    std::string vehicle_namespace = "/drone";
 
-    while((ch = getopt(argc, argv, "i:")) != -1) {
+    while((ch = getopt(argc, argv, "i:n:")) != -1) {
         switch(ch) {
             case 'i':
                 try {
@@ -68,6 +69,9 @@ int main(int argc, char * argv[]) {
                     std::cerr << "The ID of the vehicle must be a number" << std::endl;
                     return 0;
                 }
+                break;
+            case 'n':
+                vehicle_namespace = std::string("/") + std::string(optarg);
                 break;
             default:
                 return 0;
@@ -81,7 +85,7 @@ int main(int argc, char * argv[]) {
     rclcpp::init(argc, argv);
 
     // Create the ConsoleNode
-    auto console_node = std::make_shared<ConsoleNode>(vehicle_id);
+    auto console_node = std::make_shared<ConsoleNode>(vehicle_namespace, vehicle_id);
     console_node->start();
 
     rclcpp::shutdown();

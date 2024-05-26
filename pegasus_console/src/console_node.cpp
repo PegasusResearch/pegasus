@@ -48,10 +48,10 @@
 #include "console_node.hpp"
 #include "pegasus_utils/rotations.hpp"
 
-ConsoleNode::ConsoleNode(const unsigned int vehicle_id=1) : rclcpp::Node("pegasus_console") {
+ConsoleNode::ConsoleNode(const std::string vehicle_namespace, const unsigned int vehicle_id=1) : rclcpp::Node("pegasus_console") {
     
     // Initialize the vehicle namespace
-    vehicle_namespace_ = std::string("/drone" + std::to_string(vehicle_id)); 
+    vehicle_namespace_ = std::string(vehicle_namespace + std::to_string(vehicle_id)); 
 
     // Initialize the subscribers, services and publishers
     initialize_publishers();
