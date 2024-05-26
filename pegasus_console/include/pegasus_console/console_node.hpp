@@ -79,7 +79,7 @@ class ConsoleNode : public rclcpp::Node {
 
 public:
     
-    ConsoleNode();
+    ConsoleNode(const unsigned int vehicle_id);
     ~ConsoleNode();
 
     void initialize_subscribers();
@@ -125,6 +125,9 @@ protected:
     void state_callback(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
     void status_callback(const pegasus_msgs::msg::Status::ConstSharedPtr msg);
     void autopilot_status_callback(const pegasus_msgs::msg::AutopilotStatus::ConstSharedPtr msg);
+
+    // Auxiliar variable to setup the vehicle namespace when launching the node as a normal c++ program
+    std::string vehicle_namespace_;
 
     // Configuration for the console UI
     ConsoleUI::Config config_;
