@@ -47,13 +47,13 @@ we can take the total thrust (in Newton) to be given by :math:`T = m|| u ||`. Re
 
 .. math::
 
-   r3d = -R_z^\top({\psi_{des}})\frac{u}{||u||}
+   r_{3d} = -R_z^\top({\psi_{des}})\frac{u}{||u||}
 
 But we also know that 
 
 .. math::
 
-   r3d = R_y({\theta_{des}})R_x({\phi_{des}}) e_3 = \begin{bmatrix} cos(\phi_{des})sin(\theta_{des}) \\ -sin(\phi_{des}) \\ cos(\theta_{des})cos(\phi_{des}) \end{bmatrix} = \begin{bmatrix} r_{31} \\ r_{32} \\ r_{33} \end{bmatrix}
+   r_{3d} = R_y({\theta_{des}})R_x({\phi_{des}}) e_3 = \begin{bmatrix} \cos(\phi_{des})\sin(\theta_{des}) \\ -\sin(\phi_{des}) \\ \cos(\theta_{des})\cos(\phi_{des}) \end{bmatrix} = \begin{bmatrix} r_{31} \\ r_{32} \\ r_{33} \end{bmatrix}
 
 .. admonition:: Reference Frames
 
@@ -67,8 +67,8 @@ Finally, we can compute the desired roll :math:`\phi_{des}`, pitch :math:`\theta
 
 .. math::
 
-   \phi_{des} &= arcsin(-r_{32}) \\
-   \theta_{des} &= arctan \left(\frac{r_{31}}{r_{33}}\right)
+   \phi_{des} &= \arcsin(-r_{32}) \\
+   \theta_{des} &= \arctan \left(\frac{r_{31}}{r_{33}}\right)
 
 The corresponding code for computing the desired acceleration is implemented in ``pegasus_autopilot/autopilot_controllers/src/pid_controller.cpp``. The code is shown below:
 
@@ -86,33 +86,35 @@ The code for converting the desired acceleration into a set of desired roll and 
 
 .. admonition:: Integral Action
 
-   Since the quadrotor can be seen as a double integrator, the integral action is not necessary for the system to be stable, and the natural position controller that emerges is a Proportional-Derivative (PD). However, in practice a little bit of integral action can be used to improve the tracking performance of the system, to accomodade for model uncertainties (such as the mass).
+   Since the quadrotor can be viewed as a double integrator, the integral action is not necessary for the system to be stable, and the natural position controller that emerges is a Proportional-Derivative (PD). However, in practice a little bit of integral action can be used to improve the tracking performance of the system and accomodade for model uncertainties (such as the mass).
 
 2. Mellinger Controller - Mathematical Background
 -------------------------------------------------
 
-In this section we detail the mathematical background for the Mellinger controller that is implemented in the Pegasus Autopilot, which sends attitude-rate and total thrust coomands for the inner-loops of the vehicle to track.
-This is an adapted version of the algorithm proposed in :cite:p:`Mellinger, Pinto2021`.
+In this section we detail the mathematical background for the Mellinger controller that is implemented in the Pegasus Autopilot. It sends angular rates and total thrust commands to the inner-loops of the vehicle to be tracked.
+This is an adapted version of the algorithm proposed in :cite:p:`Mellinger, Pinto2021`. Reference trajectories :math:`\{p_{des},~v_{des},~a_{des},~j_{des}\}` should be three times continuously differentiable.
 
-Consider the linear motion of the vehicle to be described by Newton's equation of motion
+The vehicle translational dynamics derive from Newton's 2nd law of motion and are expressed as
 
 .. math::
 
    m\dot{v} = mge_3 - TRe_3
 
-Consider the position and velocity trackign error given by
-
-.. math::
-   e_p &= p - p_d \\
-   \dot{e}_p &= e_v = v - v_d
-
-Consider the total force to be applied to the vehicle body to be given by
+where :math:`R = \left[ \begin{matrix} x_b & y_b & z_b \end{matrix} \right]` denotes the vehicle orientation. 
+Define the position and velocity tracking error as
 
 .. math::
 
-   F_{des} = -K_p e_p - K_d e_v - mge_3 + m\ddot{p}_d
+   e_p &= p - p_{des} \\
+   \dot{e}_p &= e_v = v - v_{des}
 
-Next, compute the desired :math:`z_b` axis direction from the desired total force vector
+The total force to be applied to the vehicle body is given by
+
+.. math::
+
+   F_{des} = -K_p e_p - K_d e_v - mge_3 + m a_{des}
+
+Next, compute the desired :math:`z_b` axis from the desired total force
 
 .. math::
 
@@ -120,74 +122,72 @@ Next, compute the desired :math:`z_b` axis direction from the desired total forc
 
 .. admonition:: Reference Frames
 
-   Reminder that the reference frames are defined as follows:
+   The reference frames are defined as follows:
    - The inertial frame :math:`\mathcal{I}` is defined according to the North-East-Down (NED) convention.
    - The body frame: :math:`\mathcal{B}` is defined according to the Forward-Right-Down (FRD) convention.
 
-   Therefore, a minus sign appears in the :math:`z_b^{des}` as the body z-axis is pointing downwards, but the force vector is pointing in the oposite direction.
+   As the body z-axis is pointing downwards, but the force vector is pointing upwards, a minus sign appears in the expression of :math:`z_b^{des}`.
 
-
-From the desired yaw angle :math:`\psi_{des}` reference of the body aligned with the inertial frame, we can compute
-
-.. math::
-
-   y_c = \begin{bmatrix} -sin(\psi_{des}) & cos(\psi_{des}) & 0 \end{bmatrix}^\top
-
-The desired :math:`x_b^{des}` axis direction is then given by
+Get the desired total thrust to apply to the vehicle by projecting :math:`F_{des}` onto the actual body z-axis (not the desired one that we computed before),
 
 .. math::
 
-   x_b^{des} = \frac{y_c^{des} \times z_b^{des}}{||y_c^{des} \times z_b^{des}||}
+   T = -F_{des}^\top z_b
 
-Finally, the desired :math:`y_b^{des}` axis direction is given by
+.. From the desired yaw angle :math:`\psi_{des}` reference of the body aligned with the inertial frame, we define
 
-.. math::
-
-   y_b^{des} = z_b^{des} \times x_b^{des}
-
-The desired attitute of the vehicle can then be encoded in the rotation matrix
+The orientation kinematics are governed by the following equation
 
 .. math::
 
-   R_{des} = \begin{bmatrix} x_b^{des} & y_b^{des} & z_b^{des} \end{bmatrix}  \text{ and } R = \begin{bmatrix} x_b & y_b & z_b \end{bmatrix}
+   \dot{R} = R (\omega)_{\times}
 
-The rotation error can be computed according to
+where :math:`(\omega)_{\times}` is the skew-symmetric matrix of the angular velocity vector.
+To drive the vehicle orientation to a desired reference :math:`R_{des}`, we design a control law that provides angular rate setpoints. It is defined as
+
+.. math::
+   
+   \omega =  -K_R e_R + \omega_{des}
+
+where the rotation error :math:`e_R` is computed according to
 
 .. math::
    
       e_R = \frac{1}{2}(R_{des}^\top R - R^\top R_{des})^\vee
 
-where :math:`R` is the current rotation matrix of the vehicle. The operator :math:`\vee` is the vee operator that maps a skew-symmetric matrix to a vector and it is defined as
+The operator :math:`\vee` maps a skew-symmetric matrix to a vector as follows
 
 .. math::
 
    \begin{bmatrix} 0 & -a_3 & a_2 \\ a_3 & 0 & -a_1 \\ -a_2 & a_1 & 0 \end{bmatrix}^\vee = \begin{bmatrix} a_1 \\ a_2 \\ a_3 \end{bmatrix}
 
-To get the desired total thrust to apply to the vehicle, we must project the desired force vector into actual the body z-axis direction (not the desired one that we computed before). This is done by
+
+We now present the steps to compute :math:`R_{des}` and :math:`\omega_{des}`. 
+To obtain :math:`R_{des} = \left[ \begin{matrix} x_b^{des} & y_b^{des} & z_b^{des} \end{matrix} \right]`, start by defining
 
 .. math::
 
-   T = -F_{des} \cdot z_b
+   y_c = \begin{bmatrix} -\sin(\psi_{des}) & \cos(\psi_{des}) & 0 \end{bmatrix}^\top
 
-To derive the references for the attitude-rate in order to drive the attitude error to zero, we must first compute the feed-forward terms for the desired angular velocity. From the Newton's equation of motion, we also have that
+from the desired yaw angle :math:`\psi_{des}`. With this definition, the desired :math:`x_b^{des}` and :math:`y_b^{des}` axes are given by simple expressions,
 
 .. math::
 
-   \frac{T}{m}\underbrace{Re_3}_{z_b} = -a + ge_3 \Rightarrow T = m z_b^{\top}(-a + ge_3)
+   x_b^{des} &= \frac{y_c^{des} \times z_b^{des}}{||y_c^{des} \times z_b^{des}||} \\
+   y_b^{des} &= z_b^{des} \times x_b^{des}
 
-To compute the desired angular velocity, we must first obtain an expression of the dynamics in terms of the jerk. Take the time-derivative of Newton's linear motion equation to get
+As for :math:`\omega_{des} = \left[ \begin{matrix} p_{des} & q_{des} & r_{des} \end{matrix} \right]^\top`, let :math:`j` denote the jerk of the vehicle and take the first time-derivative of the translational dynamics to get
 
 .. math::
 
       \frac{d}{dt}(ma) &= \frac{d}{dt}(mge_3) - \frac{d}{dt}(TRe_3) \\
-      \Leftrightarrow m j = m\dot{a} &= -\dot{T}Re_3 - T\frac{d}{dt}\Big(Re_3 \Big) \\
-                               &= -\dot{T}Re_3 - T\dot{R}e_3 \\
-                               &= -\dot{T}z_b - TR(\omega)_{\times} e_3 \\
-                               &= -\dot{T}z_b + T R(e_3)_{\times}\omega  \\
-                               &= -\dot{T}z_b + T R \begin{bmatrix} -q \\ p \\ 0\end{bmatrix} \\
+      \Leftrightarrow m j &= -\dot{T}Re_3 - T\frac{d}{dt}\left(Re_3 \right) \\
+                               &= -\dot{T}Re_3 - TR\omega \times Re_3 \\
+                               &= -\dot{T}z_b - TR \left( \omega \times e_3 \right) \\
+                               &= -\dot{T}z_b + T R \left(e_3 \times \omega \right)  \\
                                &= -\dot{T}z_b + T (-q x_b + p y_b) 
 
-where :math:`(\omega)_{\times}` is the skew-symmetric matrix of the angular velocity vector, and :math:`\omega = \begin{bmatrix}p & q & r\end{bmatrix}^\top`.
+.. &= -\dot{T}z_b + T R \begin{bmatrix} -q \\ p \\ 0\end{bmatrix} \\
 
 * If we left multiply the jerk equation by :math:`x_b^{\top}` we get
 
@@ -203,30 +203,24 @@ where :math:`(\omega)_{\times}` is the skew-symmetric matrix of the angular velo
    m y_b^{\top}j &= \underbrace{-\dot{T}y_b^{\top}z_b}_{0} + T (\underbrace{-q x_b^\top y_b}_{0} + \underbrace{p y_b^\top y_b}_{p}) \\
    \Leftrightarrow p &= \frac{m}{T}y_b^{\top}j
 
-* To get the yaw-rate, it is enough to consider the desired yaw-rate reference :math:`\dot{\psi}_{des}`. Then the desired angular velocity about the z-axis is given by
+* The angular velocity about the z-axis can be obtained from the first time derivative of the yaw angle
 
 .. math::
 
-   r = \dot{\psi}_{des} e_3^\top z_b
+   r = \dot{\psi} e_3^\top z_b
 
-.. admonition:: Feed-forward references
-
-   Note that we have expressed :math:`p`, :math:`q` and :math:`r` angular-velocities as a function of :math:`x_b`, :math:`y_b` and :math:`z_b` axis, but our goal is to get the desired feed-forward
-   terms for the angular velocities to feed to a proportional controller. Therefore, we must compute :math:`p_{des}`, :math:`q_{des}` and :math:`r_{des}` using :math:`x_b^{des}`, :math:`y_b^{des}` and :math:`z_b^{des}`.
-
-Finally, the desired angular velocity is given by
+Then given orientation :math:`R_{des}` and jerk :math:`j_{des}` references, the desired angular rates are given by
 
 .. math::
 
-   \omega_{des} = \begin{bmatrix} p_{des} \\ q_{des} \\ r_{des} \end{bmatrix} = \begin{bmatrix} \frac{m}{T}{y^{des}_b}^{\top}j \\ -\frac{m}{T}{x^{des}_b}^{\top}j \\ \dot{\psi}_{des} e_3^\top z_b^{des} \end{bmatrix}
+   \omega_{des} = \begin{bmatrix} \frac{m}{T}{y^{des}_b}^{\top}j^{des} \\ -\frac{m}{T}{x^{des}_b}^{\top}j^{des} \\ \dot{\psi}_{des} e_3^\top z_b^{des} \end{bmatrix}
 
-Finally, the reference for the attitude-rate controller is given by
+.. .. admonition:: Feed-forward references
 
-.. math::
-   
-   \omega_{ref} = \omega_{des} - K_R e_R
+..    Note that we have expressed :math:`p`, :math:`q` and :math:`r` angular-velocities as a function of :math:`x_b`, :math:`y_b` and :math:`z_b` axis, but our goal is to get the desired feed-forward
+..    terms for the angular velocities to feed to a proportional controller. Therefore, we must compute :math:`p_{des}`, :math:`q_{des}` and :math:`r_{des}` using :math:`x_b^{des}`, :math:`y_b^{des}` and :math:`z_b^{des}`.
 
-The corresponding code for this controller is implemented in ``pegasus_autopilot/autopilot_controllers/src/mellinger_controller.cpp``. The code is shown below:
+This controller is implemented in ``pegasus_autopilot/autopilot_controllers/src/mellinger_controller.cpp``. The code is shown below:
 
 .. literalinclude:: ../../../pegasus_autopilot/autopilot_controllers/src/mellinger_controller.cpp
    :language: c++

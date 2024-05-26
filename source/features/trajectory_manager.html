@@ -126,15 +126,15 @@
 <div class="math notranslate nohighlight">
 \[\begin{split}\ddot{p}_d(\gamma) &amp;=\frac{d}{dt} \left(\frac{\partial p_d(\gamma)}{\partial \gamma}\dot{\gamma}\right) \\
                    &amp;= \frac{d}{dt} \left(\frac{\partial p_d(\gamma)}{\partial \gamma}\right)\dot{\gamma} + \frac{\partial p_d(\gamma)}{\partial \gamma} \ddot{\gamma}\\
-                   &amp;= \frac{\partial p_d^2(\gamma)}{\partial \gamma^2}\dot{\gamma}^2 + \frac{\partial p_d(\gamma)}{\partial \gamma} \ddot{\gamma}\end{split}\]</div>
+                   &amp;= \frac{\partial^2 p_d(\gamma)}{\partial \gamma^2}\dot{\gamma}^2 + \frac{\partial p_d(\gamma)}{\partial \gamma} \ddot{\gamma}\end{split}\]</div>
 </li>
 <li><p>The desired jerk to be tracked in the inertial frame is given by</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}\dddot{p}_d(\gamma) &amp;= \frac{d}{dt}\left(\frac{\partial p_d^2(\gamma)}{\partial \gamma^2}\dot{\gamma}^2 + \frac{\partial p_d(\gamma)}{\partial \gamma} \ddot{\gamma}\right) \\
-                    &amp;=  \frac{d}{dt}\left(\frac{\partial p_d^2(\gamma)}{\partial \gamma^2}\dot{\gamma}^2\right) + \frac{d}{dt}\left(\frac{\partial p_d(\gamma)}{\partial \gamma} \ddot{\gamma}\right) \\
-                    &amp;= \frac{\partial p_d^3(\gamma)}{\partial \gamma^3}\dot{\gamma}^3 + 2\frac{\partial p_d^2(\gamma)}{\partial \gamma^2}\dot{\gamma}\ddot{\gamma} +
-                    \frac{\partial p_d^2(\gamma)}{\partial \gamma^2} \dot{\gamma}\ddot{\gamma} + \frac{\partial p_d(\gamma)}{\partial \gamma} \dddot{\gamma} \\
-                    &amp;= \frac{\partial p_d^3(\gamma)}{\partial \gamma^3}\dot{\gamma}^3 + 3\frac{\partial p_d^2(\gamma)}{\partial \gamma^2}\dot{\gamma}\ddot{\gamma} + \frac{\partial p_d(\gamma)}{\partial \gamma} \dddot{\gamma}\end{split}\]</div>
+\[\begin{split}\dddot{p}_d(\gamma) &amp;= \frac{d}{dt}\left(\frac{\partial^2 p_d(\gamma)}{\partial \gamma^2}\dot{\gamma}^2 + \frac{\partial p_d(\gamma)}{\partial \gamma} \ddot{\gamma}\right) \\
+                    &amp;=  \frac{d}{dt}\left(\frac{\partial^2 p_d(\gamma)}{\partial \gamma^2}\dot{\gamma}^2\right) + \frac{d}{dt}\left(\frac{\partial p_d(\gamma)}{\partial \gamma} \ddot{\gamma}\right) \\
+                    &amp;= \frac{\partial^3 p_d(\gamma)}{\partial \gamma^3}\dot{\gamma}^3 + 2\frac{\partial^2 p_d(\gamma)}{\partial \gamma^2}\dot{\gamma}\ddot{\gamma} +
+                    \frac{\partial^2 p_d(\gamma)}{\partial \gamma^2} \dot{\gamma}\ddot{\gamma} + \frac{\partial p_d(\gamma)}{\partial \gamma} \dddot{\gamma} \\
+                    &amp;= \frac{\partial^3 p_d(\gamma)}{\partial \gamma^3}\dot{\gamma}^3 + 3\frac{\partial^2 p_d(\gamma)}{\partial \gamma^2}\dot{\gamma}\ddot{\gamma} + \frac{\partial p_d(\gamma)}{\partial \gamma} \dddot{\gamma}\end{split}\]</div>
 </li>
 </ol>
 </section>
