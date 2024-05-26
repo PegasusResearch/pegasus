@@ -48,7 +48,10 @@
 #include "console_node.hpp"
 #include "pegasus_utils/rotations.hpp"
 
-ConsoleNode::ConsoleNode() : rclcpp::Node("pegasus_console") {
+ConsoleNode::ConsoleNode(const std::string vehicle_namespace, const unsigned int vehicle_id=1) : rclcpp::Node("pegasus_console") {
+    
+    // Initialize the vehicle namespace
+    vehicle_namespace_ = std::string(vehicle_namespace + std::to_string(vehicle_id)); 
 
     // Initialize the subscribers, services and publishers
     initialize_publishers();
@@ -91,9 +94,9 @@ ConsoleNode::~ConsoleNode() {}
 
 void ConsoleNode::initialize_subscribers() {
 
-    this->declare_parameter<std::string>("console.subscribers.onboard.status", "/drone1/fmu/status");
-    this->declare_parameter<std::string>("console.subscribers.onboard.state", "/drone1/fmu/filter/state");
-    this->declare_parameter<std::string>("console.subscribers.autopilot.status", "/drone1/autopilot/status");
+    this->declare_parameter<std::string>("console.subscribers.onboard.status", vehicle_namespace_ + std::string("/fmu/status"));
+    this->declare_parameter<std::string>("console.subscribers.onboard.state", vehicle_namespace_ + std::string("/fmu/filter/state"));
+    this->declare_parameter<std::string>("console.subscribers.autopilot.status", vehicle_namespace_ + std::string("/autopilot/status"));
 
     // Status of the vehicle
     status_sub_ = this->create_subscription<pegasus_msgs::msg::Status>(
@@ -113,8 +116,8 @@ void ConsoleNode::initialize_subscribers() {
 
 void ConsoleNode::initialize_publishers() {
 
-    this->declare_parameter<std::string>("console.publishers.onboard.attitude_rate", "/drone1/fmu/in/throtle/attitude_rate");
-    this->declare_parameter<std::string>("console.publishers.onboard.position", "/drone1/fmu/in/position");
+    this->declare_parameter<std::string>("console.publishers.onboard.attitude_rate", vehicle_namespace_ + std::string("/fmu/in/throtle/attitude_rate"));
+    this->declare_parameter<std::string>("console.publishers.onboard.position", vehicle_namespace_ + std::string("/fmu/in/position"));
 
     // Publish the attitude setpoints to the vehicle for thrust curve control
     attitude_rate_pub_ = this->create_publisher<pegasus_msgs::msg::ControlAttitude>(
@@ -129,19 +132,19 @@ void ConsoleNode::initialize_publishers() {
 
 void ConsoleNode::initialize_services() {
 
-    this->declare_parameter<std::string>("console.services.onboard.arm_disarm", "/drone1/fmu/arm");
-    this->declare_parameter<std::string>("console.services.onboard.land", "/drone1/fmu/land");
-    this->declare_parameter<std::string>("console.services.onboard.kill_switch", "/drone1/fmu/kill_switch");
-    this->declare_parameter<std::string>("console.services.onboard.position_hold", "/drone1/fmu/hold");
-    this->declare_parameter<std::string>("console.services.onboard.offboard", "/drone1/fmu/offboard");
+    this->declare_parameter<std::string>("console.services.onboard.arm_disarm", vehicle_namespace_ + std::string("/fmu/arm"));
+    this->declare_parameter<std::string>("console.services.onboard.land", vehicle_namespace_ + std::string("/fmu/land"));
+    this->declare_parameter<std::string>("console.services.onboard.kill_switch", vehicle_namespace_ + std::string("/fmu/kill_switch"));
+    this->declare_parameter<std::string>("console.services.onboard.position_hold", vehicle_namespace_ + std::string("/fmu/hold"));
+    this->declare_parameter<std::string>("console.services.onboard.offboard", vehicle_namespace_ + std::string("/fmu/offboard"));
 
-    this->declare_parameter<std::string>("console.services.autopilot.set_mode", "/drone1/autopilot/change_mode");
-    this->declare_parameter<std::string>("console.services.autopilot.set_waypoint", "/drone1/autopilot/set_waypoint");
-    this->declare_parameter<std::string>("console.services.autopilot.add_arc", "/drone1/autopilot/trajectory/add_arc");
-    this->declare_parameter<std::string>("console.services.autopilot.add_line", "/drone1/autopilot/trajectory/add_line");
-    this->declare_parameter<std::string>("console.services.autopilot.add_circle", "/drone1/autopilot/trajectory/add_circle");
-    this->declare_parameter<std::string>("console.services.autopilot.add_lemniscate", "/drone1/autopilot/trajectory/add_lemniscate");
-    this->declare_parameter<std::string>("console.services.autopilot.reset_path", "/drone1/autopilot/trajectory/reset");
+    this->declare_parameter<std::string>("console.services.autopilot.set_mode", vehicle_namespace_ + std::string("/autopilot/change_mode"));
+    this->declare_parameter<std::string>("console.services.autopilot.set_waypoint", vehicle_namespace_ + std::string("/autopilot/set_waypoint"));
+    this->declare_parameter<std::string>("console.services.autopilot.add_arc", vehicle_namespace_ + std::string("/autopilot/trajectory/add_arc"));
+    this->declare_parameter<std::string>("console.services.autopilot.add_line", vehicle_namespace_ + std::string("/autopilot/trajectory/add_line"));
+    this->declare_parameter<std::string>("console.services.autopilot.add_circle", vehicle_namespace_ + std::string("/autopilot/trajectory/add_circle"));
+    this->declare_parameter<std::string>("console.services.autopilot.add_lemniscate", vehicle_namespace_ + std::string("/autopilot/trajectory/add_lemniscate"));
+    this->declare_parameter<std::string>("console.services.autopilot.reset_path", vehicle_namespace_ + std::string("/autopilot/trajectory/reset"));
 
     // Create the service clients
     arm_disarm_client_ = this->create_client<pegasus_msgs::srv::Arm>(this->get_parameter("console.services.onboard.arm_disarm").as_string());
