@@ -133,13 +133,13 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
     Eigen::Vector3d vel_error = velocity - state.velocity;
 
     Eigen::Vector3d external_force = Eigen::Vector3d(0.0, 0.0, 0.0);
-    external_force[0] = mass_* acceleration[0];
-    external_force[1] = mass_* acceleration[1];
-    external_force[2] = mass_* (acceleration[2] - 9.81);
+    external_force[0] = acceleration[0];
+    external_force[1] = acceleration[1];
+    external_force[2] = acceleration[2] - 9.81;
 
     // Compute the desired force output using a PID scheme
     Eigen::Vector3d F_des;
-    for(unsigned int i=0; i < 3; i++) F_des[i] = controllers_[i]->compute_output(pos_error[i], vel_error[i], external_force[i], dt);
+    for(unsigned int i=0; i < 3; i++) F_des[i] = mass_ * controllers_[i]->compute_output(pos_error[i], vel_error[i], external_force[i], dt);
 
     // Compute the desired body-frame axis Z_b (b3d)
     // Check [3-eq.12] for more details

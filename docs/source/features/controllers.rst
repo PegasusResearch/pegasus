@@ -112,7 +112,7 @@ The total force to be applied to the vehicle body is given by
 
 .. math::
 
-   F_{des} = -K_p e_p - K_d e_v - mge_3 + m a_{des}
+   F_{des} = -m (K_p e_p + K_d e_v + ge_3 - a_{des})
 
 Next, compute the desired :math:`z_b` axis from the desired total force
 
