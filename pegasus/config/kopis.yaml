@@ -45,9 +45,9 @@
           control_attitude_rate: "fmu/in/force/attitude_rate"
           debug_topic: "autopilot/statistics/mellinger"
         gains:
-          kp: [5.26, 5.26, 5.26]    # Proportional gain   2.0 = mass * gain
-          kd: [3.94, 3.94, 3.94]    # Derivative gain
-          ki: [0.0, 0.0, 0.0]       # Integral gain
+          kp: [5.26, 5.26, 5.26]    # Proportional gain
+          kd: [4.0, 4.0, 4.0]       # Derivative gain
+          ki: [0.1, 0.1, 0.25]      # Integral gain
           kr: [3.0, 3.0, 3.0]       # Attitude error gain
           min_output: [-100.0, -100.0, -100.0]  # Minimum output of each PID
           max_output: [ 100.0,  100.0,  100.0]  # Maximum output of each PID
