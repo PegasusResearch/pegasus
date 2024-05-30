@@ -56,9 +56,10 @@
 <li class="toctree-l1"><a class="reference internal" href="autopilot.html">Autopilot</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modes.html">Modes</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Controllers</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#definition-of-the-controller-interface">0. Definition of the Controller Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pid-controller-mathematical-background">1. PID Controller - Mathematical Background</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#mellinger-controller-mathematical-background">2. Mellinger Controller - Mathematical Background</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#controller-interface">0. Controller Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pid-controller-mathematical-background-and-implementation">1. PID Controller - Mathematical Background and Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mellinger-controller-mathematical-background-and-implementation">2. Mellinger Controller - Mathematical Background and Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#adding-a-custom-controller">3. Adding a Custom Controller</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="geofencing.html">Geofencing</a></li>
@@ -112,8 +113,22 @@
              
   <section id="controllers">
 <h1>Controllers<a class="headerlink" href="#controllers" title="Permalink to this heading"></a></h1>
-<section id="definition-of-the-controller-interface">
-<h2>0. Definition of the Controller Interface<a class="headerlink" href="#definition-of-the-controller-interface" title="Permalink to this heading"></a></h2>
+<p>A <code class="docutils literal notranslate"><span class="pre">controller</span></code> computes the control inputs for the vehicle to track a desired trajectory given an estimated state of the vehicle.
+The controller can be used by all the autopilot <code class="docutils literal notranslate"><span class="pre">modes</span></code> to compute the control inputs for the vehicle.</p>
+<p>If you want to prototype a new controller to be used only for following
+a specific trajectory, then it might make sense to implement it as a <code class="docutils literal notranslate"><span class="pre">mode</span></code> rather than a <code class="docutils literal notranslate"><span class="pre">controller</span></code> that is used by all the other available modes.</p>
+<p>This page is structured as follows:</p>
+<ul class="simple">
+<li><p>Section <a class="reference internal" href="#controller-interface"><span class="std std-ref">0. Controller Interface</span></a> details the interface that a controller must implement to be used by the autopilot.</p></li>
+<li><p>Section <a class="reference internal" href="#pid-controller-mathematical-background-and-implementation"><span class="std std-ref">1. PID Controller - Mathematical Background and Implementation</span></a> details the mathematical background for the PID controller that is implemented in the Pegasus Autopilot.</p></li>
+<li><p>Section <a class="reference internal" href="#mellinger-controller-mathematical-background-and-implementation"><span class="std std-ref">2. Mellinger Controller - Mathematical Background and Implementation</span></a> details the mathematical background for the Mellinger controller that is implemented in the Pegasus Autopilot.</p></li>
+<li><p>Section <a class="reference internal" href="#adding-a-custom-controller"><span class="std std-ref">3. Adding a Custom Controller</span></a> details how to add a custom controller to the autopilot.</p></li>
+</ul>
+<section id="controller-interface">
+<h2>0. Controller Interface<a class="headerlink" href="#controller-interface" title="Permalink to this heading"></a></h2>
+<p>The interface for the autopilot controller is defined in the autopilot package under the <code class="docutils literal notranslate"><span class="pre">pegasus_autopilot/autopilot/include/autopilot/controller.hpp</span></code> header file.
+The <code class="docutils literal notranslate"><span class="pre">Controller</span></code> class is an abstract class that defines the interface for the autopilot controller.</p>
+<p>Each autopilot controller <strong>must</strong> inherit from the <code class="docutils literal notranslate"><span class="pre">Controller</span></code> class and <strong>implement the following one or multiple methods highlighted in yellow</strong> in the code snippet below:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="k">namespace</span><span class="w"> </span><span class="nn">autopilot</span><span class="w"> </span><span class="p">{</span>
 <span class="linenos">  2</span>
 <span class="linenos">  3</span><span class="k">class</span><span class="w"> </span><span class="nc">Controller</span><span class="w"> </span><span class="p">{</span>
@@ -241,9 +256,31 @@
 <span class="linenos">125</span><span class="p">}</span><span class="w"> </span><span class="c1">// namespace autopilot</span>
 </pre></div>
 </div>
+<p>The methods that can be implemented are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">initialize</span></code>: This method is called once when the controller is initialized. It is used to set the controller parameters.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reset_controller</span></code>: This method is called when the controller is reset. It is used to reset the controller internal state (for example the integral term).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">set_position</span></code>: Set the desired position + yaw and yaw-rate (in deg, deg/s) to track (in the inertial frame in NED).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">set_velocity</span></code>: Set the desired velocity to track (in the inertial frame in NED).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">set_body_velocity</span></code>: Set the desired velocity to track (in the body frame in FRD).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">set_attitude</span></code>: Set the desired attitude (in deg for a FRD body frame relative to a NED inertial frame) and total thrust (in Newton) to track.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">set_attitude_rate</span></code>: Set the desired angular velocity to track (in deg/s for a FRD body frame relative to a NED inertial frame) and total thrust (in Newton) to track.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">set_motor_speed</span></code>: Set the individual desired motor speed (0-100%)</p></li>
+</ul>
+<p>Note that you do not need to implement all of these methods, only the ones that are necessary for your controller. <strong>However, keep in mind that
+all the autopilot modes can call any of these methods. If an autopilot mode calls a method that is not implemented:</strong></p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>A runtime exception will be thrown</p></li>
+<li><p>The autopilot will switch to the failsafe mode (if available)</p></li>
+<li><p>If the failsafe mode also calls a method that is not implemented, you are screwed.</p></li>
+</ol>
+</div></blockquote>
+<p>In practice, most operation modes will call the <code class="docutils literal notranslate"><span class="pre">set_position</span></code> method to set the desired position to track. As a good rule of thumb <strong>you should always implement the most generic version of this
+method</strong> that receives references up to the snap (even if you do not make use these higher-order derivatives in your controller).</p>
 </section>
-<section id="pid-controller-mathematical-background">
-<h2>1. PID Controller - Mathematical Background<a class="headerlink" href="#pid-controller-mathematical-background" title="Permalink to this heading"></a></h2>
+<section id="pid-controller-mathematical-background-and-implementation">
+<h2>1. PID Controller - Mathematical Background and Implementation<a class="headerlink" href="#pid-controller-mathematical-background-and-implementation" title="Permalink to this heading"></a></h2>
 <p>In this section we detail the mathematical background for the PID controller that is implemented in the Pegasus Autopilot, which sends attitude and total thrust commands for the inner-loops of the vehicle to track.
 This is the same algorithm used in <span id="id1">[<a class="reference internal" href="../references/bibliography.html#id2" title="Marcelo Jacinto. Cooperative motion control of aerial and marine vehicles for environmental applications. Master's thesis, Instituto Superior Técnico, October 2021. URL: https://fenix.tecnico.ulisboa.pt/cursos/meec/dissertacao/1972678479054971.">Jac21</a>, <a class="reference internal" href="../references/bibliography.html#id3" title="Marcelo Jacinto, Rita Cunha, and António Pascoal. Chemical spill encircling using a quadrotor and autonomous surface vehicles: a distributed cooperative approach. Sensors, 22(6):2178, 2022.">JCP22</a>]</span>.</p>
 <p>Consider a multirotor vehicle given by the double-integrator model:</p>
@@ -348,8 +385,8 @@ This is the same algorithm used in <span id="id1">[<a class="reference internal"
 <p>Since the quadrotor can be viewed as a double integrator, the integral action is not necessary for the system to be stable, and the natural position controller that emerges is a Proportional-Derivative (PD). However, in practice a little bit of integral action can be used to improve the tracking performance of the system and accomodade for model uncertainties (such as the mass).</p>
 </div>
 </section>
-<section id="mellinger-controller-mathematical-background">
-<h2>2. Mellinger Controller - Mathematical Background<a class="headerlink" href="#mellinger-controller-mathematical-background" title="Permalink to this heading"></a></h2>
+<section id="mellinger-controller-mathematical-background-and-implementation">
+<h2>2. Mellinger Controller - Mathematical Background and Implementation<a class="headerlink" href="#mellinger-controller-mathematical-background-and-implementation" title="Permalink to this heading"></a></h2>
 <p>In this section we detail the mathematical background for the Mellinger controller that is implemented in the Pegasus Autopilot. It sends angular rates and total thrust commands to the inner-loops of the vehicle to be tracked.
 This is an adapted version of the algorithm proposed in <span id="id2">[<a class="reference internal" href="../references/bibliography.html#id4" title="Daniel Mellinger and Vijay Kumar. Minimum snap trajectory generation and control for quadrotors. In 2011 IEEE International Conference on Robotics and Automation, volume, 2520-2525. 2011. doi:10.1109/ICRA.2011.5980409.">MK11</a>, <a class="reference internal" href="../references/bibliography.html#id5" title="João Pinto, Bruno J Guerreiro, and Rita Cunha. Planning Parcel Relay Manoeuvres for Quadrotors. In 2021 International Conference on Unmanned Aircraft Systems (ICUAS), 137–145. IEEE, 2021.">PGC21</a>]</span>. Reference trajectories <span class="math notranslate nohighlight">\(\{p_{des},~v_{des},~a_{des},~j_{des}\}\)</span> should be three times continuously differentiable.</p>
 <p>The vehicle translational dynamics derive from Newton’s 2nd law of motion and are expressed as</p>
@@ -517,6 +554,10 @@ y_b^{des} &amp;= z_b^{des} \times x_b^{des}\end{split}\]</div>
 <span class="linenos">89</span><span class="p">}</span>
 </pre></div>
 </div>
+</section>
+<section id="adding-a-custom-controller">
+<h2>3. Adding a Custom Controller<a class="headerlink" href="#adding-a-custom-controller" title="Permalink to this heading"></a></h2>
+<p>TODO</p>
 </section>
 </section>
 

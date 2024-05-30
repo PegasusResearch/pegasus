@@ -1,16 +1,57 @@
 Controllers
 ===========
 
-0. Definition of the Controller Interface
------------------------------------------
+A ``controller`` computes the control inputs for the vehicle to track a desired trajectory given an estimated state of the vehicle. 
+The controller can be used by all the autopilot ``modes`` to compute the control inputs for the vehicle. 
+
+If you want to prototype a new controller to be used only for following
+a specific trajectory, then it might make sense to implement it as a ``mode`` rather than a ``controller`` that is used by all the other available modes.
+
+This page is structured as follows:
+
+* Section :ref:`0. Controller Interface` details the interface that a controller must implement to be used by the autopilot.
+* Section :ref:`1. PID Controller - Mathematical Background and Implementation` details the mathematical background for the PID controller that is implemented in the Pegasus Autopilot.
+* Section :ref:`2. Mellinger Controller - Mathematical Background and Implementation` details the mathematical background for the Mellinger controller that is implemented in the Pegasus Autopilot.
+* Section :ref:`3. Adding a Custom Controller` details how to add a custom controller to the autopilot.
+
+0. Controller Interface
+-----------------------
+
+The interface for the autopilot controller is defined in the autopilot package under the ``pegasus_autopilot/autopilot/include/autopilot/controller.hpp`` header file. 
+The ``Controller`` class is an abstract class that defines the interface for the autopilot controller.
+
+Each autopilot controller **must** inherit from the ``Controller`` class and **implement the following one or multiple methods highlighted in yellow** in the code snippet below:
+
 .. literalinclude:: ../../../pegasus_autopilot/autopilot/include/autopilot/controller.hpp
    :language: c++
    :emphasize-lines: 31-34, 36-40, 42-49, 51-53, 55-57, 59-61, 63-65, 67-69, 71-78, 80-87, 89-96, 98-105, 107-112
    :lines: 62-186
    :lineno-start: 1
 
-1. PID Controller - Mathematical Background
--------------------------------------------
+The methods that can be implemented are:
+
+* ``initialize``: This method is called once when the controller is initialized. It is used to set the controller parameters.
+* ``reset_controller``: This method is called when the controller is reset. It is used to reset the controller internal state (for example the integral term).
+* ``set_position``: Set the desired position + yaw and yaw-rate (in deg, deg/s) to track (in the inertial frame in NED).
+* ``set_velocity``: Set the desired velocity to track (in the inertial frame in NED).
+* ``set_body_velocity``: Set the desired velocity to track (in the body frame in FRD).
+* ``set_attitude``: Set the desired attitude (in deg for a FRD body frame relative to a NED inertial frame) and total thrust (in Newton) to track.
+* ``set_attitude_rate``: Set the desired angular velocity to track (in deg/s for a FRD body frame relative to a NED inertial frame) and total thrust (in Newton) to track.
+* ``set_motor_speed``: Set the individual desired motor speed (0-100%)
+
+Note that you do not need to implement all of these methods, only the ones that are necessary for your controller. **However, keep in mind that
+all the autopilot modes can call any of these methods. If an autopilot mode calls a method that is not implemented:**
+
+   1. A runtime exception will be thrown
+   2. The autopilot will switch to the failsafe mode (if available)
+   3. If the failsafe mode also calls a method that is not implemented, you are screwed.
+
+In practice, most operation modes will call the ``set_position`` method to set the desired position to track. As a good rule of thumb **you should always implement the most generic version of this
+method** that receives references up to the snap (even if you do not make use these higher-order derivatives in your controller).
+
+
+1. PID Controller - Mathematical Background and Implementation
+--------------------------------------------------------------
 
 In this section we detail the mathematical background for the PID controller that is implemented in the Pegasus Autopilot, which sends attitude and total thrust commands for the inner-loops of the vehicle to track.
 This is the same algorithm used in :cite:p:`Jacinto2021mastersthesis,jacinto2022chemical`.
@@ -88,8 +129,8 @@ The code for converting the desired acceleration into a set of desired roll and 
 
    Since the quadrotor can be viewed as a double integrator, the integral action is not necessary for the system to be stable, and the natural position controller that emerges is a Proportional-Derivative (PD). However, in practice a little bit of integral action can be used to improve the tracking performance of the system and accomodade for model uncertainties (such as the mass).
 
-2. Mellinger Controller - Mathematical Background
--------------------------------------------------
+2. Mellinger Controller - Mathematical Background and Implementation
+--------------------------------------------------------------------
 
 In this section we detail the mathematical background for the Mellinger controller that is implemented in the Pegasus Autopilot. It sends angular rates and total thrust commands to the inner-loops of the vehicle to be tracked.
 This is an adapted version of the algorithm proposed in :cite:p:`Mellinger, Pinto2021`. Reference trajectories :math:`\{p_{des},~v_{des},~a_{des},~j_{des}\}` should be three times continuously differentiable.
@@ -226,3 +267,8 @@ This controller is implemented in ``pegasus_autopilot/autopilot_controllers/src/
    :language: c++
    :lines: 113-201
    :lineno-start: 1
+
+3. Adding a Custom Controller
+------------------------------
+
+TODO
