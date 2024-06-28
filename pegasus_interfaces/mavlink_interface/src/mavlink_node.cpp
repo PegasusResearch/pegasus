@@ -175,7 +175,9 @@ void MavlinkNode::initialize_telemetry() {
 
     this->telemetry_->set_rate_attitude_quaternion(50.0);
     this->telemetry_->set_rate_position_velocity_ned(30.0);
-    //this->telemetry_->set_rate_imu(30.0);
+    this->telemetry_->set_rate_gps_info(10.0);
+    this->telemetry_->set_rate_altitude(10.0);
+    this->telemetry_->set_rate_imu(30.0);
 }
 
 /**
