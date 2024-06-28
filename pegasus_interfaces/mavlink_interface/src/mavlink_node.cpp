@@ -365,6 +365,14 @@ uint8_t MavlinkNode::position_hold() {
 }
 
 /**
+ * @brief Method to set the home position of the onboard micro-controller.
+ */
+void MavlinkNode::set_home_position() {
+    mavsdk::MavlinkPassthrough::mavlink_message_t message;
+
+}
+
+/**
  * @defgroup mocap
  * This group defines all the constants and callbacks used to receive data from a mocap system (if available) and send
  * to the onboard vehicle microcontrol for data fusion

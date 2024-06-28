@@ -187,6 +187,11 @@ public:
     uint8_t position_hold();
 
     /**
+     * @brief Method to set the home position of the onboard micro-controller.
+     */
+    void set_home_position();
+
+    /**
      * @defgroup mocap
      * This group defines all the constants and callbacks used to receive data from a mocap system (if available) and send
      * to the onboard vehicle microcontrol for data fusion
