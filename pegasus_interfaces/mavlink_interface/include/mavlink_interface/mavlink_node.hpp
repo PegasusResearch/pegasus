@@ -76,6 +76,14 @@ public:
 
         std::string connection_address;                                    // The address of the vehicle to connect to (e.g. udp://:14540@localhost:14557)
         std::vector<std::string> forward_ips;                              // The ips to forward the mavlink messages to (e.g. QGroundControl)
+
+        // Rates for the 
+        double rate_attitude;
+        double rate_position;
+        double rate_gps;
+        double rate_altitude;
+        double rate_imu;
+
         std::function<void(uint8_t)> on_discover_callback{nullptr};        // Callback to be called whenever a new system is discovered, which receives the vehicle id
         std::function<void()> on_initialize_telemetry_callback{nullptr};   // Callback to be called whenever telemetry coming from the vehicle is initialized
         std::function<void()> on_initialize_actions_callback{nullptr};     // Callback to be called whenever actions that can be sent to the vehicle are initialized

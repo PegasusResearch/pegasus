@@ -107,6 +107,25 @@ void ROSNode::init_parameters() {
     this->declare_parameter<std::vector<std::string>>("mavlink_forward", std::vector<std::string>());
     rclcpp::Parameter mavlink_forward_ips = this->get_parameter("mavlink_forward");
 
+    // Get the rates at which to receive the telemetry data from the onboard micro-controller
+    this->declare_parameter<double>("mavlink_interface.rates.attitude", 50.0);
+    this->declare_parameter<double>("mavlink_interface.rates.position", 30.0);
+    this->declare_parameter<double>("mavlink_interface.rates.gps", 0.0);
+    this->declare_parameter<double>("mavlink_interface.rates.altitude", 0.0);
+    this->declare_parameter<double>("mavlink_interface.rates.imu", 0.0);
+    mavlink_config_.rate_attitude = this->get_parameter("mavlink_interface.rates.attitude").as_double();
+    mavlink_config_.rate_position = this->get_parameter("mavlink_interface.rates.position").as_double();
+    mavlink_config_.rate_gps = this->get_parameter("mavlink_interface.rates.gps").as_double();
+    mavlink_config_.rate_altitude = this->get_parameter("mavlink_interface.rates.altitude").as_double();
+    mavlink_config_.rate_imu = this->get_parameter("mavlink_interface.rates.imu").as_double();
+
+    // Log the rates
+    RCLCPP_INFO_STREAM(this->get_logger(), "Telemetry rate - attitude: " << mavlink_config_.rate_attitude);
+    RCLCPP_INFO_STREAM(this->get_logger(), "Telemetry rate - position: " << mavlink_config_.rate_position);
+    RCLCPP_INFO_STREAM(this->get_logger(), "Telemetry rate - gps: " << mavlink_config_.rate_gps);
+    RCLCPP_INFO_STREAM(this->get_logger(), "Telemetry rate - altitude: " << mavlink_config_.rate_altitude);
+    RCLCPP_INFO_STREAM(this->get_logger(), "Telemetry rate - imu: " << mavlink_config_.rate_imu);
+
     mavlink_config_.connection_address = connection_address.as_string();
     mavlink_config_.forward_ips = mavlink_forward_ips.as_string_array();
     mavlink_config_.on_discover_callback = std::bind(&ROSNode::update_system_id, this, std::placeholders::_1);

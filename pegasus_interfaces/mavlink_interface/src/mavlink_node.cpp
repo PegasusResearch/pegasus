@@ -173,11 +173,12 @@ void MavlinkNode::initialize_telemetry() {
     this->telemetry_->subscribe_battery(config_.on_battery_callback);
     this->telemetry_->subscribe_rc_status(config_.on_rc_callback);
 
-    this->telemetry_->set_rate_attitude_quaternion(50.0);
-    this->telemetry_->set_rate_position_velocity_ned(30.0);
-    this->telemetry_->set_rate_gps_info(10.0);
-    this->telemetry_->set_rate_altitude(10.0);
-    this->telemetry_->set_rate_imu(30.0);
+    // Set the rates at which to receive the telemetry data
+    this->telemetry_->set_rate_attitude_quaternion(config_.rate_attitude);
+    this->telemetry_->set_rate_position_velocity_ned(config_.rate_position);
+    this->telemetry_->set_rate_gps_info(config_.rate_gps);
+    this->telemetry_->set_rate_altitude(config_.rate_altitude);
+    this->telemetry_->set_rate_imu(config_.rate_imu);
 }
 
 /**
