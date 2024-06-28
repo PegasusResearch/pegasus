@@ -39,4 +39,10 @@
   <class type="autopilot::WaypointMode" base_class_type="autopilot::Mode">
       <description>Waypoint operation mode.</description>
   </class>
+
+  <!-- Consensus -->
+  <class type="autopilot::ConsensusMode" base_class_type="autopilot::Consensus">
+        <description>Consensus operation mode.</description>
+  </class>
+  
 </library>
