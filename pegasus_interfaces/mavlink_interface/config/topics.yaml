@@ -29,6 +29,7 @@
       kill_switch: "fmu/kill_switch"
       offboard: "fmu/offboard"
       hold: "fmu/hold"
+      set_home: "fmu/set_home"
     publishers:
       # Current status of the vehicle (battery, operation mode, etc.)
       status: "fmu/status"

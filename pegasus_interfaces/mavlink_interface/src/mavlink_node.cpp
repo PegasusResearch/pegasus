@@ -123,6 +123,9 @@ void MavlinkNode::new_mavlink_system_callback() {
         // Enable simple actions such as arming and landing
         this->initialize_actions();
 
+        // Enable the mavlink pass-through to send and receive mavlink messages
+        this->initialize_mavlink_passthrough();
+
         // Control a drone with position, velocity, attitude or motor commands
         this->initialize_offboard();
 
@@ -190,6 +193,17 @@ void MavlinkNode::initialize_actions() {
 
     // Initialize the mavsdk actions module to arm/disarm the vehicle and to auto-land the vehicle
     action_ = std::make_unique<mavsdk::Action>(this->system_);
+}
+
+/**
+ * @ingroup system_initializations
+ * @brief Method that is called by new_mavlink_system_callback whenever a new system is detected to initialize the
+ * mavlink passthrough submodule and allow for sending and receiving mavlink messages to and from the vehicle.
+ */
+void MavlinkNode::initialize_mavlink_passthrough() {
+
+    // Initialize the mavsdk pass-through module to send and receive mavlink messages
+    mavlink_passthrough_ = std::make_unique<mavsdk::MavlinkPassthrough>(this->system_);
 }
 
 /**
@@ -368,8 +382,18 @@ uint8_t MavlinkNode::position_hold() {
  * @brief Method to set the home position of the onboard micro-controller.
  */
 void MavlinkNode::set_home_position() {
-    mavsdk::MavlinkPassthrough::mavlink_message_t message;
-
+    mavsdk::MavlinkPassthrough::CommandLong ComLong;
+    ComLong.target_compid = mavlink_passthrough_->get_target_compid();
+    ComLong.target_sysid = mavlink_passthrough_->get_target_sysid();
+    ComLong.command = 48;           // SET_GPS_GLOBAL_ORIGIN 
+    ComLong.param1 = static_cast<uint32_t>(394136138);    // Latitude
+    ComLong.param2 = static_cast<uint32_t>(-91361315);    // Longitude
+    ComLong.param3 = static_cast<uint32_t>(58881);        // Altitude (MSL)
+    ComLong.param4 = NAN;
+    ComLong.param5 = NAN;
+    ComLong.param6 = NAN;
+    ComLong.param7 = NAN;
+    mavlink_passthrough_->send_command_long(ComLong);
 }
 
 /**

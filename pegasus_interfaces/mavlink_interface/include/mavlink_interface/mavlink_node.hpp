@@ -54,6 +54,7 @@
 #include <mavsdk/plugins/action/action.h>
 #include <mavsdk/plugins/offboard/offboard.h>
 #include <mavsdk/plugins/telemetry/telemetry.h>
+#include <mavsdk/plugins/mavlink_passthrough/mavlink_passthrough.h>
 #include <mavsdk/plugins/mocap/mocap.h>
 
 #include "rclcpp/rclcpp.hpp"
@@ -236,6 +237,13 @@ private:
 
     /**
      * @ingroup system_initializations
+     * @brief Method that is called by new_mavlink_system_callback whenever a new system is detected to initialize the
+     * mavlink passthrough submodule and allow for sending and receiving mavlink messages to and from the vehicle.
+     */
+    void initialize_mavlink_passthrough();
+
+    /**
+     * @ingroup system_initializations
      * @brief Method that is called by new_mavlink_system_callback whenever a new system is detect to initialize all
      * the offboard mode controllers that can be used via mavlink and create the corresponding ROS2 subscribers
      * for receiving such control inputs
@@ -289,7 +297,8 @@ private:
     std::unique_ptr<mavsdk::Action> action_{nullptr};
     std::unique_ptr<mavsdk::Offboard> offboard_{nullptr};
     std::unique_ptr<mavsdk::Telemetry> telemetry_{nullptr};
-    std::unique_ptr<mavsdk::Mocap> mocap_{nullptr};
+    std::unique_ptr<mavsdk::MavlinkPassthrough> mavlink_passthrough_{nullptr};
+    std::unique_ptr<mavsdk::Mocap> mocap_{nullptr};    
 
     /**
      * @defgroup mavsdk_control_messages
