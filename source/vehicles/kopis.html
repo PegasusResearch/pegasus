@@ -69,6 +69,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Kopis 3”</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#bill-of-materials">Bill of Materials</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#kopis-drone-setup">Kopis Drone Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#esp-configuration">ESP Configuration</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="snapdragon.html">Snapdragon Drone</a></li>
@@ -124,6 +125,20 @@
 </section>
 <section id="kopis-drone-setup">
 <h2>Kopis Drone Setup<a class="headerlink" href="#kopis-drone-setup" title="Permalink to this heading"></a></h2>
+</section>
+<section id="esp-configuration">
+<h2>ESP Configuration<a class="headerlink" href="#esp-configuration" title="Permalink to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Connect the FDTI cable to the ESP</p></li>
+</ol>
+<img alt="../../_images/esp8266-connection_pinout.jpeg" src="../../_images/esp8266-connection_pinout.jpeg" />
+<ol class="arabic simple" start="2">
+<li><p>Check whether your ESP runs with 3.3V or 5V</p></li>
+<li><p>Download the custom firmware from (TODO)</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">esptool</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">baud</span> <span class="mi">921600</span> <span class="o">--</span><span class="n">port</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">ttyUSB0</span> <span class="n">write_flash</span> <span class="mh">0x00000</span> <span class="n">firmware</span><span class="o">-</span><span class="mf">1.2.2</span><span class="o">.</span><span class="n">bin</span>
+</pre></div>
+</div>
 </section>
 </section>
 

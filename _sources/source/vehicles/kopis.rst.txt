@@ -20,3 +20,19 @@ In order to replicate the Pegasus Drone, the following components are required:
 
 Kopis Drone Setup
 -----------------
+
+ESP Configuration
+-----------------
+
+1. Connect the FDTI cable to the ESP
+
+.. image:: images/esp8266-connection_pinout.jpeg
+
+2. Check whether your ESP runs with 3.3V or 5V
+
+3. Download the custom firmware from (TODO)
+
+.. code::
+	
+	esptool.py --baud 921600 --port /dev/ttyUSB0 write_flash 0x00000 firmware-1.2.2.bin
+
