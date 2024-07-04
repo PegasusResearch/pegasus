@@ -68,6 +68,31 @@ def generate_launch_description():
     )
 
     # Call MAVLINK interface package launch file 
+    mavlink_interface_launch_file_kopis8 = IncludeLaunchDescription(
+        # Grab the launch file for the mavlink interface
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('mavlink_interface'), 'launch/mavlink_interface.launch.py')),
+        # Define costume launch arguments/parameters used for the mavlink interface
+        launch_arguments={
+            'vehicle_id': '8', 
+            'vehicle_ns': LaunchConfiguration('vehicle_ns'),
+            'drone_params': LaunchConfiguration('drone_params'),
+            'connection': 'udp://:15008',
+            'mavlink_forward': LaunchConfiguration('mavlink_forward'),
+        }.items(),
+    )
+
+    # Call autopilot package launch file
+    autopilot_launch_file_kopis8 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('autopilot'), 'launch/autopilot.launch.py')),
+        # Define costume launch arguments/parameters used 
+        launch_arguments={
+            'vehicle_id': '8',
+            'vehicle_ns': LaunchConfiguration('vehicle_ns'),
+            'autopilot_yaml': LaunchConfiguration('drone_params'),
+        }.items(),
+    )
+
+    # Call MAVLINK interface package launch file 
     mavlink_interface_launch_file_kopis9 = IncludeLaunchDescription(
         # Grab the launch file for the mavlink interface
         PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('mavlink_interface'), 'launch/mavlink_interface.launch.py')),
@@ -92,6 +117,31 @@ def generate_launch_description():
         }.items(),
     )
 
+    # Call MAVLINK interface package launch file 
+    mavlink_interface_launch_file_kopis10 = IncludeLaunchDescription(
+        # Grab the launch file for the mavlink interface
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('mavlink_interface'), 'launch/mavlink_interface.launch.py')),
+        # Define costume launch arguments/parameters used for the mavlink interface
+        launch_arguments={
+            'vehicle_id': '10', 
+            'vehicle_ns': LaunchConfiguration('vehicle_ns'),
+            'drone_params': LaunchConfiguration('drone_params'),
+            'connection': 'udp://:15010',
+            'mavlink_forward': LaunchConfiguration('mavlink_forward'),
+        }.items(),
+    )
+
+    # Call autopilot package launch file
+    autopilot_launch_file_kopis10 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('autopilot'), 'launch/autopilot.launch.py')),
+        # Define costume launch arguments/parameters used 
+        launch_arguments={
+            'vehicle_id': '10',
+            'vehicle_ns': LaunchConfiguration('vehicle_ns'),
+            'autopilot_yaml': LaunchConfiguration('drone_params'),
+        }.items(),
+    )
+
     # ----------------------------------------
     # ---- RETURN THE LAUNCH DESCRIPTION -----
     # ----------------------------------------
@@ -103,9 +153,15 @@ def generate_launch_description():
         # Launch files for kopis 7
         mavlink_interface_launch_file_kopis7,
         autopilot_launch_file_kopis7,
+        # Launch files for kopis 8
+        mavlink_interface_launch_file_kopis8,
+        autopilot_launch_file_kopis8,
         # Launch files for kopis 9
         mavlink_interface_launch_file_kopis9,
         autopilot_launch_file_kopis9,
+        # Launch files for kopis 10
+        mavlink_interface_launch_file_kopis10,
+        autopilot_launch_file_kopis10,
         # Launch file for the mocap interface
         mocap_launch_file
     ])

@@ -31,6 +31,7 @@ def generate_launch_description():
     #desktop_arena = "udp://192.168.1.100:15006"
     #mavlink_forward_addresses = "[" + udp_local_forward_adress + ',' + desktop_arena + "]"
     mavlink_forward_addresses = "['']"
+    #mavlink_forward_addresses = "['udp://192.168.1.240:14550']"
 
 
     # Namespace and ID of the vehicle as parameter received by the launch file
