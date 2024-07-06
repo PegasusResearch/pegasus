@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kopis 3” &mdash; Pegasus  documentation</title>
+  <title>Kopis Drone Setup &mdash; Pegasus  documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -66,10 +66,13 @@
 <p class="caption" role="heading"><span class="caption-text">Vehicles</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="pegasus.html">Pegasus Drone v1.0.0</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Kopis 3”</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Kopis Drone Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#arena-setup">Arena Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-the-kopis-3">Running the Kopis 3”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bill-of-materials">Bill of Materials</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#kopis-drone-setup">Kopis Drone Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kakute-h7-setup">Kakute H7 Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#esp-configuration">ESP Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#connection-diagram">Connection Diagram</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="snapdragon.html">Snapdragon Drone</a></li>
@@ -98,7 +101,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Kopis 3”</li>
+      <li class="breadcrumb-item active">Kopis Drone Setup</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/source/vehicles/kopis.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -108,12 +111,124 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="kopis-3">
-<h1>Kopis 3”<a class="headerlink" href="#kopis-3" title="Permalink to this heading"></a></h1>
-<a class="reference internal image-reference" href="https://holybro.com/cdn/shop/products/30064_2_1800x1800.jpg?v=1647227793"><img alt="Kopis 3 drone" class="align-center" src="https://holybro.com/cdn/shop/products/30064_2_1800x1800.jpg?v=1647227793" style="width: 600px;" /></a>
+  <section id="kopis-drone-setup">
+<h1>Kopis Drone Setup<a class="headerlink" href="#kopis-drone-setup" title="Permalink to this heading"></a></h1>
+<p>In this section, we will describe the setup of the Kopis 3” drone. The Kopis 3” is a small drone that can be used for formation control tasks. The drone is equipped with a Kakute H7 v2 flight controller and a ESP8266 module for communication with an offboard computer.</p>
+<a class="reference internal image-reference" href="https://holybro.com/cdn/shop/products/30064_2_1800x1800.jpg?v=1647227793"><img alt="Kopis 3 drone (source: Holybro)" class="align-center" src="https://holybro.com/cdn/shop/products/30064_2_1800x1800.jpg?v=1647227793" style="width: 600px;" /></a>
+<section id="arena-setup">
+<h2>Arena Setup<a class="headerlink" href="#arena-setup" title="Permalink to this heading"></a></h2>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">ID, IPs and Mavlink Ports and other information</span><a class="headerlink" href="#id1" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 6%" />
+<col style="width: 19%" />
+<col style="width: 6%" />
+<col style="width: 19%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 13%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>ID</p></th>
+<th class="head"><p>IP</p></th>
+<th class="head"><p>Port</p></th>
+<th class="head"><p>AP SSID</p></th>
+<th class="head"><p>AP Password</p></th>
+<th class="head"><p>Station SSID</p></th>
+<th class="head"><p>Status</p></th>
+<th class="head"><p>Config File</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>7</p></td>
+<td><p>192.168.1.247</p></td>
+<td><p>15007</p></td>
+<td><p>CineWhoop3-7</p></td>
+<td><p>pixracer</p></td>
+<td><p>Quadrotor</p></td>
+<td><p>❌/✔️</p></td>
+<td><p><a class="reference external" href="https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_7.params">kopis7.params</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>8</p></td>
+<td><p>192.168.1.248</p></td>
+<td><p>15008</p></td>
+<td><p>CineWhoop3-8</p></td>
+<td><p>pixracer</p></td>
+<td><p>Quadrotor</p></td>
+<td><p>✔️</p></td>
+<td><p><a class="reference external" href="https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_8.params">kopis8.params</a></p></td>
+</tr>
+<tr class="row-even"><td><p>9</p></td>
+<td><p>192.168.1.249</p></td>
+<td><p>15009</p></td>
+<td><p>CineWhoop3-9</p></td>
+<td><p>pixracer</p></td>
+<td><p>Quadrotor</p></td>
+<td><p>✔️</p></td>
+<td><p><a class="reference external" href="https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_9.params">kopis9.params</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>10</p></td>
+<td><p>192.168.1.250</p></td>
+<td><p>15010</p></td>
+<td><p>CineWhoop3-10</p></td>
+<td><p>pixracer</p></td>
+<td><p>Quadrotor</p></td>
+<td><p>✔️</p></td>
+<td><p><a class="reference external" href="https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_10.params">kopis10.params</a></p></td>
+</tr>
+</tbody>
+</table>
+<p>The vehicles are configured to connect to the station network if the Statis SSID is detected. Otherwise, the vehicles will create an AP with the AP SSID and AP Password, according to the table above.</p>
+</section>
+<section id="running-the-kopis-3">
+<h2>Running the Kopis 3”<a class="headerlink" href="#running-the-kopis-3" title="Permalink to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Install the Pegasus GNC code by following the instructions on the <a class="reference internal" href="../setup/installation.html#installation"><span class="std std-ref">Installation</span></a> page.</p></li>
+<li><p>Turn on the Kopis 3” drone by connecting the battery.</p></li>
+<li><p>Make sure your computer is connected to the station network or the AP network generated by the vehicle.</p></li>
+<li><p>Ensure that you can see the vehicle in the Flight Arena desktop computer using the Mocap system.</p></li>
+</ol>
+<blockquote>
+<div><div class="admonition-flight-arena-desktop-computer admonition">
+<p class="admonition-title">Flight arena desktop computer</p>
+<p>The name of the vehicle must follow the standard naming convention, e.g., <code class="docutils literal notranslate"><span class="pre">drone7</span></code>, in order for the GNC code to properly receive and use the pose information. Check the <a class="reference internal" href="../arena/arena.html#taguspark-flight-arena"><span class="std std-ref">Taguspark Flight Arena</span></a> page for more information.</p>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="4">
+<li><p>Run the following command to start the GNC code:</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>pegasus<span class="w"> </span>kopis.launch.py<span class="w"> </span>vehicle_id:<span class="o">=</span>&lt;vehicle_id&gt;
+</pre></div>
+</div>
+<div class="admonition-default-vehicle-id-and-namespace admonition">
+<p class="admonition-title">Default vehicle ID and namespace</p>
+<p>If no vehicle_id is provided, the default <code class="docutils literal notranslate"><span class="pre">vehicle_id</span></code> is 7. The default namespace is <code class="docutils literal notranslate"><span class="pre">vehicle_namespace:=drone</span></code>.</p>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="5">
+<li><p>The vehicle should now be connected to the offboard computer and ready to receive commands.</p></li>
+<li><p>Open the terminal console to control the vehicle</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>run<span class="w"> </span>pegasus_console<span class="w"> </span>pegasus_console<span class="w"> </span>-i<span class="w"> </span>&lt;vehicle_id&gt;
+</pre></div>
+</div>
+<div class="admonition-launching-all-kopis-drones-at-the-same-time admonition">
+<p class="admonition-title">Launching all kopis drones at the same time</p>
+<p>You can also launch all the Kopis drones at the same time by running the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>pegasus<span class="w"> </span>all_kopis.launch.py
+</pre></div>
+</div>
+<p>Note that you will still need to open a console for each vehicle to control them individually, or you can write a script to perform automated tasks.</p>
+</div>
+</div></blockquote>
+<p><strong>All the provided vehicles are configured such that they will not arm unless an RC remote is connected. This is a safety feature to prevent the vehicle from taking off unintentionally. All the vehicles are binded to the same RC remote, so you can use the same remote to control all the vehicles.</strong></p>
+</section>
 <section id="bill-of-materials">
 <h2>Bill of Materials<a class="headerlink" href="#bill-of-materials" title="Permalink to this heading"></a></h2>
-<p>In order to replicate the Pegasus Drone, the following components are required:</p>
+<p>In order to replicate the Kopis setup adopted on the ISR Flight Arena, the following components are required:</p>
 <ul class="simple">
 <li><p>1x <a class="reference external" href="https://holybro.com/products/kopis-cinewhoop-3-analog-vtx-version">Kopis Cinewhoop 3 (without camera &amp; VTX)</a></p></li>
 <li><p>1x <a class="reference external" href="https://pt.aliexpress.com/item/32995506222.html?spm=a2g0o.productlist.main.33.6327tsF8tsF80H&amp;algo_pvid=543de1e9-f2e1-4fa6-a3b8-6930dfbaca34&amp;algo_exp_id=543de1e9-f2e1-4fa6-a3b8-6930dfbaca34-16&amp;pdp_npi=4%40dis%21EUR%211.22%211.22%21%21%211.27%211.27%21%40210312d517134561652431119e9e17%2112000031251421154%21sea%21PT%210%21AB&amp;curPageLogUid=k6p8cp4UFkJJ&amp;utparam-url=scene%3Asearch%7Cquery_from%3A">ESP 07 with external antenna</a></p></li>
@@ -123,22 +238,119 @@
 <li><p>1x <a class="reference external" href="https://holybro.com/products/pmw3901-optical-flow-sensor">Optical flow sensor</a></p></li>
 </ul>
 </section>
-<section id="kopis-drone-setup">
-<h2>Kopis Drone Setup<a class="headerlink" href="#kopis-drone-setup" title="Permalink to this heading"></a></h2>
+<section id="kakute-h7-setup">
+<h2>Kakute H7 Setup<a class="headerlink" href="#kakute-h7-setup" title="Permalink to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Configure the Kakute H7 v2 flight controller with PX4 firmware (v1.14.2), by following the instructions on the <a class="reference external" href="https://docs.px4.io/main/en/flight_controller/kakuteh7v2.html">PX4 documentation</a>. Start by cloning and compiling the PX4 firmware repository and running the following commands:</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clone PX4 firmware repository</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/PX4/PX4-Autopilot.git
+<span class="nb">cd</span><span class="w"> </span>PX4-Autopilot
+git<span class="w"> </span>checkout<span class="w"> </span>v1.14.2
+
+<span class="c1"># Compile the bootloader for the board</span>
+make<span class="w"> </span>holybro_kakuteh7v2_bootloader
+
+<span class="c1"># Compile the firmware for the board</span>
+make<span class="w"> </span>holybro_kakuteh7v2_default
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>Install DFU-Util to flash the bootloader into the Kakute H7 v2:</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>dfu-util
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><p>Connect the Kakute H7 v2 to the computer using a USB cable and put the board in bootloader mode by pressing the button on the board while connecting the cable. Flash the bootloader into the Kakute H7 v2:</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dfu-util<span class="w"> </span>-a<span class="w"> </span><span class="m">0</span><span class="w"> </span>--dfuse-address<span class="w"> </span>0x08000000:force:mass-erase:leave<span class="w"> </span>-D<span class="w"> </span>build/holybro_kakuteh7v2_bootloader/holybro_kakuteh7v2_bootloader.bin
+dfu-util<span class="w"> </span>-a<span class="w"> </span><span class="m">0</span><span class="w"> </span>--dfuse-address<span class="w"> </span>0x08000000<span class="w"> </span>-D<span class="w">  </span>build/holybro_kakuteh7v2_bootloader/holybro_kakuteh7v2_bootloader.bin
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="4">
+<li><p>After flashing the bootloader, reboot the Kakute H7 v2 without pressing the button. Upload the firmware using QGroundControl by following the instructions on the <a class="reference external" href="https://docs.px4.io/main/en/flight_controller/kakuteh7v2.html">PX4 documentation</a> or run the command.</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>holybro_kakuteh7v2_default<span class="w"> </span>upload
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="5">
+<li><p>After having the firmware installed, connect the Kakute H7 v2 to the computer and open QGroundControl.</p></li>
+<li><p>Load the Kopis parameters from the configuration file <a class="reference external" href="https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_7.params">kopis7.params</a>.</p></li>
+<li><p>Change the MAV_SYS_ID parameter to the ID of the new vehicle.</p></li>
+</ol>
 </section>
 <section id="esp-configuration">
 <h2>ESP Configuration<a class="headerlink" href="#esp-configuration" title="Permalink to this heading"></a></h2>
 <ol class="arabic simple">
-<li><p>Connect the FDTI cable to the ESP</p></li>
+<li><p>Connect the USB-FDTI cable to the ESP, and turn the switch into the <code class="docutils literal notranslate"><span class="pre">PROGRAM</span></code> position.</p></li>
 </ol>
+<blockquote>
+<div><div class="admonition-warning admonition">
+<p class="admonition-title">Warning</p>
+<p>Check whether your ESP runs with 3.3V or 5V before connecting the FDTI cable</p>
+</div>
 <img alt="../../_images/esp8266-connection_pinout.jpeg" src="../../_images/esp8266-connection_pinout.jpeg" />
+</div></blockquote>
 <ol class="arabic simple" start="2">
-<li><p>Check whether your ESP runs with 3.3V or 5V</p></li>
-<li><p>Download the custom firmware from (TODO)</p></li>
+<li><p>Install the esptool by running the following command:</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">esptool</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">baud</span> <span class="mi">921600</span> <span class="o">--</span><span class="n">port</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">ttyUSB0</span> <span class="n">write_flash</span> <span class="mh">0x00000</span> <span class="n">firmware</span><span class="o">-</span><span class="mf">1.2.2</span><span class="o">.</span><span class="n">bin</span>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>esptool
 </pre></div>
 </div>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><p>Download the custom compiled firmware from <a class="reference external" href="https://github.com/PegasusResearch/drone_configs/tree/main/ESP8266">here</a>.</p></li>
+<li><p>Erase the ESP flash memory by running the following command:</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>esptool.py<span class="w"> </span>--baud<span class="w"> </span><span class="m">921600</span><span class="w"> </span>--port<span class="w"> </span>/dev/ttyUSB0<span class="w"> </span>erase_flash
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../../_images/esptool_erase_flash.png"><img alt="Erasing the ESP flash memory" class="align-center" src="../../_images/esptool_erase_flash.png" style="width: 600px;" /></a>
+</div></blockquote>
+<ol class="arabic simple" start="5">
+<li><p>Flash the firmware into the ESP using the following command:</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>esptool.py<span class="w"> </span>--baud<span class="w"> </span><span class="m">921600</span><span class="w"> </span>--port<span class="w"> </span>/dev/ttyUSB0<span class="w"> </span>write_flash<span class="w"> </span>0x00000<span class="w"> </span>firmware-1.2.2.bin
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../../_images/esptool_write_flash.png"><img alt="Write the ESP flash memory" class="align-center" src="../../_images/esptool_write_flash.png" style="width: 600px;" /></a>
+</div></blockquote>
+<ol class="arabic simple" start="6">
+<li><p>Reboot the ESP with the switch in the <code class="docutils literal notranslate"><span class="pre">UART</span></code> position.</p></li>
+<li><p>Connect the computer to the <code class="docutils literal notranslate"><span class="pre">PixRacer</span></code> wifi network generated by the ESP. The password is <code class="docutils literal notranslate"><span class="pre">pixracer</span></code>.</p></li>
+</ol>
+<blockquote>
+<div><a class="reference internal image-reference" href="../../_images/pixracer_select_wifi_network.png"><img alt="ESP wifi network" class="align-center" src="../../_images/pixracer_select_wifi_network.png" style="width: 200px;" /></a>
+</div></blockquote>
+<ol class="arabic simple" start="8">
+<li><p>On your browser, go to the IP address <code class="docutils literal notranslate"><span class="pre">192.168.4.1</span></code> and click on the <code class="docutils literal notranslate"><span class="pre">Setup</span></code> link. This will open a page with the default configurations.</p></li>
+</ol>
+<blockquote>
+<div><a class="reference internal image-reference" href="../../_images/mavlink_wifi_bridge_default.png"><img alt="ESP setup page" class="align-center" src="../../_images/mavlink_wifi_bridge_default.png" style="width: 300px;" /></a>
+</div></blockquote>
+<ol class="arabic simple" start="9">
+<li><p>Change the configurations according to the image bellow, by setting the <code class="docutils literal notranslate"><span class="pre">UDP</span> <span class="pre">Port</span></code>, <code class="docutils literal notranslate"><span class="pre">AP</span> <span class="pre">SSID``and</span> <span class="pre">``Station</span> <span class="pre">IP</span></code> according to the standard adopted in the table above.</p></li>
+</ol>
+<blockquote>
+<div><a class="reference internal image-reference" href="../../_images/mavlink_wifi_bridge_station_params.png"><img alt="ESP configuration" class="align-center" src="../../_images/mavlink_wifi_bridge_station_params.png" style="width: 300px;" /></a>
+</div></blockquote>
+</section>
+<section id="connection-diagram">
+<h2>Connection Diagram<a class="headerlink" href="#connection-diagram" title="Permalink to this heading"></a></h2>
+<p>TODO</p>
+<p>If you have any questions or need help with the setup, please check the <a class="reference external" href="https://ardupilot.org/copter/docs/common-esp8266-telemetry.html">ardupilot reference page</a>.</p>
 </section>
 </section>
 

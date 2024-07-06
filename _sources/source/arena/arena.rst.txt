@@ -11,8 +11,23 @@ The arena dimensions are 7.0 x 4.0 x 2.5 m.
         :align: center
         :alt: Taguspark flight arena
 
-|
 
+.. list-table:: Arena Configurations
+   :widths: 5 15 
+   :header-rows: 0
+    
+   * - Station SSID
+     - Quadrotor
+   * - Station Password
+     - 
+   * - IP Range
+     - 192.168.1.0/24
+   * - IPs reserved for vehicles
+     - 192.168.1.241 to 192.168.1.254
+   * - Desktop IP
+     - 
+   * - Free IP for laptop
+     - 192.168.1.100 
 Here we describe the setup and calibration procedures for the OptiTrack MCS.
 
 Setting up Optitrack with Motive
