@@ -1,7 +1,7 @@
 Kopis Drone Setup
 =================
 
-In this section, we will describe the setup of the Kopis 3" drone. The Kopis 3" is a small drone that can be used for formation control tasks. The drone is equipped with a Kakute H7 v2 flight controller and a ESP8266 module for communication with an offboard computer.
+In this section, we describe the setup of the Kopis Cinewhoop 3" drone. Equipped with a Kakute H7 v2 flight controller and a ESP8266 module for communication with an offboard computer, the Kopis Cinewhoop 3" is a flying platform that enables the fast prototyping and testing of formation controllers in dedicated flight arenas such as the :ref:`Taguspark Flight Arena`.
 
 .. image:: https://holybro.com/cdn/shop/products/30064_2_1800x1800.jpg?v=1647227793
   :width: 600
@@ -74,7 +74,7 @@ Running the Kopis 3"
     The name of the vehicle must follow the standard naming convention, e.g., ``drone7``, in order for the GNC code to properly receive and use the pose information. Check the :ref:`Taguspark Flight Arena` page for more information.
 
 
-4. Run the following command to start the GNC code:
+  Run the following command to start the GNC code:
 
   .. code:: bash
 
@@ -107,7 +107,7 @@ Running the Kopis 3"
 Bill of Materials
 -----------------
 
-In order to replicate the Kopis setup adopted on the ISR Flight Arena, the following components are required:
+In order to replicate the Kopis setup adopted on the Taguspark Flight Arena, the following components are required:
 
 * 1x `Kopis Cinewhoop 3 (without camera & VTX) <https://holybro.com/products/kopis-cinewhoop-3-analog-vtx-version>`__
 * 1x `ESP 07 with external antenna <https://pt.aliexpress.com/item/32995506222.html?spm=a2g0o.productlist.main.33.6327tsF8tsF80H&algo_pvid=543de1e9-f2e1-4fa6-a3b8-6930dfbaca34&algo_exp_id=543de1e9-f2e1-4fa6-a3b8-6930dfbaca34-16&pdp_npi=4%40dis%21EUR%211.22%211.22%21%21%211.27%211.27%21%40210312d517134561652431119e9e17%2112000031251421154%21sea%21PT%210%21AB&curPageLogUid=k6p8cp4UFkJJ&utparam-url=scene%3Asearch%7Cquery_from%3A>`__
@@ -147,7 +147,7 @@ Kakute H7 Setup
       dfu-util -a 0 --dfuse-address 0x08000000:force:mass-erase:leave -D build/holybro_kakuteh7v2_bootloader/holybro_kakuteh7v2_bootloader.bin
       dfu-util -a 0 --dfuse-address 0x08000000 -D  build/holybro_kakuteh7v2_bootloader/holybro_kakuteh7v2_bootloader.bin
 
-4. After flashing the bootloader, reboot the Kakute H7 v2 without pressing the button. Upload the firmware using QGroundControl by following the instructions on the `PX4 documentation <https://docs.px4.io/main/en/flight_controller/kakuteh7v2.html>`__ or run the command.
+4. After flashing the bootloader, reboot the Kakute H7 v2 without pressing the button. Upload the firmware by using QGroundControl and following the instructions on the `PX4 documentation <https://docs.px4.io/main/en/flight_controller/kakuteh7v2.html>`__ or run the command.
 
   .. code:: bash
 

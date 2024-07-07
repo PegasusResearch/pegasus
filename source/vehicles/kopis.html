@@ -113,7 +113,7 @@
              
   <section id="kopis-drone-setup">
 <h1>Kopis Drone Setup<a class="headerlink" href="#kopis-drone-setup" title="Permalink to this heading"></a></h1>
-<p>In this section, we will describe the setup of the Kopis 3” drone. The Kopis 3” is a small drone that can be used for formation control tasks. The drone is equipped with a Kakute H7 v2 flight controller and a ESP8266 module for communication with an offboard computer.</p>
+<p>In this section, we describe the setup of the Kopis Cinewhoop 3” drone. Equipped with a Kakute H7 v2 flight controller and a ESP8266 module for communication with an offboard computer, the Kopis Cinewhoop 3” is a flying platform that enables the fast prototyping and testing of formation controllers in dedicated flight arenas such as the <a class="reference internal" href="../arena/arena.html#taguspark-flight-arena"><span class="std std-ref">Taguspark Flight Arena</span></a>.</p>
 <a class="reference internal image-reference" href="https://holybro.com/cdn/shop/products/30064_2_1800x1800.jpg?v=1647227793"><img alt="Kopis 3 drone (source: Holybro)" class="align-center" src="https://holybro.com/cdn/shop/products/30064_2_1800x1800.jpg?v=1647227793" style="width: 600px;" /></a>
 <section id="arena-setup">
 <h2>Arena Setup<a class="headerlink" href="#arena-setup" title="Permalink to this heading"></a></h2>
@@ -194,12 +194,8 @@
 <p class="admonition-title">Flight arena desktop computer</p>
 <p>The name of the vehicle must follow the standard naming convention, e.g., <code class="docutils literal notranslate"><span class="pre">drone7</span></code>, in order for the GNC code to properly receive and use the pose information. Check the <a class="reference internal" href="../arena/arena.html#taguspark-flight-arena"><span class="std std-ref">Taguspark Flight Arena</span></a> page for more information.</p>
 </div>
-</div></blockquote>
-<ol class="arabic simple" start="4">
-<li><p>Run the following command to start the GNC code:</p></li>
-</ol>
-<blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>pegasus<span class="w"> </span>kopis.launch.py<span class="w"> </span>vehicle_id:<span class="o">=</span>&lt;vehicle_id&gt;
+<p>Run the following command to start the GNC code:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>pegasus<span class="w"> </span>kopis.launch.py<span class="w"> </span>vehicle_id:<span class="o">=</span>&lt;vehicle_id&gt;
 </pre></div>
 </div>
 <div class="admonition-default-vehicle-id-and-namespace admonition">
@@ -228,7 +224,7 @@
 </section>
 <section id="bill-of-materials">
 <h2>Bill of Materials<a class="headerlink" href="#bill-of-materials" title="Permalink to this heading"></a></h2>
-<p>In order to replicate the Kopis setup adopted on the ISR Flight Arena, the following components are required:</p>
+<p>In order to replicate the Kopis setup adopted on the Taguspark Flight Arena, the following components are required:</p>
 <ul class="simple">
 <li><p>1x <a class="reference external" href="https://holybro.com/products/kopis-cinewhoop-3-analog-vtx-version">Kopis Cinewhoop 3 (without camera &amp; VTX)</a></p></li>
 <li><p>1x <a class="reference external" href="https://pt.aliexpress.com/item/32995506222.html?spm=a2g0o.productlist.main.33.6327tsF8tsF80H&amp;algo_pvid=543de1e9-f2e1-4fa6-a3b8-6930dfbaca34&amp;algo_exp_id=543de1e9-f2e1-4fa6-a3b8-6930dfbaca34-16&amp;pdp_npi=4%40dis%21EUR%211.22%211.22%21%21%211.27%211.27%21%40210312d517134561652431119e9e17%2112000031251421154%21sea%21PT%210%21AB&amp;curPageLogUid=k6p8cp4UFkJJ&amp;utparam-url=scene%3Asearch%7Cquery_from%3A">ESP 07 with external antenna</a></p></li>
@@ -275,7 +271,7 @@ dfu-util<span class="w"> </span>-a<span class="w"> </span><span class="m">0</spa
 </div>
 </div></blockquote>
 <ol class="arabic simple" start="4">
-<li><p>After flashing the bootloader, reboot the Kakute H7 v2 without pressing the button. Upload the firmware using QGroundControl by following the instructions on the <a class="reference external" href="https://docs.px4.io/main/en/flight_controller/kakuteh7v2.html">PX4 documentation</a> or run the command.</p></li>
+<li><p>After flashing the bootloader, reboot the Kakute H7 v2 without pressing the button. Upload the firmware by using QGroundControl and following the instructions on the <a class="reference external" href="https://docs.px4.io/main/en/flight_controller/kakuteh7v2.html">PX4 documentation</a> or run the command.</p></li>
 </ol>
 <blockquote>
 <div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>holybro_kakuteh7v2_default<span class="w"> </span>upload

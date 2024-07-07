@@ -4,7 +4,7 @@ Taguspark Flight Arena
 The Taguspark flight arena is an indoor space, under the administration of the ISR-Lisbon, which features an OptiTrack Motion Capture System (MCS).
 The MCS consists of 8 cameras that are mounted on the ceiling of the arena and is used to track the position and orientation of rigid bodies equipped with reflective markers.
 A dedicated computer streams the obtained data into a computer network.
-The arena dimensions are 7.0 x 4.0 x 2.5 m.
+The arena dimensions are 7.8 x 5.0 x 2.5 m.
 
 .. image:: /_static/taguspark_arena/arena_pictures/taguspark_arena.jpg
         :width: 600px
@@ -12,7 +12,9 @@ The arena dimensions are 7.0 x 4.0 x 2.5 m.
         :alt: Taguspark flight arena
 
 
-.. list-table:: Arena Configurations
+Some information about the computer network is provided in the table below.
+
+.. list-table:: Arena Network Configurations
    :widths: 5 15 
    :header-rows: 0
     
@@ -25,9 +27,10 @@ The arena dimensions are 7.0 x 4.0 x 2.5 m.
    * - IPs reserved for vehicles
      - 192.168.1.241 to 192.168.1.254
    * - Desktop IP
-     - 
+     - 192.168.1.100
    * - Free IP for laptop
-     - 192.168.1.100 
+     - 192.168.1.240
+      
 Here we describe the setup and calibration procedures for the OptiTrack MCS.
 
 Setting up Optitrack with Motive
