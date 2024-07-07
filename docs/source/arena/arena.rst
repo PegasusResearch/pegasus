@@ -11,9 +11,6 @@ The arena dimensions are 7.8 x 5.0 x 2.5 m.
         :align: center
         :alt: Taguspark flight arena
 
-
-Some information about the computer network is provided in the table below.
-
 .. list-table:: Arena Network Configurations
    :widths: 5 15 
    :header-rows: 0
