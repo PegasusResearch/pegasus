@@ -11,9 +11,6 @@ The arena dimensions are 7.8 x 5.0 x 2.5 m.
         :align: center
         :alt: Taguspark flight arena
 
-
-Some information about the computer network is provided in the table below.
-
 .. list-table:: Arena Network Configurations
    :widths: 5 15 
    :header-rows: 0
@@ -126,3 +123,58 @@ Setting up Optitrack with Motive
             :width: 600px
             :align: center
             :alt: Creating the rigid body from the marker selection
+
+
+Troubleshooting
+-----------------
+
+Here we provide some insight to solve some of the most frequent issues.
+Please check the `Motive reference page <https://docs.optitrack.com/motive/rigid-body-tracking>`_ for more information on the calibration and troubleshooting procedures.
+
+Shaky Rigid Body Asset
+^^^^^^^^^^^^^^^^^^^^^^
+
+If by looking at an asset in the 3D viewport you notice that it is shaking when the Rigid body is stationary, you should then resort to the Rigid Body refinement tool to improve the accuracy of the Rigid Body calculations in Motive.
+This tool allows Motive to collect additional samples, achieving more accurate tracking results by improving the calculation of expected marker locations of the Rigid Body as well as the position and orientation of the Rigid Body itself.
+
+.. |builder_pane_icon| image:: /_static/taguspark_arena/calibration/builder_pane_icon.png
+
+1. From the View menu, open the Builder pane, or click the |builder_pane_icon| button on the toolbar.
+
+    .. image:: /_static/taguspark_arena/calibration/open_builder_pane.png
+            :width: 600px
+            :align: center
+            :alt: Open the Builder pane
+
+2. Click the Edit tab.
+
+3. Select the Rigid Body to be refined in the Assets pane.
+
+4. Place the Rigid Body in the center of the arena so as many cameras as possible can clearly capture its markers.
+
+  a. In the **Refine** section of the Edit tab of the Builder pane, click *Start...*
+
+  b. **Slowly rotate** the Rigid Body to collect samples at different orientations until the progress bar is full.
+
+ .. image:: /_static/taguspark_arena/calibration/builder_pane_refine.png
+            :width: 600px
+            :align: center
+            :alt: Refine asset
+
+
+Marker Placement
+^^^^^^^^^^^^^^^^^
+
+* Placing too many markers on one Rigid Body is not recommended.
+  When too many markers are placed in close vicinity, markers may overlap on the camera view, and Motive may not resolve individual reflections. This can increase the likelihood of label-swaps during capture.
+
+  .. admonition:: \ \
+    
+    Whenever possible, though, it is best to use 4 or more markers to create a Rigid Body. 
+    Additional markers provide more 3D coordinates for computing positions and orientations of a rigid body, making overall tracking more stable and less vulnerable to marker occlusions.
+
+* Placing the markers in symmetrical shapes such as squares, isosceles, or equilateral triangles make asset identification difficult and may cause the Rigid Body assets to flip during capture.
+  Within a Rigid Body asset, the markers should be placed asymmetrically because this provides a clear distinction of orientations.
+
+* Not having unique Rigid Bodies could lead to labeling errors especially when tracking several assets with similar size and shape. 
+  When tracking multiple objects using passive markers, it is beneficial to create unique Rigid Body assets in Motive. Specifically, you need to place retroreflective markers in a distinctive arrangement between each object, which will allow Motive to more clearly identify the markers on each Rigid Body throughout capture.

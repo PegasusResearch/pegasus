@@ -73,6 +73,11 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Taguspark Flight Arena</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#setting-up-optitrack-with-motive">Setting up Optitrack with Motive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#shaky-rigid-body-asset">Shaky Rigid Body Asset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#marker-placement">Marker Placement</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -113,7 +118,6 @@ The MCS consists of 8 cameras that are mounted on the ceiling of the arena and i
 A dedicated computer streams the obtained data into a computer network.
 The arena dimensions are 7.8 x 5.0 x 2.5 m.</p>
 <a class="reference internal image-reference" href="../../_images/taguspark_arena.jpg"><img alt="Taguspark flight arena" class="align-center" src="../../_images/taguspark_arena.jpg" style="width: 600px;" /></a>
-<p>Some information about the computer network is provided in the table below.</p>
 <table class="docutils align-default" id="id1">
 <caption><span class="caption-text">Arena Network Configurations</span><a class="headerlink" href="#id1" title="Permalink to this table"></a></caption>
 <colgroup>
@@ -214,6 +218,52 @@ However, the calibration accuracy naturally deteriorates over time due to ambien
 <a class="reference internal image-reference" href="../../_images/10_creating_the_rigid_body.png"><img alt="Creating the rigid body from the marker selection" class="align-center" src="../../_images/10_creating_the_rigid_body.png" style="width: 600px;" /></a>
 </li>
 </ol>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this heading"></a></h2>
+<p>Here we provide some insight to solve some of the most frequent issues.
+Please check the <a class="reference external" href="https://docs.optitrack.com/motive/rigid-body-tracking">Motive reference page</a> for more information on the calibration and troubleshooting procedures.</p>
+<section id="shaky-rigid-body-asset">
+<h3>Shaky Rigid Body Asset<a class="headerlink" href="#shaky-rigid-body-asset" title="Permalink to this heading"></a></h3>
+<p>If by looking at an asset in the 3D viewport you notice that it is shaking when the Rigid body is stationary, you should then resort to the Rigid Body refinement tool to improve the accuracy of the Rigid Body calculations in Motive.
+This tool allows Motive to collect additional samples, achieving more accurate tracking results by improving the calculation of expected marker locations of the Rigid Body as well as the position and orientation of the Rigid Body itself.</p>
+<ol class="arabic">
+<li><p>From the View menu, open the Builder pane, or click the <img alt="builder_pane_icon" src="../../_images/builder_pane_icon.png" /> button on the toolbar.</p>
+<blockquote>
+<div><a class="reference internal image-reference" href="../../_images/open_builder_pane.png"><img alt="Open the Builder pane" class="align-center" src="../../_images/open_builder_pane.png" style="width: 600px;" /></a>
+</div></blockquote>
+</li>
+<li><p>Click the Edit tab.</p></li>
+<li><p>Select the Rigid Body to be refined in the Assets pane.</p></li>
+<li><p>Place the Rigid Body in the center of the arena so as many cameras as possible can clearly capture its markers.</p></li>
+</ol>
+<blockquote>
+<div><blockquote>
+<div><ol class="loweralpha simple">
+<li><p>In the <strong>Refine</strong> section of the Edit tab of the Builder pane, click <em>Start…</em></p></li>
+<li><p><strong>Slowly rotate</strong> the Rigid Body to collect samples at different orientations until the progress bar is full.</p></li>
+</ol>
+</div></blockquote>
+<a class="reference internal image-reference" href="../../_images/builder_pane_refine.png"><img alt="Refine asset" class="align-center" src="../../_images/builder_pane_refine.png" style="width: 600px;" /></a>
+</div></blockquote>
+</section>
+<section id="marker-placement">
+<h3>Marker Placement<a class="headerlink" href="#marker-placement" title="Permalink to this heading"></a></h3>
+<ul>
+<li><p>Placing too many markers on one Rigid Body is not recommended.
+When too many markers are placed in close vicinity, markers may overlap on the camera view, and Motive may not resolve individual reflections. This can increase the likelihood of label-swaps during capture.</p>
+<div class="admonition- admonition">
+<p class="admonition-title"></p>
+<p>Whenever possible, though, it is best to use 4 or more markers to create a Rigid Body.
+Additional markers provide more 3D coordinates for computing positions and orientations of a rigid body, making overall tracking more stable and less vulnerable to marker occlusions.</p>
+</div>
+</li>
+<li><p>Placing the markers in symmetrical shapes such as squares, isosceles, or equilateral triangles make asset identification difficult and may cause the Rigid Body assets to flip during capture.
+Within a Rigid Body asset, the markers should be placed asymmetrically because this provides a clear distinction of orientations.</p></li>
+<li><p>Not having unique Rigid Bodies could lead to labeling errors especially when tracking several assets with similar size and shape.
+When tracking multiple objects using passive markers, it is beneficial to create unique Rigid Body assets in Motive. Specifically, you need to place retroreflective markers in a distinctive arrangement between each object, which will allow Motive to more clearly identify the markers on each Rigid Body throughout capture.</p></li>
+</ul>
+</section>
 </section>
 </section>
 
