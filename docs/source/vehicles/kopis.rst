@@ -1,7 +1,7 @@
 Kopis Drone Setup
 =================
 
-In this section, we describe the setup of the Kopis Cinewhoop 3" drone. Equipped with a Kakute H7 v2 flight controller and an ESP8266 module for communication with an offboard computer, the Kopis Cinewhoop 3" is a flying platform that enables the fast prototyping and testing of formation controllers in dedicated flight arenas such as the :ref:`Taguspark Flight Arena`.
+In this section, we describe the setup of the Kopis Cinewhoop 3" drone. Equipped with a Kakute H7 v2 flight controller and an ESP8266 module for communication with an offboard computer, the Kopis Cinewhoop 3" is a small drone that enables the fast prototyping and testing of control algoritms in dedicated flight arenas such as the :ref:`Taguspark Flight Arena`.
 
 .. image:: https://holybro.com/cdn/shop/products/30064_2_1800x1800.jpg?v=1647227793
   :width: 600
