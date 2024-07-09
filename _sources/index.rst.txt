@@ -2,6 +2,11 @@
 Pegasus Documentation
 ===================================
 
+..  youtube:: BxUyFCwAXuo
+   :width: 100%
+   :align: center
+   :privacy_mode:
+
 Overview
 ========
 
