@@ -63,7 +63,8 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Gazebo Classic</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installing-gazebo-classic">Installing Gazebo Classic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installing-px4-autopilot">Installing PX4-Autopilot</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#setup-the-pegasus-gazebo-package">Setup the Pegasus Gazebo package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-the-pegasus-gazebo-package">Installing the Pegasus Gazebo package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-a-simulation">Running a Simulation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pegasus_simulator.html">Pegasus Simulator</a></li>
@@ -110,10 +111,11 @@
              
   <section id="gazebo-classic">
 <h1>Gazebo Classic<a class="headerlink" href="#gazebo-classic" title="Permalink to this heading"></a></h1>
+<p>In this section, we will explain how to install and setup Gazebo Classic and PX4-Autopilot for performing simulations with pegasus.
+This was tested on Ubuntu 22.04.</p>
 <section id="installing-gazebo-classic">
 <h2>Installing Gazebo Classic<a class="headerlink" href="#installing-gazebo-classic" title="Permalink to this heading"></a></h2>
-<ol class="arabic">
-<li><p>Install gazebo classic:</p>
+<p>Start by installing gazebo classic. Make sure that you do not have the <cite>gz-garden</cite> package installed, as it may conflict with the installation of gazebo classic.</p>
 <blockquote>
 <div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Make sure to uninstall gazebo garden (if installed)</span>
 sudo<span class="w"> </span>apt<span class="w"> </span>remove<span class="w"> </span>gz-garden
@@ -127,8 +129,6 @@ sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> <
 </pre></div>
 </div>
 </div></blockquote>
-</li>
-</ol>
 </section>
 <section id="installing-px4-autopilot">
 <h2>Installing PX4-Autopilot<a class="headerlink" href="#installing-px4-autopilot" title="Permalink to this heading"></a></h2>
@@ -172,8 +172,43 @@ make<span class="w"> </span>px4_sitl<span class="w"> </span>gazebo-classic
 </li>
 </ol>
 </section>
-<section id="setup-the-pegasus-gazebo-package">
-<h2>Setup the Pegasus Gazebo package<a class="headerlink" href="#setup-the-pegasus-gazebo-package" title="Permalink to this heading"></a></h2>
+<section id="installing-the-pegasus-gazebo-package">
+<h2>Installing the Pegasus Gazebo package<a class="headerlink" href="#installing-the-pegasus-gazebo-package" title="Permalink to this heading"></a></h2>
+<ol class="arabic">
+<li><p>In the Pegasus workspace, clone the following repository:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Go to the src folder of the Pegasus workspace</span>
+<span class="nb">cd</span><span class="w"> </span>~/pegasus/src
+
+<span class="c1"># Clone the repository (SSH)</span>
+git<span class="w"> </span>clone<span class="w"> </span>git@github.com:PegasusResearch/pegasus_gazebo.git
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Compile the code:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Go to the workspace</span>
+<span class="nb">cd</span><span class="w"> </span>~/pegasus
+
+<span class="c1"># Compile the code</span>
+colcon<span class="w"> </span>build<span class="w"> </span>--symlink-install
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Source the workspace in the .bashrc file:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;source ~/pegasus/install/setup.bash&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
+</section>
+<section id="running-a-simulation">
+<h2>Running a Simulation<a class="headerlink" href="#running-a-simulation" title="Permalink to this heading"></a></h2>
+<p>TODO</p>
 </section>
 </section>
 

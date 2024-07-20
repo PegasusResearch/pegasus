@@ -1,10 +1,13 @@
 Gazebo Classic
 ==============
 
+In this section, we will explain how to install and setup Gazebo Classic and PX4-Autopilot for performing simulations with pegasus.
+This was tested on Ubuntu 22.04.
+
 Installing Gazebo Classic
 -------------------------
 
-1. Install gazebo classic:
+Start by installing gazebo classic. Make sure that you do not have the `gz-garden` package installed, as it may conflict with the installation of gazebo classic.
 
     .. code:: bash
 
@@ -57,6 +60,35 @@ To install PX4-Autopilot, follow the following steps:
         # Compile the code in SITL mode
         make px4_sitl gazebo-classic
 
-Setup the Pegasus Gazebo package
---------------------------------
+Installing the Pegasus Gazebo package
+-------------------------------------
 
+1. In the Pegasus workspace, clone the following repository:
+
+    .. code-block:: bash
+
+        # Go to the src folder of the Pegasus workspace
+        cd ~/pegasus/src
+
+        # Clone the repository (SSH)
+        git clone git@github.com:PegasusResearch/pegasus_gazebo.git
+
+2. Compile the code:
+
+    .. code:: bash
+
+        # Go to the workspace
+        cd ~/pegasus
+
+        # Compile the code
+        colcon build --symlink-install
+
+3. Source the workspace in the .bashrc file:
+
+    .. code:: bash
+
+        echo "source ~/pegasus/install/setup.bash" >> ~/.bashrc
+
+Running a Simulation
+--------------------
+TODO
