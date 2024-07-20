@@ -32,6 +32,8 @@ def generate_launch_description():
     #otg_port = "udp://192.168.55.100:15006"
     #mavlink_forward_addresses = "[" + desktop_arena + "," + otg_port + "]"
     mavlink_forward_addresses = "['']"
+    mavlink_forward_addresses = "['udp://10.42.0.1:15006']"
+    mavlink_forward_addresses = "['udp://192.168.55.100:15006']"
 
     # Namespace and ID of the vehicle as parameter received by the launch file
     id_arg = DeclareLaunchArgument('vehicle_id', default_value=str(vehicle_id), description='Drone ID in the network')

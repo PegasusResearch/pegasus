@@ -76,6 +76,7 @@
 #include "pegasus_msgs/srv/land.hpp"
 #include "pegasus_msgs/srv/offboard.hpp"
 #include "pegasus_msgs/srv/position_hold.hpp"
+#include "pegasus_msgs/srv/set_home_position.hpp"
 
 // Messages for the mocap fusion and visual odometry
 #include "geometry_msgs/msg/pose_stamped.hpp"
@@ -380,6 +381,16 @@ private:
     void position_hold_callback(const pegasus_msgs::srv::PositionHold::Request::SharedPtr, const pegasus_msgs::srv::PositionHold::Response::SharedPtr response);
 
     /**
+     * @ingroup servicesCallbacks
+     * @brief Set the home position callback. When a service request is reached from the set_home_position_service_,
+     * this callback is called and will send a mavlink command for the vehicle to set the home position to the specified latitude, longitude and altitude
+     * 
+     * @param request The latitude, longitude and altitude of the home position
+     * @param response None
+     */
+    void set_home_position_callback(const pegasus_msgs::srv::SetHomePosition::Request::SharedPtr request, const pegasus_msgs::srv::SetHomePosition::Response::SharedPtr response);
+
+    /**
      *  @defgroup messages 
      *  This group defines all the ROS messages that will always be constant and
      *  updated with the most recent values
@@ -519,6 +530,12 @@ private:
      * @brief Service server to set the vehicle into the hold position mode
      */
     rclcpp::Service<pegasus_msgs::srv::PositionHold>::SharedPtr position_hold_service_{nullptr};
+
+    /**
+     * @ingroup services
+     * @brief Service server to set the home position of the vehicle
+     */
+    rclcpp::Service<pegasus_msgs::srv::SetHomePosition>::SharedPtr set_home_position_service_{nullptr};
 
     /**
      * @brief A MavlinkNode object that allows for initializing the ROS2 publishers, subscribers, etc.

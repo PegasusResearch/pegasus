@@ -107,6 +107,25 @@ void ROSNode::init_parameters() {
     this->declare_parameter<std::vector<std::string>>("mavlink_forward", std::vector<std::string>());
     rclcpp::Parameter mavlink_forward_ips = this->get_parameter("mavlink_forward");
 
+    // Get the rates at which to receive the telemetry data from the onboard micro-controller
+    this->declare_parameter<double>("mavlink_interface.rates.attitude", 50.0);
+    this->declare_parameter<double>("mavlink_interface.rates.position", 30.0);
+    this->declare_parameter<double>("mavlink_interface.rates.gps", 0.0);
+    this->declare_parameter<double>("mavlink_interface.rates.altitude", 0.0);
+    this->declare_parameter<double>("mavlink_interface.rates.imu", 0.0);
+    mavlink_config_.rate_attitude = this->get_parameter("mavlink_interface.rates.attitude").as_double();
+    mavlink_config_.rate_position = this->get_parameter("mavlink_interface.rates.position").as_double();
+    mavlink_config_.rate_gps = this->get_parameter("mavlink_interface.rates.gps").as_double();
+    mavlink_config_.rate_altitude = this->get_parameter("mavlink_interface.rates.altitude").as_double();
+    mavlink_config_.rate_imu = this->get_parameter("mavlink_interface.rates.imu").as_double();
+
+    // Log the rates
+    RCLCPP_INFO_STREAM(this->get_logger(), "Telemetry rate - attitude: " << mavlink_config_.rate_attitude);
+    RCLCPP_INFO_STREAM(this->get_logger(), "Telemetry rate - position: " << mavlink_config_.rate_position);
+    RCLCPP_INFO_STREAM(this->get_logger(), "Telemetry rate - gps: " << mavlink_config_.rate_gps);
+    RCLCPP_INFO_STREAM(this->get_logger(), "Telemetry rate - altitude: " << mavlink_config_.rate_altitude);
+    RCLCPP_INFO_STREAM(this->get_logger(), "Telemetry rate - imu: " << mavlink_config_.rate_imu);
+
     mavlink_config_.connection_address = connection_address.as_string();
     mavlink_config_.forward_ips = mavlink_forward_ips.as_string_array();
     mavlink_config_.on_discover_callback = std::bind(&ROSNode::update_system_id, this, std::placeholders::_1);
@@ -284,6 +303,14 @@ void ROSNode::init_subscribers_and_services() {
     position_hold_service_ = this->create_service<pegasus_msgs::srv::PositionHold>(
         position_hold_topic.as_string(), std::bind(&ROSNode::position_hold_callback, this, std::placeholders::_1, std::placeholders::_2));
 
+
+    // ------------------------------------------------------------------------
+    // Initiate the service to set the home position
+    // ------------------------------------------------------------------------
+    this->declare_parameter<std::string>("services.set_home", "set_home");
+    rclcpp::Parameter set_home_topic = this->get_parameter("services.set_home");
+    set_home_position_service_ = this->create_service<pegasus_msgs::srv::SetHomePosition>(
+        set_home_topic.as_string(), std::bind(&ROSNode::set_home_position_callback, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 /**
@@ -817,4 +844,17 @@ void ROSNode::position_hold_callback(const pegasus_msgs::srv::PositionHold::Requ
 
     // Set the response to the result of the offboard command
     response->success = mavlink_node_->position_hold();
+}
+
+/**
+ * @ingroup servicesCallbacks
+ * @brief Set the home position callback. When a service request is reached from the set_home_position_service_,
+ * this callback is called and will send a mavlink command for the vehicle to set the home position to the specified latitude, longitude and altitude
+ * 
+ * @param request The latitude, longitude and altitude of the home position
+ * @param response None
+ */
+void ROSNode::set_home_position_callback(const pegasus_msgs::srv::SetHomePosition::Request::SharedPtr request, const pegasus_msgs::srv::SetHomePosition::Response::SharedPtr response) {
+    // Call the mavlink node to set the home position
+    mavlink_node_->set_home_position();
 }

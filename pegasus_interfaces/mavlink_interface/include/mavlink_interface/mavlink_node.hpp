@@ -54,6 +54,7 @@
 #include <mavsdk/plugins/action/action.h>
 #include <mavsdk/plugins/offboard/offboard.h>
 #include <mavsdk/plugins/telemetry/telemetry.h>
+#include <mavsdk/plugins/mavlink_passthrough/mavlink_passthrough.h>
 #include <mavsdk/plugins/mocap/mocap.h>
 
 #include "rclcpp/rclcpp.hpp"
@@ -76,6 +77,14 @@ public:
 
         std::string connection_address;                                    // The address of the vehicle to connect to (e.g. udp://:14540@localhost:14557)
         std::vector<std::string> forward_ips;                              // The ips to forward the mavlink messages to (e.g. QGroundControl)
+
+        // Rates for the 
+        double rate_attitude;
+        double rate_position;
+        double rate_gps;
+        double rate_altitude;
+        double rate_imu;
+
         std::function<void(uint8_t)> on_discover_callback{nullptr};        // Callback to be called whenever a new system is discovered, which receives the vehicle id
         std::function<void()> on_initialize_telemetry_callback{nullptr};   // Callback to be called whenever telemetry coming from the vehicle is initialized
         std::function<void()> on_initialize_actions_callback{nullptr};     // Callback to be called whenever actions that can be sent to the vehicle are initialized
@@ -179,6 +188,11 @@ public:
     uint8_t position_hold();
 
     /**
+     * @brief Method to set the home position of the onboard micro-controller.
+     */
+    void set_home_position();
+
+    /**
      * @defgroup mocap
      * This group defines all the constants and callbacks used to receive data from a mocap system (if available) and send
      * to the onboard vehicle microcontrol for data fusion
@@ -220,6 +234,13 @@ private:
      * the actions that we can send through mavlink and create the corresponding ROS2 actions for arming/disarming and auto-landing
      */
     void initialize_actions();
+
+    /**
+     * @ingroup system_initializations
+     * @brief Method that is called by new_mavlink_system_callback whenever a new system is detected to initialize the
+     * mavlink passthrough submodule and allow for sending and receiving mavlink messages to and from the vehicle.
+     */
+    void initialize_mavlink_passthrough();
 
     /**
      * @ingroup system_initializations
@@ -276,7 +297,8 @@ private:
     std::unique_ptr<mavsdk::Action> action_{nullptr};
     std::unique_ptr<mavsdk::Offboard> offboard_{nullptr};
     std::unique_ptr<mavsdk::Telemetry> telemetry_{nullptr};
-    std::unique_ptr<mavsdk::Mocap> mocap_{nullptr};
+    std::unique_ptr<mavsdk::MavlinkPassthrough> mavlink_passthrough_{nullptr};
+    std::unique_ptr<mavsdk::Mocap> mocap_{nullptr};    
 
     /**
      * @defgroup mavsdk_control_messages
