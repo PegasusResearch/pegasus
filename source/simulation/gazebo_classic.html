@@ -63,6 +63,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Gazebo Classic</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installing-gazebo-classic">Installing Gazebo Classic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installing-px4-autopilot">Installing PX4-Autopilot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setup-the-pegasus-gazebo-package">Setup the Pegasus Gazebo package</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pegasus_simulator.html">Pegasus Simulator</a></li>
@@ -111,6 +112,23 @@
 <h1>Gazebo Classic<a class="headerlink" href="#gazebo-classic" title="Permalink to this heading"></a></h1>
 <section id="installing-gazebo-classic">
 <h2>Installing Gazebo Classic<a class="headerlink" href="#installing-gazebo-classic" title="Permalink to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Install gazebo classic:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Make sure to uninstall gazebo garden (if installed)</span>
+sudo<span class="w"> </span>apt<span class="w"> </span>remove<span class="w"> </span>gz-garden
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>aptitude
+
+<span class="c1"># Install gazebo (classic)</span>
+sudo<span class="w"> </span>aptitude<span class="w"> </span>install<span class="w"> </span>gazebo<span class="w"> </span>libgazebo11<span class="w"> </span>libgazebo-dev
+
+<span class="c1"># Install the ROS packages for gazebo</span>
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>ros-humble-gazebo-ros<span class="w"> </span>ros-humble-gazebo-ros-pkgs
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
 </section>
 <section id="installing-px4-autopilot">
 <h2>Installing PX4-Autopilot<a class="headerlink" href="#installing-px4-autopilot" title="Permalink to this heading"></a></h2>
@@ -138,26 +156,24 @@ git<span class="w"> </span>clone<span class="w"> </span>git@github.com:PX4/PX4-A
 </div>
 </div></blockquote>
 </li>
-<li><p>Checkout to the stable version 1.14.1 and compile the code for software-in-the-loop (SITL) mode:</p>
+<li><p>Checkout to the stable version 1.14.3 and compile the code for software-in-the-loop (SITL) mode:</p>
 <blockquote>
 <div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Go to the PX4 directory</span>
 <span class="nb">cd</span><span class="w"> </span>PX4-Autopilot
 
 <span class="c1"># Checkout to the latest stable release</span>
-git<span class="w"> </span>checkout<span class="w"> </span>v1.14.1
-
-<span class="c1"># Initiate all the submodules. Note this will download modules such as SITL-gazebo which we do not need</span>
-<span class="c1"># but this is the safest way to make sure that the PX4-Autopilot and its submodules are all checked out in</span>
-<span class="c1"># a stable and well tested release</span>
-git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>--recursive
+git<span class="w"> </span>checkout<span class="w"> </span>v1.14.3
 
 <span class="c1"># Compile the code in SITL mode</span>
-make<span class="w"> </span>px4_sitl_default<span class="w"> </span>gazebo
+make<span class="w"> </span>px4_sitl<span class="w"> </span>gazebo-classic
 </pre></div>
 </div>
 </div></blockquote>
 </li>
 </ol>
+</section>
+<section id="setup-the-pegasus-gazebo-package">
+<h2>Setup the Pegasus Gazebo package<a class="headerlink" href="#setup-the-pegasus-gazebo-package" title="Permalink to this heading"></a></h2>
 </section>
 </section>
 

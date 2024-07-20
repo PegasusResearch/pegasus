@@ -4,6 +4,19 @@ Gazebo Classic
 Installing Gazebo Classic
 -------------------------
 
+1. Install gazebo classic:
+
+    .. code:: bash
+
+        # Make sure to uninstall gazebo garden (if installed)
+        sudo apt remove gz-garden
+        sudo apt install aptitude
+        
+        # Install gazebo (classic)
+        sudo aptitude install gazebo libgazebo11 libgazebo-dev
+
+        # Install the ROS packages for gazebo
+        sudo apt install ros-humble-gazebo-ros ros-humble-gazebo-ros-pkgs
 
 
 Installing PX4-Autopilot
@@ -31,7 +44,7 @@ To install PX4-Autopilot, follow the following steps:
         # Option 2: With SSH (you need to setup a github account with ssh keys)
         git clone git@github.com:PX4/PX4-Autopilot.git
 
-3. Checkout to the stable version 1.14.1 and compile the code for software-in-the-loop (SITL) mode:
+3. Checkout to the stable version 1.14.3 and compile the code for software-in-the-loop (SITL) mode:
 
     .. code:: bash
         
@@ -39,12 +52,11 @@ To install PX4-Autopilot, follow the following steps:
         cd PX4-Autopilot
 
         # Checkout to the latest stable release
-        git checkout v1.14.1
-
-        # Initiate all the submodules. Note this will download modules such as SITL-gazebo which we do not need
-        # but this is the safest way to make sure that the PX4-Autopilot and its submodules are all checked out in 
-        # a stable and well tested release
-        git submodule update --init --recursive
+        git checkout v1.14.3
 
         # Compile the code in SITL mode
-        make px4_sitl_default gazebo
+        make px4_sitl gazebo-classic
+
+Setup the Pegasus Gazebo package
+--------------------------------
+
