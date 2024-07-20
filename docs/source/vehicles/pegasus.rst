@@ -30,6 +30,16 @@ In order to replicate the Pegasus Drone, the following components are required:
 PX4 Configuration for Indoor Flight
 -----------------------------------
 
+Jetson Orin Nano Setup
+----------------------
+
+In order to setup the Jetson Orin Nano Developer Kit, follow the instructions bellow. 
+
+1. Start by installing the `Nvidia SDK manager <https://developer.nvidia.com/sdk-manager>`__ on a machine with Ubuntu 22.04LTS or later.
+2. Connect the Jetson Orin Nano Developer Kit to the machine using a USB-C cable.
+
+You can find more information on the `Nvidia Jetson Orin Nano Developer Kit <https://developer.nvidia.com/embedded/learn/get-started-jetson-orin-nano-devkit>`_ page.
+
 Pegasus Drone Setup
 -------------------
 
