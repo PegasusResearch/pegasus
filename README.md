@@ -18,6 +18,10 @@ This work is part of the **Pegasus Project**, a semi-personal side project start
 This project is provided as is, with no warranty or support. It is intended to be used as a reference for other researchers and developers in the field of control and robotics. It may **NOT**
 be used for commercial purposes or military applications without the explicit consent from the project founder.
 
+## Documentation
+
+The documentation for this project is available at [https://pegasusresearch.github.io/pegasus/](https://pegasusresearch.github.io/pegasus/).
+
 ## Citation
 
 While an article for the Pegasus GNC project is not publicly available yet, if you find ``Pegasus GNC`` useful in your academic work, please cite the "second most adequate paper":
