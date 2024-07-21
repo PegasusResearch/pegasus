@@ -12,6 +12,11 @@
       control:
         # High-level control (position, body velocity and inertial acceleration)
         position: "fmu/in/position"
+        # High-level velocity control (inertial and body frame)
+        inertial_velocity: "fmu/in/velocity/inertial"
+        body_velocity: "fmu/in/velocity/body"
+        # High-level acceleration controller (in inertial frame)
+        inertial_acceleration: "fmu/in/inertial_acceleration"
         # Low-level control (attitude and attitude-rate control + throttle)
         thrust:
           attitude: "fmu/in/throtle/attitude"

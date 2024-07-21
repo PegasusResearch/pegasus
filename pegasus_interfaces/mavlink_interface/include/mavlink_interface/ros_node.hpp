@@ -69,6 +69,8 @@
 // Messages for the control commands (position, attitude, etc.)
 #include "pegasus_msgs/msg/control_position.hpp"
 #include "pegasus_msgs/msg/control_attitude.hpp"
+#include "pegasus_msgs/msg/control_velocity.hpp"
+#include "pegasus_msgs/msg/control_acceleration.hpp"
 
 // Services for arming, auto-landing, etc.
 #include "pegasus_msgs/srv/arm.hpp"
@@ -283,7 +285,28 @@ private:
      * @param msg A message with the desired position for the vehicle in NED
      */
     void position_callback(const pegasus_msgs::msg::ControlPosition::ConstSharedPtr msg);
+
+    /**
+     * @ingroup subscriberCallbacks
+     * @brief Inertial velocity subscriber callback. The velocity should be expressed in the NED reference frame
+     * @param msg A message with the desired velocity for the vehicle in NED
+     */
+    void inertial_velocity_callback(const pegasus_msgs::msg::ControlVelocity::ConstSharedPtr msg);
     
+    /**
+     * @ingroup subscriberCallbacks
+     * @brief Body velocity subscriber callback. The velocity should be expressed in the body frame of f.r.d convention
+     * @param msg A message with the desired velocity for the vehicle in the body frame
+     */
+    void body_velocity_callback(const pegasus_msgs::msg::ControlVelocity::ConstSharedPtr msg);
+    
+    /**
+     * @ingroup subscriberCallbacks
+     * @brief Acceleration subscriber callback. The acceleration should be expressed in the inertial frame NED
+     * @param msg A message with the desired acceleration for the vehicle in NED
+     */
+    void inertial_acceleration_callback(const pegasus_msgs::msg::ControlAcceleration::ConstSharedPtr msg);
+
     /**
      * @ingroup subscriberCallbacks
      * @brief Attitude and thrust subscriber callback. The attitude should be specified in euler angles in degrees
@@ -455,6 +478,10 @@ private:
      * @brief Position subscriber. The position of the vehicle should be expressed in the NED reference frame
      */
     rclcpp::Subscription<pegasus_msgs::msg::ControlPosition>::SharedPtr position_control_sub_{nullptr};
+
+    rclcpp::Subscription<pegasus_msgs::msg::ControlVelocity>::SharedPtr inertial_velocity_control_sub_{nullptr};
+    rclcpp::Subscription<pegasus_msgs::msg::ControlVelocity>::SharedPtr body_velocity_control_sub_{nullptr};
+    rclcpp::Subscription<pegasus_msgs::msg::ControlAcceleration>::SharedPtr inertial_acceleration_control_sub_{nullptr};
 
     /**
      * @ingroup subscribers

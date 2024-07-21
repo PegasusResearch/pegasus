@@ -344,6 +344,65 @@ void MavlinkNode::set_position(const float x, const float y, const float z, cons
 }
 
 /**
+ * @ingroup control_callbacks
+ * @brief Set the inertial velocity (Vx, Vy, Vz) (m/s) and yaw (deg) of the vehicle. The adopted frame is NED
+ * @param vx The velocity in the North direction in the inertial NED frame
+ * @param vy The velocity in the East direction in the inertial NED frame
+ * @param vz The velocity in the Down direction in the inertial NED frame
+ * @param yaw The yaw angle in deg
+ */
+void MavlinkNode::set_inertial_velocity(const float vx, const float vy, const float vz, const float yaw) {
+        
+    // Populate the MAVSDK structure (with velocity Vx, Vy, Vz in inertial NED frame -> north-east-down) and the respective yaw angle (expressed in deg)
+    inertial_velocity_.north_m_s = vx;
+    inertial_velocity_.east_m_s = vy;
+    inertial_velocity_.down_m_s = vz;
+    inertial_velocity_.yaw_deg = yaw;
+
+    // Send the message to the onboard vehicle controller
+    offboard_->set_velocity_ned(inertial_velocity_);
+}
+
+/**
+ * @ingroup control_callbacks
+ * @brief Set the body velocity (Vx, Vy, Vz) (m/s) and yaw-rate (deg/s) of the vehicle. The adopted frame is f.r.d
+ * Note that with quadrotors, the roll and pitch of the body frame-are ignored, and the vehicle is actuated in a "cheated" body velocity
+ * @param vx The velocity in the x direction in the body frame (projected for 0 roll)
+ * @param vy The velocity in the y direction in the body frame (projected for 0 pitch)
+ * @param vz The velocity in the z direction in the body frame
+ * @param yaw_rate The angular velocity around the z-axis in the body frame
+ */
+void MavlinkNode::set_body_velocity(const float vx, const float vy, const float vz, const float yaw_rate) {
+
+    // Populate the MAVSDK structure (with velocity Vx, Vy, Vz in body frame -> forward-right-down) and the respective yaw rate (expressed in deg/s)
+    body_velocity_.forward_m_s = vx;
+    body_velocity_.right_m_s = vy;
+    body_velocity_.down_m_s = vz;
+    body_velocity_.yawspeed_deg_s = yaw_rate;
+
+    // Send the message to the onboard vehicle controller
+    offboard_->set_velocity_body(body_velocity_);
+}
+
+/**
+ * @ingroup control_callbacks
+ * @brief Set the inertial acceleration (Ax, Ay, Az) (m/s^2) of the vehicle. The adopted frame is NED
+ * @param ax The acceleration in the North direction in the inertial NED frame
+ * @param ay The acceleration in the East direction in the inertial NED frame
+ * @param az The acceleration in the Down direction in the inertial NED frame
+ */
+void MavlinkNode::set_inertial_acceleration(const float ax, const float ay, const float az) {
+
+    // Populate the MAVSDK structure (with acceleration Ax, Ay, Az in inertial NED frame -> north-east-down)
+    acceleration_.north_m_s2 = ax;
+    acceleration_.east_m_s2 = ay;
+    acceleration_.down_m_s2 = az;
+
+    // Send the message to the onboard vehicle controller
+    offboard_->set_acceleration_ned(acceleration_);
+}
+
+/**
  * @brief Method to arm or disarm the vehicle
  * @param arm_disarm The boolean that is 1 to arm the vehicle and 0 to disarm
  */

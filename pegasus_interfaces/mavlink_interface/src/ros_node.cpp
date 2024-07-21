@@ -216,6 +216,31 @@ void ROSNode::init_subscribers_and_services() {
         position_control_topic.as_string(), rclcpp::SensorDataQoS(), std::bind(&ROSNode::position_callback, this, std::placeholders::_1));
 
     // ------------------------------------------------------------------------
+    // Subscribe to the inertial velocity control (north-east-down in meters/s NED) and desired yaw (in deg)
+    // ------------------------------------------------------------------------
+    this->declare_parameter<std::string>("subscribers.control.inertial_velocity", "control/inertial_velocity"); 
+    rclcpp::Parameter inertial_velocity_control_topic = this->get_parameter("subscribers.control.inertial_velocity");
+    inertial_velocity_control_sub_ = this->create_subscription<pegasus_msgs::msg::ControlVelocity>(
+        inertial_velocity_control_topic.as_string(), rclcpp::SensorDataQoS(), std::bind(&ROSNode::inertial_velocity_callback, this, std::placeholders::_1));
+
+    // ------------------------------------------------------------------------
+    // Subscribe to the body velocity control (front-right-down in meters/s frd) and desired yaw-rate (in deg/s)
+    // ------------------------------------------------------------------------
+    this->declare_parameter<std::string>("subscribers.control.body_velocity", "control/body_velocity"); 
+    rclcpp::Parameter body_velocity_control_topic = this->get_parameter("subscribers.control.body_velocity");
+    body_velocity_control_sub_ = this->create_subscription<pegasus_msgs::msg::ControlVelocity>(
+        body_velocity_control_topic.as_string(), rclcpp::SensorDataQoS(), std::bind(&ROSNode::body_velocity_callback, this, std::placeholders::_1));
+
+    // ------------------------------------------------------------------------
+    // Subscribe to the inertial acceleration control (north-east-down in meters/s^2 NED)
+    // ------------------------------------------------------------------------
+    this->declare_parameter<std::string>("subscribers.control.inertial_acceleration", "control/inertial_acceleration"); 
+    rclcpp::Parameter inertial_acceleration_control_topic = this->get_parameter("subscribers.control.inertial_acceleration");
+    inertial_acceleration_control_sub_ = this->create_subscription<pegasus_msgs::msg::ControlAcceleration>(
+        inertial_acceleration_control_topic.as_string(), rclcpp::SensorDataQoS(), std::bind(&ROSNode::inertial_acceleration_callback, this, std::placeholders::_1));
+
+
+    // ------------------------------------------------------------------------
     // Subscribe to the attitude (roll, pitch, yaw NED frame) and desired total thrust (0-100%)
     // ------------------------------------------------------------------------
     this->declare_parameter<std::string>("subscribers.control.thrust.attitude", "control/attitude_thrust");
@@ -388,6 +413,38 @@ void ROSNode::position_callback(const pegasus_msgs::msg::ControlPosition::ConstS
     // Send the position reference thorugh mavlink for the onboard microcontroller
     mavlink_node_->set_position(msg->position[0], msg->position[1], msg->position[2], msg->yaw);
 }
+
+
+/**
+ * @ingroup subscriberCallbacks
+ * @brief Inertial velocity subscriber callback. The velocity should be expressed in the NED reference frame
+ * @param msg A message with the desired velocity for the vehicle in NED
+ */
+void ROSNode::inertial_velocity_callback(const pegasus_msgs::msg::ControlVelocity::ConstSharedPtr msg) {
+    // Send the velocity reference thorugh mavlink for the onboard microcontroller
+    mavlink_node_->set_inertial_velocity(msg->velocity[0], msg->velocity[1], msg->velocity[2], msg->yaw);
+}
+
+/**
+ * @ingroup subscriberCallbacks
+ * @brief Body velocity subscriber callback. The velocity should be expressed in the body frame of f.r.d convention
+ * @param msg A message with the desired velocity for the vehicle in the body frame
+ */
+void ROSNode::body_velocity_callback(const pegasus_msgs::msg::ControlVelocity::ConstSharedPtr msg) {
+    // Send the velocity reference thorugh mavlink for the onboard microcontroller
+    mavlink_node_->set_body_velocity(msg->velocity[0], msg->velocity[1], msg->velocity[2], msg->yaw);
+}
+
+/**
+ * @ingroup subscriberCallbacks
+ * @brief Acceleration subscriber callback. The acceleration should be expressed in the inertial frame NED
+ * @param msg A message with the desired acceleration for the vehicle in NED
+ */
+void ROSNode::inertial_acceleration_callback(const pegasus_msgs::msg::ControlAcceleration::ConstSharedPtr msg) {
+    // Send the acceleration reference thorugh mavlink for the onboard microcontroller
+    mavlink_node_->set_inertial_acceleration(msg->acceleration[0], msg->acceleration[1], msg->acceleration[2]);
+}
+
 
 /**
  * @ingroup subscriberCallbacks

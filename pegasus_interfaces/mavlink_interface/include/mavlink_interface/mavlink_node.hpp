@@ -60,7 +60,7 @@
 #include "rclcpp/rclcpp.hpp"
 
 /**
- * @brief 
+ * @brief Mavlink interface wrapper using Mavsdk to communicate with the vehicle
  */
 class MavlinkNode {
 
@@ -158,6 +158,36 @@ public:
      * @param yaw The yaw angle in deg
      */
     void set_position(const float x, const float y, const float z, const float yaw);
+
+    /**
+     * @ingroup control_callbacks
+     * @brief Set the inertial velocity (Vx, Vy, Vz) (m/s) and yaw (deg) of the vehicle. The adopted frame is NED
+     * @param vx The velocity in the North direction in the inertial NED frame
+     * @param vy The velocity in the East direction in the inertial NED frame
+     * @param vz The velocity in the Down direction in the inertial NED frame
+     * @param yaw The yaw angle in deg
+     */
+    void set_inertial_velocity(const float vx, const float vy, const float vz, const float yaw);
+
+    /**
+     * @ingroup control_callbacks
+     * @brief Set the body velocity (Vx, Vy, Vz) (m/s) and yaw-rate (deg/s) of the vehicle. The adopted frame is f.r.d
+     * Note that with quadrotors, the roll and pitch of the body frame-are ignored, and the vehicle is actuated in a "cheated" body velocity
+     * @param vx The velocity in the x direction in the body frame (projected for 0 roll)
+     * @param vy The velocity in the y direction in the body frame (projected for 0 pitch)
+     * @param vz The velocity in the z direction in the body frame
+     * @param yaw_rate The angular velocity around the z-axis in the body frame
+     */
+    void set_body_velocity(const float vx, const float vy, const float vz, const float yaw_rate);
+
+    /**
+     * @ingroup control_callbacks
+     * @brief Set the inertial acceleration (Ax, Ay, Az) (m/s^2) of the vehicle. The adopted frame is NED
+     * @param ax The acceleration in the North direction in the inertial NED frame
+     * @param ay The acceleration in the East direction in the inertial NED frame
+     * @param az The acceleration in the Down direction in the inertial NED frame
+     */
+    void set_inertial_acceleration(const float ax, const float ay, const float az);
 
     /**
      * @brief Method to arm or disarm the vehicle
@@ -327,6 +357,24 @@ private:
      * @brief Message to set the position (X-Y-Z) of the vehicle. The adopted frame is NED
      */
     mavsdk::Offboard::PositionNedYaw position_;
+
+    /**
+     * @ingroup mavsdk_control_messages
+     * @brief Message to set the velocity (Vx, Vy, Vz) (m/s) and yaw (deg) of the vehicle. The adopted frame is NED
+     */
+    mavsdk::Offboard::VelocityNedYaw inertial_velocity_;
+
+    /**
+     * @ingroup mavsdk_control_messages
+     * @brief Message to set the velocity in the body-frame (Vx, Vy, Vz) (m/s) and yaw-rate (deg/s) of the vehicle. The adopted frame is f.r.d
+     */
+    mavsdk::Offboard::VelocityBodyYawspeed body_velocity_;
+
+    /**
+     * @ingroup mavsdk_control_messages
+     * @brief Message to set the acceleration in the body-frame (Ax, Ay, Az) (m/s^2) of the vehicle. The adopted frame is f.r.d
+     */
+    mavsdk::Offboard::AccelerationNed acceleration_;
 
     /**
      * @ingroup mocap
