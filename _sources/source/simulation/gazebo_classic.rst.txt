@@ -4,6 +4,22 @@ Gazebo Classic
 In this section, we will explain how to install and setup Gazebo Classic and PX4-Autopilot for performing simulations with pegasus.
 This was tested on Ubuntu 22.04.
 
+.. image:: https://img.shields.io/badge/PX4--Autopilot-1.14.3-brightgreen.svg
+   :target: https://github.com/PX4/PX4-Autopilot
+   :alt: PX4-Autopilot 1.14.3
+
+.. image:: https://img.shields.io/badge/Ubuntu-22.04LTS-brightgreen.svg
+   :target: https://releases.ubuntu.com/22.04/
+   :alt: Ubuntu 22.04
+
+.. image:: https://img.shields.io/badge/ROS-Humble-brightgreen.svg
+    :target: https://docs.ros.org/en/humble/index.html
+    :alt: ROS 2 Humble
+
+.. image:: https://img.shields.io/badge/Gazebo-11%20(classic)-brightgreen.svg
+    :target: https://classic.gazebosim.org/
+    :alt: Gazebo 11 (Classic)
+
 Installing Gazebo Classic
 -------------------------
 
@@ -60,6 +76,17 @@ To install PX4-Autopilot, follow the following steps:
         # Compile the code in SITL mode
         make px4_sitl gazebo-classic
 
+4. Add the following line to your .bashrc file:
+
+    .. code:: bash
+
+        echo "export PX4_DIR=$(pwd)" >> ~/.bashrc
+
+    .. admonition:: Note
+
+        Adding this line to the .bashrc file is important as the Pegasus Gazebo package will need to know the location of the PX4-Autopilot directory, and the launch files
+        will use this environment variable to find the necessary files.
+
 Installing the Pegasus Gazebo package
 -------------------------------------
 
@@ -91,4 +118,45 @@ Installing the Pegasus Gazebo package
 
 Running a Simulation
 --------------------
-TODO
+
+..  youtube:: exatJ6hvD1Q
+    :width: 100%
+    :align: center
+    :privacy_mode:
+
+To run a simulation with the Pegasus Gazebo package, follow the steps below:
+
+1. Start the gazebo server with a world file:
+
+    .. code:: bash
+
+        ros2 launch pegasus_gazebo taguspark.launch.py
+
+2. On another terminal, start a vehicle simulation:
+
+    .. code:: bash
+
+        ros2 launch pegasus_gazebo iris.launch.py vehicle_id:=<vehicle_id>
+
+    You should replace the ``<vehicle_id>`` with the vehicle id you want to connect to. If no option is provided, the vehicle will run with ID 1.
+
+3. On a third terminal, start the pegasus console to operate the vehicle:
+
+    .. code:: bash
+
+        ros2 run pegasus_console pegasus_console
+
+    .. admonition:: Pegasus Console
+
+        Check the :ref:`Terminal console` page for more information on how to operate the vehicle.
+
+
+**World launch files available for simulation:**
+
+- ``taguspark.launch.py``: A simple world with a "box" the size of the Taguspark Mocap Arena.
+- ``empty.launch.py``: An empty world with no obstacles (for low-weight simulations).
+
+**Vehicle launch files available for simulation:**
+
+- ``iris.launch.py``: A simple Iris drone.
+- ``iris_fpv.launch.py``: A simple Iris drone with a front-facing monocular camera.

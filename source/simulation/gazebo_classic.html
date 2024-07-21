@@ -113,6 +113,10 @@
 <h1>Gazebo Classic<a class="headerlink" href="#gazebo-classic" title="Permalink to this heading"></a></h1>
 <p>In this section, we will explain how to install and setup Gazebo Classic and PX4-Autopilot for performing simulations with pegasus.
 This was tested on Ubuntu 22.04.</p>
+<a class="reference external image-reference" href="https://github.com/PX4/PX4-Autopilot"><img alt="PX4-Autopilot 1.14.3" src="https://img.shields.io/badge/PX4--Autopilot-1.14.3-brightgreen.svg" /></a>
+<a class="reference external image-reference" href="https://releases.ubuntu.com/22.04/"><img alt="Ubuntu 22.04" src="https://img.shields.io/badge/Ubuntu-22.04LTS-brightgreen.svg" /></a>
+<a class="reference external image-reference" href="https://docs.ros.org/en/humble/index.html"><img alt="ROS 2 Humble" src="https://img.shields.io/badge/ROS-Humble-brightgreen.svg" /></a>
+<a class="reference external image-reference" href="https://classic.gazebosim.org/"><img alt="Gazebo 11 (Classic)" src="https://img.shields.io/badge/Gazebo-11%20(classic)-brightgreen.svg" /></a>
 <section id="installing-gazebo-classic">
 <h2>Installing Gazebo Classic<a class="headerlink" href="#installing-gazebo-classic" title="Permalink to this heading"></a></h2>
 <p>Start by installing gazebo classic. Make sure that you do not have the <cite>gz-garden</cite> package installed, as it may conflict with the installation of gazebo classic.</p>
@@ -170,6 +174,18 @@ make<span class="w"> </span>px4_sitl<span class="w"> </span>gazebo-classic
 </div>
 </div></blockquote>
 </li>
+<li><p>Add the following line to your .bashrc file:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;export PX4_DIR=</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
+</pre></div>
+</div>
+<div class="admonition-note admonition">
+<p class="admonition-title">Note</p>
+<p>Adding this line to the .bashrc file is important as the Pegasus Gazebo package will need to know the location of the PX4-Autopilot directory, and the launch files
+will use this environment variable to find the necessary files.</p>
+</div>
+</div></blockquote>
+</li>
 </ol>
 </section>
 <section id="installing-the-pegasus-gazebo-package">
@@ -208,7 +224,47 @@ colcon<span class="w"> </span>build<span class="w"> </span>--symlink-install
 </section>
 <section id="running-a-simulation">
 <h2>Running a Simulation<a class="headerlink" href="#running-a-simulation" title="Permalink to this heading"></a></h2>
-<p>TODO</p>
+<div class="video_wrapper align-center" style="padding-bottom: 56.250000%; padding-top: 30px; position: relative; text-align: center; width: 100%">
+<iframe allowfullscreen="true" src="https://www.youtube.com/embed/exatJ6hvD1Q" style="border: 0; height: 100%; left: 0; position: absolute; top: 0; width: 100%">
+</iframe></div><p>To run a simulation with the Pegasus Gazebo package, follow the steps below:</p>
+<ol class="arabic">
+<li><p>Start the gazebo server with a world file:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>pegasus_gazebo<span class="w"> </span>taguspark.launch.py
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>On another terminal, start a vehicle simulation:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>pegasus_gazebo<span class="w"> </span>iris.launch.py<span class="w"> </span>vehicle_id:<span class="o">=</span>&lt;vehicle_id&gt;
+</pre></div>
+</div>
+<p>You should replace the <code class="docutils literal notranslate"><span class="pre">&lt;vehicle_id&gt;</span></code> with the vehicle id you want to connect to. If no option is provided, the vehicle will run with ID 1.</p>
+</div></blockquote>
+</li>
+<li><p>On a third terminal, start the pegasus console to operate the vehicle:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>run<span class="w"> </span>pegasus_console<span class="w"> </span>pegasus_console
+</pre></div>
+</div>
+<div class="admonition-pegasus-console admonition">
+<p class="admonition-title">Pegasus Console</p>
+<p>Check the <a class="reference internal" href="../console/terminal_console.html#terminal-console"><span class="std std-ref">Terminal console</span></a> page for more information on how to operate the vehicle.</p>
+</div>
+</div></blockquote>
+</li>
+</ol>
+<p><strong>World launch files available for simulation:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">taguspark.launch.py</span></code>: A simple world with a “box” the size of the Taguspark Mocap Arena.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">empty.launch.py</span></code>: An empty world with no obstacles (for low-weight simulations).</p></li>
+</ul>
+<p><strong>Vehicle launch files available for simulation:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">iris.launch.py</span></code>: A simple Iris drone.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">iris_fpv.launch.py</span></code>: A simple Iris drone with a front-facing monocular camera.</p></li>
+</ul>
 </section>
 </section>
 
