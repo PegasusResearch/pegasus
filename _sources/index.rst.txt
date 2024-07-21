@@ -19,9 +19,9 @@ This work is part of **Project Pegasus**, a semi-personal side project started b
 
 - A CAD model for a 3D printed drone used in the project;
 
-- A set of Gazebo plugins to simulate the drone in Gazebo;
+- An interface with PX4 and Pegasus Simulator and Gazebo Classic for 3D simulations;
 
-This project is provided as is, with no warranty or support. It is intended to be used as a reference for other researchers and developers in the field of control and robotics. It may NOT
+This project is provided as is, with no warranty or support. It is intended to be used as a reference for other researchers and developers in the field of control and robotics. It may **NOT**
 be used for commercial purposes or military applications without the explicit consent from the project founder.
 
 Developer Team
@@ -41,18 +41,22 @@ Developer Team
    - `Marcelo Jacinto <https://github.com/MarceloJacinto>`__
    - `João Pinto <https://github.com/jschpinto>`__
 
-If you find ``Pegasus`` useful in your academic work, please cite the tech report below. It is also available (TODO).
+
+While an article for the Pegasus GNC project is not publicly available yet, if you find ``Pegasus GNC`` useful in your academic work, please cite the "second most adequate paper":
 
 .. code-block:: bibtex
 
-   @misc{jacinto2024pegasus,
-      title={Pegasus: A Quasi Open-Source Guidance, Control and Navigation Software Package for Autonomous Drones}, 
-      author={Marcelo Jacinto and João Pinto and Rita Cunha},
+   @INPROCEEDINGS{10556959,
+      author={Jacinto, Marcelo and Pinto, João and Patrikar, Jay and Keller, John and Cunha, Rita and Scherer, Sebastian and Pascoal, António},
+      booktitle={2024 International Conference on Unmanned Aircraft Systems (ICUAS)}, 
+      title={Pegasus Simulator: An Isaac Sim Framework for Multiple Aerial Vehicles Simulation}, 
       year={2024},
-      eprint={},
-      archivePrefix={arXiv},
-      primaryClass={cs.RO}
-    }
+      volume={},
+      number={},
+      pages={917-922},
+      keywords={Simulation;Robot sensing systems;Real-time systems;Sensor systems;Sensors;Task analysis},
+      doi={10.1109/ICUAS60882.2024.10556959}
+   }
 
 Project Sponsors
 ================
@@ -115,6 +119,7 @@ Not only have you made this project possible, but also crashing drones an enjoya
    source/vehicles/pegasus
    source/vehicles/kopis
    source/vehicles/snapdragon
+   source/vehicles/intel_aero
 
 .. toctree::
    :maxdepth: 3

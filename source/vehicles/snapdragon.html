@@ -20,7 +20,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Taguspark Flight Arena" href="../arena/arena.html" />
+    <link rel="next" title="Intel Aero" href="intel_aero.html" />
     <link rel="prev" title="Kopis Drone Setup" href="kopis.html" /> 
 </head>
 
@@ -68,6 +68,7 @@
 <li class="toctree-l1"><a class="reference internal" href="pegasus.html">Pegasus Drone v1.0.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="kopis.html">Kopis Drone Setup</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Snapdragon Drone</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intel_aero.html">Intel Aero</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Flight Arena</span></p>
 <ul>
@@ -105,72 +106,7 @@
              
   <section id="snapdragon-drone">
 <h1>Snapdragon Drone<a class="headerlink" href="#snapdragon-drone" title="Permalink to this heading"></a></h1>
-<p>## Flashing the Pixhawk
-TODO</p>
-<p>## Setting up the Wifi Connection</p>
-<p>### Flash the ESP8266 with the MAVESP8266 firmware</p>
-<p>1. Download the MAVESP8266 source code and compile
-<code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">https://github.com/tridge/mavesp8266</span>
-<span class="pre">`</span></code>
-or download the latest binary from
-<code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">https://firmware.ardupilot.org/Tools/MAVESP8266/latest/firmware-esp&lt;version&gt;.bin</span>
-<span class="pre">`</span></code></p>
-<p>where the version “01_1m” if for boards with 1MB of memory (the typical),  “01” for boards with 512KB of memory and “12e” for boards with 4MB of flash. An “FTDI Cable” is for the first time the firmware is upload to the device. To flash the firmware, follow the steps:</p>
-<ol class="arabic simple" start="2">
-<li><p>solder a 6pin header to the narrow end of the board that has the TX, RX, VCC and GND pins.</p></li>
-<li><p>connect the device to your computer using the FTDI cable</p></li>
-<li><p>put the device into bootloader mode by pressing both the Reset and GPIO0 buttons, then release the Reset button followed by the GPIO0 button. The red LED should remain dimly lit.</p></li>
-<li><p>If you are flashing from a Windows PC the download and run the NodeMCU flasher, available at:</p></li>
-</ol>
-<p><a class="reference external" href="https://github.com/nodemcu/nodemcu-flasher/blob/master/Win64/Release/ESP8266Flasher.exe">https://github.com/nodemcu/nodemcu-flasher/blob/master/Win64/Release/ESP8266Flasher.exe</a></p>
-<p>and, if flashing from Linux or Mac, use the ESPTool, available at:</p>
-<p><a class="reference external" href="https://github.com/espressif/esptool">https://github.com/espressif/esptool</a></p>
-<ol class="arabic simple" start="6">
-<li><p>On the Advanced page ensure the Flash size is set to 4MByte, 1MByte or 512KB depending on the board version.</p></li>
-<li><p>On the Config page push the gear and select the firmware downloaded above.</p></li>
-<li><p>On the Operation page select the “COM Port” and push the “Flash” button.  If successful the blue bar will slowly stretch from left to right and the icon on the bottom left will turn green.</p></li>
-</ol>
-<p>&lt;img src=”images/esp8266-telemetry-flash.jpg” alt=”ESP86266” style=”float: left; margin-right: 10px;” /&gt;</p>
-<p>### Connect the ESP8266 to the Pixhawk
-The ESP8266 wifi module is a programmable wifi module that attaches to the Pixhawk. If connected to Serial1/Telem1 these parameters should be set on the autopilot (if using another telemetry port, replace the “1” in the parameter name with the telemetry port’s number):</p>
-<ul class="simple">
-<li><p><cite>SERIAL1_PROTOCOL &lt;SERIAL1_PROTOCOL&gt;</cite> = 2 (MAVLink2) or 1 (MAVLink1)</p></li>
-<li><p><cite>SERIAL1_BAUD &lt;SERIAL1_BAUD&gt;</cite> = 921 (921600 baud)</p></li>
-</ul>
-<p>If you have problems connecting, it may help to set:
-- <cite>BRD_SER1_RTSCTS &lt;BRD_SER1_RTSCTS&gt;</cite> = 0</p>
-<p>to disable flow control although this is not normally necessary.</p>
-<p>&lt;img src=”images/esp8266-telemetry-pixhawk.jpg” alt=”ESP86266 and Pixhawk” style=”float: left; margin-right: 10px;” /&gt;</p>
-<blockquote>
-<div><p>Connect from QGroundControl</p>
-</div></blockquote>
-<ol class="arabic simple">
-<li><p>On your PC settings, open the wifi network connections screen and select the wifi access point (SSID “ArduPilot” with a lower case password “ardupilot”).</p></li>
-<li><p>On QGroundControl, set the connection type to UDP and press “Connect”</p></li>
-</ol>
-<p>### Changing the Wifi SSID and Password</p>
-<ol class="arabic simple">
-<li><p>Connect from your PC to the wifi access point (initial access point ID is “ArduPilot”, and password is “ardupilot”)</p></li>
-<li><p>Open a browser to <cite>192.168.4.1</cite></p></li>
-<li><p>Click on the “Setup” link</p></li>
-<li><p>Set the “AP SSID” and “AP Password” fields, push “Save” and reboot.</p></li>
-</ol>
-<p>&lt;img src=”images/esp8266-telemetry-web-setup.png” alt=”ESP86266” style=”float: left; margin-right: 10px;” /&gt;</p>
-<p>This setup page was adpated from the following sources:
-- <a class="reference external" href="https://ardupilot.org/copter/docs/common-esp8266-telemetry.html">https://ardupilot.org/copter/docs/common-esp8266-telemetry.html</a>
-- <a class="reference external" href="https://rays-blog.de/2016/10/21/224/adding-wi-fi-telemetry-to-pixhawk-flight-controller-with-esp8266-module">https://rays-blog.de/2016/10/21/224/adding-wi-fi-telemetry-to-pixhawk-flight-controller-with-esp8266-module</a></p>
-<p>### Selecting the Wifi Mode</p>
-<p>The wifi card (ESP8266) can work in “client mode” or “access point”.</p>
-<ul class="simple">
-<li><p>Client mode - The ESP8266 connects to a pre-specified wifi network and sends/receives data in the UDP port specified in the QGroundControl configuration page. This modes is usefull if we have a “router/access-point” nearby that we can connect to, allowing for a developer to test code while maintaing and active connection of the PC to the network.</p></li>
-<li><p>Access point - The ESP8266 acts as a ‘router/access-point’ to which your PC connects to (the default network SSID is ‘ardupilot’). Afterwards, your PC will be able to send/receive data in the UDP port specified in QGroundControl, but will not have access to the internet. This mode is usefull, for example if flying outside where a router is not available.</p></li>
-</ul>
-<p>This setup can be performed by accessing the IP <cite>192.168.4.1</cite> or QGRoundControl configurations.</p>
-<p>### Setting up the MAVLink UDP Port
-TODO</p>
-<p>sudo tcpdump -n -i any</p>
+<p>TODO: Add content here.</p>
 </section>
 
 
@@ -178,7 +114,7 @@ TODO</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="kopis.html" class="btn btn-neutral float-left" title="Kopis Drone Setup" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../arena/arena.html" class="btn btn-neutral float-right" title="Taguspark Flight Arena" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="intel_aero.html" class="btn btn-neutral float-right" title="Intel Aero" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
