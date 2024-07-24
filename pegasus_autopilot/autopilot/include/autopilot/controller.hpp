@@ -131,20 +131,28 @@ public:
 
     /**
      * @brief Sets the target velocity of the vehicle in the inertial frame and the target yaw rate (in degres/s)
-     * @param velocity The target velocity in the inertial frame
-     * @param yaw_rate The target yaw rate in degrees/s
+     * @param velocity The target velocity in the inertial frame (m/s NED)
+     * @param yaw_rate The target yaw in degrees
     */
-    virtual void set_velocity(const Eigen::Vector3d& velocity, double yaw_rate, double dt=0) {
-        throw std::runtime_error("set_velocity() not implemented in derived class");
+    virtual void set_inertial_velocity(const Eigen::Vector3d& velocity, double yaw, double dt=0) {
+        throw std::runtime_error("set_inertial_velocity() not implemented in derived class");
     }
 
     /**
      * @brief Sets the target position of the vehicle in the body frame (rotated to be vertically aligned with NED) and the target yaw (in degres)
-     * @param position The target position in the body frame
-     * @param yaw The target yaw in degrees
+     * @param position The target position in the body frame (m/s f.r.d)
+     * @param yaw The target yaw-rate in degrees/s
     */
     virtual void set_body_velocity(const Eigen::Vector3d& velocity, double yaw_rate, double dt=0) {
         throw std::runtime_error("set_body_velocity() not implemented in derived class");
+    }
+
+    /**
+     * @brief Set the inertial acceleration (Ax, Ay, Az) (m/s^2) of the vehicle. The adopted frame is NED 
+     * @param acceleration The target acceleration in the inertial frame (NED)
+     */
+    virtual void set_inertial_acceleration(const Eigen::Vector3d& acceleration, double dt=0) {
+        throw std::runtime_error("set_acceleration() not implemented in derived class");
     }
 
     /**

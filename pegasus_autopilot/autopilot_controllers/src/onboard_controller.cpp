@@ -55,11 +55,17 @@ void OnboardController::initialize() {
 
     // Initialize the ROS 2 subscribers to the control topics
     node_->declare_parameter<std::string>("autopilot.OnboardController.publishers.control_position", "control_position");
+    node_->declare_parameter<std::string>("autopilot.OnboardController.publishers.control_body_velocity", "control_body_velocity");
+    node_->declare_parameter<std::string>("autopilot.OnboardController.publishers.control_inertial_velocity", "control_inertial_velocity");
+    node_->declare_parameter<std::string>("autopilot.OnboardController.publishers.control_inertial_acceleration", "control_inertial_acceleration");
     node_->declare_parameter<std::string>("autopilot.OnboardController.publishers.control_attitude", "control_attitude");
     node_->declare_parameter<std::string>("autopilot.OnboardController.publishers.control_attitude_rate", "control_attitude_rate");
 
     // Create the publishers
     position_publisher_ = node_->create_publisher<pegasus_msgs::msg::ControlPosition>(node_->get_parameter("autopilot.OnboardController.publishers.control_position").as_string(), rclcpp::SensorDataQoS());
+    body_velocity_publisher_ = node_->create_publisher<pegasus_msgs::msg::ControlVelocity>(node_->get_parameter("autopilot.OnboardController.publishers.control_body_velocity").as_string(), rclcpp::SensorDataQoS());
+    inertial_velocity_publisher_ = node_->create_publisher<pegasus_msgs::msg::ControlVelocity>(node_->get_parameter("autopilot.OnboardController.publishers.control_inertial_velocity").as_string(), rclcpp::SensorDataQoS());
+    inertial_acceleration_publisher_ = node_->create_publisher<pegasus_msgs::msg::ControlAcceleration>(node_->get_parameter("autopilot.OnboardController.publishers.control_inertial_acceleration").as_string(), rclcpp::SensorDataQoS());
     attitude_publisher_ = node_->create_publisher<pegasus_msgs::msg::ControlAttitude>(node_->get_parameter("autopilot.OnboardController.publishers.control_attitude").as_string(), rclcpp::SensorDataQoS());
     attitude_rate_publisher_ = node_->create_publisher<pegasus_msgs::msg::ControlAttitude>(node_->get_parameter("autopilot.OnboardController.publishers.control_attitude_rate").as_string(), rclcpp::SensorDataQoS());
 
@@ -85,6 +91,50 @@ void OnboardController::set_position(const Eigen::Vector3d& position, const Eige
 
     // Publish the position control message for the controller to track
     position_publisher_->publish(position_msg_);
+}
+
+void OnboardController::set_body_velocity(const Eigen::Vector3d& velocity, double yaw_rate, double dt) {
+
+    // Ignore dt
+    (void) dt;
+
+    // Set the desired body velocity
+    body_velocity_msg_.velocity[0] = velocity[0];
+    body_velocity_msg_.velocity[1] = velocity[1];
+    body_velocity_msg_.velocity[2] = velocity[2];
+    body_velocity_msg_.yaw = yaw_rate;
+
+    // Publish the body velocity control message for the controller to track
+    body_velocity_publisher_->publish(body_velocity_msg_);
+}
+
+void OnboardController::set_inertial_velocity(const Eigen::Vector3d& velocity, double yaw, double dt) {
+
+    // Ignore dt
+    (void) dt;
+
+    // Set the inertial velocity control message
+    inertial_velocity_msg_.velocity[0] = velocity[0];
+    inertial_velocity_msg_.velocity[1] = velocity[1];
+    inertial_velocity_msg_.velocity[2] = velocity[2];
+    inertial_velocity_msg_.yaw = yaw;
+
+    // Publish the inertial velocity control message for the controller to track
+    inertial_velocity_publisher_->publish(inertial_velocity_msg_);
+}
+
+void OnboardController::set_inertial_acceleration(const Eigen::Vector3d& acceleration, double dt) {
+
+    // Ignore dt
+    (void) dt;
+
+    // Set the inertial acceleration control message
+    inertial_acceleration_msg_.acceleration[0] = acceleration[0];
+    inertial_acceleration_msg_.acceleration[1] = acceleration[1];
+    inertial_acceleration_msg_.acceleration[2] = acceleration[2];
+
+    // Publish the inertial acceleration control message for the controller to track
+    inertial_acceleration_publisher_->publish(inertial_acceleration_msg_);
 }
 
 void OnboardController::set_attitude(const Eigen::Vector3d & attitude, double thrust_force, double dt) {
