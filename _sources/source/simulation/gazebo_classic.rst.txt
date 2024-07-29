@@ -54,6 +54,9 @@ To install PX4-Autopilot, follow the following steps:
         # Python packages
         pip install kconfiglib jinja2 empy jsonschema pyros-genmsg packaging toml numpy future
 
+        # GStreamer (for video streaming)
+        sudo apt-get install libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-bad gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly -y
+
 2. Clone the `PX4-Autopilot <https://github.com/PX4/PX4-Autopilot>`__:
 
     .. code:: bash
