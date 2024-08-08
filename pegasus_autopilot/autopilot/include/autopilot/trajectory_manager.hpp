@@ -132,6 +132,52 @@ public:
     virtual Eigen::Vector3d d4_pd(const double gamma) const { return Eigen::Vector3d::Zero(); }
 
     /**
+     * @brief This function returns the desired position of the vehicle at any given time
+     * provides the parametric parameter gamma which paramterizes the trajectory
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @return Eigen::Vector3d The desired position in NED of the vehicle in the inertial frame (Eigen::Vector3d)
+     */
+    virtual Eigen::Vector3d position(const double gamma) const { 
+        return pd(gamma); 
+    }
+
+    /**
+     * @brief This function returns the desired velocity of the vehicle at any given time
+     * provides the parametric parameter gamma which paramterizes the trajectory and its time derivative
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @param d_gamma The first time derivative of the path parameter
+     * @return Eigen::Vector3d The desired velocity in NED of the vehicle in the inertial frame (Eigen::Vector3d)
+     */
+    virtual Eigen::Vector3d velocity(const double gamma, const double d_gamma) const {
+        return d_pd(gamma) * d_gamma;
+    }
+
+    /**
+     * @brief This function returns the desired acceleration of the vehicle at any given time
+     * provides the parametric parameter gamma which paramterizes the trajectory and its time derivative
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @param d_gamma The first time derivative of the path parameter
+     * @param d2_gamma The second time derivative of the path parameter
+     * @return Eigen::Vector3d The desired acceleration in NED of the vehicle in the inertial frame (Eigen::Vector3d)
+     */
+    virtual Eigen::Vector3d acceleration(const double gamma, const double d_gamma, const double d2_gamma=0) const {
+        return (d2_pd(gamma) * std::pow(d_gamma, 2)) + (d_pd(gamma) * std::pow(d2_gamma, 2));
+    }
+
+    /**
+     * @brief This function returns the desired jerk of the vehicle at any given time
+     * provides the parametric parameter gamma which paramterizes the trajectory and its time derivative
+     * @param gamma The parameter that paramaterizes the trajectory
+     * @param d_gamma The first time derivative of the path parameter
+     * @param d2_gamma The second time derivative of the path parameter
+     * @param d3_gamma The third time derivative of the path parameter
+     * @return Eigen::Vector3d The desired jerk in NED of the vehicle in the inertial frame (Eigen::Vector3d)
+     */
+    virtual Eigen::Vector3d jerk(const double gamma, const double d_gamma, const double d2_gamma=0, const double d3_gamma=0) const {
+        return (d3_pd(gamma) * std::pow(d_gamma, 3)) + (3 * d2_pd(gamma) * d_gamma * d2_gamma) + (d_pd(gamma) * d3_gamma);
+    }
+
+    /**
      * @brief This function returns the desired yaw angle (in radians) of the vehicle at a given time
      * provided the parameter gamma which paramaterizes the trajectory
      * @param gamma The parameter that paramaterizes the trajectory

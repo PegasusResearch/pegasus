@@ -71,10 +71,10 @@ bool FollowTrajectoryMode::enter() {
     d3_gamma_ = 0.0;
 
     // Reset the desired targets
-    desired_position_ = Eigen::Vector3d(0.0, 0.0, 0.0);
-    desired_velocity_ = Eigen::Vector3d(0.0, 0.0, 0.0);
-    desired_acceleration_ = Eigen::Vector3d(0.0, 0.0, 0.0);
-    desired_jerk_ = Eigen::Vector3d(0.0, 0.0, 0.0);
+    desired_position_ = Eigen::Vector3d::Zero();
+    desired_velocity_ = Eigen::Vector3d::Zero();
+    desired_acceleration_ = Eigen::Vector3d::Zero();
+    desired_jerk_ = Eigen::Vector3d::Zero();
     desired_yaw_ = 0.0;
     desired_yaw_rate_ = 0.0;
 
@@ -119,17 +119,17 @@ void FollowTrajectoryMode::update_reference(double dt) {
     }
 
     // Update the desired position, velocity, acceleration and jerk from the trajectory
-    desired_position_ = trajectory_manager_->pd(gamma_);
-    desired_velocity_ = trajectory_manager_->d_pd(gamma_) * d_gamma_;
-    desired_acceleration_ = (trajectory_manager_->d2_pd(gamma_) * std::pow(d_gamma_, 2)) + (trajectory_manager_->d_pd(gamma_) * std::pow(d2_gamma_, 2));
-    desired_jerk_ = (trajectory_manager_->d3_pd(gamma_) * std::pow(d_gamma_, 3)) + (3 * trajectory_manager_->d2_pd(gamma_) * d_gamma_ * d2_gamma_) + (trajectory_manager_->d_pd(gamma_) * d3_gamma_);
+    desired_position_ = trajectory_manager_->position(gamma_);
+    desired_velocity_ = trajectory_manager_->velocity(gamma_, d_gamma_);
+    desired_acceleration_ = trajectory_manager_->acceleration(gamma_, d_gamma_, d2_gamma_);
+    desired_jerk_ = trajectory_manager_->jerk(gamma_, d_gamma_, d2_gamma_, d3_gamma_);
 
     // Get the desired yaw and yaw_rate from the trajectory
     desired_yaw_ = Pegasus::Rotations::rad_to_deg(trajectory_manager_->yaw(gamma_));
     desired_yaw_rate_ = Pegasus::Rotations::rad_to_deg(trajectory_manager_->d_yaw(gamma_));
 
     // Integrate the virtual target position over time
-    d3_gamma_ = 0.0;
+    d3_gamma_ = trajectory_manager_->d2_vd(gamma_);
     d2_gamma_ = trajectory_manager_->d_vd(gamma_);
     d_gamma_ = trajectory_manager_->vd(gamma_);
     gamma_ += d_gamma_ * dt;
@@ -164,10 +164,10 @@ bool FollowTrajectoryMode::exit() {
     d3_gamma_ = 0.0;
 
     // Reset the desired targets
-    desired_position_ = Eigen::Vector3d(0.0, 0.0, 0.0);
-    desired_velocity_ = Eigen::Vector3d(0.0, 0.0, 0.0);
-    desired_acceleration_ = Eigen::Vector3d(0.0, 0.0, 0.0);
-    desired_jerk_ = Eigen::Vector3d(0.0, 0.0, 0.0);
+    desired_position_ = Eigen::Vector3d::Zero();
+    desired_velocity_ = Eigen::Vector3d::Zero();
+    desired_acceleration_ = Eigen::Vector3d::Zero();
+    desired_jerk_ = Eigen::Vector3d::Zero();
     desired_yaw_ = 0.0;
     desired_yaw_rate_ = 0.0;
 
