@@ -192,8 +192,24 @@ void XRCEInterfaceNode::px4_status_callback(px4_msgs::msg::VehicleStatus::ConstS
  * @param msg A message with the desired position for the vehicle in NED
  */
 void XRCEInterfaceNode::position_callback(const pegasus_msgs::msg::ControlPosition::ConstSharedPtr msg) {
-    // Send the position reference through the XRCE interface
-    // TODO
+    
+    // Set the offboard mode for position control
+    offboard_control_mode_msg_.position = true;
+    offboard_control_mode_msg_.velocity = false;
+    offboard_control_mode_msg_.acceleration = false;
+    offboard_control_mode_msg_.attitude = false;
+    offboard_control_mode_msg_.body_rate = false;
+    offboard_control_mode_msg_.actuator = false;
+	offboard_control_mode_msg_.timestamp = this->get_clock()->now().nanoseconds() / 1000;
+
+    // Set the position trajectory message
+    trajectory_setpoint_msg_.position = {static_cast<float>(msg->position[0]), static_cast<float>(msg->position[1]), static_cast<float>(msg->position[2])};
+	trajectory_setpoint_msg_.yaw = -3.14; // [-PI:PI]
+	trajectory_setpoint_msg_.timestamp = offboard_control_mode_msg_.timestamp;
+
+    // Publish the offboard control mode message with the target position message
+	offboard_control_mode_pub_->publish(offboard_control_mode_msg_);
+    trajectory_setpoint_pub_->publish(trajectory_setpoint_msg_);
 }
 
 /**
@@ -203,8 +219,18 @@ void XRCEInterfaceNode::position_callback(const pegasus_msgs::msg::ControlPositi
  * @param msg A message with the desired attitude and thrust to apply to the vehicle
  */
 void XRCEInterfaceNode::attitude_thrust_callback(const pegasus_msgs::msg::ControlAttitude::ConstSharedPtr msg) {
-    // Send the attitude and thrust reference thorugh XRCE for the onboard microcontroller
-    // TODO
+
+    // Set the offboard mode for attitude control
+    offboard_control_mode_msg_.position = false;
+    offboard_control_mode_msg_.velocity = false;
+    offboard_control_mode_msg_.acceleration = false;
+    offboard_control_mode_msg_.attitude = true;
+    offboard_control_mode_msg_.body_rate = false;
+    offboard_control_mode_msg_.actuator = false;
+	offboard_control_mode_msg_.timestamp = this->get_clock()->now().nanoseconds() / 1000;
+
+    // Publish the offboard control mode message with the target position message
+	offboard_control_mode_pub_->publish(offboard_control_mode_msg_);
 }
 
 /**
@@ -214,8 +240,18 @@ void XRCEInterfaceNode::attitude_thrust_callback(const pegasus_msgs::msg::Contro
  * @param msg A message with the desired attitude-rate and thrust to apply to the vehicle
  */
 void XRCEInterfaceNode::attitude_rate_thrust_callback(const pegasus_msgs::msg::ControlAttitude::ConstSharedPtr msg) {
-    // Send the attitude-rate and thrust reference thorugh XRCE for the onboard microcontroller
-    // TODO
+    
+    // Set the offboard mode for attitude control
+    offboard_control_mode_msg_.position = false;
+    offboard_control_mode_msg_.velocity = false;
+    offboard_control_mode_msg_.acceleration = false;
+    offboard_control_mode_msg_.attitude = false;
+    offboard_control_mode_msg_.body_rate = true;
+    offboard_control_mode_msg_.actuator = false;
+	offboard_control_mode_msg_.timestamp = this->get_clock()->now().nanoseconds() / 1000;
+
+    // Publish the offboard control mode message with the target position message
+	offboard_control_mode_pub_->publish(offboard_control_mode_msg_);
 }
 
 /**
@@ -230,7 +266,18 @@ void XRCEInterfaceNode::attitude_force_callback(const pegasus_msgs::msg::Control
     double thrust = thrust_curve_->force_to_percentage(msg->thrust);
 
     // Send the attitude-rate and thrust reference thorugh XRCE for the onboard microcontroller
-    // TODO
+    
+    // Set the offboard mode for attitude control
+    offboard_control_mode_msg_.position = false;
+    offboard_control_mode_msg_.velocity = false;
+    offboard_control_mode_msg_.acceleration = false;
+    offboard_control_mode_msg_.attitude = true;
+    offboard_control_mode_msg_.body_rate = false;
+    offboard_control_mode_msg_.actuator = false;
+	offboard_control_mode_msg_.timestamp = this->get_clock()->now().nanoseconds() / 1000;
+
+    // Publish the offboard control mode message with the target position message
+	offboard_control_mode_pub_->publish(offboard_control_mode_msg_);
 }
 
 /**
@@ -245,6 +292,18 @@ void XRCEInterfaceNode::attitude_rate_force_callback(const pegasus_msgs::msg::Co
     double thrust = thrust_curve_->force_to_percentage(msg->thrust);
 
     // Send the attitude-rate and thrust reference thorugh XRCE for the onboard microcontroller
+
+    // Set the offboard mode for attitude control
+    offboard_control_mode_msg_.position = false;
+    offboard_control_mode_msg_.velocity = false;
+    offboard_control_mode_msg_.acceleration = false;
+    offboard_control_mode_msg_.attitude = false;
+    offboard_control_mode_msg_.body_rate = true;
+    offboard_control_mode_msg_.actuator = false;
+	offboard_control_mode_msg_.timestamp = this->get_clock()->now().nanoseconds() / 1000;
+
+    // Publish the offboard control mode message with the target position message
+	offboard_control_mode_pub_->publish(offboard_control_mode_msg_);
 }
 
 /**

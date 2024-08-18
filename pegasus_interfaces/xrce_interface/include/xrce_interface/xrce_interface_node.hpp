@@ -60,6 +60,7 @@
 #include <px4_msgs/msg/vehicle_attitude_setpoint.hpp>
 #include <px4_msgs/msg/vehicle_thrust_setpoint.hpp>
 #include <px4_msgs/msg/vehicle_torque_setpoint.hpp>
+#include <px4_msgs/msg/trajectory_setpoint.hpp>
 #include <px4_msgs/msg/sensor_combined.hpp>
 
 // Messages for the sensor data (IMU, barometer, GPS, etc.)
@@ -228,6 +229,12 @@ private:
     rclcpp::Subscription<px4_msgs::msg::VehicleOdometry>::SharedPtr vehicle_odometry_sub_;
     rclcpp::Subscription<rcl_interfaces::msg::ParameterEvent>::SharedPtr parameter_event_sub_;
     rclcpp::Subscription<px4_msgs::msg::SensorCombined>::SharedPtr imu_sub_;
+
+    /**
+     * @brief PX4 Messages
+     */
+    px4_msgs::msg::OffboardControlMode offboard_control_mode_msg_;
+    px4_msgs::msg::TrajectorySetpoint trajectory_setpoint_msg_;
 
     /**
      * @brief Pegasus Messages
