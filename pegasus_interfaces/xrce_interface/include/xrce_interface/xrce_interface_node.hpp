@@ -50,6 +50,17 @@
 #include "rclcpp/rclcpp.hpp"
 #include "thrust_curves/thrust_curves.hpp"
 
+// Messages to handle PX4 data inflow/outflow
+#include <px4_msgs/msg/offboard_control_mode.hpp>
+#include <px4_msgs/msg/vehicle_odometry.hpp>
+#include <px4_msgs/msg/vehicle_attitude_setpoint.hpp>
+#include <px4_msgs/msg/vehicle_command.hpp>
+#include <px4_msgs/msg/vehicle_status.hpp>
+#include <px4_msgs/msg/actuator_motors.hpp>
+#include <px4_msgs/msg/vehicle_attitude_setpoint.hpp>
+#include <px4_msgs/msg/vehicle_thrust_setpoint.hpp>
+#include <px4_msgs/msg/vehicle_torque_setpoint.hpp>
+
 // Messages for the sensor data (IMU, barometer, GPS, etc.)
 #include "sensor_msgs/msg/imu.hpp"
 #include "pegasus_msgs/msg/sensor_barometer.hpp"
@@ -100,20 +111,19 @@ private:
      */
     void init_thrust_curve();
 
-    /**
-     * @defgroup subscriberCallbacks
-     * This group defines all the ROS subscriber callbacks
-     */
+
+    void px4_odometry_callback(px4_msgs::msg::VehicleOdometry::ConstSharedPtr odom_msg);
+    void px4_status_callback(px4_msgs::msg::VehicleStatus::ConstSharedPtr status_msg);
+    void px4_command_pose_callback(geometry_msgs::msg::PoseStamped::ConstSharedPtr pose_msg);
+
 
     /**
-     * @ingroup subscriberCallbacks
      * @brief Position subscriber callback. The position of the vehicle should be expressed in the NED reference frame
      * @param msg A message with the desired position for the vehicle in NED
      */
     void position_callback(const pegasus_msgs::msg::ControlPosition::ConstSharedPtr msg);
     
     /**
-     * @ingroup subscriberCallbacks
      * @brief Attitude and thrust subscriber callback. The attitude should be specified in euler angles in degrees
      * according to the Z-Y-X convention in the body frame of f.r.d convention. The thrust should be normalized
      * between 0-100 %
@@ -122,7 +132,6 @@ private:
     void attitude_thrust_callback(const pegasus_msgs::msg::ControlAttitude::ConstSharedPtr msg);
 
     /**
-     * @ingroup subscriberCallbacks
      * @brief Attitude rate and thrust subscriber callback. The attitude-rate should be specified in euler angles in degrees-per-second
      * according to the Z-Y-X convention in the body frame of f.r.d convention. The thrust should be normalized
      * between 0-100 %
@@ -131,7 +140,6 @@ private:
     void attitude_rate_thrust_callback(const pegasus_msgs::msg::ControlAttitude::ConstSharedPtr msg);
 
     /**
-     * @ingroup subscriberCallbacks
      * @brief Attitude and thrust subscriber callback. The attitude should be specified in euler angles in degrees
      * according to the Z-Y-X convention in the body frame of f.r.d convention. The total force along
      * the body Z-axis should be given in Newton (N)
@@ -140,7 +148,6 @@ private:
     void attitude_force_callback(const pegasus_msgs::msg::ControlAttitude::ConstSharedPtr msg);
 
     /**
-     * @ingroup subscriberCallbacks
      * @brief Attitude rate and thrust subscriber callback. The attitude-rate should be specified in euler angles in degrees-per-second
      * according to the Z-Y-X convention in the body frame of f.r.d convention. The total force along
      * the body Z-axis should be given in Newton (N)
@@ -149,7 +156,6 @@ private:
     void attitude_rate_force_callback(const pegasus_msgs::msg::ControlAttitude::ConstSharedPtr msg);
 
     /**
-     * @ingroup subscriberCallbacks
      * @brief Motion Capture vehicle pose subscriber callback. This callback receives a message with the pose of the vehicle
      * provided by a Motion Capture System (if available) expressed in ENU reference frame, converts to NED and 
      * sends it via mavlink to the vehicle autopilot filter to merge
@@ -158,13 +164,6 @@ private:
     void mocap_pose_callback(const geometry_msgs::msg::PoseStamped::ConstSharedPtr msg);
 
     /**
-     * @defgroup servicesCallbacks
-     * This group defines all the service server callbacks,
-     * such as arming/disarming the vehicle or auto-landing
-     */
-
-    /**
-     * @ingroup servicesCallbacks
      * @brief Arming/disarming service callback. When a service request is reached from the arm_service_, 
      * this callback is called and will send a mavlink command for the vehicle to arm/disarm
      * @param request The request for arming (bool = true) or disarming (bool = false)
@@ -173,7 +172,6 @@ private:
     void arm_callback(const pegasus_msgs::srv::Arm::Request::SharedPtr request, const pegasus_msgs::srv::Arm::Response::SharedPtr response);
 
     /**
-     * @ingroup servicesCallbacks
      * @brief Kill switch service callback. When a service request is reached from the kill_switch_service_,
      * this callback is called and will send a mavlink command for the vehicle to kill the motors instantly.
      * @param request The request for killing the motors (bool = true)
@@ -182,7 +180,6 @@ private:
     void kill_switch_callback(const pegasus_msgs::srv::KillSwitch::Request::SharedPtr request, const pegasus_msgs::srv::KillSwitch::Response::SharedPtr response);
    
     /**
-     * @ingroup servicesCallbacks
      * @brief Autoland service callback. When a service request is reached from the land_service_,
      * this callback is called and will send a mavlink command for the vehicle to autoland using the onboard controller
      * @param request An empty request for landing the vehicle (can be ignored)
@@ -191,7 +188,6 @@ private:
     void land_callback(const pegasus_msgs::srv::Land::Request::SharedPtr request, const pegasus_msgs::srv::Land::Response::SharedPtr response);
 
     /**
-     * @ingroup servicesCallbacks
      * @brief Offboard service callback. When a service request is reached from the offboard_service_,
      * this callback is called and will send a mavlink command for the vehicle to enter offboard mode
      * @param request An empty request for entering offboard mode (can be ignored)
@@ -200,7 +196,6 @@ private:
     void offboard_callback(const pegasus_msgs::srv::Offboard::Request::SharedPtr, const pegasus_msgs::srv::Offboard::Response::SharedPtr response);
 
     /**
-     * @ingroup servicesCallbacks
      * @brief Position hold service callback. When a service request is reached from the position_hold_service_,
      * this callback is called and will send a mavlink command for the vehicle to enter position hold mode
      * @param request An empty request for entering position hold mode (can be ignored)
@@ -209,83 +204,59 @@ private:
     void position_hold_callback(const pegasus_msgs::srv::PositionHold::Request::SharedPtr, const pegasus_msgs::srv::PositionHold::Response::SharedPtr response);
     
     /**
-     * @ingroup messages
-     * Messages corresponding to the sensors of the vehicles
+     * @brief Auxiliary function to send individual commands to PX4 
+     * @param command The command to be executed
+     */
+    void publish_vehicle_command(uint16_t command, float param1=0.0, float param2=0.0);
+
+    /**
+     * @brief PX4 Publishers
+     */
+    rclcpp::Publisher<px4_msgs::msg::ActuatorMotors>::SharedPtr actuator_motors_pub_;
+    rclcpp::Publisher<px4_msgs::msg::VehicleAttitudeSetpoint>::SharedPtr attitude_setpoint_pub_;
+    rclcpp::Publisher<px4_msgs::msg::VehicleThrustSetpoint>::SharedPtr thrust_setpoint_pub_;
+    rclcpp::Publisher<px4_msgs::msg::VehicleTorqueSetpoint>::SharedPtr torque_setpoint_pub_;
+    rclcpp::Publisher<px4_msgs::msg::OffboardControlMode>::SharedPtr offboard_control_mode_pub_;
+	rclcpp::Publisher<px4_msgs::msg::VehicleCommand>::SharedPtr vehicle_command_pub_;
+
+    /**
+     * @brief PX4 Subscribers
+     */
+    rclcpp::Subscription<px4_msgs::msg::VehicleStatus>::SharedPtr vehicle_status_sub_;
+    rclcpp::Subscription<px4_msgs::msg::VehicleOdometry>::SharedPtr vehicle_odometry_sub_;
+    rclcpp::Subscription<rcl_interfaces::msg::ParameterEvent>::SharedPtr parameter_event_sub_;
+
+    /**
+     * @brief Pegasus Messages
      */
     sensor_msgs::msg::Imu imu_msg_;
     pegasus_msgs::msg::SensorBarometer baro_msg_;
     pegasus_msgs::msg::SensorGps gps_msg_;
     pegasus_msgs::msg::SensorGpsInfo gps_info_msg_;
-
-    /**
-     * @ingroup messages
-     * Message corresponding to the filtered state of the vehicle (from internal EKF) */
     nav_msgs::msg::Odometry filter_state_msg_;
     pegasus_msgs::msg::RPY filter_state_rpy_msg_;
-
-    /**
-     * @ingroup messages
-     * Message corresponding to the status of the vehicle */
     pegasus_msgs::msg::Status status_msg_;
     pegasus_msgs::msg::VehicleConstants vehicle_constants_msg_;
 
     /**
-     * @ingroup publishers 
-     * @brief FMU sensors publishers 
+     * @brief Pegasus Publishers
      */
     rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_{nullptr};
     rclcpp::Publisher<pegasus_msgs::msg::SensorBarometer>::SharedPtr baro_pub_{nullptr};
     rclcpp::Publisher<pegasus_msgs::msg::SensorGps>::SharedPtr gps_pub_{nullptr};
     rclcpp::Publisher<pegasus_msgs::msg::SensorGpsInfo>::SharedPtr gps_info_pub_{nullptr};
-    
-    /**
-     * @ingroup publishers
-     * @brief FMU EKF filter state
-     */
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr filter_state_pub_{nullptr};
     rclcpp::Publisher<pegasus_msgs::msg::RPY>::SharedPtr filter_state_rpy_pub_{nullptr};
-
-    /**
-     * @ingroup publishers
-     * @brief 
-     */
     rclcpp::Publisher<pegasus_msgs::msg::Status>::SharedPtr status_pub_{nullptr};
     rclcpp::Publisher<pegasus_msgs::msg::VehicleConstants>::SharedPtr vehicle_constants_pub_{nullptr};
 
     /**
-     * @defgroup services ROS2 Services
-     * This group defines all the ROS services
-     */
-
-    /**
-     * @ingroup services
-     * @brief Service server to arm the vehicle
+     * @brief Pegasus services
      */
     rclcpp::Service<pegasus_msgs::srv::Arm>::SharedPtr arm_service_{nullptr};
-
-    /**
-     * @ingroup services
-     * @brief Service server to disarm the vehicle
-     */
     rclcpp::Service<pegasus_msgs::srv::KillSwitch>::SharedPtr kill_switch_service_{nullptr};
-
-    /**
-     * @ingroup services
-     * @brief Service server to auto-land the vehicle using the 
-     * microcontroller embeded control algorithm
-     */
     rclcpp::Service<pegasus_msgs::srv::Land>::SharedPtr land_service_{nullptr};
-
-    /**
-     * @ingroup services
-     * @brief Service server to set the vehicle into the offboard mode 
-     */
     rclcpp::Service<pegasus_msgs::srv::Offboard>::SharedPtr offboard_service_{nullptr};
-
-    /**
-     * @ingroup services
-     * @brief Service server to set the vehicle into the hold position mode
-     */
     rclcpp::Service<pegasus_msgs::srv::PositionHold>::SharedPtr position_hold_service_{nullptr};
 
     /**

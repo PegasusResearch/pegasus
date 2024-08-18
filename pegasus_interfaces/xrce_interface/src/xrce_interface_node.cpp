@@ -13,52 +13,48 @@ void XRCEInterfaceNode::init_parameters() {
 }
 
 void XRCEInterfaceNode::initialize_publishers() {
+
+    // ----- PX4 Publishers -----
+    actuator_motors_pub_ = this->create_publisher<px4_msgs::msg::ActuatorMotors>(this->get_parameter("xrce_interface.px4.publishers.actuator_setpoints").as_string(), 10);
+    attitude_setpoint_pub_ = this->create_publisher<px4_msgs::msg::VehicleAttitudeSetpoint>(this->get_parameter("xrce_interface.px4.publishers.attitude_setpoints").as_string(), 10);  
+    thrust_setpoint_pub_ = this->create_publisher<px4_msgs::msg::VehicleThrustSetpoint>(this->get_parameter("xrce_interface.px4.publishers.thrust_setpoints").as_string(), 10);
+    torque_setpoint_pub_ = this->create_publisher<px4_msgs::msg::VehicleTorqueSetpoint>(this->get_parameter("xrce_interface.px4.publishers.torque_setpoints").as_string(), 10);
+    offboard_control_mode_pub_ = this->create_publisher<px4_msgs::msg::OffboardControlMode>(this->get_parameter("xrce_interface.px4.publishers.offboard_control_mode").as_string(), 10);
+    vehicle_command_pub_ = this->create_publisher<px4_msgs::msg::VehicleCommand>(this->get_parameter("xrce_interface.px4.publishers.vehicle_command").as_string(), 10);
+
+    // ----- Pegasus Publishers -----
     
     // ------------------------------------------------------------------------
     // Initialize the publisher for the status of the vehicle (arm/disarm state, connection, ...)
     // ------------------------------------------------------------------------
-    this->declare_parameter("publishers.status", "status");
-    rclcpp::Parameter status_topic = this->get_parameter("publishers.status");
-    status_pub_ = this->create_publisher<pegasus_msgs::msg::Status>(status_topic.as_string(), rclcpp::SensorDataQoS());
-
-    this->declare_parameter("publishers.vehicle_constants", "vehicle_constants");
-    rclcpp::Parameter vehicle_constants_topic = this->get_parameter("publishers.vehicle_constants");
-    vehicle_constants_pub_ = this->create_publisher<pegasus_msgs::msg::VehicleConstants>(vehicle_constants_topic.as_string(), rclcpp::SensorDataQoS());
+    status_pub_ = this->create_publisher<pegasus_msgs::msg::Status>(this->get_parameter("xrce_interface.publishers.status").as_string(), rclcpp::SensorDataQoS());
+    vehicle_constants_pub_ = this->create_publisher<pegasus_msgs::msg::VehicleConstants>(this->get_parameter("xrce_interface.publishers.vehicle_constants").as_string(), rclcpp::SensorDataQoS());
 
     // ------------------------------------------------------------------------
     // Initialize the publisher for sensors data (IMU, barometer and gps)
     // ------------------------------------------------------------------------
-    this->declare_parameter<std::string>("publishers.sensors.imu", "sensors/imu");
-    rclcpp::Parameter imu_vel_accel_topic = this->get_parameter("publishers.sensors.imu");
-    imu_pub_ = this->create_publisher<sensor_msgs::msg::Imu>(imu_vel_accel_topic.as_string(), rclcpp::SensorDataQoS());
-
-    this->declare_parameter<std::string>("publishers.sensors.barometer", "sensors/barometer");
-    rclcpp::Parameter barometer_topic = this->get_parameter("publishers.sensors.barometer");
-    baro_pub_ = this->create_publisher<pegasus_msgs::msg::SensorBarometer>(barometer_topic.as_string(), rclcpp::SensorDataQoS());
-
-    this->declare_parameter<std::string>("publishers.sensors.gps", "sensors/gps");
-    rclcpp::Parameter gps_topic = this->get_parameter("publishers.sensors.gps");
-    gps_pub_ = this->create_publisher<pegasus_msgs::msg::SensorGps>(gps_topic.as_string(), rclcpp::SensorDataQoS());
-
-    this->declare_parameter<std::string>("publishers.sensors.gps_info", "sensors/gps_info");
-    rclcpp::Parameter gps_info_topic = this->get_parameter("publishers.sensors.gps_info");
-    gps_info_pub_ = this->create_publisher<pegasus_msgs::msg::SensorGpsInfo>(gps_info_topic.as_string(), rclcpp::SensorDataQoS());
+    imu_pub_ = this->create_publisher<sensor_msgs::msg::Imu>(this->get_parameter("xrce_interface.publishers.sensors.imu").as_string(), rclcpp::SensorDataQoS());
+    baro_pub_ = this->create_publisher<pegasus_msgs::msg::SensorBarometer>(this->get_parameter("xrce_interface.publishers.sensors.barometer").as_string(), rclcpp::SensorDataQoS());
+    gps_pub_ = this->create_publisher<pegasus_msgs::msg::SensorGps>(this->get_parameter("xrce_interface.publishers.sensors.gps").as_string(), rclcpp::SensorDataQoS());
+    gps_info_pub_ = this->create_publisher<pegasus_msgs::msg::SensorGpsInfo>(this->get_parameter("xrce_interface.publishers.sensors.gps_info").as_string(), rclcpp::SensorDataQoS());
 
     // ------------------------------------------------------------------------
     // Initialize the publisher for the current state of the vehicle 
     // (position, orientation, body and inertial frame velocity)
     // ------------------------------------------------------------------------
-    this->declare_parameter<std::string>("publishers.filter.state", "filter/state");
-    rclcpp::Parameter state_topic = this->get_parameter("publishers.filter.state");
-    filter_state_pub_ = this->create_publisher<nav_msgs::msg::Odometry>(state_topic.as_string(), rclcpp::SensorDataQoS());
-
-    this->declare_parameter<std::string>("publishers.filter.rpy", "filter/rpy");
-    rclcpp::Parameter rpy_topic = this->get_parameter("publishers.filter.rpy");
-    filter_state_rpy_pub_ = this->create_publisher<pegasus_msgs::msg::RPY>(rpy_topic.as_string(), rclcpp::SensorDataQoS());
+    filter_state_pub_ = this->create_publisher<nav_msgs::msg::Odometry>(this->get_parameter("xrce_interface.publishers.filter.state").as_string(), rclcpp::SensorDataQoS());
+    filter_state_rpy_pub_ = this->create_publisher<pegasus_msgs::msg::RPY>(this->get_parameter("xrce_interface.publishers.filter.rpy").as_string(), rclcpp::SensorDataQoS());
 }
 
 void XRCEInterfaceNode::intialize_subscribers() {
 
+    // Defining the compatible ROS 2 predefined QoS for PX4 topics
+    rmw_qos_profile_t qos_profile = rmw_qos_profile_sensor_data;
+	auto qos = rclcpp::QoS(rclcpp::QoSInitialization(qos_profile.history, 5), qos_profile);
+
+    // ---- PX4 Subscribers ----
+    vehicle_odometry_sub_= this->create_subscription<px4_msgs::msg::VehicleOdometry>(this->get_parameter("xrce_interface.px4.subscribers.odometry").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_odometry_callback, this, _1));
+    vehicle_status_sub_= this->create_subscription<px4_msgs::msg::VehicleStatus>(this->get_parameter("xrce_interface.px4.subscribers.status").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_status_callback, this, _1));
 }
 
 void XRCEInterfaceNode::initialize_services() {
@@ -116,13 +112,77 @@ void XRCEInterfaceNode::init_thrust_curve() {
     thrust_curve_ = thrust_curve_Factory.create_thrust_curve(gains, thrust_curve_id.as_string());
 }
 
-/**
- * @defgroup subscriberCallbacks
- * This group defines all the ROS subscriber callbacks
- */
+void XRCEInterfaceNode::px4_odometry_callback(px4_msgs::msg::VehicleOdometry::ConstSharedPtr odom_msg) {
+
+    // Set the filter state message with the odometry data received from the PX4 autopilot
+    filter_state_msg_.header.stamp = rclcpp::Clock().now();
+    filter_state_msg_.header.frame_id = "map";
+    filter_state_msg_.child_frame_id = "base_link";
+
+    filter_state_msg_.pose.pose.position.x = odom_msg->position[0];
+    filter_state_msg_.pose.pose.position.y = odom_msg->position[1];
+    filter_state_msg_.pose.pose.position.z = odom_msg->position[2];
+
+    filter_state_msg_.pose.pose.orientation.w = odom_msg->q[0];
+    filter_state_msg_.pose.pose.orientation.x = odom_msg->q[1];
+    filter_state_msg_.pose.pose.orientation.y = odom_msg->q[2];
+    filter_state_msg_.pose.pose.orientation.z = odom_msg->q[3];
+
+    filter_state_msg_.twist.twist.linear.x = odom_msg->velocity[0];
+    filter_state_msg_.twist.twist.linear.y = odom_msg->velocity[1];
+    filter_state_msg_.twist.twist.linear.z = odom_msg->velocity[2];
+
+    filter_state_msg_.twist.twist.angular.x = odom_msg->angular_velocity[0];
+    filter_state_msg_.twist.twist.angular.y = odom_msg->angular_velocity[1];
+    filter_state_msg_.twist.twist.angular.z = odom_msg->angular_velocity[2];
+
+    // Publish the filter state message according to the Pegasus API
+    filter_state_pub_->publish(filter_state_msg_);
+}
+
+void XRCEInterfaceNode::px4_status_callback(px4_msgs::msg::VehicleStatus::ConstSharedPtr msg) {
+
+    const std::map<int, int> PX4_modes {
+        {px4_msgs::msg::VehicleStatus::NAVIGATION_STATE_MANUAL, pegasus_msgs::msg::Status::MANUAL},
+        {px4_msgs::msg::VehicleStatus::NAVIGATION_STATE_ALTCTL, pegasus_msgs::msg::Status::ATL_CTL},
+        {px4_msgs::msg::VehicleStatus::NAVIGATION_STATE_POSCTL, pegasus_msgs::msg::Status::POS_CTL},
+        {px4_msgs::msg::VehicleStatus::NAVIGATION_STATE_AUTO_MISSION, pegasus_msgs::msg::Status::MISSION},
+        {px4_msgs::msg::VehicleStatus::NAVIGATION_STATE_AUTO_LOITER, pegasus_msgs::msg::Status::HOLD},
+        {px4_msgs::msg::VehicleStatus::NAVIGATION_STATE_AUTO_RTL, pegasus_msgs::msg::Status::RETURN_TO_LAUNCH},
+        {px4_msgs::msg::VehicleStatus::NAVIGATION_STATE_ACRO, pegasus_msgs::msg::Status::ACRO},
+        {px4_msgs::msg::VehicleStatus::NAVIGATION_STATE_OFFBOARD, pegasus_msgs::msg::Status::OFFBOARD},
+        {px4_msgs::msg::VehicleStatus::NAVIGATION_STATE_AUTO_TAKEOFF, pegasus_msgs::msg::Status::TAKEOFF},
+        {px4_msgs::msg::VehicleStatus::NAVIGATION_STATE_AUTO_LAND, pegasus_msgs::msg::Status::LAND},
+        {px4_msgs::msg::VehicleStatus::NAVIGATION_STATE_AUTO_FOLLOW_TARGET, pegasus_msgs::msg::Status::FOLLOW_ME},
+        {px4_msgs::msg::VehicleStatus::NAVIGATION_STATE_STAB, pegasus_msgs::msg::Status::STABILIZED},
+    };
+
+    // Set the status message with the status data received from the PX4 autopilot
+    status_msg_.header.stamp = rclcpp::Clock().now();
+    status_msg_.header.frame_id = "map";
+
+    status_msg_.system_id = msg->system_id;
+    status_msg_.armed = (msg->arming_state == 2) ? true : false;
+    status_msg_.landed_state = (msg->takeoff_time == 0) ? status_msg_.ON_GROUND : status_msg_.IN_AIR;
+    status_msg_.flight_mode = (PX4_modes.find(msg->nav_state) != PX4_modes.end()) ? PX4_modes.at(msg->nav_state) : status_msg_.UNKOWN;
+
+    // Update the landed state with taking off or landing if that is the case
+    if(msg->nav_state == px4_msgs::msg::VehicleStatus::NAVIGATION_STATE_AUTO_TAKEOFF) {
+        status_msg_.landed_state = status_msg_.TAKING_OFF;
+    } else if(msg->nav_state == px4_msgs::msg::VehicleStatus::NAVIGATION_STATE_AUTO_LAND) {
+        status_msg_.landed_state = status_msg_.LANDING;
+    }
+
+    // Get the health of the vehicle
+    status_msg_.health.is_armable = msg->pre_flight_checks_pass;
+    status_msg_.health.accelerometer_calibrated = true;
+    status_msg_.health.magnetometer_calibrated = true;
+
+    // Publish the status message according to the Pegasus API
+    status_pub_->publish(status_msg_);
+}
 
 /**
- * @ingroup subscriberCallbacks
  * @brief Position subscriber callback. The position of the vehicle should be expressed in the NED reference frame
  * @param msg A message with the desired position for the vehicle in NED
  */
@@ -132,7 +192,6 @@ void XRCEInterfaceNode::position_callback(const pegasus_msgs::msg::ControlPositi
 }
 
 /**
- * @ingroup subscriberCallbacks
  * @brief Attitude and thrust subscriber callback. The attitude should be specified in euler angles in degrees
  * according to the Z-Y-X convention in the body frame of f.r.d convention. The thrust should be normalized
  * between 0-100 %
@@ -144,7 +203,6 @@ void XRCEInterfaceNode::attitude_thrust_callback(const pegasus_msgs::msg::Contro
 }
 
 /**
- * @ingroup subscriberCallbacks
  * @brief Attitude rate and thrust subscriber callback. The attitude-rate should be specified in euler angles in degrees-per-second
  * according to the Z-Y-X convention in the body frame of f.r.d convention. The thrust should be normalized
  * between 0-100 %
@@ -156,7 +214,6 @@ void XRCEInterfaceNode::attitude_rate_thrust_callback(const pegasus_msgs::msg::C
 }
 
 /**
- * @ingroup subscriberCallbacks
  * @brief Attitude and thrust subscriber callback. The attitude should be specified in euler angles in degrees
  * according to the Z-Y-X convention in the body frame of f.r.d convention. The total force along
  * the body Z-axis should be given in Newton (N)
@@ -172,7 +229,6 @@ void XRCEInterfaceNode::attitude_force_callback(const pegasus_msgs::msg::Control
 }
 
 /**
- * @ingroup subscriberCallbacks
  * @brief Attitude rate and thrust subscriber callback. The attitude-rate should be specified in euler angles in degrees-per-second
  * according to the Z-Y-X convention in the body frame of f.r.d convention. The total force along
  * the body Z-axis should be given in Newton (N)
@@ -187,7 +243,6 @@ void XRCEInterfaceNode::attitude_rate_force_callback(const pegasus_msgs::msg::Co
 }
 
 /**
- * @ingroup subscriberCallbacks
  * @brief Motion Capture vehicle pose subscriber callback. This callback receives a message with the pose of the vehicle
  * provided by a Motion Capture System (if available) expressed in ENU reference frame, converts to NED and 
  * sends it via mavlink to the vehicle autopilot filter to merge
@@ -213,4 +268,19 @@ void XRCEInterfaceNode::mocap_pose_callback(const geometry_msgs::msg::PoseStampe
     // Send the mocap measured vehicle pose thorugh mavlink for the onboard microcontroller
     // to fuse in its internal EKF
     mavlink_node_->update_mocap_telemetry(position_ned, orientation_frd_ned);
+}
+
+void XRCEInterfaceNode::publish_vehicle_command(uint16_t command, float param1, float param2) {
+
+	px4_msgs::msg::VehicleCommand msg;
+	msg.param1 = param1;
+	msg.param2 = param2;
+	msg.command = command;
+	msg.target_system = 1;
+	msg.target_component = 1;
+	msg.source_system = 1;
+	msg.source_component = 1;
+	msg.from_external = true;
+	msg.timestamp = this->get_clock()->now().nanoseconds() / 1000;
+	vehicle_command_pub_->publish(msg);
 }

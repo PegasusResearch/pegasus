@@ -1,0 +1,56 @@
+/**:
+  ros__parameters:
+    xrce_interface:
+      px4:
+        publishers:
+          actuator_setpoints: ""
+          attitude_setpoints: ""
+          thrust_setpoints: ""
+          torque_setpoints: ""
+          offboard_control_mode: ""
+          vehicle_command: ""
+          mocap: "fmu/in/vehicle_visual_odometry"
+        subscribers:
+          odometry: "fmu/out/vehicle_odometry"
+          status: "fmu/out/vehicle_status"
+        control:
+          # High-level control (position, body velocity and inertial acceleration)
+          position: "fmu/in/position"
+          # High-level velocity control (inertial and body frame)
+          inertial_velocity: "fmu/in/velocity/inertial"
+          body_velocity: "fmu/in/velocity/body"
+          # High-level acceleration controller (in inertial frame)
+          inertial_acceleration: "fmu/in/inertial_acceleration"
+          # Low-level control (attitude and attitude-rate control + throttle)
+          thrust:
+            attitude: "fmu/in/throtle/attitude"
+            attitude_rate: "fmu/in/throtle/attitude_rate"
+          # Low-level control (attitude and attitude-rate control + force expresed in Newton)
+          force:
+            attitude: "fmu/in/force/attitude"
+            attitude_rate: "fmu/in/force/attitude_rate"
+        # External vision or mocap sensor input (in ENU frame of reference)
+        external_sensors:
+          mocap_enu: "/mocap/pose_enu"
+      services:
+        arm: "fmu/arm"
+        land: "fmu/land"
+        kill_switch: "fmu/kill_switch"
+        offboard: "fmu/offboard"
+        hold: "fmu/hold"
+        set_home: "fmu/set_home"
+      publishers:
+        # Current status of the vehicle (battery, operation mode, etc.)
+        status: "fmu/status"
+        vehicle_constants: "fmu/constants"
+        # Sensor data received from micro-controller
+        sensors:
+          imu: "fmu/sensors/imu"
+          barometer: "fmu/sensors/barometer"
+          gps: "fmu/sensors/gps"
+          gps_info: "fmu/sensors/gps_info"
+        # Data received from the micro-controller internal EKF
+        filter:
+          # Current state of the vehicle
+          state: "fmu/filter/state"
+          rpy: "fmu/filter/rpy"
