@@ -396,11 +396,11 @@ This is an adapted version of the algorithm proposed in <span id="id2">[<a class
 <p>where <span class="math notranslate nohighlight">\(R = \left[ \begin{matrix} x_b &amp; y_b &amp; z_b \end{matrix} \right]\)</span> denotes the vehicle orientation.
 Define the position and velocity tracking error as</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}e_p &amp;= p - p_{des} \\
-\dot{e}_p &amp;= e_v = v - v_{des}\end{split}\]</div>
+\[\begin{split}e_p &amp;= p_{des} - p \\
+\dot{e}_p &amp;= e_v = v_{des} - v\end{split}\]</div>
 <p>The total force to be applied to the vehicle body is given by</p>
 <div class="math notranslate nohighlight">
-\[F_{des} = -m (K_p e_p + K_d e_v + ge_3 - a_{des})\]</div>
+\[F_{des} = m (K_p e_p + K_d e_v - ge_3 + a_{des})\]</div>
 <p>Next, compute the desired <span class="math notranslate nohighlight">\(z_b\)</span> axis from the desired total force</p>
 <div class="math notranslate nohighlight">
 \[z_b^{des} = -\frac{F_{des}}{||F_{des}||}\]</div>
