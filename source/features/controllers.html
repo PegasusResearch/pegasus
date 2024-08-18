@@ -290,11 +290,11 @@ This is the same algorithm used in <span id="id1">[<a class="reference internal"
          &amp;= g e_3 + u\end{split}\]</div>
 <p>where <span class="math notranslate nohighlight">\(u \in \mathbb{R}^3\)</span> is the acceleration input of the system. Consider also the tracking error system:</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}e_p &amp;= p - p_d \\
-\dot{e}_p &amp;= e_v = v - v_d\end{split}\]</div>
+\[\begin{split}e_p &amp;= p_d - p \\
+\dot{e}_p &amp;= e_v = v_d - v\end{split}\]</div>
 <p>The controller can then be given by the Proportional-Derivative (PD) controller with an acceleration feed-forward term</p>
 <div class="math notranslate nohighlight">
-\[u = -K_p e_p -K_d e_v + a_d -ge_3,\]</div>
+\[u = K_p e_p + K_d e_v + a_d - ge_3,\]</div>
 <p>can render the system globally assymptotically stable (GAS). From the equality</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}u &amp;= - \frac{T}{m}R e_3 \\

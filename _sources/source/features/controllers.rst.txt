@@ -67,14 +67,14 @@ where :math:`u \in \mathbb{R}^3` is the acceleration input of the system. Consid
 
 .. math::
 
-   e_p &= p - p_d \\
-   \dot{e}_p &= e_v = v - v_d
+   e_p &= p_d - p \\
+   \dot{e}_p &= e_v = v_d - v 
 
 The controller can then be given by the Proportional-Derivative (PD) controller with an acceleration feed-forward term
 
 .. math::
 
-   u = -K_p e_p -K_d e_v + a_d -ge_3,
+   u = K_p e_p + K_d e_v + a_d - ge_3,
 
 can render the system globally assymptotically stable (GAS). From the equality
 
