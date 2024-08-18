@@ -1,6 +1,6 @@
 #include "xrce_interface_node.hpp"
 
-XRCEInterfaceNode::XRCEInterfaceNode() : rclcpp::Node("xrce_interface_node") {
+XRCEInterfaceNode::XRCEInterfaceNode(const std::string & node_name, const rclcpp::NodeOptions & options) : rclcpp::Node(node_name, options) {
 
 }
 

@@ -94,7 +94,7 @@
 class XRCEInterfaceNode : public rclcpp::Node {
 
 public:
-    XRCEInterfaceNode();
+    XRCEInterfaceNode(const std::string & node_name, const rclcpp::NodeOptions & options);
     ~XRCEInterfaceNode();
 
 private:

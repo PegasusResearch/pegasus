@@ -60,8 +60,12 @@ int main(int argc, char ** argv) {
     // Initialize ROS2
     rclcpp::init(argc, argv);
 
+    rclcpp::NodeOptions options;
+    options.allow_undeclared_parameters(true);
+    options.automatically_declare_parameters_from_overrides(true);
+
     // Create the xrce_interface_node
-    auto xrce_interface_node = std::make_shared<XRCEInterfaceNode>();
+    auto xrce_interface_node = std::make_shared<XRCEInterfaceNode>("xrce_interface", options);
 
     // Spin the node until shutdown
     rclcpp::spin(xrce_interface_node);
