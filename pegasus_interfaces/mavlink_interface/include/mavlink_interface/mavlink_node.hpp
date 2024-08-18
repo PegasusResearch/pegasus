@@ -54,12 +54,13 @@
 #include <mavsdk/plugins/action/action.h>
 #include <mavsdk/plugins/offboard/offboard.h>
 #include <mavsdk/plugins/telemetry/telemetry.h>
+#include <mavsdk/plugins/mavlink_passthrough/mavlink_passthrough.h>
 #include <mavsdk/plugins/mocap/mocap.h>
 
 #include "rclcpp/rclcpp.hpp"
 
 /**
- * @brief 
+ * @brief Mavlink interface wrapper using Mavsdk to communicate with the vehicle
  */
 class MavlinkNode {
 
@@ -76,6 +77,14 @@ public:
 
         std::string connection_address;                                    // The address of the vehicle to connect to (e.g. udp://:14540@localhost:14557)
         std::vector<std::string> forward_ips;                              // The ips to forward the mavlink messages to (e.g. QGroundControl)
+
+        // Rates for the 
+        double rate_attitude;
+        double rate_position;
+        double rate_gps;
+        double rate_altitude;
+        double rate_imu;
+
         std::function<void(uint8_t)> on_discover_callback{nullptr};        // Callback to be called whenever a new system is discovered, which receives the vehicle id
         std::function<void()> on_initialize_telemetry_callback{nullptr};   // Callback to be called whenever telemetry coming from the vehicle is initialized
         std::function<void()> on_initialize_actions_callback{nullptr};     // Callback to be called whenever actions that can be sent to the vehicle are initialized
@@ -151,6 +160,36 @@ public:
     void set_position(const float x, const float y, const float z, const float yaw);
 
     /**
+     * @ingroup control_callbacks
+     * @brief Set the inertial velocity (Vx, Vy, Vz) (m/s) and yaw (deg) of the vehicle. The adopted frame is NED
+     * @param vx The velocity in the North direction in the inertial NED frame
+     * @param vy The velocity in the East direction in the inertial NED frame
+     * @param vz The velocity in the Down direction in the inertial NED frame
+     * @param yaw The yaw angle in deg
+     */
+    void set_inertial_velocity(const float vx, const float vy, const float vz, const float yaw);
+
+    /**
+     * @ingroup control_callbacks
+     * @brief Set the body velocity (Vx, Vy, Vz) (m/s) and yaw-rate (deg/s) of the vehicle. The adopted frame is f.r.d
+     * Note that with quadrotors, the roll and pitch of the body frame-are ignored, and the vehicle is actuated in a "cheated" body velocity
+     * @param vx The velocity in the x direction in the body frame (projected for 0 roll)
+     * @param vy The velocity in the y direction in the body frame (projected for 0 pitch)
+     * @param vz The velocity in the z direction in the body frame
+     * @param yaw_rate The angular velocity around the z-axis in the body frame
+     */
+    void set_body_velocity(const float vx, const float vy, const float vz, const float yaw_rate);
+
+    /**
+     * @ingroup control_callbacks
+     * @brief Set the inertial acceleration (Ax, Ay, Az) (m/s^2) of the vehicle. The adopted frame is NED
+     * @param ax The acceleration in the North direction in the inertial NED frame
+     * @param ay The acceleration in the East direction in the inertial NED frame
+     * @param az The acceleration in the Down direction in the inertial NED frame
+     */
+    void set_inertial_acceleration(const float ax, const float ay, const float az);
+
+    /**
      * @brief Method to arm or disarm the vehicle
      * @param arm_disarm The boolean that is 1 to arm the vehicle and 0 to disarm
      */
@@ -177,6 +216,11 @@ public:
      * until we have a result from the vehicle. 
      */
     uint8_t position_hold();
+
+    /**
+     * @brief Method to set the home position of the onboard micro-controller.
+     */
+    void set_home_position();
 
     /**
      * @defgroup mocap
@@ -220,6 +264,13 @@ private:
      * the actions that we can send through mavlink and create the corresponding ROS2 actions for arming/disarming and auto-landing
      */
     void initialize_actions();
+
+    /**
+     * @ingroup system_initializations
+     * @brief Method that is called by new_mavlink_system_callback whenever a new system is detected to initialize the
+     * mavlink passthrough submodule and allow for sending and receiving mavlink messages to and from the vehicle.
+     */
+    void initialize_mavlink_passthrough();
 
     /**
      * @ingroup system_initializations
@@ -276,7 +327,8 @@ private:
     std::unique_ptr<mavsdk::Action> action_{nullptr};
     std::unique_ptr<mavsdk::Offboard> offboard_{nullptr};
     std::unique_ptr<mavsdk::Telemetry> telemetry_{nullptr};
-    std::unique_ptr<mavsdk::Mocap> mocap_{nullptr};
+    std::unique_ptr<mavsdk::MavlinkPassthrough> mavlink_passthrough_{nullptr};
+    std::unique_ptr<mavsdk::Mocap> mocap_{nullptr};    
 
     /**
      * @defgroup mavsdk_control_messages
@@ -305,6 +357,24 @@ private:
      * @brief Message to set the position (X-Y-Z) of the vehicle. The adopted frame is NED
      */
     mavsdk::Offboard::PositionNedYaw position_;
+
+    /**
+     * @ingroup mavsdk_control_messages
+     * @brief Message to set the velocity (Vx, Vy, Vz) (m/s) and yaw (deg) of the vehicle. The adopted frame is NED
+     */
+    mavsdk::Offboard::VelocityNedYaw inertial_velocity_;
+
+    /**
+     * @ingroup mavsdk_control_messages
+     * @brief Message to set the velocity in the body-frame (Vx, Vy, Vz) (m/s) and yaw-rate (deg/s) of the vehicle. The adopted frame is f.r.d
+     */
+    mavsdk::Offboard::VelocityBodyYawspeed body_velocity_;
+
+    /**
+     * @ingroup mavsdk_control_messages
+     * @brief Message to set the acceleration in the body-frame (Ax, Ay, Az) (m/s^2) of the vehicle. The adopted frame is f.r.d
+     */
+    mavsdk::Offboard::AccelerationNed acceleration_;
 
     /**
      * @ingroup mocap

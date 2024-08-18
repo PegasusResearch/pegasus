@@ -69,6 +69,8 @@
 // Messages for the control commands (position, attitude, etc.)
 #include "pegasus_msgs/msg/control_position.hpp"
 #include "pegasus_msgs/msg/control_attitude.hpp"
+#include "pegasus_msgs/msg/control_velocity.hpp"
+#include "pegasus_msgs/msg/control_acceleration.hpp"
 
 // Services for arming, auto-landing, etc.
 #include "pegasus_msgs/srv/arm.hpp"
@@ -76,6 +78,7 @@
 #include "pegasus_msgs/srv/land.hpp"
 #include "pegasus_msgs/srv/offboard.hpp"
 #include "pegasus_msgs/srv/position_hold.hpp"
+#include "pegasus_msgs/srv/set_home_position.hpp"
 
 // Messages for the mocap fusion and visual odometry
 #include "geometry_msgs/msg/pose_stamped.hpp"
@@ -282,7 +285,28 @@ private:
      * @param msg A message with the desired position for the vehicle in NED
      */
     void position_callback(const pegasus_msgs::msg::ControlPosition::ConstSharedPtr msg);
+
+    /**
+     * @ingroup subscriberCallbacks
+     * @brief Inertial velocity subscriber callback. The velocity should be expressed in the NED reference frame
+     * @param msg A message with the desired velocity for the vehicle in NED
+     */
+    void inertial_velocity_callback(const pegasus_msgs::msg::ControlVelocity::ConstSharedPtr msg);
     
+    /**
+     * @ingroup subscriberCallbacks
+     * @brief Body velocity subscriber callback. The velocity should be expressed in the body frame of f.r.d convention
+     * @param msg A message with the desired velocity for the vehicle in the body frame
+     */
+    void body_velocity_callback(const pegasus_msgs::msg::ControlVelocity::ConstSharedPtr msg);
+    
+    /**
+     * @ingroup subscriberCallbacks
+     * @brief Acceleration subscriber callback. The acceleration should be expressed in the inertial frame NED
+     * @param msg A message with the desired acceleration for the vehicle in NED
+     */
+    void inertial_acceleration_callback(const pegasus_msgs::msg::ControlAcceleration::ConstSharedPtr msg);
+
     /**
      * @ingroup subscriberCallbacks
      * @brief Attitude and thrust subscriber callback. The attitude should be specified in euler angles in degrees
@@ -380,6 +404,16 @@ private:
     void position_hold_callback(const pegasus_msgs::srv::PositionHold::Request::SharedPtr, const pegasus_msgs::srv::PositionHold::Response::SharedPtr response);
 
     /**
+     * @ingroup servicesCallbacks
+     * @brief Set the home position callback. When a service request is reached from the set_home_position_service_,
+     * this callback is called and will send a mavlink command for the vehicle to set the home position to the specified latitude, longitude and altitude
+     * 
+     * @param request The latitude, longitude and altitude of the home position
+     * @param response None
+     */
+    void set_home_position_callback(const pegasus_msgs::srv::SetHomePosition::Request::SharedPtr request, const pegasus_msgs::srv::SetHomePosition::Response::SharedPtr response);
+
+    /**
      *  @defgroup messages 
      *  This group defines all the ROS messages that will always be constant and
      *  updated with the most recent values
@@ -444,6 +478,10 @@ private:
      * @brief Position subscriber. The position of the vehicle should be expressed in the NED reference frame
      */
     rclcpp::Subscription<pegasus_msgs::msg::ControlPosition>::SharedPtr position_control_sub_{nullptr};
+
+    rclcpp::Subscription<pegasus_msgs::msg::ControlVelocity>::SharedPtr inertial_velocity_control_sub_{nullptr};
+    rclcpp::Subscription<pegasus_msgs::msg::ControlVelocity>::SharedPtr body_velocity_control_sub_{nullptr};
+    rclcpp::Subscription<pegasus_msgs::msg::ControlAcceleration>::SharedPtr inertial_acceleration_control_sub_{nullptr};
 
     /**
      * @ingroup subscribers
@@ -519,6 +557,12 @@ private:
      * @brief Service server to set the vehicle into the hold position mode
      */
     rclcpp::Service<pegasus_msgs::srv::PositionHold>::SharedPtr position_hold_service_{nullptr};
+
+    /**
+     * @ingroup services
+     * @brief Service server to set the home position of the vehicle
+     */
+    rclcpp::Service<pegasus_msgs::srv::SetHomePosition>::SharedPtr set_home_position_service_{nullptr};
 
     /**
      * @brief A MavlinkNode object that allows for initializing the ROS2 publishers, subscribers, etc.

@@ -454,7 +454,7 @@ void Autopilot::status_callback(const pegasus_msgs::msg::Status::ConstSharedPtr 
         // Increment the counter for forcing a transition - this is done to prevent the autopilot from forcing a transition to DisarmMode
         force_change_counter_++;
 
-        if (force_change_counter_ > 3) {
+        if (force_change_counter_ > 10) {
             RCLCPP_WARN(this->get_logger(), "Vehicle is disarmed by FMU. Autopilot forcing a transition to DisarmMode");
             change_mode("DisarmMode", true);
         }
@@ -469,7 +469,7 @@ void Autopilot::status_callback(const pegasus_msgs::msg::Status::ConstSharedPtr 
         // Increment the counter for forcing a transition - this is done to prevent the autopilot from forcing a transition to HoldMode
         force_change_counter_++;
         
-        if (force_change_counter_ > 3) {
+        if (force_change_counter_ > 10) {
             RCLCPP_WARN(this->get_logger(), "Vehicle is ON_AIR, armed and in offboard mode. Autopilot forcing a transition to HoldMode");
             change_mode("HoldMode", true);
         }

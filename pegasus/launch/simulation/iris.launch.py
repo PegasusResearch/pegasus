@@ -21,7 +21,7 @@ def generate_launch_description():
     mav_connection_arg = DeclareLaunchArgument('connection', default_value='udp://:14540', description='The interface used to connect to the vehicle')
     
     # Define the drone MAVLINK forward ips and ports (by default in simulation we do not need to forward mavlink connections)
-    mavlink_forward_arg = DeclareLaunchArgument('mavlink_forward', default_value="['serial:///dev/ttyUSB0:460800']", description='A list of ips where to forward mavlink messages')
+    mavlink_forward_arg = DeclareLaunchArgument('mavlink_forward', default_value="['']", description='A list of ips where to forward mavlink messages')
 
     # Define which file to use for the drone parameters
     drone_params_file_arg = DeclareLaunchArgument(

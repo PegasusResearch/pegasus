@@ -1,9 +1,9 @@
 Installation
 ============
 
-.. image:: https://img.shields.io/badge/PX4--Autopilot-1.14.1-brightgreen.svg
+.. image:: https://img.shields.io/badge/PX4--Autopilot-1.14.3-brightgreen.svg
    :target: https://github.com/PX4/PX4-Autopilot
-   :alt: PX4-Autopilot 1.14.1
+   :alt: PX4-Autopilot 1.14.3
 
 .. image:: https://img.shields.io/badge/Ubuntu-22.04LTS-brightgreen.svg
    :target: https://releases.ubuntu.com/22.04/

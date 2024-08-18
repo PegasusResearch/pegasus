@@ -15,7 +15,7 @@ def generate_launch_description():
     # --------------------------------
     
     # Set the default vehicle id (note: this is a trick due to the parameter reading limitation in ROS2)
-    default_vehicle_id = 1
+    default_vehicle_id = 7
     vehicle_id = default_vehicle_id
     for arg in sys.argv:
         if arg.startswith('vehicle_id:='):
@@ -26,11 +26,12 @@ def generate_launch_description():
     # ----------------------------------------
     
     # Define the standard mavlink port to forward mavlink data (so that it can also be viewed internally by qgroundcontrol)
-    udp_local_forward_port = 14559 + vehicle_id
-    udp_local_forward_adress = "udp://127.0.0.1:" + str(udp_local_forward_port)
-    desktop_arena = "udp://192.168.1.100:15006"
+    #udp_local_forward_port = 14559 + vehicle_id + 10
+    #udp_local_forward_adress = "udp://127.0.0.1:" + str(udp_local_forward_port)
+    #desktop_arena = "udp://192.168.1.100:15006"
     #mavlink_forward_addresses = "[" + udp_local_forward_adress + ',' + desktop_arena + "]"
     mavlink_forward_addresses = "['']"
+    #mavlink_forward_addresses = "['udp://192.168.1.240:14550']"
 
 
     # Namespace and ID of the vehicle as parameter received by the launch file
@@ -38,7 +39,7 @@ def generate_launch_description():
     namespace_arg = DeclareLaunchArgument('vehicle_ns', default_value='drone', description='Namespace to append to every topic and node name')
     
     # Define the drone MAVLINK IP and PORT
-    mav_connection_arg = DeclareLaunchArgument('connection', default_value='udp://:15007', description='The interface used to connect to the vehicle')
+    mav_connection_arg = DeclareLaunchArgument('connection', default_value='udp://:' + str(15000 + vehicle_id), description='The interface used to connect to the vehicle')
 
     # Define the drone MAVLINK forward ips and ports
     mavlink_forward_arg = DeclareLaunchArgument('mavlink_forward', default_value=mavlink_forward_addresses, description='A list of ips where to forward mavlink messages')

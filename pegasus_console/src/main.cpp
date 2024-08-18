@@ -45,15 +45,48 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
+#include <getopt.h>
 #include "rclcpp/rclcpp.hpp"
 #include "console_node.hpp"
 
 int main(int argc, char * argv[]) {
+
+    // --------------------------------------------------------------------------
+    // ---- Parse the parameters from getopt to get the ID of the vehicle -------
+    // --------------------------------------------------------------------------
+
+    // Default vehicle id
+    int ch;
+    unsigned int vehicle_id = 1;
+    std::string vehicle_namespace = "/drone";
+
+    while((ch = getopt(argc, argv, "i:n:")) != -1) {
+        switch(ch) {
+            case 'i':
+                try {
+                    // Check if the ID is a number
+                    vehicle_id = std::stoi(optarg);
+                } catch (std::invalid_argument& e) {
+                    std::cerr << "The ID of the vehicle must be a number" << std::endl;
+                    return 0;
+                }
+                break;
+            case 'n':
+                vehicle_namespace = std::string("/") + std::string(optarg);
+                break;
+            default:
+                return 0;
+        }
+    }
+
+    // --------------------------------------------------------------------------
+    // ---- Initialize the ROS2 node --------------------------------------------
+    // --------------------------------------------------------------------------
     
     rclcpp::init(argc, argv);
 
     // Create the ConsoleNode
-    auto console_node = std::make_shared<ConsoleNode>();
+    auto console_node = std::make_shared<ConsoleNode>(vehicle_namespace, vehicle_id);
     console_node->start();
 
     rclcpp::shutdown();

@@ -76,6 +76,7 @@ The autopilot provides the following operating modes:
 * ``Follow Trajectory`` - The vehicle follows the trajectory loaded in the trajectory manager.
 * ``Waypoint`` - The vehicle goes to a waypoint.
 
+
 Since the autopilot modes are implemented as plugins, they are loaded at runtime by the autopilot. The autopilot uses the ``pluginlib`` package to load the plugins.
 This also allows for the modes to be implemented in different packages, which is useful if you want to keep the autopilot package clean and modular.
 

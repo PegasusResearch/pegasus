@@ -20,11 +20,14 @@
       # ----------------------------------------------------------------------------------------------------------
       # Definition of the controller that will perform the tracking of references of the different operation modes
       # ----------------------------------------------------------------------------------------------------------
-      controller: "MellingerController"
+      controller: "PIDController"
       # Configurations needed by the PX4 controller
       OnboardController:
         publishers:
           control_position: "fmu/in/position"
+          control_body_velocity: "fmu/in/velocity/body"
+          control_inertial_velocity: "fmu/in/velocity/inertial"
+          control_inertial_acceleration: "fmu/in/inertial_acceleration"
           control_attitude: "fmu/in/force/attitude"
           control_attitude_rate: "fmu/in/force/attitude_rate"
       PIDController:        # Well tunned
@@ -37,7 +40,6 @@
           kp: [5.0, 5.0, 3.3]               # Proportional gain
           kd: [4.0, 4.0, 5.0]               # Derivative gain
           ki: [0.10, 0.10, 0.25]            # Integral gain
-          kff: [1.0, 1.0, 1.0]              # Feed-forward gain
           min_output: [-20.0, -20.0, -20.0] # Minimum output of each PID
           max_output: [ 20.0,  20.0,  20.0]
       MellingerController:
@@ -46,10 +48,11 @@
           control_attitude_rate: "fmu/in/force/attitude_rate"
           debug_topic: "autopilot/statistics/mellinger"
         gains:
-          kp: [2.0, 2.0, 2.0]    # Proportional gain
-          kd: [1.5, 1.5, 1.5]    # Derivative gain
-          ki: [0.0, 0.0, 0.0]    # Integral gain
-          kr: [3.0, 3.0, 3.0]    # Attitude error gain
+          kp: [5.26, 5.26, 5.26]    # Proportional gain
+          kd: [4.0, 4.0, 4.0]       # Derivative gain
+          ki: [0.0, 0.0, 0.0]       # Integral gain
+          #ki: [0.1, 0.1, 0.25]      # Integral gain
+          kr: [3.0, 3.0, 3.0]       # Attitude error gain
           min_output: [-100.0, -100.0, -100.0]  # Minimum output of each PID
           max_output: [ 100.0,  100.0,  100.0]  # Maximum output of each PID
       # ----------------------------------------------------------------------------------------------------------
@@ -57,9 +60,9 @@
       # ----------------------------------------------------------------------------------------------------------
       geofencing: "BoxGeofencing"
       BoxGeofencing:
-        limits_x: [-10.0, 10.0]
-        limits_y: [-10.0, 10.0]
-        limits_z: [-10.0,  1.0] # NED Coordinades (z-negative is up)
+        limits_x: [-10.0, 10.0] #limits_x: [-3.3, 3.3]
+        limits_y: [-10.0, 10.0] #limits_y: [-2.2, 2.4]
+        limits_z: [-10.0, 10.0] #limits_z: [-2.4, 1.0] # NED Coordinades (z-negative is up)
       # ----------------------------------------------------------------------------------------------------------
       # Definition of the trajectory manager that generates parameterized trajectories to be followed
       # ----------------------------------------------------------------------------------------------------------
@@ -104,7 +107,7 @@
         fallback: "HoldMode"
         on_finish: "HoldMode"
         geofencing_violation_fallback: "HoldMode"
-        takeoff_altitude: -1.0 # m (NED)
+        takeoff_altitude: -1.5 # m (NED)
         set_takeoff_altitude_service: "autopilot/set_takeoff"
       LandMode: 
         valid_transitions: ["DisarmMode", "ArmMode", "TakeoffMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]

@@ -55,6 +55,8 @@
 // ROS2 messages
 #include "pegasus_msgs/msg/control_attitude.hpp"
 #include "pegasus_msgs/msg/control_position.hpp"
+#include "pegasus_msgs/msg/control_velocity.hpp"
+#include "pegasus_msgs/msg/control_acceleration.hpp"
 
 #include <autopilot/controller.hpp>
 
@@ -68,18 +70,29 @@ public:
 
     void initialize() override;
     void set_position(const Eigen::Vector3d& position, const Eigen::Vector3d& velocity, const Eigen::Vector3d& acceleration, const Eigen::Vector3d& jerk, const Eigen::Vector3d& snap, double yaw, double yaw_rate=0, double dt=0) override;
+    
+    void set_body_velocity(const Eigen::Vector3d& velocity, double yaw_rate, double dt=0) override;
+    void set_inertial_velocity(const Eigen::Vector3d& velocity, double yaw, double dt=0) override;
+    void set_inertial_acceleration(const Eigen::Vector3d& acceleration, double dt=0) override;
+
     void set_attitude(const Eigen::Vector3d& attitude, double thrust_force, double dt=0) override;
     void set_attitude_rate(const Eigen::Vector3d& attitude_rate, double thrust_force, double dt=0) override;
-    
+
 protected:
 
     // ROS2 messages
     pegasus_msgs::msg::ControlPosition position_msg_;
+    pegasus_msgs::msg::ControlVelocity inertial_velocity_msg_;
+    pegasus_msgs::msg::ControlVelocity body_velocity_msg_;
+    pegasus_msgs::msg::ControlAcceleration inertial_acceleration_msg_;
     pegasus_msgs::msg::ControlAttitude attitude_msg_;
     pegasus_msgs::msg::ControlAttitude attitude_rate_msg_;
 
     // ROS2 publishers
     rclcpp::Publisher<pegasus_msgs::msg::ControlPosition>::SharedPtr position_publisher_;
+    rclcpp::Publisher<pegasus_msgs::msg::ControlVelocity>::SharedPtr body_velocity_publisher_;
+    rclcpp::Publisher<pegasus_msgs::msg::ControlVelocity>::SharedPtr inertial_velocity_publisher_;
+    rclcpp::Publisher<pegasus_msgs::msg::ControlAcceleration>::SharedPtr inertial_acceleration_publisher_;
     rclcpp::Publisher<pegasus_msgs::msg::ControlAttitude>::SharedPtr attitude_publisher_;
     rclcpp::Publisher<pegasus_msgs::msg::ControlAttitude>::SharedPtr attitude_rate_publisher_;
 };

@@ -15,7 +15,7 @@ def generate_launch_description():
     # --------------------------------
     
     # Set the default vehicle id (note: this is a trick due to the parameter reading limitation in ROS2)
-    default_vehicle_id = 1
+    default_vehicle_id = 8
     vehicle_id = default_vehicle_id
     for arg in sys.argv:
         if arg.startswith('vehicle_id:='):
@@ -28,9 +28,12 @@ def generate_launch_description():
     # Define the standard mavlink port to forward mavlink data (so that it can also be viewed internally by qgroundcontrol)
     #udp_local_forward_port = 14550 + vehicle_id
     #udp_local_forward_adress = "udp://192.168.55.100:" + str(udp_local_forward_port)
-    desktop_arena = "udp://192.168.1.100:15006"
-    otg_port = "udp://192.168.55.100:15006"
-    mavlink_forward_addresses = "[" + desktop_arena + "," + otg_port + "]"
+    #desktop_arena = "udp://192.168.1.100:15006"
+    #otg_port = "udp://192.168.55.100:15006"
+    #mavlink_forward_addresses = "[" + desktop_arena + "," + otg_port + "]"
+    mavlink_forward_addresses = "['']"
+    mavlink_forward_addresses = "['udp://10.42.0.1:15006']"
+    mavlink_forward_addresses = "['udp://192.168.55.100:15006']"
 
     # Namespace and ID of the vehicle as parameter received by the launch file
     id_arg = DeclareLaunchArgument('vehicle_id', default_value=str(vehicle_id), description='Drone ID in the network')
@@ -40,7 +43,7 @@ def generate_launch_description():
     # serial:///dev/ttyACM0:921600
     # serial:///dev/ttyTHS0:921600
     # udp://:14550
-    mav_connection_arg = DeclareLaunchArgument('connection', default_value='serial:///dev/ttyTHS0:921600', description='The interface used to connect to the vehicle')
+    mav_connection_arg = DeclareLaunchArgument('connection', default_value='serial:///dev/ttyTHS1:921600', description='The interface used to connect to the vehicle')
 
     # Define the drone MAVLINK forward ips and ports
     mavlink_forward_arg = DeclareLaunchArgument('mavlink_forward', default_value=mavlink_forward_addresses, description='A list of ips where to forward mavlink messages')
@@ -115,5 +118,5 @@ def generate_launch_description():
         mavlink_interface_launch_file,
         autopilot_launch_file,
         mocap_launch_file,
-        realsense_launch_file
+        #realsense_launch_file
     ])
