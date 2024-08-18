@@ -1,19 +1,38 @@
 /**:
   ros__parameters:
     xrce_interface:
+      # Topics for receiving/sending data from/to px4
       px4:
         publishers:
-          actuator_setpoints: ""
-          attitude_setpoints: ""
-          thrust_setpoints: ""
-          torque_setpoints: ""
-          offboard_control_mode: ""
-          vehicle_command: ""
-          mocap: "fmu/in/vehicle_visual_odometry"
+          actuator_setpoints: "/fmu/out/actuator_motors"
+          attitude_setpoints: "/fmu/in/vehicle_attitude_setpoint"
+          thrust_setpoints: "/fmu/in/vehicle_thrust_setpoint"
+          torque_setpoints: "/fmu/in/vehicle_torque_setpoint"
+          offboard_control_mode: "/fmu/in/offboard_control_mode"
+          vehicle_command: "/fmu/in/vehicle_command"
+          mocap: "/fmu/in/vehicle_visual_odometry"
         subscribers:
-          odometry: "fmu/out/vehicle_odometry"
-          status: "fmu/out/vehicle_status"
-        control:
+          odometry: "/fmu/out/vehicle_odometry"
+          status: "/fmu/out/vehicle_status"
+          imu: "/fmu/out/sensor_combined"
+      # Topics for receiving/sending data from/to pegasus
+      pegasus:
+        publishers:
+          # Current status of the vehicle (battery, operation mode, etc.)
+          status: "fmu/status"
+          vehicle_constants: "fmu/constants"
+          # Sensor data received from micro-controller
+          sensors:
+            imu: "fmu/sensors/imu"
+            barometer: "fmu/sensors/barometer"
+            gps: "fmu/sensors/gps"
+            gps_info: "fmu/sensors/gps_info"
+          # Data received from the micro-controller internal EKF
+          filter:
+            # Current state of the vehicle
+            state: "fmu/filter/state"
+            rpy: "fmu/filter/rpy"
+        subscribers:
           # High-level control (position, body velocity and inertial acceleration)
           position: "fmu/in/position"
           # High-level velocity control (inertial and body frame)
@@ -29,28 +48,13 @@
           force:
             attitude: "fmu/in/force/attitude"
             attitude_rate: "fmu/in/force/attitude_rate"
-        # External vision or mocap sensor input (in ENU frame of reference)
-        external_sensors:
-          mocap_enu: "/mocap/pose_enu"
-      services:
-        arm: "fmu/arm"
-        land: "fmu/land"
-        kill_switch: "fmu/kill_switch"
-        offboard: "fmu/offboard"
-        hold: "fmu/hold"
-        set_home: "fmu/set_home"
-      publishers:
-        # Current status of the vehicle (battery, operation mode, etc.)
-        status: "fmu/status"
-        vehicle_constants: "fmu/constants"
-        # Sensor data received from micro-controller
-        sensors:
-          imu: "fmu/sensors/imu"
-          barometer: "fmu/sensors/barometer"
-          gps: "fmu/sensors/gps"
-          gps_info: "fmu/sensors/gps_info"
-        # Data received from the micro-controller internal EKF
-        filter:
-          # Current state of the vehicle
-          state: "fmu/filter/state"
-          rpy: "fmu/filter/rpy"
+          # External vision or mocap sensor input (in ENU frame of reference)
+          external_sensors:
+            mocap_enu: "/mocap/pose_enu"
+        services:
+          arm: "fmu/arm"
+          land: "fmu/land"
+          kill_switch: "fmu/kill_switch"
+          offboard: "fmu/offboard"
+          hold: "fmu/hold"
+          set_home: "fmu/set_home"

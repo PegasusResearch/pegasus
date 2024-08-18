@@ -59,10 +59,15 @@ void XRCEInterfaceNode::intialize_subscribers() {
 
 void XRCEInterfaceNode::initialize_services() {
 
+    // Pegasus services to interface with PX4
+    arm_service_ = this->create_service<pegasus_msgs::srv::Arm>(this->get_parameter("services.arm").as_string(), std::bind(&XRCEInterfaceNode::arm_callback, this, std::placeholders::_1, std::placeholders::_2));
+    kill_switch_service_ = this->create_service<pegasus_msgs::srv::KillSwitch>(this->get_parameter("services.kill_switch").as_string(), std::bind(&XRCEInterfaceNode::kill_switch_callback, this, std::placeholders::_1, std::placeholders::_2));
+    land_service_ = this->create_service<pegasus_msgs::srv::Land>(this->get_parameter("services.land").as_string(), std::bind(&XRCEInterfaceNode::land_callback, this, std::placeholders::_1, std::placeholders::_2));
+    offboard_service_ = this->create_service<pegasus_msgs::srv::Offboard>(this->get_parameter("services.offboard").as_string(), std::bind(&XRCEInterfaceNode::offboard_callback, this, std::placeholders::_1, std::placeholders::_2));
+    position_hold_service_ = this->create_service<pegasus_msgs::srv::PositionHold>(this->get_parameter("services.hold").as_string(), std::bind(&XRCEInterfaceNode::position_hold_callback, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 /**
- * @ingroup initFunctions
  * @brief Method used to initialize the ThrustCurve object used
  * to translate the thrust curve from Newton (N) to percentage (0-100%) and vice-versa
  * based on the configurations loaded from ROS parameter server
@@ -240,6 +245,61 @@ void XRCEInterfaceNode::attitude_rate_force_callback(const pegasus_msgs::msg::Co
     double thrust = thrust_curve_->force_to_percentage(msg->thrust);
 
     // Send the attitude-rate and thrust reference thorugh XRCE for the onboard microcontroller
+}
+
+/**
+ * @brief Arming/disarming service callback. When a service request is reached from the arm_service_, 
+ * this callback is called and will send a mavlink command for the vehicle to arm/disarm
+ * @param request The request for arming (bool = true) or disarming (bool = false)
+ * @param response The response in this service uint8
+ */
+void XRCEInterfaceNode::arm_callback(const pegasus_msgs::srv::Arm::Request::SharedPtr request, const pegasus_msgs::srv::Arm::Response::SharedPtr response) {
+    publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_COMPONENT_ARM_DISARM, 1.0);
+    response->success = true;
+}
+
+/**
+ * @brief Kill switch service callback. When a service request is reached from the kill_switch_service_,
+ * this callback is called and will send a mavlink command for the vehicle to kill the motors instantly.
+ * @param request The request for killing the motors (bool = true)
+ * @param response The response in this service uint8
+*/
+void XRCEInterfaceNode::kill_switch_callback(const pegasus_msgs::srv::KillSwitch::Request::SharedPtr request, const pegasus_msgs::srv::KillSwitch::Response::SharedPtr response) {
+    publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_COMPONENT_ARM_DISARM, 0.0);
+    response->success = true;
+}
+
+/**
+ * @brief Autoland service callback. When a service request is reached from the land_service_,
+ * this callback is called and will send a mavlink command for the vehicle to autoland using the onboard controller
+ * @param request An empty request for landing the vehicle (can be ignored)
+ * @param response The response in this service uint8
+ */
+void XRCEInterfaceNode::land_callback(const pegasus_msgs::srv::Land::Request::SharedPtr request, const pegasus_msgs::srv::Land::Response::SharedPtr response) {
+    // Check this page for mode values: https://github.com/mavlink/MAVSDK/blob/ce6b7186d837b1ab5e9b23bb9be72aec28899630/src/mavsdk/core/px4_custom_mode.h
+    // https://discuss.px4.io/t/where-to-find-custom-mode-list-for-mav-cmd-do-set-mode/32756/11
+    publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_DO_SET_MODE, 3, 6); // Set Auto (mode) + Land (submode)
+}
+
+/**
+ * @brief Offboard service callback. When a service request is reached from the offboard_service_,
+ * this callback is called and will send a mavlink command for the vehicle to enter offboard mode
+ * @param request An empty request for entering offboard mode (can be ignored)
+ * @param response The response in this service uint8
+ */
+void XRCEInterfaceNode::offboard_callback(const pegasus_msgs::srv::Offboard::Request::SharedPtr, const pegasus_msgs::srv::Offboard::Response::SharedPtr response) { 
+    // Check this page for mode values: https://github.com/mavlink/MAVSDK/blob/ce6b7186d837b1ab5e9b23bb9be72aec28899630/src/mavsdk/core/px4_custom_mode.h
+    publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_DO_SET_MODE, 1, 6);
+}
+
+/**
+ * @brief Position hold service callback. When a service request is reached from the position_hold_service_,
+ * this callback is called and will send a mavlink command for the vehicle to enter position hold mode
+ * @param request An empty request for entering position hold mode (can be ignored)
+ * @param response The response in this service uint8
+ */
+void XRCEInterfaceNode::position_hold_callback(const pegasus_msgs::srv::PositionHold::Request::SharedPtr, const pegasus_msgs::srv::PositionHold::Response::SharedPtr response) {
+    publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_DO_SET_MODE, 3, 3); // Set Auto (mode) + Hold/Loiter (submode)
 }
 
 /**
