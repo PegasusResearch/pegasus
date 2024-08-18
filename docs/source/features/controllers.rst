@@ -146,14 +146,14 @@ Define the position and velocity tracking error as
 
 .. math::
 
-   e_p &= p - p_{des} \\
-   \dot{e}_p &= e_v = v - v_{des}
+   e_p &= p_{des} - p \\
+   \dot{e}_p &= e_v = v_{des} - v 
 
 The total force to be applied to the vehicle body is given by
 
 .. math::
 
-   F_{des} = -m (K_p e_p + K_d e_v + ge_3 - a_{des})
+   F_{des} = m (K_p e_p + K_d e_v - ge_3 + a_{des})
 
 Next, compute the desired :math:`z_b` axis from the desired total force
 
