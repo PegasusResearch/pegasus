@@ -15,7 +15,7 @@ def generate_launch_description():
     # --------------------------------
     
     # Set the default vehicle id (note: this is a trick due to the parameter reading limitation in ROS2)
-    default_vehicle_id = 1
+    default_vehicle_id = 8
     vehicle_id = default_vehicle_id
     for arg in sys.argv:
         if arg.startswith('vehicle_id:='):
@@ -27,9 +27,8 @@ def generate_launch_description():
     
     # Define the standard mavlink port to forward mavlink data (so that it can also be viewed internally by qgroundcontrol)
     udp_local_forward_port = 14559 + vehicle_id
-    udp_local_forward_adress = "udp://127.0.0.1:" + str(udp_local_forward_port)
-    desktop_arena = "udp://192.168.1.100:15006"
-    mavlink_forward_addresses = "[" + udp_local_forward_adress + ',' + desktop_arena + "]"
+    udp_local_forward_adress = "udp://192.168.50.112:15006"
+    mavlink_forward_addresses = "[" + udp_local_forward_adress + "]"
 
     # Namespace and ID of the vehicle as parameter received by the launch file
     id_arg = DeclareLaunchArgument('vehicle_id', default_value=str(vehicle_id), description='Drone ID in the network')
@@ -37,7 +36,7 @@ def generate_launch_description():
     
     # Define the drone MAVLINK IP and PORT
     #mav_connection_arg = DeclareLaunchArgument('connection', default_value='udp://:1455' + str(vehicle_id-1), description='The interface used to connect to the vehicle')
-    mav_connection_arg = DeclareLaunchArgument('connection', default_value='udp://:15008', description='The interface used to connect to the vehicle')
+    mav_connection_arg = DeclareLaunchArgument('connection', default_value='udp://:15007', description='The interface used to connect to the vehicle')
 
 
     # Define the drone MAVLINK forward ips and ports
@@ -103,5 +102,5 @@ def generate_launch_description():
         # Launch files
         mavlink_interface_launch_file,
         autopilot_launch_file,
-        mocap_launch_file
+        #mocap_launch_file
     ])

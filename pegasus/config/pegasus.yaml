@@ -21,7 +21,7 @@
       # ----------------------------------------------------------------------------------------------------------
       # Definition of the controller that will perform the tracking of references of the different operation modes
       # ----------------------------------------------------------------------------------------------------------
-      controller: "MellingerController"
+      controller: "OnboardController"
       # Configurations needed by the PX4 controller
       OnboardController:
         publishers:
@@ -104,7 +104,7 @@
         fallback: "HoldMode"
         on_finish: "HoldMode"
         geofencing_violation_fallback: "HoldMode"
-        takeoff_altitude: -1.0 # m (NED)
+        takeoff_altitude: -2.0 # m (NED)
         set_takeoff_altitude_service: "autopilot/set_takeoff"
       LandMode: 
         valid_transitions: ["DisarmMode", "ArmMode", "TakeoffMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]

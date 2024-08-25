@@ -22,6 +22,7 @@ setup(
     entry_points={
         'console_scripts': [
             'pegasus_demos = pegasus_demos.demo:main',
+            'pegasus_demos2 = pegasus_demos.demo2:main',
         ],
     },
 )
