@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reference Frames &mdash; Pegasus  documentation</title>
+  <title>Standards &mdash; Pegasus  documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -47,7 +47,11 @@
               <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Reference Frames</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Standards</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#reference-frames">Reference Frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conversions-between-frames">Conversions between frames</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Features</span></p>
 <ul>
@@ -94,7 +98,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Reference Frames</li>
+      <li class="breadcrumb-item active">Standards</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/source/setup/reference_frames.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -104,8 +108,33 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="reference-frames">
-<h1>Reference Frames<a class="headerlink" href="#reference-frames" title="Permalink to this heading"></a></h1>
+  <section id="standards">
+<h1>Standards<a class="headerlink" href="#standards" title="Permalink to this heading"></a></h1>
+<p>In this section we describe the standards adopted in the Pegasus system.</p>
+<section id="reference-frames">
+<h2>Reference Frames<a class="headerlink" href="#reference-frames" title="Permalink to this heading"></a></h2>
+<p>We adopted the NED (North-East-Down) reference frame for the inertial frame and the FRD (Forward-Right-Down) reference frame for the body frame, according to the figure below.</p>
+<a class="reference internal image-reference" href="../../_images/AUV_UAV_frame.png"><img alt="Adopted Reference Frames" class="align-center" src="../../_images/AUV_UAV_frame.png" style="width: 600px;" /></a>
+<div class="admonition-exceptions admonition">
+<p class="admonition-title">Exceptions</p>
+<p>The only exception to this standard is the information received by the MOCAP system and published by the mocap_interface node, where:</p>
+<ol class="arabic simple">
+<li><p>The position of a body-frame (Forward-Left-Up) is expressed relative to an ENU (East-North-Up) inertial frame, in the ENU inertial frame.</p></li>
+<li><p>The attitude of the body-frame is expressed in the FLU (Forward-Left-Up) format with respect to the ENU inertial frame, in the FLU body frame.</p></li>
+</ol>
+<p>The data published by the mocap_interface is received by the mavlink_interface where it is converted to the NED (North-East-Down) inertial frame with the attitude following the FRD (Forward-Right-Down) of the body with respect to the NED inertial frame. This data is then sent through mavlink to the vehicle micro-controller.</p>
+</div>
+<ul class="simple">
+<li><p>The euler-angles and angle-rates published in the ROS 2 topics are expressed in <code class="docutils literal notranslate"><span class="pre">degrees</span></code> and <code class="docutils literal notranslate"><span class="pre">degrees</span> <span class="pre">per</span> <span class="pre">second</span></code> , respectively. This choice was deliberate to facilitate the interpretation of the data by the user when debugging. Therefore, when using the API to send attitude-rate commands, do NOT forget to convert the angle-rates to <code class="docutils literal notranslate"><span class="pre">degrees</span> <span class="pre">per</span> <span class="pre">second</span></code>.</p></li>
+<li><p>The position and velocity are expressed in meters and meters per second, respectively.</p></li>
+<li><p>The attitude (used for control purposes) is expressed using quaternions.</p></li>
+</ul>
+<p>Note that the euler-angles published in the filter topic should not be used for control purposes, but rather the quaternion.</p>
+</section>
+<section id="conversions-between-frames">
+<h2>Conversions between frames<a class="headerlink" href="#conversions-between-frames" title="Permalink to this heading"></a></h2>
+<p>We provide the library <code class="docutils literal notranslate"><span class="pre">pegasus_addons/pegasus_utils</span></code>, which contains two header files <code class="docutils literal notranslate"><span class="pre">frames.hpp</span></code> and <code class="docutils literal notranslate"><span class="pre">rotations.hpp</span></code>. These can be used to perform conversions between ENU (East-North-Up) to NED (North-East-Down) and between FLU (Forward-Left-Up) and FRD (Forward-Right-Down). It also provides utility functions to convert angles between radians to degrees, quaternions to euler-angles, and vice-versa.</p>
+</section>
 </section>
 
 
