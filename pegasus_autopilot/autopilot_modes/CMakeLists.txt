@@ -71,6 +71,7 @@ add_library(${PROJECT_NAME}
   src/mode_follow_trajectory.cpp
   src/mode_hold.cpp
   src/mode_land.cpp
+  src/mode_onboard_land.cpp
   src/mode_pass_through.cpp
   src/mode_takeoff.cpp
   src/mode_waypoint.cpp

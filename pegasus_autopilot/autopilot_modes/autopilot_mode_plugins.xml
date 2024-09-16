@@ -25,6 +25,11 @@
       <description>Land operation mode.</description>
   </class>
 
+  <!-- Land using the onboard microntroller-->
+  <class type="autopilot::OnboardLandMode" base_class_type="autopilot::Mode">
+      <description>Land operation mode using the onboard controller.</description>
+  </class>
+
   <!-- Pass Through -->
   <class type="autopilot::PassThroughMode" base_class_type="autopilot::Mode">
       <description>Pass Through operation mode.</description>
