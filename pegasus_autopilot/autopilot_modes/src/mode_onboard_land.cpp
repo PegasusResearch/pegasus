@@ -45,7 +45,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
-#include "autopilot_modes/mode_land.hpp"
+#include "autopilot_modes/mode_onboard_land.hpp"
 #include "pegasus_utils/rotations.hpp"
 
 namespace autopilot {
@@ -73,24 +73,45 @@ void OnboardLandMode::initialize() {
 
 bool OnboardLandMode::enter() {
 
+    // Get the current position and orientation of the drone
+    State curr_state = this->get_vehicle_state();
+
+    // Set the target position and attitude to the current position and attitude of the drone
+    this->target_pos[0] = curr_state.position[0];
+    this->target_pos[1] = curr_state.position[1];
+    this->target_pos[2] = curr_state.position[2];
+
+    // Set the target yaw to the current yaw of the drone (in degrees)
+    this->target_yaw_ = Pegasus::Rotations::rad_to_deg(Pegasus::Rotations::yaw_from_quaternion(curr_state.attitude));
+
     // Prepare the request to invoke the land service from the onboard microcontroller
     auto land_request = std::make_shared<pegasus_msgs::srv::Land::Request>();
 
-    // Send the land request asynchronously
-    auto result = land_client_->async_send_request(land_request);
-    
-    // Return true to indicate that the mode has been entered successfully
+    // Send the land request asynchronously (with a callback binding to check the response)
+    auto result = land_client_->async_send_request(land_request, std::bind(&OnboardLandMode::land_service_response_callback, this, std::placeholders::_1));
+
+    RCLCPP_INFO_STREAM(this->node_->get_logger(), "OnboardLandMode: Land request sent");
+
     return true;
+}
+
+void OnboardLandMode::update(double dt) {
+
+    // If auto-landing was approved, do nothing as the onboard autopilot will takeover from now on
+    if(land_approved_) return;
+
+    // Otherwise, just keep the position that we had when entering this mode
+    // Set the controller to track the target position and attitude
+    this->controller_->set_position(this->target_pos, this->target_yaw_, dt);
 }
 
 bool OnboardLandMode::exit() {
     
+    // Clean the land trigger flag
+    land_approved_ = false;
+
     // Nothing to do here
     return true;   // Return true to indicate that the mode has been exited successfully
-}
-
-void OnboardLandMode::update(double) {
-    // Do nothing while the internal onboard autopilot is landing the vehicle
 }
 
 } // namespace autopilot

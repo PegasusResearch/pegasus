@@ -48,6 +48,7 @@
 #pragma once
 
 #include <autopilot/mode.hpp>
+#include "pegasus_msgs/srv/land.hpp"
 
 namespace autopilot {
 
@@ -62,22 +63,28 @@ public:
     bool exit() override;
     void update(double dt) override;
 
+    // Callback called when the service client for triggering a land receives a response
+    void land_service_response_callback(rclcpp::Client<pegasus_msgs::srv::Land>::SharedFuture future) { 
+        auto result = future.get();
+
+        // Signal the state machine that the landing was approved
+        if(result->success == pegasus_msgs::srv::Land::Response::SUCCESS) land_approved_ = true;
+    }
+
 private:
 
-    // Check if the drone has landed
-    bool check_land_complete(double velocity_z, double dt);
+    // ROS2 service clients
+    rclcpp::Client<pegasus_msgs::srv::Land>::SharedPtr land_client_;
 
-    // The desired landing speed
-    double land_speed_;   // [m/s]
-    double land_detected_treshold_;    // [m]
-    double countdown_to_disarm_; // [s]
+    // ----- THIS CODE IS ONLY USED IN ROS FOXY --------
+    rclcpp::Node::SharedPtr sub_node_;
 
-    // Iteration counter for detecting that the vehicle has landed
-    double land_counter_;
-
-    // The next target position for the landing controller to track
-    Eigen::Vector3d target_pos_{Eigen::Vector3d::Zero()};
+    // The target position and attitude for the vehicle to hold to
+    Eigen::Vector3d target_pos{Eigen::Vector3d::Zero()};
     float target_yaw_{0.0f};
+
+    // Bool for checking if the landing was approved
+    bool land_approved_{false};
 };
 
 }
