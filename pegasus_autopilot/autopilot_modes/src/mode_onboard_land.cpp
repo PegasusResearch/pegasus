@@ -45,6 +45,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
+#include <thread>
 #include "autopilot_modes/mode_onboard_land.hpp"
 #include "pegasus_utils/rotations.hpp"
 
@@ -84,31 +85,55 @@ bool OnboardLandMode::enter() {
     // Set the target yaw to the current yaw of the drone (in degrees)
     this->target_yaw_ = Pegasus::Rotations::rad_to_deg(Pegasus::Rotations::yaw_from_quaternion(curr_state.attitude));
 
-    // Prepare the request to invoke the land service from the onboard microcontroller
-    auto land_request = std::make_shared<pegasus_msgs::srv::Land::Request>();
-
-    // Send the land request asynchronously (with a callback binding to check the response)
-    auto result = land_client_->async_send_request(land_request, std::bind(&OnboardLandMode::land_service_response_callback, this, std::placeholders::_1));
-
+    // Send the Land request in a separate thread
+    std::thread t(&OnboardLandMode::request_landing, this);
+    t.detach();
+    
     RCLCPP_INFO_STREAM(this->node_->get_logger(), "OnboardLandMode: Land request sent");
 
     return true;
 }
 
+void OnboardLandMode::request_landing() {
+    
+    // Prepare the request to invoke the land service from the onboard microcontroller
+    auto land_request = std::make_shared<pegasus_msgs::srv::Land::Request>();
+
+    // Wait until the service is available
+    while (!land_client_->wait_for_service(std::chrono::seconds(1))) {
+        if (!rclcpp::ok()) {
+            RCLCPP_ERROR(this->node_->get_logger(), "Interrupted while waiting for the land service. Exiting.");
+            return;
+        }
+        RCLCPP_INFO(this->node_->get_logger(), "landing service not available, waiting again...");
+    }
+
+    // Send the land request asynchronously (with a callback binding to check the response)
+    auto result = land_client_->async_send_request(land_request);
+
+    if(rclcpp::spin_until_future_complete(sub_node_, result, std::chrono::seconds(3)) != rclcpp::FutureReturnCode::SUCCESS) {
+        RCLCPP_ERROR(this->node_->get_logger(), "Error while waiting for result from Land service request");
+        return;
+    }
+    
+    // Check if the vehicle was set to land mode successfully
+    bool land_approved = result.get()->success == pegasus_msgs::srv::Land::Response::SUCCESS ? true : false;
+
+    // Log the output of the service
+    RCLCPP_INFO_STREAM(this->node_->get_logger(), "Landing aproval: " << land_approved);
+}
+
+
 void OnboardLandMode::update(double dt) {
 
-    // If auto-landing was approved, do nothing as the onboard autopilot will takeover from now on
-    if(land_approved_) return;
-
-    // Otherwise, just keep the position that we had when entering this mode
+    // Ask the microcontroller to keep the position that we had when entering this mode
     // Set the controller to track the target position and attitude
+    // If the land service is successfull, these controls are ignore. If not, this 
+    // line may prevent the drone from falling mid-air
     this->controller_->set_position(this->target_pos, this->target_yaw_, dt);
 }
 
 bool OnboardLandMode::exit() {
-    
-    // Clean the land trigger flag
-    land_approved_ = false;
 
     // Nothing to do here
     return true;   // Return true to indicate that the mode has been exited successfully

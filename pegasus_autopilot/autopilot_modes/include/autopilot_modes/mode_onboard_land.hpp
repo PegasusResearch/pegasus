@@ -63,13 +63,8 @@ public:
     bool exit() override;
     void update(double dt) override;
 
-    // Callback called when the service client for triggering a land receives a response
-    void land_service_response_callback(rclcpp::Client<pegasus_msgs::srv::Land>::SharedFuture future) { 
-        auto result = future.get();
-
-        // Signal the state machine that the landing was approved
-        if(result->success == pegasus_msgs::srv::Land::Response::SUCCESS) land_approved_ = true;
-    }
+    // Method used to request the landing service (in a separate thread)
+    void request_landing();
 
 private:
 
@@ -82,9 +77,6 @@ private:
     // The target position and attitude for the vehicle to hold to
     Eigen::Vector3d target_pos{Eigen::Vector3d::Zero()};
     float target_yaw_{0.0f};
-
-    // Bool for checking if the landing was approved
-    bool land_approved_{false};
 };
 
 }

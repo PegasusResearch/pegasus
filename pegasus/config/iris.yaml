@@ -86,7 +86,7 @@
       # ---------------------------------------------------------------------------------------------------------
       default_mode: "DisarmMode"
       # Define all the existing operation modes
-      modes: ["DisarmMode", "ArmMode", "TakeoffMode", "LandMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
+      modes: ["DisarmMode", "ArmMode", "TakeoffMode", "OnboardLandMode", "LandMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
       # Configurations of each operating mode:
       # 1) Define the valid transitions from a given operation mode to other operation modes
       # 2) Fallback mode if something goes wrong
@@ -102,7 +102,7 @@
         arm_service: "fmu/arm"
         offboard_service: "fmu/offboard"
       TakeoffMode: 
-        valid_transitions: ["LandMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
+        valid_transitions: ["OnboardLandMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
         fallback: "HoldMode"
         on_finish: "HoldMode"
         geofencing_violation_fallback: "HoldMode"
@@ -115,21 +115,26 @@
         land_speed: 0.2 # m/s
         land_detected_treshold: 0.1 # m/s
         countdown_to_disarm: 3.0 # s
+      OnboardLandMode: 
+        valid_transitions: ["DisarmMode", "ArmMode", "TakeoffMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
+        fallback: "HoldMode"
+        on_finish: "DisarmMode"
+        land_service: "fmu/land"
       HoldMode: 
-        valid_transitions: ["LandMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
-        fallback: "LandMode"
+        valid_transitions: ["OnboardLandMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
+        fallback: "OnboardLandMode"
       WaypointMode: 
-        valid_transitions: ["LandMode", "HoldMode", "FollowTrajectoryMode", "PassThroughMode"]
+        valid_transitions: ["OnboardLandMode", "HoldMode", "FollowTrajectoryMode", "PassThroughMode"]
         fallback: "HoldMode"
         geofencing_violation_fallback: "HoldMode"
         set_waypoint_service: "autopilot/set_waypoint"
       FollowTrajectoryMode: 
-        valid_transitions: ["LandMode", "HoldMode", "WaypointMode", "PassThroughMode"]
+        valid_transitions: ["OnboardLandMode", "HoldMode", "WaypointMode", "PassThroughMode"]
         fallback: "HoldMode"
         geofencing_violation_fallback: "HoldMode"
         on_finish: "HoldMode"
       PassThroughMode: 
-        valid_transitions: ["DisarmMode", "ArmMode", "TakeoffMode", "LandMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode"]
+        valid_transitions: ["DisarmMode", "ArmMode", "TakeoffMode", "OnboardLandMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode"]
         fallback: "HoldMode"
         geofencing_violation_fallback: "HoldMode"
       # Topics configurations

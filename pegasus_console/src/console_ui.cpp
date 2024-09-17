@@ -536,6 +536,7 @@ ftxui::Component ConsoleUI::autopilot_control() {
             ftxui::Button("Takeoff", std::bind(config_.on_set_autopilot_mode, std::string("TakeoffMode")), ftxui::ButtonOption::Animated(ftxui::Color::Green)),
             ftxui::Button("Hold", std::bind(config_.on_set_autopilot_mode, std::string("HoldMode")), ftxui::ButtonOption::Animated(ftxui::Color::Green)),
             ftxui::Button("Land", std::bind(config_.on_set_autopilot_mode, std::string("LandMode")), ftxui::ButtonOption::Animated(ftxui::Color::Green)),
+            ftxui::Button("OnboardLand", std::bind(config_.on_set_autopilot_mode, std::string("OnboardLandMode")), ftxui::ButtonOption::Animated(ftxui::Color::Green))
         }) | ftxui::center,
         ftxui::Renderer([] { return ftxui::separator(); }),
         ftxui::Container::Horizontal({
