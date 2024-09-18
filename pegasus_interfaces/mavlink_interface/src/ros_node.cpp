@@ -332,10 +332,10 @@ void ROSNode::init_subscribers_and_services() {
     // ------------------------------------------------------------------------
     // Initiate the service to set the home position
     // ------------------------------------------------------------------------
-    this->declare_parameter<std::string>("services.set_home", "set_home");
-    rclcpp::Parameter set_home_topic = this->get_parameter("services.set_home");
-    set_home_position_service_ = this->create_service<pegasus_msgs::srv::SetHomePosition>(
-        set_home_topic.as_string(), std::bind(&ROSNode::set_home_position_callback, this, std::placeholders::_1, std::placeholders::_2));
+    // this->declare_parameter<std::string>("services.set_home", "set_home");
+    // rclcpp::Parameter set_home_topic = this->get_parameter("services.set_home");
+    // set_home_position_service_ = this->create_service<pegasus_msgs::srv::SetHomePosition>(
+    //     set_home_topic.as_string(), std::bind(&ROSNode::set_home_position_callback, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 /**
@@ -911,7 +911,7 @@ void ROSNode::position_hold_callback(const pegasus_msgs::srv::PositionHold::Requ
  * @param request The latitude, longitude and altitude of the home position
  * @param response None
  */
-void ROSNode::set_home_position_callback(const pegasus_msgs::srv::SetHomePosition::Request::SharedPtr request, const pegasus_msgs::srv::SetHomePosition::Response::SharedPtr response) {
-    // Call the mavlink node to set the home position
-    mavlink_node_->set_home_position();
-}
+// void ROSNode::set_home_position_callback(const pegasus_msgs::srv::SetHomePosition::Request::SharedPtr request, const pegasus_msgs::srv::SetHomePosition::Response::SharedPtr response) {
+//     // Call the mavlink node to set the home position
+//     mavlink_node_->set_home_position();
+// }
