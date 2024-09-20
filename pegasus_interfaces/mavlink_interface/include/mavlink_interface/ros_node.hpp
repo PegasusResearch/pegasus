@@ -419,6 +419,8 @@ private:
      *  updated with the most recent values
      */
 
+    int vehicle_id_{0};
+
     /**
      * @ingroup messages
      * Messages corresponding to the sensors of the vehicles

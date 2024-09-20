@@ -485,6 +485,7 @@ void Autopilot::status_callback(const pegasus_msgs::msg::Status::ConstSharedPtr 
 void Autopilot::vehicle_constants_callback(const pegasus_msgs::msg::VehicleConstants::ConstSharedPtr msg) {
 
     // Save the parameters of the vehicle
+    vehicle_constants_.id = msg->id;
     vehicle_constants_.mass = msg->mass;
     vehicle_constants_.thrust_curve_id = msg->thrust_curve.identifier;
     vehicle_constants_.thurst_curve_params = msg->thrust_curve.parameters;
@@ -494,6 +495,7 @@ void Autopilot::vehicle_constants_callback(const pegasus_msgs::msg::VehicleConst
     vehicle_constants_subscriber_.reset();
 
     // Log the vehicle constants for debugging
+    RCLCPP_INFO(this->get_logger(), "Vehicle constants: id: %d", vehicle_constants_.id);
     RCLCPP_INFO(this->get_logger(), "Vehicle constants: mass: %.2f", vehicle_constants_.mass);
     RCLCPP_INFO(this->get_logger(), "Vehicle constants: thrust_curve_id: %s", vehicle_constants_.thrust_curve_id.c_str());
     for(int i = 0; i < vehicle_constants_.thurst_curve_params.size(); i++) {

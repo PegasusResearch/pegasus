@@ -68,6 +68,7 @@ struct VehicleStatus {
 
 // Dynamical constants of the vehicle
 struct VehicleConstants {
+    int id{0};                                                                // ID of the vehicle         
     double mass{0.0};                                                         // Mass of the vehicle (in Kg)
     std::string thrust_curve_id{"None"};                                      // Thrust curve of the vehicle
     std::vector<std::string> thurst_curve_params{std::vector<std::string>()}; // Thrust curve parameters

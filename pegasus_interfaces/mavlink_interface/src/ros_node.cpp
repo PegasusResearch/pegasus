@@ -119,6 +119,10 @@ void ROSNode::init_parameters() {
     mavlink_config_.rate_altitude = this->get_parameter("mavlink_interface.rates.altitude").as_double();
     mavlink_config_.rate_imu = this->get_parameter("mavlink_interface.rates.imu").as_double();
 
+    // Get the vehicle id and store it
+    this->declare_parameter<int>("vehicle_id", 1);
+    vehicle_id_ = this->get_parameter("vehicle_id").as_int();
+
     // Log the rates
     RCLCPP_INFO_STREAM(this->get_logger(), "Telemetry rate - attitude: " << mavlink_config_.rate_attitude);
     RCLCPP_INFO_STREAM(this->get_logger(), "Telemetry rate - position: " << mavlink_config_.rate_position);
@@ -277,16 +281,13 @@ void ROSNode::init_subscribers_and_services() {
     // ------------------------------------------------------------------------
 
     // Get the ROS vehicle id and namespace (use to get the vehicle from the mocap system)
-    this->declare_parameter<int>("vehicle_id", 1);
-    rclcpp::Parameter vehicle_id = this->get_parameter("vehicle_id");
-
     this->declare_parameter<std::string>("vehicle_ns", "drone");
     rclcpp::Parameter vehicle_ns = this->get_parameter("vehicle_ns");
 
     this->declare_parameter<std::string>("subscribers.external_sensors.mocap_enu", "/mocap/pose_enu");
     rclcpp::Parameter mocap_topic = this->get_parameter("subscribers.external_sensors.mocap_enu");
     mocap_pose_enu_sub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(
-        mocap_topic.as_string() + "/" + vehicle_ns.as_string() + std::to_string(vehicle_id.as_int()), 
+        mocap_topic.as_string() + "/" + vehicle_ns.as_string() + std::to_string(vehicle_id_), 
         rclcpp::SensorDataQoS(), std::bind(&ROSNode::mocap_pose_callback, this, std::placeholders::_1));
 
 
@@ -365,6 +366,7 @@ void ROSNode::init_thrust_curve() {
     rclcpp::Parameter thrust_curve_parameters = this->get_parameter("dynamics.thrust_curve.parameters");
 
     // Set the message with the parameters of the drone, namely the mass and the thrust curve
+    vehicle_constants_msg_.id = vehicle_id_;
     vehicle_constants_msg_.mass = mass.as_double();
     vehicle_constants_msg_.thrust_curve.identifier = thrust_curve_id.as_string();
     vehicle_constants_msg_.thrust_curve.parameters = thrust_curve_parameter_names.as_string_array();
