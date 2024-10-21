@@ -26,7 +26,7 @@ Installing External Dependencies
         cd ~/pegasus_external
 
         # Install the dependencies for CasADi (IPOPT)
-        sudo apt install coinor-libipopt-dev
+        sudo apt install coinor-libipopt-dev python3-pip
 
 2. Clone the `Pegasus External <https://github.com/PegasusResearch/pegasus_external>`__:
 
