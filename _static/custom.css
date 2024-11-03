@@ -1,0 +1,14 @@
+/* Target the main content area */
+.wy-nav-content {
+    padding: 1.618em 3.236em;
+    height: 100%;
+    max-width: 80%;
+    margin: auto;
+}
+
+/* Center align the content if it's wider than the sidebar */
+/* .wy-nav-content-wrap {
+    width: 80%;            
+    max-width: 90%;
+    margin: 0 10% 10% 0;        
+} */

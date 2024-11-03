@@ -7,6 +7,7 @@
   <title>Autopilot &mdash; Pegasus  documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -17,6 +18,14 @@
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
+        <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
+        <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
+        <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+        <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+        <script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
+window.addEventListener("load", () => mermaid.run());
+</script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -123,7 +132,54 @@ The Autopilot is responsible for keeping track of the current operating <code cl
 <a class="reference internal image-reference" href="../../_images/autopilot_architecture.png"><img alt="Autopilot Architecture" class="align-center" src="../../_images/autopilot_architecture.png" style="width: 400px;" /></a>
 <p>The autopilot operation <code class="docutils literal notranslate"><span class="pre">modes</span></code>, <code class="docutils literal notranslate"><span class="pre">controllers</span></code>, <code class="docutils literal notranslate"><span class="pre">geofencing</span></code> and <code class="docutils literal notranslate"><span class="pre">trajectory</span> <span class="pre">manager</span></code> are implemented as ROS 2 plugins. This allows for easy extensibility and customization of the Autopilot, without having
 to modify the base autopilot packages. The Autopilot is responsible for loading the plugins at runtime and managing the communication between them.</p>
-<section id="operating-modes">
+<pre  class="mermaid">
+        classDiagram
+   pegasus &lt;|-- pegasus_interfaces
+   pegasus &lt;|-- pegasus_console
+   pegasus &lt;|-- pegasus_autopilot
+   pegasus &lt;|-- pegasus_api
+   pegasus_autopilot &lt;|-- autopilot_modes
+   pegasus_autopilot &lt;|-- autopilot_controllers
+   pegasus_autopilot &lt;|-- geofencing
+   pegasus_autopilot &lt;|-- trajectory_manager
+   trajectory_manager &lt;|-- static_trajectory_manager
+   static_trajectory_manager &lt;|-- static_trajectories
+   geofencing &lt;|-- box_geofencing
+   pegasus_interfaces &lt;|-- mocap_interface
+   pegasus_interfaces &lt;|-- mavlink_interface
+   class pegasus{
+      &lt;&lt;Meta Package&gt;&gt;
+      VehicleLaunchFiles
+      VehicleConfigurationFiles
+   }
+   class mocap_interface{
+      &lt;&lt;C++ Package&gt;&gt;
+   }
+   class pegasus_interfaces{
+      &lt;&lt;Meta Package&gt;&gt;
+   }
+   class mavlink_interface{
+      &lt;&lt;C++ Package&gt;&gt;
+   }
+   class pegasus_console{
+      &lt;&lt;C++ Package&gt;&gt;
+   }
+   class pegasus_autopilot{
+      &lt;&lt;C++ Package&gt;&gt;
+   }
+   class autopilot_controllers{
+      &lt;&lt;C++ Package&gt;&gt;
+   }
+   class autopilot_modes{
+      &lt;&lt;C++ Package&gt;&gt;
+   }
+   class pegasus_api{
+      &lt;&lt;Python Package&gt;&gt;
+   }
+   class trajectory_manager{
+      &lt;&lt;C++ Package&gt;&gt;
+   }
+    </pre><section id="operating-modes">
 <h2>0. Operating Modes<a class="headerlink" href="#operating-modes" title="Permalink to this heading"></a></h2>
 <p>The default operating modes provided by the Autopilot are:</p>
 <ul class="simple">
