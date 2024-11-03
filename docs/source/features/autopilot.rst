@@ -18,6 +18,56 @@ It also provides each mode with the current ``state`` of the vehicle, which incl
 The autopilot operation ``modes``, ``controllers``, ``geofencing`` and ``trajectory manager`` are implemented as ROS 2 plugins. This allows for easy extensibility and customization of the Autopilot, without having
 to modify the base autopilot packages. The Autopilot is responsible for loading the plugins at runtime and managing the communication between them.
 
+
+.. mermaid::
+   
+   classDiagram
+      pegasus <|-- pegasus_interfaces
+      pegasus <|-- pegasus_console
+      pegasus <|-- pegasus_autopilot
+      pegasus <|-- pegasus_api
+      pegasus_autopilot <|-- autopilot_modes
+      pegasus_autopilot <|-- autopilot_controllers
+      pegasus_autopilot <|-- geofencing
+      pegasus_autopilot <|-- trajectory_manager
+      trajectory_manager <|-- static_trajectory_manager
+      static_trajectory_manager <|-- static_trajectories
+      geofencing <|-- box_geofencing
+      pegasus_interfaces <|-- mocap_interface
+      pegasus_interfaces <|-- mavlink_interface
+      class pegasus{
+         <<Meta Package>>
+         VehicleLaunchFiles
+         VehicleConfigurationFiles
+      }
+      class mocap_interface{
+         <<C++ Package>>
+      }
+      class pegasus_interfaces{
+         <<Meta Package>>
+      }
+      class mavlink_interface{
+         <<C++ Package>>
+      }
+      class pegasus_console{
+         <<C++ Package>>  
+      }
+      class pegasus_autopilot{
+         <<C++ Package>>
+      }
+      class autopilot_controllers{
+         <<C++ Package>>
+      }
+      class autopilot_modes{
+         <<C++ Package>>
+      }
+      class pegasus_api{
+         <<Python Package>>
+      }
+      class trajectory_manager{
+         <<C++ Package>>
+      }
+
 0. Operating Modes
 ------------------
 

@@ -1,3 +1,0 @@
-[submodule "pegasus_msgs"]
-	path = pegasus_msgs
-	url = git@github.com:PegasusResearch/pegasus_msgs.git

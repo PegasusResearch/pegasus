@@ -77,11 +77,11 @@ As the author of this work, I would like to thank the support of the following c
 
 - `João Pinto <https://github.com/jschpinto>`__
 
-- `Gil Serrano <https://github.com/GilSerrano>`__
+- `Gil Serrano <https://scholar.google.com/citations?hl=pt-PT&user=h_6XghgAAAAJ>`__
 
 - `Jose Gomes <https://scholar.google.com/citations?hl=pt-PT&user=PECAagsAAAAJ>`__
 
-- `Pedro Santos`
+- `Pedro Santos <https://scholar.google.com/citations?hl=pt-PT&user=HOhIHJAAAAAJ>`__
 
 - `Joao Lehodey`
 
