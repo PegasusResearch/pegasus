@@ -144,7 +144,7 @@ Kakute Flight Controller Setup
 
 Two different approaches are considered to setup the Kakute flight controller: 1) using our custom prebuilt images (recommended), or 2) compiling PX4 from source.
 
-**Option 1 - Using Custom prebuilt binaries
+**Option 1 - Using Custom prebuilt binaries**
 
 We provide some prebuilt binaries of the PX4-autopilot source code (release v1.14), with some minor corrections and modifications for our specific use.
 To flash these custom images, proceed as follows.
