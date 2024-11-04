@@ -66,7 +66,7 @@ Arena Setup
      - CineWhoop3-11
      - pixracer
      - Quadrotor
-     - ✔️
+     - ❌
      - KakuteH7
      - TBD
    * - 12
@@ -75,7 +75,7 @@ Arena Setup
      - CineWhoop3-12
      - pixracer
      - Quadrotor
-     - ✔️
+     - ❌
      - KakuteH7
      - TBD
 
@@ -142,7 +142,7 @@ In order to replicate the Kopis setup adopted on the Taguspark Flight Arena, the
 Kakute H7 Setup
 ---------------
 
-1. Configure the Kakute H7 v2 flight controller with PX4 firmware (v1.14.2), by following the instructions on the `PX4 documentation <https://docs.px4.io/main/en/flight_controller/kakuteh7v2.html>`__. Start by cloning and compiling the PX4 firmware repository:
+1. Configure the KakuteH7/KakuteH7v2 flight controller with PX4 firmware (v1.14.2), by following the instructions on the `PX4 documentation <https://docs.px4.io/main/en/flight_controller/kakuteh7v2.html>`__. Start by cloning and compiling the PX4 firmware repository:
 
   .. code:: bash
 
@@ -151,39 +151,44 @@ Kakute H7 Setup
       cd PX4-Autopilot
       git checkout v1.14.2
 
-and now, compile the bootloader and the firmware for the flight controller. For the KakuteH7, use the commands
+2. Compile the bootloader and the firmware for the flight controller. Use the commands depending on the board version (KakuteH7/KakuteH7v2):
 
   .. code:: bash
 
-      # Compile the bootloader and the firmware for the KakuteH7
+      # Use these commands to compile the bootloader and the firmware for the KakuteH7
       make holybro_kakuteh7_bootloader
       make holybro_kakuteh7_default
 
-and for the KakuteH7v2, use
-
-  .. code:: bash
-
-      # Compile the bootloader and the firmware for the KakuteH7v2
+      # Use these commands to compile the bootloader and the firmware for the KakuteH7v2
       make holybro_kakuteh7v2_bootloader
       make holybro_kakuteh7v2_default
 
-2. Install DFU-Util to flash the bootloader into the KakuteH7/KakuteH7v2:
+2. Install DFU-Util to flash the bootloader into the Kakute board:
 
   .. code:: bash
 
       sudo apt-get install dfu-util
 
-3. Connect the Kakute to the computer using a USB cable and put the board in bootloader mode by pressing the button on the board while connecting the cable. Flash the bootloader into the Kakute H7 v2:
+3. Connect the Kakute to the computer using a USB cable and put the board in bootloader mode by pressing the button on the board while connecting the cable. Flash the bootloader into the Kakute:
 
   .. code:: bash
 
+      # Use these commands for the KakuteH7
+      dfu-util -a 0 --dfuse-address 0x08000000:force:mass-erase:leave -D build/holybro_kakuteh7_bootloader/holybro_kakuteh7_bootloader.bin
+      dfu-util -a 0 --dfuse-address 0x08000000 -D  build/holybro_kakuteh7_bootloader/holybro_kakuteh7_bootloader.bin
+
+      # Use these commands for the KakuteH7v2
       dfu-util -a 0 --dfuse-address 0x08000000:force:mass-erase:leave -D build/holybro_kakuteh7v2_bootloader/holybro_kakuteh7v2_bootloader.bin
       dfu-util -a 0 --dfuse-address 0x08000000 -D  build/holybro_kakuteh7v2_bootloader/holybro_kakuteh7v2_bootloader.bin
 
-4. After flashing the bootloader, reboot the Kakute H7 v2 without pressing the button. Upload the firmware by using QGroundControl and following the instructions on the `PX4 documentation <https://docs.px4.io/main/en/flight_controller/kakuteh7v2.html>`__ or run the command.
+4. After flashing the bootloader, reboot the Kakute without pressing the button. Upload the firmware by using QGroundControl or run one of the following commands
 
   .. code:: bash
+    
+    # Use this command for the KakuteH7
+    make holybro_kakuteh7_default upload
 
+    # Use this command for the KakuteH7v2
     make holybro_kakuteh7v2_default upload
 
 5. After having the firmware installed, connect the Kakute to the computer and open QGroundControl.
