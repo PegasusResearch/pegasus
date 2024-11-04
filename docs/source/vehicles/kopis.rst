@@ -1,7 +1,7 @@
 Kopis Drone Setup
 =================
 
-In this section, we describe the setup of the Kopis Cinewhoop 3" drone. Equipped with a Kakute H7 v2 flight controller and an ESP8266 module for communication with an offboard computer, the Kopis Cinewhoop 3" is a small drone that enables the fast prototyping and testing of control algoritms in dedicated flight arenas such as the :ref:`Taguspark Flight Arena`.
+In this section, we describe the setup of the Kopis Cinewhoop 3" drone. Equipped with either a KakuteH7 or a KakuteH7v2 flight controller and an ESP8266 module for communication with an offboard computer, the Kopis Cinewhoop 3" is a small drone that enables the fast prototyping and testing of control algoritms in dedicated flight arenas such as the :ref:`Taguspark Flight Arena`.
 
 .. image:: https://holybro.com/cdn/shop/products/30064_2_1800x1800.jpg?v=1647227793
   :width: 600
@@ -12,7 +12,7 @@ Arena Setup
 -----------
 
 .. list-table:: ID, IPs and Mavlink Ports and other information
-   :widths: 5 15 5 15 10 10 10 10
+   :widths: 5 15 5 15 10 10 5 10 10
    :header-rows: 1
     
    * - ID
@@ -22,6 +22,7 @@ Arena Setup
      - AP Password
      - Station SSID
      - Status
+     - Kakute version
      - Config File
    * - 7
      - 192.168.1.247
@@ -30,6 +31,7 @@ Arena Setup
      - pixracer
      - Quadrotor
      - ❌/✔️
+     - KakuteH7v2
      - `kopis7.params <https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_7.params>`__
    * - 8
      - 192.168.1.248
@@ -38,6 +40,7 @@ Arena Setup
      - pixracer
      - Quadrotor
      - ✔️
+     - KakuteH7v2
      - `kopis8.params <https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_8.params>`__
    * - 9
      - 192.168.1.249
@@ -46,6 +49,7 @@ Arena Setup
      - pixracer
      - Quadrotor
      - ✔️
+     - KakuteH7v2
      - `kopis9.params <https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_9.params>`__
    * - 10
      - 192.168.1.250
@@ -54,7 +58,26 @@ Arena Setup
      - pixracer
      - Quadrotor
      - ✔️
+     - KakuteH7v2
      - `kopis10.params <https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_10.params>`__
+   * - 11
+     - 192.168.1.251
+     - 15011
+     - CineWhoop3-11
+     - pixracer
+     - Quadrotor
+     - ✔️
+     - KakuteH7
+     - TBD
+   * - 12
+     - 192.168.1.252
+     - 15012
+     - CineWhoop3-12
+     - pixracer
+     - Quadrotor
+     - ✔️
+     - KakuteH7
+     - TBD
 
 The vehicles are configured to connect to the station network if the Statis SSID is detected. Otherwise, the vehicles will create an AP with the AP SSID and AP Password, according to the table above.
 
@@ -119,7 +142,7 @@ In order to replicate the Kopis setup adopted on the Taguspark Flight Arena, the
 Kakute H7 Setup
 ---------------
 
-1. Configure the Kakute H7 v2 flight controller with PX4 firmware (v1.14.2), by following the instructions on the `PX4 documentation <https://docs.px4.io/main/en/flight_controller/kakuteh7v2.html>`__. Start by cloning and compiling the PX4 firmware repository and running the following commands:
+1. Configure the Kakute H7 v2 flight controller with PX4 firmware (v1.14.2), by following the instructions on the `PX4 documentation <https://docs.px4.io/main/en/flight_controller/kakuteh7v2.html>`__. Start by cloning and compiling the PX4 firmware repository:
 
   .. code:: bash
 
@@ -128,19 +151,29 @@ Kakute H7 Setup
       cd PX4-Autopilot
       git checkout v1.14.2
 
-      # Compile the bootloader for the board
-      make holybro_kakuteh7v2_bootloader
+and now, compile the bootloader and the firmware for the flight controller. For the KakuteH7, use the commands
 
-      # Compile the firmware for the board
+  .. code:: bash
+
+      # Compile the bootloader and the firmware for the KakuteH7
+      make holybro_kakuteh7_bootloader
+      make holybro_kakuteh7_default
+
+and for the KakuteH7v2, use
+
+  .. code:: bash
+
+      # Compile the bootloader and the firmware for the KakuteH7v2
+      make holybro_kakuteh7v2_bootloader
       make holybro_kakuteh7v2_default
 
-2. Install DFU-Util to flash the bootloader into the Kakute H7 v2:
+2. Install DFU-Util to flash the bootloader into the KakuteH7/KakuteH7v2:
 
   .. code:: bash
 
       sudo apt-get install dfu-util
 
-3. Connect the Kakute H7 v2 to the computer using a USB cable and put the board in bootloader mode by pressing the button on the board while connecting the cable. Flash the bootloader into the Kakute H7 v2:
+3. Connect the Kakute to the computer using a USB cable and put the board in bootloader mode by pressing the button on the board while connecting the cable. Flash the bootloader into the Kakute H7 v2:
 
   .. code:: bash
 
@@ -153,7 +186,7 @@ Kakute H7 Setup
 
     make holybro_kakuteh7v2_default upload
 
-5. After having the firmware installed, connect the Kakute H7 v2 to the computer and open QGroundControl.
+5. After having the firmware installed, connect the Kakute to the computer and open QGroundControl.
 
 6. Load the Kopis parameters from the configuration file `kopis7.params <https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_7.params>`__.
 
