@@ -71,7 +71,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#arena-setup">Arena Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#running-the-kopis-3">Running the Kopis 3”</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bill-of-materials">Bill of Materials</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#kakute-h7-setup">Kakute H7 Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kakute-flight-controller-setup">Kakute Flight Controller Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#esp-configuration">ESP Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#connection-diagram">Connection Diagram</a></li>
 </ul>
@@ -115,7 +115,7 @@
              
   <section id="kopis-drone-setup">
 <h1>Kopis Drone Setup<a class="headerlink" href="#kopis-drone-setup" title="Permalink to this heading"></a></h1>
-<p>In this section, we describe the setup of the Kopis Cinewhoop 3” drone. Equipped with a Kakute H7 v2 flight controller and an ESP8266 module for communication with an offboard computer, the Kopis Cinewhoop 3” is a small drone that enables the fast prototyping and testing of control algoritms in dedicated flight arenas such as the <a class="reference internal" href="../arena/arena.html#taguspark-flight-arena"><span class="std std-ref">Taguspark Flight Arena</span></a>.</p>
+<p>In this section, we describe the setup of the Kopis Cinewhoop 3” drone. Equipped with either a KakuteH7 or a KakuteH7v2 flight controller and an ESP8266 module for communication with an offboard computer, the Kopis Cinewhoop 3” is a small drone that enables the fast prototyping and testing of control algoritms in dedicated flight arenas such as the <a class="reference internal" href="../arena/arena.html#taguspark-flight-arena"><span class="std std-ref">Taguspark Flight Arena</span></a>.</p>
 <a class="reference internal image-reference" href="https://holybro.com/cdn/shop/products/30064_2_1800x1800.jpg?v=1647227793"><img alt="Kopis 3 drone (source: Holybro)" class="align-center" src="https://holybro.com/cdn/shop/products/30064_2_1800x1800.jpg?v=1647227793" style="width: 600px;" /></a>
 <section id="arena-setup">
 <h2>Arena Setup<a class="headerlink" href="#arena-setup" title="Permalink to this heading"></a></h2>
@@ -123,13 +123,14 @@
 <caption><span class="caption-text">ID, IPs and Mavlink Ports and other information</span><a class="headerlink" href="#id1" title="Permalink to this table"></a></caption>
 <colgroup>
 <col style="width: 6%" />
-<col style="width: 19%" />
+<col style="width: 18%" />
 <col style="width: 6%" />
-<col style="width: 19%" />
-<col style="width: 13%" />
-<col style="width: 13%" />
-<col style="width: 13%" />
-<col style="width: 13%" />
+<col style="width: 18%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 6%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>ID</p></th>
@@ -139,6 +140,7 @@
 <th class="head"><p>AP Password</p></th>
 <th class="head"><p>Station SSID</p></th>
 <th class="head"><p>Status</p></th>
+<th class="head"><p>Kakute version</p></th>
 <th class="head"><p>Config File</p></th>
 </tr>
 </thead>
@@ -150,7 +152,8 @@
 <td><p>pixracer</p></td>
 <td><p>Quadrotor</p></td>
 <td><p>❌/✔️</p></td>
-<td><p><a class="reference external" href="https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_7.params">kopis7.params</a></p></td>
+<td><p>KakuteH7v2</p></td>
+<td><p><a class="reference external" href="https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/Parameters/kopis_7.params">kopis7.params</a></p></td>
 </tr>
 <tr class="row-odd"><td><p>8</p></td>
 <td><p>192.168.1.248</p></td>
@@ -159,7 +162,8 @@
 <td><p>pixracer</p></td>
 <td><p>Quadrotor</p></td>
 <td><p>✔️</p></td>
-<td><p><a class="reference external" href="https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_8.params">kopis8.params</a></p></td>
+<td><p>KakuteH7v2</p></td>
+<td><p><a class="reference external" href="https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/Parameters/kopis_8.params">kopis8.params</a></p></td>
 </tr>
 <tr class="row-even"><td><p>9</p></td>
 <td><p>192.168.1.249</p></td>
@@ -168,7 +172,8 @@
 <td><p>pixracer</p></td>
 <td><p>Quadrotor</p></td>
 <td><p>✔️</p></td>
-<td><p><a class="reference external" href="https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_9.params">kopis9.params</a></p></td>
+<td><p>KakuteH7v2</p></td>
+<td><p><a class="reference external" href="https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/Parameters/kopis_9.params">kopis9.params</a></p></td>
 </tr>
 <tr class="row-odd"><td><p>10</p></td>
 <td><p>192.168.1.250</p></td>
@@ -177,7 +182,28 @@
 <td><p>pixracer</p></td>
 <td><p>Quadrotor</p></td>
 <td><p>✔️</p></td>
-<td><p><a class="reference external" href="https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_10.params">kopis10.params</a></p></td>
+<td><p>KakuteH7v2</p></td>
+<td><p><a class="reference external" href="https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/Parameters/kopis_10.params">kopis10.params</a></p></td>
+</tr>
+<tr class="row-even"><td><p>11</p></td>
+<td><p>192.168.1.251</p></td>
+<td><p>15011</p></td>
+<td><p>CineWhoop3-11</p></td>
+<td><p>pixracer</p></td>
+<td><p>Quadrotor</p></td>
+<td><p>❌</p></td>
+<td><p>KakuteH7</p></td>
+<td><p>TBD</p></td>
+</tr>
+<tr class="row-odd"><td><p>12</p></td>
+<td><p>192.168.1.252</p></td>
+<td><p>15012</p></td>
+<td><p>CineWhoop3-12</p></td>
+<td><p>pixracer</p></td>
+<td><p>Quadrotor</p></td>
+<td><p>❌</p></td>
+<td><p>KakuteH7</p></td>
+<td><p>TBD</p></td>
 </tr>
 </tbody>
 </table>
@@ -236,52 +262,114 @@
 <li><p>1x <a class="reference external" href="https://holybro.com/products/pmw3901-optical-flow-sensor">Optical flow sensor</a></p></li>
 </ul>
 </section>
-<section id="kakute-h7-setup">
-<h2>Kakute H7 Setup<a class="headerlink" href="#kakute-h7-setup" title="Permalink to this heading"></a></h2>
+<section id="kakute-flight-controller-setup">
+<h2>Kakute Flight Controller Setup<a class="headerlink" href="#kakute-flight-controller-setup" title="Permalink to this heading"></a></h2>
+<p>Two different approaches are considered to setup the Kakute flight controller: 1) using our custom precompiled binaries (recommended), or 2) compiling PX4 from source.</p>
+<p><strong>Option 1 - Using custom precompiled binaries (recommended)</strong></p>
+<p>We provide some precompiled binaries of the PX4-autopilot source code (release v1.14.2), with some minor corrections and modifications for our specific use case.
+To flash these custom images, proceed as follows.</p>
 <ol class="arabic simple">
-<li><p>Configure the Kakute H7 v2 flight controller with PX4 firmware (v1.14.2), by following the instructions on the <a class="reference external" href="https://docs.px4.io/main/en/flight_controller/kakuteh7v2.html">PX4 documentation</a>. Start by cloning and compiling the PX4 firmware repository and running the following commands:</p></li>
-</ol>
-<blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clone PX4 firmware repository</span>
-git<span class="w"> </span>clone<span class="w"> </span>https://github.com/PX4/PX4-Autopilot.git
-<span class="nb">cd</span><span class="w"> </span>PX4-Autopilot
-git<span class="w"> </span>checkout<span class="w"> </span>v1.14.2
-
-<span class="c1"># Compile the bootloader for the board</span>
-make<span class="w"> </span>holybro_kakuteh7v2_bootloader
-
-<span class="c1"># Compile the firmware for the board</span>
-make<span class="w"> </span>holybro_kakuteh7v2_default
-</pre></div>
-</div>
-</div></blockquote>
-<ol class="arabic simple" start="2">
-<li><p>Install DFU-Util to flash the bootloader into the Kakute H7 v2:</p></li>
+<li><p>Install DFU-Util to flash the bootloader into the Kakute board:</p></li>
 </ol>
 <blockquote>
 <div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>dfu-util
 </pre></div>
 </div>
 </div></blockquote>
-<ol class="arabic simple" start="3">
-<li><p>Connect the Kakute H7 v2 to the computer using a USB cable and put the board in bootloader mode by pressing the button on the board while connecting the cable. Flash the bootloader into the Kakute H7 v2:</p></li>
+<ol class="arabic simple" start="2">
+<li><p>Open a terminal, and download the bootloader images into your computer, depending on the required board version. Do not close the terminal once you finish.</p></li>
 </ol>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dfu-util<span class="w"> </span>-a<span class="w"> </span><span class="m">0</span><span class="w"> </span>--dfuse-address<span class="w"> </span>0x08000000:force:mass-erase:leave<span class="w"> </span>-D<span class="w"> </span>build/holybro_kakuteh7v2_bootloader/holybro_kakuteh7v2_bootloader.bin
-dfu-util<span class="w"> </span>-a<span class="w"> </span><span class="m">0</span><span class="w"> </span>--dfuse-address<span class="w"> </span>0x08000000<span class="w"> </span>-D<span class="w">  </span>build/holybro_kakuteh7v2_bootloader/holybro_kakuteh7v2_bootloader.bin
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use these command for the KakuteH7</span>
+wget<span class="w"> </span><span class="s2">&quot;https://github.com/PegasusResearch/drone_configs/raw/refs/heads/main/Kopis/PX4-Autopilot(v1.14.2)/KakuteH7/holybro_kakuteh7_bootloader.bin&quot;</span>
+
+<span class="c1"># Use this command for the KakuteH7v2</span>
+wget<span class="w"> </span><span class="s2">&quot;https://github.com/PegasusResearch/drone_configs/raw/refs/heads/main/Kopis/PX4-Autopilot(v1.14.2)/KakuteH7v2/holybro_kakuteh7v2_bootloader.bin&quot;</span>
 </pre></div>
 </div>
 </div></blockquote>
-<ol class="arabic simple" start="4">
-<li><p>After flashing the bootloader, reboot the Kakute H7 v2 without pressing the button. Upload the firmware by using QGroundControl and following the instructions on the <a class="reference external" href="https://docs.px4.io/main/en/flight_controller/kakuteh7v2.html">PX4 documentation</a> or run the command.</p></li>
+<ol class="arabic simple" start="3">
+<li><p>Connect the Kakute to the computer using a USB cable and put the board in bootloader mode by pressing the button on the board while connecting the cable. Flash the bootloader into the Kakute:</p></li>
 </ol>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>holybro_kakuteh7v2_default<span class="w"> </span>upload
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use these commands for the KakuteH7</span>
+dfu-util<span class="w"> </span>-a<span class="w"> </span><span class="m">0</span><span class="w"> </span>--dfuse-address<span class="w"> </span>0x08000000:force:mass-erase:leave<span class="w"> </span>-D<span class="w"> </span>./holybro_kakuteh7_bootloader.bin
+dfu-util<span class="w"> </span>-a<span class="w"> </span><span class="m">0</span><span class="w"> </span>--dfuse-address<span class="w"> </span>0x08000000<span class="w"> </span>-D<span class="w">  </span>./holybro_kakuteh7_bootloader.bin
+
+<span class="c1"># Use these commands for the KakuteH7v2</span>
+dfu-util<span class="w"> </span>-a<span class="w"> </span><span class="m">0</span><span class="w"> </span>--dfuse-address<span class="w"> </span>0x08000000:force:mass-erase:leave<span class="w"> </span>-D<span class="w"> </span>./holybro_kakuteh7v2_bootloader.bin
+dfu-util<span class="w"> </span>-a<span class="w"> </span><span class="m">0</span><span class="w"> </span>--dfuse-address<span class="w"> </span>0x08000000<span class="w"> </span>-D<span class="w">  </span>./holybro_kakuteh7v2_bootloader.bin
 </pre></div>
 </div>
 </div></blockquote>
 <ol class="arabic simple" start="5">
-<li><p>After having the firmware installed, connect the Kakute H7 v2 to the computer and open QGroundControl.</p></li>
+<li><p>After flashing the bootloader, reboot the Kakute without pressing the button. Download the firmware for the <a class="reference external" href="https://github.com/PegasusResearch/drone_configs/raw/refs/heads/main/Kopis/PX4-Autopilot(v1.14.2)/KakuteH7/holybro_kakuteh7_default.px4">KakuteH7</a> or for the <a class="reference external" href="https://github.com/PegasusResearch/drone_configs/raw/refs/heads/main/Kopis/PX4-Autopilot(v1.14.2)/KakuteH7v2/holybro_kakuteh7v2_default.px4">KakuteH7v2</a> and load it to the board using QGroundControl (instrutions <a class="reference external" href="https://docs.px4.io/main/en/config/firmware.html#loading-firmware">here</a>). Note that you want to install a custom version (specific instructions <a class="reference external" href="https://docs.px4.io/main/en/config/firmware.html#installing-px4-main-beta-or-custom-firmware">here</a>).</p></li>
+<li><p>After having the firmware installed, connect the Kakute to the computer and open QGroundControl.</p></li>
+<li><p>Load the Kopis parameters from the configuration file <a class="reference external" href="https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/Parameters/kopis_7.params">kopis7.params</a>.</p></li>
+<li><p>Change the MAV_SYS_ID parameter to the ID of the new vehicle.</p></li>
+</ol>
+<p><strong>Option 2 - Compiling PX4 from source</strong></p>
+<ol class="arabic simple">
+<li><p>Configure the KakuteH7/KakuteH7v2 flight controller with PX4 firmware (v1.14.2), by following the instructions on the <a class="reference external" href="https://docs.px4.io/main/en/flight_controller/kakuteh7v2.html">PX4 documentation</a>. Start by cloning and compiling the PX4 firmware repository:</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clone PX4 firmware repository</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/PX4/PX4-Autopilot.git
+<span class="nb">cd</span><span class="w"> </span>PX4-Autopilot
+git<span class="w"> </span>checkout<span class="w"> </span>v1.14.2
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>Compile the bootloader and the firmware for the flight controller. Use the commands depending on the board version (KakuteH7/KakuteH7v2):</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use these commands to compile the bootloader and the firmware for the KakuteH7</span>
+make<span class="w"> </span>holybro_kakuteh7_bootloader
+make<span class="w"> </span>holybro_kakuteh7_default
+
+<span class="c1"># Use these commands to compile the bootloader and the firmware for the KakuteH7v2</span>
+make<span class="w"> </span>holybro_kakuteh7v2_bootloader
+make<span class="w"> </span>holybro_kakuteh7v2_default
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><p>Install DFU-Util to flash the bootloader into the Kakute board:</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>dfu-util
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="4">
+<li><p>Connect the Kakute to the computer using a USB cable and put the board in bootloader mode by pressing the button on the board while connecting the cable. Flash the bootloader into the Kakute:</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use these commands for the KakuteH7</span>
+dfu-util<span class="w"> </span>-a<span class="w"> </span><span class="m">0</span><span class="w"> </span>--dfuse-address<span class="w"> </span>0x08000000:force:mass-erase:leave<span class="w"> </span>-D<span class="w"> </span>build/holybro_kakuteh7_bootloader/holybro_kakuteh7_bootloader.bin
+dfu-util<span class="w"> </span>-a<span class="w"> </span><span class="m">0</span><span class="w"> </span>--dfuse-address<span class="w"> </span>0x08000000<span class="w"> </span>-D<span class="w">  </span>build/holybro_kakuteh7_bootloader/holybro_kakuteh7_bootloader.bin
+
+<span class="c1"># Use these commands for the KakuteH7v2</span>
+dfu-util<span class="w"> </span>-a<span class="w"> </span><span class="m">0</span><span class="w"> </span>--dfuse-address<span class="w"> </span>0x08000000:force:mass-erase:leave<span class="w"> </span>-D<span class="w"> </span>build/holybro_kakuteh7v2_bootloader/holybro_kakuteh7v2_bootloader.bin
+dfu-util<span class="w"> </span>-a<span class="w"> </span><span class="m">0</span><span class="w"> </span>--dfuse-address<span class="w"> </span>0x08000000<span class="w"> </span>-D<span class="w">  </span>build/holybro_kakuteh7v2_bootloader/holybro_kakuteh7v2_bootloader.bin
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="5">
+<li><p>After flashing the bootloader, reboot the Kakute without pressing the button. Upload the firmware by using QGroundControl or run one of the following commands</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use this command for the KakuteH7</span>
+make<span class="w"> </span>holybro_kakuteh7_default<span class="w"> </span>upload
+
+<span class="c1"># Use this command for the KakuteH7v2</span>
+make<span class="w"> </span>holybro_kakuteh7v2_default<span class="w"> </span>upload
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="6">
+<li><p>After having the firmware installed, connect the Kakute to the computer and open QGroundControl.</p></li>
 <li><p>Load the Kopis parameters from the configuration file <a class="reference external" href="https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_7.params">kopis7.params</a>.</p></li>
 <li><p>Change the MAV_SYS_ID parameter to the ID of the new vehicle.</p></li>
 </ol>
