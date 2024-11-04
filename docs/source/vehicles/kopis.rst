@@ -32,7 +32,7 @@ Arena Setup
      - Quadrotor
      - ❌/✔️
      - KakuteH7v2
-     - `kopis7.params <https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_7.params>`__
+     - `kopis7.params <https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/Parameters/kopis_7.params>`__
    * - 8
      - 192.168.1.248
      - 15008
@@ -41,7 +41,7 @@ Arena Setup
      - Quadrotor
      - ✔️
      - KakuteH7v2
-     - `kopis8.params <https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_8.params>`__
+     - `kopis8.params <https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/Parameters/kopis_8.params>`__
    * - 9
      - 192.168.1.249
      - 15009
@@ -50,7 +50,7 @@ Arena Setup
      - Quadrotor
      - ✔️
      - KakuteH7v2
-     - `kopis9.params <https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_9.params>`__
+     - `kopis9.params <https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/Parameters/kopis_9.params>`__
    * - 10
      - 192.168.1.250
      - 15010
@@ -59,7 +59,7 @@ Arena Setup
      - Quadrotor
      - ✔️
      - KakuteH7v2
-     - `kopis10.params <https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_10.params>`__
+     - `kopis10.params <https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/Parameters/kopis_10.params>`__
    * - 11
      - 192.168.1.251
      - 15011
@@ -142,11 +142,11 @@ In order to replicate the Kopis setup adopted on the Taguspark Flight Arena, the
 Kakute Flight Controller Setup
 ------------------------------
 
-Two different approaches are considered to setup the Kakute flight controller: 1) using our custom prebuilt images (recommended), or 2) compiling PX4 from source.
+Two different approaches are considered to setup the Kakute flight controller: 1) using our custom precompiled binaries (recommended), or 2) compiling PX4 from source.
 
-**Option 1 - Using Custom prebuilt binaries**
+**Option 1 - Using custom precompiled binaries (recommended)**
 
-We provide some prebuilt binaries of the PX4-autopilot source code (release v1.14), with some minor corrections and modifications for our specific use.
+We provide some precompiled binaries of the PX4-autopilot source code (release v1.14.2), with some minor corrections and modifications for our specific use case.
 To flash these custom images, proceed as follows.
 
 1. Install DFU-Util to flash the bootloader into the Kakute board:
@@ -155,34 +155,33 @@ To flash these custom images, proceed as follows.
 
       sudo apt-get install dfu-util
 
-2. Open a terminal, and download the custom images into your computer:
+2. Open a terminal, and download the bootloader images into your computer, depending on the required board version. Do not close the terminal once you finish.
 
+  .. code:: bash
+    
+      # Use these command for the KakuteH7
+      wget "https://github.com/PegasusResearch/drone_configs/raw/refs/heads/main/Kopis/PX4-Autopilot(v1.14.2)/KakuteH7/holybro_kakuteh7_bootloader.bin"
+
+      # Use this command for the KakuteH7v2
+      wget "https://github.com/PegasusResearch/drone_configs/raw/refs/heads/main/Kopis/PX4-Autopilot(v1.14.2)/KakuteH7v2/holybro_kakuteh7v2_bootloader.bin"
 
 3. Connect the Kakute to the computer using a USB cable and put the board in bootloader mode by pressing the button on the board while connecting the cable. Flash the bootloader into the Kakute:
 
   .. code:: bash
 
       # Use these commands for the KakuteH7
-      dfu-util -a 0 --dfuse-address 0x08000000:force:mass-erase:leave -D build/holybro_kakuteh7_bootloader/holybro_kakuteh7_bootloader.bin
-      dfu-util -a 0 --dfuse-address 0x08000000 -D  build/holybro_kakuteh7_bootloader/holybro_kakuteh7_bootloader.bin
+      dfu-util -a 0 --dfuse-address 0x08000000:force:mass-erase:leave -D ./holybro_kakuteh7_bootloader.bin
+      dfu-util -a 0 --dfuse-address 0x08000000 -D  ./holybro_kakuteh7_bootloader.bin
 
       # Use these commands for the KakuteH7v2
-      dfu-util -a 0 --dfuse-address 0x08000000:force:mass-erase:leave -D build/holybro_kakuteh7v2_bootloader/holybro_kakuteh7v2_bootloader.bin
-      dfu-util -a 0 --dfuse-address 0x08000000 -D  build/holybro_kakuteh7v2_bootloader/holybro_kakuteh7v2_bootloader.bin
+      dfu-util -a 0 --dfuse-address 0x08000000:force:mass-erase:leave -D ./holybro_kakuteh7v2_bootloader.bin
+      dfu-util -a 0 --dfuse-address 0x08000000 -D  ./holybro_kakuteh7v2_bootloader.bin
 
-5. After flashing the bootloader, reboot the Kakute without pressing the button. Upload the firmware by using QGroundControl or run one of the following commands
-
-  .. code:: bash
-    
-    # Use this command for the KakuteH7
-    make holybro_kakuteh7_default upload
-
-    # Use this command for the KakuteH7v2
-    make holybro_kakuteh7v2_default upload
+5. After flashing the bootloader, reboot the Kakute without pressing the button. Download the firmware for the `KakuteH7 <https://github.com/PegasusResearch/drone_configs/raw/refs/heads/main/Kopis/PX4-Autopilot(v1.14.2)/KakuteH7/holybro_kakuteh7_default.px4>`__ or for the `KakuteH7v2 <https://github.com/PegasusResearch/drone_configs/raw/refs/heads/main/Kopis/PX4-Autopilot(v1.14.2)/KakuteH7v2/holybro_kakuteh7v2_default.px4>`__ and load it to the board using QGroundControl (instrutions `here <https://docs.px4.io/main/en/config/firmware.html#loading-firmware>`__). Note that you want to install a custom version (specific instructions `here <https://docs.px4.io/main/en/config/firmware.html#installing-px4-main-beta-or-custom-firmware>`__).
 
 6. After having the firmware installed, connect the Kakute to the computer and open QGroundControl.
 
-7. Load the Kopis parameters from the configuration file `kopis7.params <https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_7.params>`__.
+7. Load the Kopis parameters from the configuration file `kopis7.params <https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/Parameters/kopis_7.params>`__.
 
 8. Change the MAV_SYS_ID parameter to the ID of the new vehicle.
 
