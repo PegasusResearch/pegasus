@@ -139,8 +139,56 @@ In order to replicate the Kopis setup adopted on the Taguspark Flight Arena, the
 * 1x `Time-of-flight sensor <https://holybro.com/collections/sensors/products/st-vl53l1x-lidar>`__
 * 1x `Optical flow sensor <https://holybro.com/products/pmw3901-optical-flow-sensor>`__
 
-Kakute H7 Setup
----------------
+Kakute Flight Controller Setup
+------------------------------
+
+Two different approaches are considered to setup the Kakute flight controller: 1) using our custom prebuilt images (recommended), or 2) compiling PX4 from source.
+
+**Option 1 - Using Custom prebuilt binaries
+
+We provide some prebuilt binaries of the PX4-autopilot source code (release v1.14), with some minor corrections and modifications for our specific use.
+To flash these custom images, proceed as follows.
+
+1. Install DFU-Util to flash the bootloader into the Kakute board:
+
+  .. code:: bash
+
+      sudo apt-get install dfu-util
+
+2. Open a terminal, and download the custom images into your computer:
+
+
+3. Connect the Kakute to the computer using a USB cable and put the board in bootloader mode by pressing the button on the board while connecting the cable. Flash the bootloader into the Kakute:
+
+  .. code:: bash
+
+      # Use these commands for the KakuteH7
+      dfu-util -a 0 --dfuse-address 0x08000000:force:mass-erase:leave -D build/holybro_kakuteh7_bootloader/holybro_kakuteh7_bootloader.bin
+      dfu-util -a 0 --dfuse-address 0x08000000 -D  build/holybro_kakuteh7_bootloader/holybro_kakuteh7_bootloader.bin
+
+      # Use these commands for the KakuteH7v2
+      dfu-util -a 0 --dfuse-address 0x08000000:force:mass-erase:leave -D build/holybro_kakuteh7v2_bootloader/holybro_kakuteh7v2_bootloader.bin
+      dfu-util -a 0 --dfuse-address 0x08000000 -D  build/holybro_kakuteh7v2_bootloader/holybro_kakuteh7v2_bootloader.bin
+
+5. After flashing the bootloader, reboot the Kakute without pressing the button. Upload the firmware by using QGroundControl or run one of the following commands
+
+  .. code:: bash
+    
+    # Use this command for the KakuteH7
+    make holybro_kakuteh7_default upload
+
+    # Use this command for the KakuteH7v2
+    make holybro_kakuteh7v2_default upload
+
+6. After having the firmware installed, connect the Kakute to the computer and open QGroundControl.
+
+7. Load the Kopis parameters from the configuration file `kopis7.params <https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_7.params>`__.
+
+8. Change the MAV_SYS_ID parameter to the ID of the new vehicle.
+
+
+
+**Option 2 - Compiling PX4 from source**
 
 1. Configure the KakuteH7/KakuteH7v2 flight controller with PX4 firmware (v1.14.2), by following the instructions on the `PX4 documentation <https://docs.px4.io/main/en/flight_controller/kakuteh7v2.html>`__. Start by cloning and compiling the PX4 firmware repository:
 
@@ -163,13 +211,13 @@ Kakute H7 Setup
       make holybro_kakuteh7v2_bootloader
       make holybro_kakuteh7v2_default
 
-2. Install DFU-Util to flash the bootloader into the Kakute board:
+3. Install DFU-Util to flash the bootloader into the Kakute board:
 
   .. code:: bash
 
       sudo apt-get install dfu-util
 
-3. Connect the Kakute to the computer using a USB cable and put the board in bootloader mode by pressing the button on the board while connecting the cable. Flash the bootloader into the Kakute:
+4. Connect the Kakute to the computer using a USB cable and put the board in bootloader mode by pressing the button on the board while connecting the cable. Flash the bootloader into the Kakute:
 
   .. code:: bash
 
@@ -181,7 +229,7 @@ Kakute H7 Setup
       dfu-util -a 0 --dfuse-address 0x08000000:force:mass-erase:leave -D build/holybro_kakuteh7v2_bootloader/holybro_kakuteh7v2_bootloader.bin
       dfu-util -a 0 --dfuse-address 0x08000000 -D  build/holybro_kakuteh7v2_bootloader/holybro_kakuteh7v2_bootloader.bin
 
-4. After flashing the bootloader, reboot the Kakute without pressing the button. Upload the firmware by using QGroundControl or run one of the following commands
+5. After flashing the bootloader, reboot the Kakute without pressing the button. Upload the firmware by using QGroundControl or run one of the following commands
 
   .. code:: bash
     
@@ -191,11 +239,11 @@ Kakute H7 Setup
     # Use this command for the KakuteH7v2
     make holybro_kakuteh7v2_default upload
 
-5. After having the firmware installed, connect the Kakute to the computer and open QGroundControl.
+6. After having the firmware installed, connect the Kakute to the computer and open QGroundControl.
 
-6. Load the Kopis parameters from the configuration file `kopis7.params <https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_7.params>`__.
+7. Load the Kopis parameters from the configuration file `kopis7.params <https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/kopis_7.params>`__.
 
-7. Change the MAV_SYS_ID parameter to the ID of the new vehicle.
+8. Change the MAV_SYS_ID parameter to the ID of the new vehicle.
 
 ESP Configuration
 -----------------
