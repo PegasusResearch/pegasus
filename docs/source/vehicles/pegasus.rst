@@ -134,42 +134,6 @@ Configuring the base software
 
       sudo reboot
 
-Installing ROS 2
-----------------
-
-1. Install ROS 2 Humble, by following the instructions on the `ROS 2 Humble <https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html>`_ page.
-
-  .. code:: bash
-
-      # Locale setup
-      locale  # check for UTF-8
-
-      sudo apt update && sudo apt install locales
-      sudo locale-gen en_US en_US.UTF-8
-      sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
-      export LANG=en_US.UTF-8
-
-      locale  # verify settings
-
-      # Setup sources.list
-      sudo apt install software-properties-common
-      sudo add-apt-repository universe
-
-      sudo apt update && sudo apt install curl -y
-      sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
-
-      echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
-
-      sudo apt update
-      sudo apt upgrade
-
-      # Install ROS 2 packages
-      sudo apt install ros-humble-desktop -y 
-      sudo apt install ros-dev-tools -y 
-
-      # Add the ROS 2 environment to the bashrc
-      echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
-
 Installing OpenCV with CUDA
 ---------------------------
 
@@ -244,6 +208,7 @@ Installing OpenCV with CUDA
 
       # Remove the old opencv installation
       sudo rm -rf /usr/include/opencv4/opencv2
+      sudo apt purge libopencv-*
 
       # Install the compiled library in the system
       sudo make install
@@ -255,8 +220,46 @@ Installing OpenCV with CUDA
       sudo rm -rf opencv
       sudo rm -rf opencv_contrib
 
+Installing ROS 2
+----------------
 
-7. Setup the serial pins for communication with the microcontroller
+1. Install ROS 2 Humble, by following the instructions on the `ROS 2 Humble <https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html>`_ page.
+
+  .. code:: bash
+
+      # Locale setup
+      locale  # check for UTF-8
+
+      sudo apt update && sudo apt install locales
+      sudo locale-gen en_US en_US.UTF-8
+      sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+      export LANG=en_US.UTF-8
+
+      locale  # verify settings
+
+      # Setup sources.list
+      sudo apt install software-properties-common
+      sudo add-apt-repository universe
+
+      sudo apt update && sudo apt install curl -y
+      sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+
+      echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+
+      sudo apt update
+      sudo apt upgrade
+
+      # Install ROS 2 packages
+      sudo apt install ros-humble-desktop -y 
+      sudo apt install ros-dev-tools -y 
+
+      # Add the ROS 2 environment to the bashrc
+      echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+
+Setting up the GPIO pins
+------------------------
+
+To setup the serial pins for communication with the microcontroller, follow the instructions bellow:
 
   .. code:: bash
 
@@ -264,14 +267,112 @@ Installing OpenCV with CUDA
       sudo systemctl disable nvgetty.service
       sudo usermod -aG dialout marcelo
 
-8. Remove the GNOME GUI (Optional)
+Disabling GNOME GUI
+-------------------
+
+For a better performance, it is recommended to disable the GNOME GUI. To do so, follow the instructions bellow:
 
   .. code:: bash
 
+      # Setup the system to boot in text mode
+      sudo systemctl set-default multi-user.target
+
+**(Optional):** Alternatively, you can remove the GUI packages altogether by running the following lines:
+
+  .. code:: bash
+
+      # Remove the GNOME GUI
       sudo apt-get purge gnome-shell ubuntu-wallpapers-bionic light-themes chromium-browser* libvisionworks libvisionworks-sfm-dev -y
       sudo apt-get autoremove -y
       sudo apt clean -y
 
+      # Setup the system to boot in text mode
+      sudo systemctl set-default multi-user.target
+
 Realsense Setup
 ---------------
 
+  .. code:: bash
+
+      git clone https://github.com/IntelRealSense/librealsense.git -b v2.56.2
+
+      mkdir librealsense_build && cd librealsense_build
+
+      sudo apt-get install git cmake libssl-dev freeglut3-dev libusb-1.0-0-dev pkg-config libgtk-3-dev unzip -y
+
+      sudo cp ../config/99-realsense-libusb.rules /etc/udev/rules.d/ 
+      sudo cp ../config/99-realsense-d4xx-mipi-dfu.rules /etc/udev/rules.d/
+
+      # Setup the architecture for cuda in the orin nano
+      # Check: https://developer.nvidia.com/cuda-gpus#compute
+      export ARCH=8.7
+
+      cmake ../ -DFORCE_LIBUVC=true -DCMAKE_BUILD_TYPE=release -DBUILD_WITH_CUDA=true -DBUILD_EXAMPLES=true -DCUDA_ARCHITECTURES="${ARCH}"
+
+      make -j2
+      sudo make install
+
+      # -----------------------------------------
+      # -- Check if we can remove the part bellow
+      # -----------------------------------------
+
+      # https://github.com/IntelRealSense/librealsense/blob/master/scripts/libuvc_installation.sh
+
+      sudo apt-get install git libssl-dev libusb-1.0-0-dev libudev-dev pkg-config libgtk-3-dev -y
+      cd librealsense
+      ./scripts/setup_udev_rules.sh
+
+      mkdir build
+      cd build
+
+      # note: set the RUSB to true if not kernel patch available for your jetson yet
+      cmake .. -DBUILD_EXAMPLES=true -DCMAKE_BUILD_TYPE=release -DFORCE_RSUSB_BACKEND=false -DBUILD_WITH_CUDA=true
+      make -j$(($(nproc)-1))
+      sudo make install
+
+      # Install the ROS 2 dependencies
+      sudo apt install ros-humble-image-transport ros-humble-diagnostic-updater
+
+      cd ~
+      mkdir pegasus_external
+      cd pegasus_external
+      mdkir src
+      cd src
+      git clone https://github.com/IntelRealSense/realsense-ros.git -b 4.55.1
+
+Installing Pytorch
+------------------
+
+  .. code:: bash
+
+      https://docs.nvidia.com/deeplearning/frameworks/install-pytorch-jetson-platform/index.html
+
+      # Check the versions + links for pytorch + tensorimage stuff
+      https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048
+      export JP_VERSION=60
+      export PYT_VERSION=torch-2.4.0a0+07cecf4168.nv24.05.14710581-cp310-cp310-linux_aarch64.whl
+      export TORCH_INSTALL=https://developer.download.nvidia.com/compute/redist/jp/v$JP_VERSION/pytorch/$PYT_VERSION
+      python3 -m pip install --upgrade pip
+      python3 -m pip install numpy
+      python3 -m pip install --no-cache $TORCH_INSTALL
+
+      # Install the corresponding torch vision (see table in their repo)
+      git clone https://github.com/pytorch/vision torchvision
+      cd torchvision/
+      git checkout v0.18.1
+      export USE_CUDA=1 USE_CUDNN=1 USE_MKLDNN=1 TORCH_CUDA_ARCH_LIST="8.6" FORCE_CUDA=1 FORCE_MPS=1
+      sudo apt-get -y install ffmpeg libavutil-dev libavcodec-dev libavformat-dev libavdevice-dev libavfilter-dev libswscale-dev libswresample-dev libswresample-dev libpostproc-dev libjpeg-dev libpng-dev libopenblas-base libopenmpi-dev
+      python3 setup.py develop --user
+
+Installing Tensorflow
+---------------------
+
+  .. code:: bash
+
+      https://docs.nvidia.com/deeplearning/frameworks/install-tf-jetson-platform/index.html#overview
+      export JP_VERSION=60
+      export TF_VERSION=tensorflow-2.15.0+nv24.05-cp310-cp310-linux_aarch64.whl
+      export TENSORFLOW_INSTALL=https://developer.download.nvidia.com/compute/redist/jp/v$JP_VERSION/tensorflow/$TF_VERSION
+      sudo apt-get install libhdf5-serial-dev hdf5-tools libhdf5-dev zlib1g-dev zip libjpeg8-dev liblapack-dev libblas-dev gfortran
+      python3 -m pip install -U testresources setuptools numpy future mock keras_preprocessing keras_applications gast protobuf pybind11 cython pkgconfig packaging h5py
+      python3 -m pip install --no-cache $TENSORFLOW_INSTALL
