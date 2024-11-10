@@ -411,7 +411,9 @@ sudo<span class="w"> </span>systemctl<span class="w"> </span>set-default<span cl
 <section id="realsense-setup">
 <h2>Realsense Setup<a class="headerlink" href="#realsense-setup" title="Permalink to this heading"></a></h2>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/IntelRealSense/librealsense.git<span class="w"> </span>-b<span class="w"> </span>v2.56.2
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Based on https://github.com/IntelRealSense/librealsense/blob/master/scripts/libuvc_installation.sh</span>
+
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/IntelRealSense/librealsense.git<span class="w"> </span>-b<span class="w"> </span>v2.56.2
 
 mkdir<span class="w"> </span>librealsense_build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>librealsense_build
 
@@ -429,24 +431,6 @@ cmake<span class="w"> </span>../<span class="w"> </span>-DFORCE_LIBUVC<span clas
 make<span class="w"> </span>-j2
 sudo<span class="w"> </span>make<span class="w"> </span>install
 
-<span class="c1"># -----------------------------------------</span>
-<span class="c1"># -- Check if we can remove the part bellow</span>
-<span class="c1"># -----------------------------------------</span>
-
-<span class="c1"># https://github.com/IntelRealSense/librealsense/blob/master/scripts/libuvc_installation.sh</span>
-
-sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>git<span class="w"> </span>libssl-dev<span class="w"> </span>libusb-1.0-0-dev<span class="w"> </span>libudev-dev<span class="w"> </span>pkg-config<span class="w"> </span>libgtk-3-dev<span class="w"> </span>-y
-<span class="nb">cd</span><span class="w"> </span>librealsense
-./scripts/setup_udev_rules.sh
-
-mkdir<span class="w"> </span>build
-<span class="nb">cd</span><span class="w"> </span>build
-
-<span class="c1"># note: set the RUSB to true if not kernel patch available for your jetson yet</span>
-cmake<span class="w"> </span>..<span class="w"> </span>-DBUILD_EXAMPLES<span class="o">=</span><span class="nb">true</span><span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>release<span class="w"> </span>-DFORCE_RSUSB_BACKEND<span class="o">=</span><span class="nb">false</span><span class="w"> </span>-DBUILD_WITH_CUDA<span class="o">=</span><span class="nb">true</span>
-make<span class="w"> </span>-j<span class="k">$(($(</span>nproc<span class="k">)</span><span class="o">-</span><span class="m">1</span><span class="k">))</span>
-sudo<span class="w"> </span>make<span class="w"> </span>install
-
 <span class="c1"># Install the ROS 2 dependencies</span>
 sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>ros-humble-image-transport<span class="w"> </span>ros-humble-diagnostic-updater
 
@@ -455,7 +439,12 @@ mkdir<span class="w"> </span>pegasus_external
 <span class="nb">cd</span><span class="w"> </span>pegasus_external
 mdkir<span class="w"> </span>src
 <span class="nb">cd</span><span class="w"> </span>src
-git<span class="w"> </span>clone<span class="w"> </span>https://github.com/IntelRealSense/realsense-ros.git<span class="w"> </span>-b<span class="w"> </span><span class="m">4</span>.55.1
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/IntelRealSense/realsense-ros.git<span class="w"> </span>-b<span class="w"> </span><span class="m">4</span>.56.1
+<span class="nb">cd</span><span class="w"> </span>..
+colcon<span class="w"> </span>build<span class="w"> </span>--symlink-install
+
+<span class="c1"># Add the ROS 2 environment to the bashrc if not already</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;source </span><span class="nv">$HOME</span><span class="s2">/pegasus_external/install/setup.bash&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
 </pre></div>
 </div>
 </div></blockquote>

@@ -294,6 +294,8 @@ Realsense Setup
 
   .. code:: bash
 
+      # Based on https://github.com/IntelRealSense/librealsense/blob/master/scripts/libuvc_installation.sh
+
       git clone https://github.com/IntelRealSense/librealsense.git -b v2.56.2
 
       mkdir librealsense_build && cd librealsense_build
@@ -312,24 +314,6 @@ Realsense Setup
       make -j2
       sudo make install
 
-      # -----------------------------------------
-      # -- Check if we can remove the part bellow
-      # -----------------------------------------
-
-      # https://github.com/IntelRealSense/librealsense/blob/master/scripts/libuvc_installation.sh
-
-      sudo apt-get install git libssl-dev libusb-1.0-0-dev libudev-dev pkg-config libgtk-3-dev -y
-      cd librealsense
-      ./scripts/setup_udev_rules.sh
-
-      mkdir build
-      cd build
-
-      # note: set the RUSB to true if not kernel patch available for your jetson yet
-      cmake .. -DBUILD_EXAMPLES=true -DCMAKE_BUILD_TYPE=release -DFORCE_RSUSB_BACKEND=false -DBUILD_WITH_CUDA=true
-      make -j$(($(nproc)-1))
-      sudo make install
-
       # Install the ROS 2 dependencies
       sudo apt install ros-humble-image-transport ros-humble-diagnostic-updater
 
@@ -338,7 +322,12 @@ Realsense Setup
       cd pegasus_external
       mdkir src
       cd src
-      git clone https://github.com/IntelRealSense/realsense-ros.git -b 4.55.1
+      git clone https://github.com/IntelRealSense/realsense-ros.git -b 4.56.1
+      cd ..
+      colcon build --symlink-install
+
+      # Add the ROS 2 environment to the bashrc if not already
+      echo "source $HOME/pegasus_external/install/setup.bash" >> ~/.bashrc
 
 Installing Pytorch
 ------------------
