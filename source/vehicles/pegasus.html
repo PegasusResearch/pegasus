@@ -463,8 +463,8 @@ sudo<span class="w"> </span>ldconfig
 
 <span class="c1"># Check the versions + links for pytorch + tensorimage stuff</span>
 https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048
-<span class="nb">export</span><span class="w"> </span><span class="nv">JP_VERSION</span><span class="o">=</span><span class="m">60</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">PYT_VERSION</span><span class="o">=</span>torch-2.4.0a0+07cecf4168.nv24.05.14710581-cp310-cp310-linux_aarch64.whl
+<span class="nb">export</span><span class="w"> </span><span class="nv">JP_VERSION</span><span class="o">=</span><span class="m">61</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYT_VERSION</span><span class="o">=</span>torch-2.5.0a0+872d972e41.nv24.08.17622132-cp310-cp310-linux_aarch64.whl
 <span class="nb">export</span><span class="w"> </span><span class="nv">TORCH_INSTALL</span><span class="o">=</span>https://developer.download.nvidia.com/compute/redist/jp/v<span class="nv">$JP_VERSION</span>/pytorch/<span class="nv">$PYT_VERSION</span>
 python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>pip
 python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>numpy
@@ -473,7 +473,7 @@ python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </s
 <span class="c1"># Install the corresponding torch vision (see table in their repo)</span>
 git<span class="w"> </span>clone<span class="w"> </span>https://github.com/pytorch/vision<span class="w"> </span>torchvision
 <span class="nb">cd</span><span class="w"> </span>torchvision/
-git<span class="w"> </span>checkout<span class="w"> </span>v0.18.1
+git<span class="w"> </span>checkout<span class="w"> </span>v0.20.1
 <span class="nb">export</span><span class="w"> </span><span class="nv">USE_CUDA</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">USE_CUDNN</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">USE_MKLDNN</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">TORCH_CUDA_ARCH_LIST</span><span class="o">=</span><span class="s2">&quot;8.6&quot;</span><span class="w"> </span><span class="nv">FORCE_CUDA</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">FORCE_MPS</span><span class="o">=</span><span class="m">1</span>
 sudo<span class="w"> </span>apt-get<span class="w"> </span>-y<span class="w"> </span>install<span class="w"> </span>ffmpeg<span class="w"> </span>libavutil-dev<span class="w"> </span>libavcodec-dev<span class="w"> </span>libavformat-dev<span class="w"> </span>libavdevice-dev<span class="w"> </span>libavfilter-dev<span class="w"> </span>libswscale-dev<span class="w"> </span>libswresample-dev<span class="w"> </span>libswresample-dev<span class="w"> </span>libpostproc-dev<span class="w"> </span>libjpeg-dev<span class="w"> </span>libpng-dev<span class="w"> </span>libopenblas-base<span class="w"> </span>libopenmpi-dev
 python3<span class="w"> </span>setup.py<span class="w"> </span>develop<span class="w"> </span>--user

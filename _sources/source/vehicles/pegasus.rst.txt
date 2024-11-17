@@ -345,8 +345,8 @@ Installing Pytorch
 
       # Check the versions + links for pytorch + tensorimage stuff
       https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048
-      export JP_VERSION=60
-      export PYT_VERSION=torch-2.4.0a0+07cecf4168.nv24.05.14710581-cp310-cp310-linux_aarch64.whl
+      export JP_VERSION=61
+      export PYT_VERSION=torch-2.5.0a0+872d972e41.nv24.08.17622132-cp310-cp310-linux_aarch64.whl
       export TORCH_INSTALL=https://developer.download.nvidia.com/compute/redist/jp/v$JP_VERSION/pytorch/$PYT_VERSION
       python3 -m pip install --upgrade pip
       python3 -m pip install numpy
@@ -355,7 +355,7 @@ Installing Pytorch
       # Install the corresponding torch vision (see table in their repo)
       git clone https://github.com/pytorch/vision torchvision
       cd torchvision/
-      git checkout v0.18.1
+      git checkout v0.20.1
       export USE_CUDA=1 USE_CUDNN=1 USE_MKLDNN=1 TORCH_CUDA_ARCH_LIST="8.6" FORCE_CUDA=1 FORCE_MPS=1
       sudo apt-get -y install ffmpeg libavutil-dev libavcodec-dev libavformat-dev libavdevice-dev libavfilter-dev libswscale-dev libswresample-dev libswresample-dev libpostproc-dev libjpeg-dev libpng-dev libopenblas-base libopenmpi-dev
       python3 setup.py develop --user
