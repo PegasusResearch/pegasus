@@ -336,6 +336,13 @@ Installing Pytorch
 
       https://docs.nvidia.com/deeplearning/frameworks/install-pytorch-jetson-platform/index.html
 
+      # Install CUSparse for accelerating computations
+      wget https://developer.download.nvidia.com/compute/cusparselt/redist/libcusparse_lt/linux-aarch64/libcusparse_lt-linux-aarch64-0.6.3.2-archive.tar.xz
+      tar xf libcusparse_lt-linux-aarch64-0.6.3.2-archive.tar.xz
+      sudo cp -a libcusparse_lt-linux-aarch64-0.6.3.2-archive/include/* /usr/local/cuda/include/
+      sudo cp -a libcusparse_lt-linux-aarch64-0.6.3.2-archive/lib/* /usr/local/cuda/lib64/
+      sudo ldconfig
+
       # Check the versions + links for pytorch + tensorimage stuff
       https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048
       export JP_VERSION=60
