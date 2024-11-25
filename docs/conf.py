@@ -37,6 +37,7 @@ extensions = [
     "sphinx.ext.githubpages",
     "sphinx.ext.autosectionlabel",
     "sphinxcontrib.youtube",
+    "sphinxcontrib.mermaid",
     "myst_parser"
 ]
 
@@ -110,6 +111,9 @@ html_theme_options = {
     'display_version': False,
     'style_nav_header_background': '#000000'
 }
+html_css_files = [
+    'custom.css',
+]
 
 html_show_copyright = True
 html_show_sphinx = False
