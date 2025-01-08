@@ -14,26 +14,6 @@
 #include <Eigen/Core>
 #include <cmath>
 
-/**
- * @brief Function to convert from quaternion to (roll, pitch and yaw), according to Z-Y-X convention
- * This function is from: https://github.com/mavlink/mavros/issues/444
- * and the logic is also available at: https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
- * @param q An eigen quaternion
- * Authors:
- *      Marcelo Jacinto (marcelo.jacinto@tecnico.ulisboa.pt)
- *      Andre Potes (andre.potes@tecnico.ulisboa.pt)
- * Maintained by: Marcelo Fialho Jacinto (marcelo.jacinto@tecnico.ulisboa.pt)
- * Last Update: 14/12/2021
- * License: MIT
- * File: rotations.hpp 
- * Brief: Defines all functions related to angle wrapping, rotation matrices, 
- * euler angles, convertion to quaternions, etc.
- */
-#pragma once
-
-#include <Eigen/Core>
-#include <cmath>
-
 namespace Pegasus {
 
 namespace Rotations {
@@ -171,21 +151,15 @@ inline T angleDiff(T a, T b) {
     return aux;
 }
 
-
 /**
- * @brief Compute the 3x3 skew-symmetric matrix from a vector 3x1
- * @param v A vector with 3 elements
- * @return A 3x3 skew-symmetric matrix
- */
-template <typename T>
-inline Eigen::Matrix<T, 3, 3> computeSkewSymmetric3(const Eigen::Matrix<T, 3, 1> &v) {
-
-    Eigen::Matrix<T, 3, 3> skew_symmetric;
-    skew_symmetric <<    0, -v(2),  v(1),
-                      v(2),     0, -v(0),
-                     -v(1),  v(0),     0;
-
-    return skew_symmetric;
+ * @brief Computes the projection operator of a vector v, i.e. 3x3 matrix that projects a vector onto the plane orthogonal to v 
+ * given by the formula: I - vv^T
+ * @param v A 3x1 vector
+ * @return A 3x3 matrix 
+ */ 
+template <typename T> 
+inline Eigen::Matrix<T, 3, 3> proj(const Eigen::Matrix<T, 3, 1> &v) {
+        return Eigen::Matrix3d::Identity() - v * v.transpose();
 }
 
 /** 
@@ -194,7 +168,7 @@ inline Eigen::Matrix<T, 3, 3> computeSkewSymmetric3(const Eigen::Matrix<T, 3, 1>
  * @return A 3x1 vector
 */
 template <typename T>
-inline Eigen::Matrix<T,3,1> computeVeeMap(const Eigen::Matrix<T,3,3> &m) {
+inline Eigen::Matrix<T,3,1> vee3(const Eigen::Matrix<T,3,3> &m) {
     Eigen::Matrix<T,3,1> v;
     v << m(2,1), m(0,2), m(1,0);
     return v;
@@ -206,13 +180,34 @@ inline Eigen::Matrix<T,3,1> computeVeeMap(const Eigen::Matrix<T,3,3> &m) {
  * @return A 2x2 skew-symmetric matrix
  */
 template <typename T>
-inline Eigen::Matrix<T, 2, 2> computeSkewSymmetric2(T c) {
+inline Eigen::Matrix<T, 2, 2> skew2(T c) {
 
     Eigen::Matrix<T, 2, 2> skew_symmetric;
     skew_symmetric << 0, -c,
                       c,  0;
 
     return skew_symmetric;
+}
+
+/**
+ * @brief Compute the 3x3 skew-symmetric matrix from a vector 3x1
+ * @param v A vector with 3 elements
+ * @return A 3x3 skew-symmetric matrix
+ */
+template <typename T>
+inline Eigen::Matrix<T, 3, 3> skew3(const Eigen::Matrix<T, 3, 1> &v) {
+
+    Eigen::Matrix<T, 3, 3> skew_symmetric;
+    skew_symmetric <<    0, -v(2),  v(1),
+                      v(2),     0, -v(0),
+                     -v(1),  v(0),     0;
+
+    return skew_symmetric;
+}
+
+template <typename T>
+inline Eigen::Matrix<T, 3, 3> rodrigues(const double psi, const Eigen::Matrix<T, 3, 1> &v) {
+    return Eigen::Matrix3d::Identity() + sin(psi) * skew3(v) + (1 - cos(psi)) * skew3(v) * skew3(v);
 }
 
 /**
