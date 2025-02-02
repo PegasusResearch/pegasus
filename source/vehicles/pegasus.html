@@ -80,11 +80,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#realsense-setup">Realsense Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installing-pytorch">Installing Pytorch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installing-tensorflow">Installing Tensorflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#passwordless-ssh">Passwordless SSH</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="kopis.html">Kopis Drone Setup</a></li>
-<li class="toctree-l1"><a class="reference internal" href="snapdragon.html">Snapdragon Drone</a></li>
-<li class="toctree-l1"><a class="reference internal" href="intel_aero.html">Intel Aero</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Flight Arena</span></p>
 <ul>
@@ -491,6 +490,33 @@ python3<span class="w"> </span>setup.py<span class="w"> </span>develop<span clas
 sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>libhdf5-serial-dev<span class="w"> </span>hdf5-tools<span class="w"> </span>libhdf5-dev<span class="w"> </span>zlib1g-dev<span class="w"> </span>zip<span class="w"> </span>libjpeg8-dev<span class="w"> </span>liblapack-dev<span class="w"> </span>libblas-dev<span class="w"> </span>gfortran
 python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>testresources<span class="w"> </span>setuptools<span class="w"> </span>numpy<span class="w"> </span>future<span class="w"> </span>mock<span class="w"> </span>keras_preprocessing<span class="w"> </span>keras_applications<span class="w"> </span>gast<span class="w"> </span>protobuf<span class="w"> </span>pybind11<span class="w"> </span>cython<span class="w"> </span>pkgconfig<span class="w"> </span>packaging<span class="w"> </span>h5py
 python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-cache<span class="w"> </span><span class="nv">$TENSORFLOW_INSTALL</span>
+</pre></div>
+</div>
+</div></blockquote>
+</section>
+<section id="passwordless-ssh">
+<h2>Passwordless SSH<a class="headerlink" href="#passwordless-ssh" title="Permalink to this heading"></a></h2>
+<p>To enable passwordless SSH, follow the instructions bellow:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generate the SSH key</span>
+ssh-keygen<span class="w"> </span>-t<span class="w"> </span>ed25519<span class="w"> </span>-C<span class="w"> </span><span class="s2">&quot;your_email@example.com&quot;</span><span class="w"> </span>-f<span class="w"> </span>~/.ssh/pegasus
+
+<span class="c1"># Copy the SSH key to the remote machine</span>
+ssh-copy-id<span class="w"> </span>-i<span class="w"> </span>~/.ssh/pegasus.pub<span class="w"> </span>drone_user@drone_ip
+
+<span class="c1"># Test the connection</span>
+ssh<span class="w"> </span>drone_user@drone_ip
+</pre></div>
+</div>
+</div></blockquote>
+<p>Add the following to the ~/.ssh/config file:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Host<span class="w"> </span>pegasus
+<span class="w">  </span>HostName<span class="w"> </span>drone_ip
+<span class="w">  </span>User<span class="w"> </span>drone_user
+<span class="w">  </span>IdentityFile<span class="w"> </span>~/.ssh/pegasus
+<span class="w">  </span>AddKeysToAgent<span class="w"> </span>yes
+<span class="w">  </span>IdentitiesOnly<span class="w"> </span>yes
 </pre></div>
 </div>
 </div></blockquote>

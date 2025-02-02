@@ -372,3 +372,31 @@ Installing Tensorflow
       sudo apt-get install libhdf5-serial-dev hdf5-tools libhdf5-dev zlib1g-dev zip libjpeg8-dev liblapack-dev libblas-dev gfortran
       python3 -m pip install -U testresources setuptools numpy future mock keras_preprocessing keras_applications gast protobuf pybind11 cython pkgconfig packaging h5py
       python3 -m pip install --no-cache $TENSORFLOW_INSTALL
+
+Passwordless SSH
+----------------
+
+To enable passwordless SSH, follow the instructions bellow:
+
+  .. code:: bash
+
+      # Generate the SSH key
+      ssh-keygen -t ed25519 -C "your_email@example.com" -f ~/.ssh/pegasus
+
+      # Copy the SSH key to the remote machine
+      ssh-copy-id -i ~/.ssh/pegasus.pub drone_user@drone_ip
+
+      # Test the connection
+      ssh drone_user@drone_ip
+
+Add the following to the ~/.ssh/config file:
+
+  .. code:: bash
+
+      Host pegasus
+        HostName drone_ip
+        User drone_user
+        IdentityFile ~/.ssh/pegasus
+        AddKeysToAgent yes
+        IdentitiesOnly yes
+
