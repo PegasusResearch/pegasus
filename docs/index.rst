@@ -118,8 +118,6 @@ Not only have you made this project possible, but also crashing drones an enjoya
 
    source/vehicles/pegasus
    source/vehicles/kopis
-   source/vehicles/snapdragon
-   source/vehicles/intel_aero
 
 .. toctree::
    :maxdepth: 3
