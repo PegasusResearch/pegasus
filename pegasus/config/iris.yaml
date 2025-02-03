@@ -20,7 +20,7 @@
       # ----------------------------------------------------------------------------------------------------------
       # Definition of the controller that will perform the tracking of references of the different operation modes
       # ----------------------------------------------------------------------------------------------------------
-      controller: "OnboardController"
+      controller: "PIDController"
       # Configurations needed by the PX4 controller
       OnboardController:
         publishers:
@@ -61,7 +61,7 @@
       BoxGeofencing:
         limits_x: [-10.0, 10.0]
         limits_y: [-10.0, 10.0]
-        limits_z: [-2.2,  1.00] # NED Coordinades (z-negative is up)
+        limits_z: [-3.0,  1.00] # NED Coordinades (z-negative is up)
       # ----------------------------------------------------------------------------------------------------------
       # Definition of the trajectory manager that generates parameterized trajectories to be followed
       # ----------------------------------------------------------------------------------------------------------
