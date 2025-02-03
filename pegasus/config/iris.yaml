@@ -59,9 +59,9 @@
       # ----------------------------------------------------------------------------------------------------------
       geofencing: "BoxGeofencing"
       BoxGeofencing:
-        limits_x: [-10.0, 10.0]
-        limits_y: [-10.0, 10.0]
-        limits_z: [-3.0,  1.00] # NED Coordinades (z-negative is up)
+        limits_x: [-100.0, 100.0]
+        limits_y: [-100.0, 100.0]
+        limits_z: [-100.0,  1.00] # NED Coordinades (z-negative is up)
       # ----------------------------------------------------------------------------------------------------------
       # Definition of the trajectory manager that generates parameterized trajectories to be followed
       # ----------------------------------------------------------------------------------------------------------

@@ -4,7 +4,7 @@
     # Low-level configurations
     # ----------------------------------------------------------------------------------------------------------
     dynamics:
-      mass: 1.272 #Kg | 1.036 Kg
+      mass: 1.540 #Kg | 1.036 Kg
       thrust_curve:
         # Formula T(N) = a * arctan(b * input + c) + d   
         # with input = [0.0, 100.0]
@@ -21,7 +21,7 @@
       # ----------------------------------------------------------------------------------------------------------
       # Definition of the controller that will perform the tracking of references of the different operation modes
       # ----------------------------------------------------------------------------------------------------------
-      controller: "MellingerController"
+      controller: "OnboardController"
       # Configurations needed by the PX4 controller
       OnboardController:
         publishers:
@@ -60,9 +60,9 @@
       # ----------------------------------------------------------------------------------------------------------
       geofencing: "BoxGeofencing"
       BoxGeofencing:
-        limits_x: [-10.0, 10.0]
-        limits_y: [-10.0, 10.0]
-        limits_z: [-10.0,  1.0] # NED Coordinades (z-negative is up)
+        limits_x: [-1000.0, 1000.0]
+        limits_y: [-1000.0, 1000.0]
+        limits_z: [-1000.0, 1000.0] # NED Coordinades (z-negative is up)
       # ----------------------------------------------------------------------------------------------------------
       # Definition of the trajectory manager that generates parameterized trajectories to be followed
       # ----------------------------------------------------------------------------------------------------------

@@ -32,6 +32,16 @@ def generate_launch_description():
     # ----------------------------------------
     # ---- DECLARE THE NODES TO LAUNCH -------
     # ----------------------------------------
+
+    # Call the mocap emulator launch file
+    mocap_emulator_launch_file = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('mocap_emulator'), 'launch/mocap_emulator.launch.py')),
+        # Define costume launch arguments/parameters used 
+        launch_arguments={
+            'id': LaunchConfiguration('vehicle_id'),
+            'namespace': LaunchConfiguration('vehicle_ns'),
+        }.items(),
+    )
     
     # Call MAVLINK interface package launch file 
     mavlink_interface_launch_file = IncludeLaunchDescription(
@@ -69,6 +79,7 @@ def generate_launch_description():
         mavlink_forward_arg,
         drone_params_file_arg,
         # Launch files
+        mocap_emulator_launch_file,
         mavlink_interface_launch_file,
         autopilot_launch_file
     ])
