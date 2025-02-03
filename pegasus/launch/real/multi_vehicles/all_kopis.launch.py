@@ -18,7 +18,7 @@ def generate_launch_description():
     namespace_arg = DeclareLaunchArgument('vehicle_ns', default_value='drone', description='Namespace to append to every topic and node name')
     
     # Define the drone MAVLINK forward ips and ports
-    mavlink_forward_arg = DeclareLaunchArgument('mavlink_forward', default_value="['']", description='A list of ips where to forward mavlink messages')
+    #mavlink_forward_arg = DeclareLaunchArgument('mavlink_forward', default_value="['udp://192.168.1.100:15']", description='A list of ips where to forward mavlink messages')
     
     # Define which file to use for the drone parameters
     drone_params_file_arg = DeclareLaunchArgument(
@@ -52,7 +52,7 @@ def generate_launch_description():
             'vehicle_ns': LaunchConfiguration('vehicle_ns'),
             'drone_params': LaunchConfiguration('drone_params'),
             'connection': 'udp://:15007',
-            'mavlink_forward': LaunchConfiguration('mavlink_forward'),
+            'mavlink_forward': "['']",
         }.items(),
     )
 
@@ -77,7 +77,7 @@ def generate_launch_description():
             'vehicle_ns': LaunchConfiguration('vehicle_ns'),
             'drone_params': LaunchConfiguration('drone_params'),
             'connection': 'udp://:15008',
-            'mavlink_forward': LaunchConfiguration('mavlink_forward'),
+            'mavlink_forward': "['']",
         }.items(),
     )
 
@@ -102,7 +102,7 @@ def generate_launch_description():
             'vehicle_ns': LaunchConfiguration('vehicle_ns'),
             'drone_params': LaunchConfiguration('drone_params'),
             'connection': 'udp://:15009',
-            'mavlink_forward': LaunchConfiguration('mavlink_forward'),
+            'mavlink_forward': "['']",
         }.items(),
     )
 
@@ -127,7 +127,7 @@ def generate_launch_description():
             'vehicle_ns': LaunchConfiguration('vehicle_ns'),
             'drone_params': LaunchConfiguration('drone_params'),
             'connection': 'udp://:15010',
-            'mavlink_forward': LaunchConfiguration('mavlink_forward'),
+            'mavlink_forward': "['']",
         }.items(),
     )
 
@@ -148,7 +148,7 @@ def generate_launch_description():
     return LaunchDescription([
         # Launch arguments
         namespace_arg,
-        mavlink_forward_arg,
+        #mavlink_forward_arg,
         drone_params_file_arg,
         # Launch files for kopis 7
         mavlink_interface_launch_file_kopis7,
