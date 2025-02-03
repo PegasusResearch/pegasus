@@ -6,8 +6,9 @@
         attitude: 50.0
         position: 30.0
         gps: 10.0
-        altitude: 10.0
+        altitude: 10.0    # Barometer
         imu: 30.0
+        distance: 10.0   # Altimeter (laser)
     subscribers:
       control:
         # High-level control (position, body velocity and inertial acceleration)
@@ -45,6 +46,7 @@
         barometer: "fmu/sensors/barometer"
         gps: "fmu/sensors/gps"
         gps_info: "fmu/sensors/gps_info"
+        altimeter: "fmu/sensors/altimeter"
       # Data received from the micro-controller internal EKF
       filter:
         # Current state of the vehicle

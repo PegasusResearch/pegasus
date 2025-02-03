@@ -1,7 +1,7 @@
 /*****************************************************************************
  * 
  *   Author: Marcelo Jacinto <marcelo.jacinto@tecnico.ulisboa.pt>
- *   Copyright (c) 2024, Marcelo Jacinto. All rights reserved.
+ *   Copyright (c) 2025, Marcelo Jacinto. All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without 
  * modification, are permitted provided that the following conditions 
@@ -113,11 +113,13 @@ void ROSNode::init_parameters() {
     this->declare_parameter<double>("mavlink_interface.rates.gps", 0.0);
     this->declare_parameter<double>("mavlink_interface.rates.altitude", 0.0);
     this->declare_parameter<double>("mavlink_interface.rates.imu", 0.0);
+    this->declare_parameter<double>("mavlink_interface.rates.distance", 0.0);
     mavlink_config_.rate_attitude = this->get_parameter("mavlink_interface.rates.attitude").as_double();
     mavlink_config_.rate_position = this->get_parameter("mavlink_interface.rates.position").as_double();
     mavlink_config_.rate_gps = this->get_parameter("mavlink_interface.rates.gps").as_double();
     mavlink_config_.rate_altitude = this->get_parameter("mavlink_interface.rates.altitude").as_double();
     mavlink_config_.rate_imu = this->get_parameter("mavlink_interface.rates.imu").as_double();
+    mavlink_config_.rate_distance = this->get_parameter("mavlink_interface.rates.distance").as_double();
 
     // Get the vehicle id and store it
     this->declare_parameter<int>("vehicle_id", 1);
@@ -129,6 +131,7 @@ void ROSNode::init_parameters() {
     RCLCPP_INFO_STREAM(this->get_logger(), "Telemetry rate - gps: " << mavlink_config_.rate_gps);
     RCLCPP_INFO_STREAM(this->get_logger(), "Telemetry rate - altitude: " << mavlink_config_.rate_altitude);
     RCLCPP_INFO_STREAM(this->get_logger(), "Telemetry rate - imu: " << mavlink_config_.rate_imu);
+    RCLCPP_INFO_STREAM(this->get_logger(), "Telemetry rate - distance: " << mavlink_config_.rate_distance);
 
     mavlink_config_.connection_address = connection_address.as_string();
     mavlink_config_.forward_ips = mavlink_forward_ips.as_string_array();
@@ -141,6 +144,7 @@ void ROSNode::init_parameters() {
     mavlink_config_.on_altitude_callback = std::bind(&ROSNode::on_altitude_callback, this, std::placeholders::_1);
     mavlink_config_.on_raw_gps_callback = std::bind(&ROSNode::on_raw_gps_callback, this, std::placeholders::_1);
     mavlink_config_.on_gps_info_callback = std::bind(&ROSNode::on_gps_info_callback, this, std::placeholders::_1);
+    mavlink_config_.on_distance_sensor_callback = std::bind(&ROSNode::on_distance_sensor_callback, this, std::placeholders::_1);
 
     // Callbacks for the filtered state of the vehicle (attitude, position and velocity) provided by EKF2
     mavlink_config_.on_quaternion_callback = std::bind(&ROSNode::on_quaternion_callback, this, std::placeholders::_1);
@@ -191,6 +195,10 @@ void ROSNode::init_publishers() {
     this->declare_parameter<std::string>("publishers.sensors.gps_info", "sensors/gps_info");
     rclcpp::Parameter gps_info_topic = this->get_parameter("publishers.sensors.gps_info");
     gps_info_pub_ = this->create_publisher<pegasus_msgs::msg::SensorGpsInfo>(gps_info_topic.as_string(), rclcpp::SensorDataQoS());
+
+    this->declare_parameter<std::string>("publishers.sensors.altimeter", "sensors/altimeter");
+    rclcpp::Parameter altimeter_topic = this->get_parameter("publishers.sensors.altimeter");
+    altimeter_pub_ = this->create_publisher<pegasus_msgs::msg::SensorAltimeter>(altimeter_topic.as_string(), rclcpp::SensorDataQoS());
 
     // ------------------------------------------------------------------------
     // Initialize the publisher for the current state of the vehicle 
@@ -619,6 +627,23 @@ void ROSNode::on_gps_info_callback(const mavsdk::Telemetry::GpsInfo & gps_info) 
 
     // Publish the GPS info message
     gps_info_pub_->publish(gps_info_msg_);
+}
+
+void ROSNode::on_distance_sensor_callback(const mavsdk::Telemetry::DistanceSensor & distance_sensor) {
+
+    // Set the current timestamp
+    altimeter_msg_.header.stamp = rclcpp::Clock().now();
+
+    // Set the distance sensor fields
+    altimeter_msg_.distance = distance_sensor.current_distance_m;
+    altimeter_msg_.min_distance = distance_sensor.minimum_distance_m;
+    altimeter_msg_.max_distance = distance_sensor.maximum_distance_m;
+    altimeter_msg_.roll = distance_sensor.orientation.roll_deg;
+    altimeter_msg_.pitch = distance_sensor.orientation.pitch_deg;
+    altimeter_msg_.yaw = distance_sensor.orientation.yaw_deg;
+
+    // Publish the distance sensor message
+    altimeter_pub_->publish(altimeter_msg_);
 }
 
 /**

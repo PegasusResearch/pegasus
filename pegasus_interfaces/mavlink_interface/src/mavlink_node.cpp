@@ -162,6 +162,7 @@ void MavlinkNode::initialize_telemetry() {
     this->telemetry_->subscribe_altitude(config_.on_altitude_callback);
     this->telemetry_->subscribe_raw_gps(config_.on_raw_gps_callback);
     this->telemetry_->subscribe_gps_info(config_.on_gps_info_callback);
+    this->telemetry_->subscribe_distance_sensor(config_.on_distance_sensor_callback);
 
     // Subscribe to the filtered pose of the vehicle (given by the EKF2 filter + complementary filter)
     this->telemetry_->subscribe_position_velocity_ned(config_.on_position_velocity_callback);
@@ -182,6 +183,7 @@ void MavlinkNode::initialize_telemetry() {
     this->telemetry_->set_rate_gps_info(config_.rate_gps);
     this->telemetry_->set_rate_altitude(config_.rate_altitude);
     this->telemetry_->set_rate_imu(config_.rate_imu);
+    this->telemetry_->set_rate_distance_sensor(config_.rate_distance);
 }
 
 /**
