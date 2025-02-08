@@ -203,7 +203,7 @@ Installing OpenCV with CUDA
       # Install some dependencies
       sudo apt-get install -y libswresample-dev libdc1394-dev cmake libjpeg-dev libjpeg8-dev libjpeg-turbo8-dev libpng-dev libtiff-dev libglew-dev libavcodec-dev libavformat-dev libswscale-dev libgtk2.0-dev libgtk-3-dev libcanberra-gtk* libxvidcore-dev libx264-dev libtbb-dev libxine2-dev libv4l-dev v4l-utils qv4l2 libtesseract-dev libpostproc-dev libvorbis-dev libfaac-dev libmp3lame-dev libtheora-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenblas-dev libatlas-base-dev libblas-dev liblapack-dev liblapacke-dev libeigen3-dev gfortran libhdf5-dev libprotobuf-dev protobuf-compiler libgoogle-glog-dev libgflags-dev
 
-      # run cmake
+      # run cmake (without sfm - ceres and CUDA dont go along very well No rule to make target 'cublas', needed by 'lib/libopencv_sfm.so.4.11.0')
       cmake -D CMAKE_BUILD_TYPE=RELEASE \
       -D CMAKE_INSTALL_PREFIX=/usr \
       -D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib/modules \
@@ -237,6 +237,7 @@ Installing OpenCV with CUDA
       -D INSTALL_C_EXAMPLES=OFF \
       -D INSTALL_PYTHON_EXAMPLES=OFF \
       -D BUILD_opencv_python3=ON \
+      -DBUILD_opencv_sfm=OFF \
       -D PYTHON3_PACKAGES_PATH=/usr/lib/python3/dist-packages \
       -D OPENCV_GENERATE_PKGCONFIG=ON \
       -D BUILD_EXAMPLES=OFF \
