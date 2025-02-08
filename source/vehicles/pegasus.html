@@ -74,6 +74,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#connecting-the-jetson-to-wifi">Connecting the Jetson to Wifi</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#configuring-the-base-software">Configuring the base software</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installing-cuda-development-tools">Installing CUDA development tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-ceres-2-0-solver">Installing Ceres 2.0 solver</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installing-opencv-with-cuda">Installing OpenCV with CUDA</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installing-ros-2">Installing ROS 2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#setting-up-the-gpio-pins">Setting up the GPIO pins</a></li>
@@ -259,6 +260,32 @@ Don’t forget, it you disabled the Ubuntu Firewall, you should enable it again 
 </pre></div>
 </div>
 </div></blockquote>
+</section>
+<section id="installing-ceres-2-0-solver">
+<h2>Installing Ceres 2.0 solver<a class="headerlink" href="#installing-ceres-2-0-solver" title="Permalink to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install dependencies</span>
+sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>cmake<span class="w"> </span>libgoogle-glog-dev<span class="w"> </span>libgflags-dev<span class="w"> </span>libatlas-base-dev<span class="w"> </span>libeigen3-dev<span class="w"> </span>libsuitesparse-dev
+
+<span class="c1"># Get the latest sable version</span>
+wget<span class="w"> </span>http://ceres-solver.org/ceres-solver-2.2.0.tar.gz
+tar<span class="w"> </span>zxf<span class="w"> </span>ceres-solver-2.2.0.tar.gz
+mkdir<span class="w"> </span>ceres-bin
+<span class="nb">cd</span><span class="w"> </span>ceres-bin
+
+<span class="c1"># Export the CUDA architecture</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ARCH</span><span class="o">=</span><span class="m">8</span>.7
+<span class="nb">export</span><span class="w"> </span><span class="nv">PTX</span><span class="o">=</span><span class="s2">&quot;sm_87&quot;</span>
+cmake<span class="w"> </span>-D<span class="w"> </span><span class="nv">USE_CUDA</span><span class="o">=</span>ON<span class="w"> </span>../ceres-solver-2.2.0
+
+make<span class="w"> </span>-j6
+make<span class="w"> </span><span class="nb">test</span>
+
+<span class="c1"># Optionally install Ceres, it can also be exported using CMake which</span>
+<span class="c1"># allows Ceres to be used without requiring installation, see the documentation</span>
+<span class="c1"># for the EXPORT_BUILD_DIR option for more information.</span>
+make<span class="w"> </span>install
+</pre></div>
+</div>
 </section>
 <section id="installing-opencv-with-cuda">
 <h2>Installing OpenCV with CUDA<a class="headerlink" href="#installing-opencv-with-cuda" title="Permalink to this heading"></a></h2>
