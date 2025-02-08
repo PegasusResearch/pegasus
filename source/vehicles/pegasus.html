@@ -256,9 +256,16 @@ Don’t forget, it you disabled the Ubuntu Firewall, you should enable it again 
 <li><p>Install CUDA and TensorRT development packages:</p></li>
 </ol>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>nvidia-cuda-dev<span class="w"> </span>tensorrt<span class="w"> </span>tensorrt-dev
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>nvidia-cuda-dev<span class="w"> </span>tensorrt<span class="w"> </span>tensorrt-dev<span class="w"> </span>cudnn
 </pre></div>
 </div>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>Install GStreamer</p></li>
+</ol>
+<blockquote>
+<div><p>sudo apt-get install gstreamer1.0-tools gstreamer1.0-alsa gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav</p>
+<p>sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-good1.0-dev libgstreamer-plugins-bad1.0-dev</p>
 </div></blockquote>
 </section>
 <section id="installing-ceres-2-0-solver">
@@ -277,7 +284,7 @@ mkdir<span class="w"> </span>ceres-bin
 <span class="nb">export</span><span class="w"> </span><span class="nv">PTX</span><span class="o">=</span><span class="s2">&quot;sm_87&quot;</span>
 cmake<span class="w"> </span>-D<span class="w"> </span><span class="nv">USE_CUDA</span><span class="o">=</span>ON<span class="w"> </span>../ceres-solver-2.2.0
 
-make<span class="w"> </span>-j6
+make<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="k">)</span>
 make<span class="w"> </span><span class="nb">test</span>
 
 <span class="c1"># Optionally install Ceres, it can also be exported using CMake which</span>
@@ -293,7 +300,10 @@ make<span class="w"> </span>install
 <li><p>Install OpenCV with CUDA support</p></li>
 </ol>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Remove old versions or previous builds</span>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install dependencies</span>
+sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>build-essential<span class="w"> </span>unzip<span class="w"> </span>pkg-config<span class="w"> </span>libavcodec-dev<span class="w"> </span>libavformat-dev<span class="w"> </span>libswscale-dev<span class="w"> </span>libv4l-dev<span class="w"> </span>libxvidcore-dev<span class="w"> </span>libx264-dev<span class="w"> </span>libgtk-3-dev<span class="w"> </span>libatlas-base-dev<span class="w"> </span>gfortran<span class="w"> </span>python3-dev<span class="w"> </span>python3-venv<span class="w"> </span>libglew-dev<span class="w"> </span>libtiff5-dev<span class="w"> </span>zlib1g-dev<span class="w"> </span>libpng-dev<span class="w"> </span>libavcodec-dev<span class="w"> </span>libavformat-dev<span class="w"> </span>libavutil-dev<span class="w"> </span>libpostproc-dev<span class="w"> </span>libswscale-dev<span class="w"> </span>libeigen3-dev<span class="w"> </span>libtbb-dev<span class="w"> </span>libgtk2.0-dev<span class="w"> </span>qtbase5-dev<span class="w"> </span>libavresample-dev<span class="w"> </span>libopenblas-dev<span class="w"> </span>liblapack-dev<span class="w"> </span>libgflags-dev<span class="w"> </span>libgoogle-glog-dev<span class="w"> </span>libbenchmark-dev<span class="w"> </span>libsuitesparse-dev<span class="w"> </span>libmetis-dev<span class="w"> </span>ccache<span class="w"> </span>libhdf5-dev<span class="w"> </span>libhdf5-mpi-dev<span class="w"> </span>libhdf5-openmpi-dev<span class="w"> </span>libtesseract-dev<span class="w"> </span>libprotobuf-dev<span class="w"> </span>apt-utils<span class="w"> </span>libjpeg-turbo8<span class="w"> </span>libjpeg-turbo8-dev
+
+<span class="c1"># Remove old versions or previous builds</span>
 <span class="nb">cd</span><span class="w"> </span>~
 sudo<span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>opencv*
 
@@ -329,6 +339,9 @@ cmake<span class="w"> </span>-D<span class="w"> </span><span class="nv">CMAKE_BU
 -D<span class="w"> </span><span class="nv">CUDA_ARCH_PTX</span><span class="o">=</span><span class="si">${</span><span class="nv">PTX</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">WITH_CUDA</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">WITH_CUDNN</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
+-D<span class="w"> </span><span class="nv">CUDNN_INCLUDE_DIR</span><span class="o">=</span>/usr/include<span class="w"> </span><span class="se">\</span>
+-D<span class="w"> </span><span class="nv">CUDNN_LIBRARY</span><span class="o">=</span>/usr/lib/aarch64-linux-gnu/libcudnn_static.a<span class="w"> </span><span class="se">\</span>
+-D<span class="w"> </span><span class="nv">WITH_NVCUVID</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">WITH_CUBLAS</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">ENABLE_FAST_MATH</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">CUDA_FAST_MATH</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
@@ -349,18 +362,21 @@ cmake<span class="w"> </span>-D<span class="w"> </span><span class="nv">CMAKE_BU
 -D<span class="w"> </span><span class="nv">OPENCV_ENABLE_NONFREE</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">INSTALL_C_EXAMPLES</span><span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">INSTALL_PYTHON_EXAMPLES</span><span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+-D<span class="w"> </span><span class="nv">BUILD_opencv_python3</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">PYTHON3_PACKAGES_PATH</span><span class="o">=</span>/usr/lib/python3/dist-packages<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">OPENCV_GENERATE_PKGCONFIG</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">BUILD_EXAMPLES</span><span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+-D<span class="w"> </span><span class="nv">JPEG_INCLUDE_DIR</span><span class="o">=</span>/usr/include<span class="w"> </span><span class="se">\</span>
+-D<span class="w"> </span><span class="nv">JPEG_LIBRARY</span><span class="o">=</span>/usr/lib/aarch64-linux-gnu/libjpeg.a<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">CMAKE_CXX_FLAGS</span><span class="o">=</span><span class="s2">&quot;-march=native -mtune=native&quot;</span><span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">CMAKE_C_FLAGS</span><span class="o">=</span><span class="s2">&quot;-march=native -mtune=native&quot;</span><span class="w"> </span>..
 
 <span class="c1"># Compile the code</span>
-make<span class="w"> </span>-j<span class="w"> </span><span class="m">6</span>
+make<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="k">)</span>
 
 <span class="c1"># Remove the old opencv installation</span>
 sudo<span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>/usr/include/opencv4/opencv2
-sudo<span class="w"> </span>apt<span class="w"> </span>purge<span class="w"> </span>libopencv-*
+sudo<span class="w"> </span>apt<span class="w"> </span>purge<span class="w"> </span>-y<span class="w"> </span>*libopencv*
 
 <span class="c1"># Install the compiled library in the system</span>
 sudo<span class="w"> </span>make<span class="w"> </span>install
