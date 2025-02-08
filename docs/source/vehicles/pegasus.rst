@@ -143,6 +143,33 @@ Installing CUDA development tools
 
     sudo apt install nvidia-cuda-dev tensorrt tensorrt-dev
 
+Installing Ceres 2.0 solver
+---------------------------
+
+.. code:: bash
+
+  # Install dependencies
+  sudo apt-get install cmake libgoogle-glog-dev libgflags-dev libatlas-base-dev libeigen3-dev libsuitesparse-dev
+
+  # Get the latest sable version
+  wget http://ceres-solver.org/ceres-solver-2.2.0.tar.gz
+  tar zxf ceres-solver-2.2.0.tar.gz
+  mkdir ceres-bin
+  cd ceres-bin
+
+  # Export the CUDA architecture 
+  export ARCH=8.7
+  export PTX="sm_87"
+  cmake -D USE_CUDA=ON ../ceres-solver-2.2.0
+  
+  make -j6
+  make test
+  
+  # Optionally install Ceres, it can also be exported using CMake which
+  # allows Ceres to be used without requiring installation, see the documentation
+  # for the EXPORT_BUILD_DIR option for more information.  
+  make install
+  
 
 Installing OpenCV with CUDA
 ---------------------------
