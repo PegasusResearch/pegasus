@@ -120,7 +120,7 @@ Configuring the base software
 
   .. code:: bash
 
-      sudo apt purge thunderbird libreoffice-* firefox -y && sudo apt autoremove && sudo apt clean
+      sudo apt purge thunderbird libreoffice-* onboard aisleriot gnome-sudoku gnome-mines gnome-mahjongg cheese gnome-calculator gnome-todo shotwell gnome-calendar rhythmbox simple-scan remmina transmission-gtk -y && sudo apt autoremove && sudo apt clean
 
 3. Install Jetson Stats by running the following command:
 
