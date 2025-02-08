@@ -277,9 +277,8 @@ sudo<span class="w"> </span>make<span class="w"> </span>install
 </section>
 <section id="installing-opencv-with-cuda">
 <h2>Installing OpenCV with CUDA<a class="headerlink" href="#installing-opencv-with-cuda" title="Permalink to this heading"></a></h2>
-<ol class="arabic simple" start="0">
-<li><p>Download NVidia Video Codev from <code class="docutils literal notranslate"><span class="pre">https://developer.nvidia.com/nvidia-video-codec-sdk/download</span></code> and past the folder inside <code class="docutils literal notranslate"><span class="pre">user/local</span></code>.</p></li>
-</ol>
+<p>0.  Download NVidia Video Codev from <code class="docutils literal notranslate"><span class="pre">https://developer.nvidia.com/nvidia-video-codec-sdk/download</span></code> and past the folder inside <code class="docutils literal notranslate"><span class="pre">user/local</span></code>.
+Use sudo ldconfig</p>
 <blockquote>
 <div><p># Add a symbolink to the library
 sudo ln -s /usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvcuvid.so /usr/lib/libnvcuvid.s
@@ -315,7 +314,7 @@ mkdir<span class="w"> </span>build
 <span class="c1"># Install some dependencies</span>
 sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>libswresample-dev<span class="w"> </span>libdc1394-dev<span class="w"> </span>cmake<span class="w"> </span>libjpeg-dev<span class="w"> </span>libjpeg8-dev<span class="w"> </span>libjpeg-turbo8-dev<span class="w"> </span>libpng-dev<span class="w"> </span>libtiff-dev<span class="w"> </span>libglew-dev<span class="w"> </span>libavcodec-dev<span class="w"> </span>libavformat-dev<span class="w"> </span>libswscale-dev<span class="w"> </span>libgtk2.0-dev<span class="w"> </span>libgtk-3-dev<span class="w"> </span>libcanberra-gtk*<span class="w"> </span>libxvidcore-dev<span class="w"> </span>libx264-dev<span class="w"> </span>libtbb-dev<span class="w"> </span>libxine2-dev<span class="w"> </span>libv4l-dev<span class="w"> </span>v4l-utils<span class="w"> </span>qv4l2<span class="w"> </span>libtesseract-dev<span class="w"> </span>libpostproc-dev<span class="w"> </span>libvorbis-dev<span class="w"> </span>libfaac-dev<span class="w"> </span>libmp3lame-dev<span class="w"> </span>libtheora-dev<span class="w"> </span>libopencore-amrnb-dev<span class="w"> </span>libopencore-amrwb-dev<span class="w"> </span>libopenblas-dev<span class="w"> </span>libatlas-base-dev<span class="w"> </span>libblas-dev<span class="w"> </span>liblapack-dev<span class="w"> </span>liblapacke-dev<span class="w"> </span>libeigen3-dev<span class="w"> </span>gfortran<span class="w"> </span>libhdf5-dev<span class="w"> </span>libprotobuf-dev<span class="w"> </span>protobuf-compiler<span class="w"> </span>libgoogle-glog-dev<span class="w"> </span>libgflags-dev
 
-<span class="c1"># run cmake (without sfm - ceres and CUDA dont go along very well No rule to make target &#39;cublas&#39;, needed by &#39;lib/libopencv_sfm.so.4.11.0&#39;)</span>
+<span class="c1"># run cmake (without sfm - ceres and CUDA dont go along very well No rule to make target &#39;cublas&#39;, needed by &#39;lib/libopencv_sfm.so.4.11.0&#39;)  # python binding not playing well with sfm disabled - TODO figure out how to have sfm enabled with cuda and ceres...</span>
 cmake<span class="w"> </span>-D<span class="w"> </span><span class="nv">CMAKE_BUILD_TYPE</span><span class="o">=</span>RELEASE<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">CMAKE_INSTALL_PREFIX</span><span class="o">=</span>/usr<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">OPENCV_EXTRA_MODULES_PATH</span><span class="o">=</span>~/opencv_contrib/modules<span class="w"> </span><span class="se">\</span>
@@ -326,8 +325,6 @@ cmake<span class="w"> </span>-D<span class="w"> </span><span class="nv">CMAKE_BU
 -D<span class="w"> </span><span class="nv">WITH_CUDA</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">WITH_CUDNN</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">WITH_NVCUVID</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
--D<span class="w"> </span><span class="nv">CUDA_nvcuvid_LIBRARY</span><span class="o">=</span>/usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvcuvid.so<span class="w"> </span><span class="se">\</span>
--D<span class="w"> </span>CUDA_nvidia-encode_LIBRARY<span class="o">=</span>/usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvidia-encode.so<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">WITH_CUBLAS</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">ENABLE_FAST_MATH</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">CUDA_FAST_MATH</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
@@ -348,7 +345,7 @@ cmake<span class="w"> </span>-D<span class="w"> </span><span class="nv">CMAKE_BU
 -D<span class="w"> </span><span class="nv">OPENCV_ENABLE_NONFREE</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">INSTALL_C_EXAMPLES</span><span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">INSTALL_PYTHON_EXAMPLES</span><span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
--D<span class="w"> </span><span class="nv">BUILD_opencv_python3</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
+-D<span class="w"> </span><span class="nv">BUILD_opencv_python3</span><span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
 -DBUILD_opencv_sfm<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">PYTHON3_PACKAGES_PATH</span><span class="o">=</span>/usr/lib/python3/dist-packages<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">OPENCV_GENERATE_PKGCONFIG</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
@@ -377,6 +374,10 @@ sudo<span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span
 </pre></div>
 </div>
 </div></blockquote>
+<dl class="simple">
+<dt>-D CUDA_nvcuvid_LIBRARY=/usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvcuvid.so </dt><dd><p>-D CUDA_nvidia-encode_LIBRARY=/usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvidia-encode.so </p>
+</dd>
+</dl>
 </section>
 <section id="installing-ros-2">
 <h2>Installing ROS 2<a class="headerlink" href="#installing-ros-2" title="Permalink to this heading"></a></h2>
