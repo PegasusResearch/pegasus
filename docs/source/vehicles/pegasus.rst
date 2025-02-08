@@ -141,7 +141,21 @@ Installing CUDA development tools
 
   .. code:: bash
 
-    sudo apt install nvidia-cuda-dev tensorrt tensorrt-dev
+    sudo apt install nvidia-cuda-dev tensorrt tensorrt-dev cudnn
+
+2. Install GStreamer
+
+  .. code:: bash
+
+  sudo apt-get install gstreamer1.0-tools gstreamer1.0-alsa \
+  gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
+  gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly \
+  gstreamer1.0-libav
+  
+  sudo apt-get install libgstreamer1.0-dev \
+  libgstreamer-plugins-base1.0-dev \
+  libgstreamer-plugins-good1.0-dev \
+  libgstreamer-plugins-bad1.0-dev
 
 Installing Ceres 2.0 solver
 ---------------------------
@@ -162,7 +176,7 @@ Installing Ceres 2.0 solver
   export PTX="sm_87"
   cmake -D USE_CUDA=ON ../ceres-solver-2.2.0
   
-  make -j6
+  make -j$(nproc)
   make test
   
   # Optionally install Ceres, it can also be exported using CMake which
@@ -177,6 +191,9 @@ Installing OpenCV with CUDA
 1. Install OpenCV with CUDA support
 
   .. code:: bash
+
+      # Install dependencies
+      sudo apt-get install build-essential unzip pkg-config libavcodec-dev libavformat-dev libswscale-dev libv4l-dev libxvidcore-dev libx264-dev libgtk-3-dev libatlas-base-dev gfortran python3-dev python3-venv libglew-dev libtiff5-dev zlib1g-dev libpng-dev libavcodec-dev libavformat-dev libavutil-dev libpostproc-dev libswscale-dev libeigen3-dev libtbb-dev libgtk2.0-dev qtbase5-dev libavresample-dev libopenblas-dev liblapack-dev libgflags-dev libgoogle-glog-dev libbenchmark-dev libsuitesparse-dev libmetis-dev ccache libhdf5-dev libhdf5-mpi-dev libhdf5-openmpi-dev libtesseract-dev libprotobuf-dev apt-utils libjpeg-turbo8 libjpeg-turbo8-dev
 
       # Remove old versions or previous builds
       cd ~ 
@@ -214,6 +231,9 @@ Installing OpenCV with CUDA
       -D CUDA_ARCH_PTX=${PTX} \
       -D WITH_CUDA=ON \
       -D WITH_CUDNN=ON \
+      -D CUDNN_INCLUDE_DIR=/usr/include \
+      -D CUDNN_LIBRARY=/usr/lib/aarch64-linux-gnu/libcudnn_static.a \
+      -D WITH_NVCUVID=ON \
       -D WITH_CUBLAS=ON \
       -D ENABLE_FAST_MATH=ON \
       -D CUDA_FAST_MATH=ON \
@@ -234,18 +254,21 @@ Installing OpenCV with CUDA
       -D OPENCV_ENABLE_NONFREE=ON \
       -D INSTALL_C_EXAMPLES=OFF \
       -D INSTALL_PYTHON_EXAMPLES=OFF \
+      -D BUILD_opencv_python3=ON \
       -D PYTHON3_PACKAGES_PATH=/usr/lib/python3/dist-packages \
       -D OPENCV_GENERATE_PKGCONFIG=ON \
       -D BUILD_EXAMPLES=OFF \
+      -D JPEG_INCLUDE_DIR=/usr/include \
+      -D JPEG_LIBRARY=/usr/lib/aarch64-linux-gnu/libjpeg.a \
       -D CMAKE_CXX_FLAGS="-march=native -mtune=native" \
       -D CMAKE_C_FLAGS="-march=native -mtune=native" ..
     
       # Compile the code
-      make -j 6
+      make -j$(nproc)
 
       # Remove the old opencv installation
       sudo rm -rf /usr/include/opencv4/opencv2
-      sudo apt purge libopencv-*
+      sudo apt purge -y *libopencv*
 
       # Install the compiled library in the system
       sudo make install
