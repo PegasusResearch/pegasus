@@ -137,11 +137,11 @@ Configuring the base software
 Installing CUDA development tools
 ---------------------------------
 
-1. Install CUDA development packages:
+1. Install CUDA and TensorRT development packages:
 
   .. code:: bash
 
-    sudo apt install nvidia-cuda-dev
+    sudo apt install nvidia-cuda-dev tensorrt tensorrt-dev
 
 
 Installing OpenCV with CUDA
@@ -156,8 +156,8 @@ Installing OpenCV with CUDA
       sudo rm -rf opencv*
 
       # Download the latest version
-      git clone --depth=1 https://github.com/opencv/opencv.git -b 4.10.0
-      git clone --depth=1 https://github.com/opencv/opencv_contrib.git -b 4.10.0
+      git clone --depth=1 https://github.com/opencv/opencv.git -b 4.11.0
+      git clone --depth=1 https://github.com/opencv/opencv_contrib.git -b 4.11.0
 
       # reveal the CUDA location
       cd ~
