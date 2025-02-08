@@ -279,6 +279,13 @@ sudo<span class="w"> </span>make<span class="w"> </span>install
 <h2>Installing OpenCV with CUDA<a class="headerlink" href="#installing-opencv-with-cuda" title="Permalink to this heading"></a></h2>
 <ol class="arabic simple" start="0">
 <li><p>Download NVidia Video Codev from <code class="docutils literal notranslate"><span class="pre">https://developer.nvidia.com/nvidia-video-codec-sdk/download</span></code> and past the folder inside <code class="docutils literal notranslate"><span class="pre">user/local</span></code>.</p></li>
+</ol>
+<blockquote>
+<div><p># Add a symbolink to the library
+sudo ln -s /usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvcuvid.so /usr/lib/libnvcuvid.s
+sudo ln -s /usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvidia-encode.so /usr/lib/libnvidia-encode.so</p>
+</div></blockquote>
+<ol class="arabic simple">
 <li><p>Install OpenCV with CUDA support</p></li>
 </ol>
 <blockquote>
@@ -319,8 +326,8 @@ cmake<span class="w"> </span>-D<span class="w"> </span><span class="nv">CMAKE_BU
 -D<span class="w"> </span><span class="nv">WITH_CUDA</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">WITH_CUDNN</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">WITH_NVCUVID</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
--D<span class="w"> </span><span class="nv">CUDA_nvcuvid_LIBRARY</span><span class="o">=</span>/usr/localVideo_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvcuvid.so<span class="w"> </span><span class="se">\</span>
--D<span class="w"> </span>CUDA_nvidia-encode_LIBRARY<span class="o">=</span>/usr/localVideo_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvidia-encode.so<span class="w"> </span><span class="se">\</span>
+-D<span class="w"> </span><span class="nv">CUDA_nvcuvid_LIBRARY</span><span class="o">=</span>/usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvcuvid.so<span class="w"> </span><span class="se">\</span>
+-D<span class="w"> </span>CUDA_nvidia-encode_LIBRARY<span class="o">=</span>/usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvidia-encode.so<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">WITH_CUBLAS</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">ENABLE_FAST_MATH</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">CUDA_FAST_MATH</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>

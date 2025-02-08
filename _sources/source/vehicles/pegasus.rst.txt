@@ -167,6 +167,12 @@ Installing OpenCV with CUDA
 
 0.  Download NVidia Video Codev from ``https://developer.nvidia.com/nvidia-video-codec-sdk/download`` and past the folder inside ``user/local``.
 
+  .. code:: bash
+
+  # Add a symbolink to the library
+  sudo ln -s /usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvcuvid.so /usr/lib/libnvcuvid.s
+  sudo ln -s /usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvidia-encode.so /usr/lib/libnvidia-encode.so
+
 1. Install OpenCV with CUDA support
 
   .. code:: bash
@@ -208,8 +214,8 @@ Installing OpenCV with CUDA
       -D WITH_CUDA=ON \
       -D WITH_CUDNN=ON \
       -D WITH_NVCUVID=ON \
-      -D CUDA_nvcuvid_LIBRARY=/usr/localVideo_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvcuvid.so \
-      -D CUDA_nvidia-encode_LIBRARY=/usr/localVideo_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvidia-encode.so \
+      -D CUDA_nvcuvid_LIBRARY=/usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvcuvid.so \
+      -D CUDA_nvidia-encode_LIBRARY=/usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvidia-encode.so \
       -D WITH_CUBLAS=ON \
       -D ENABLE_FAST_MATH=ON \
       -D CUDA_FAST_MATH=ON \
