@@ -107,13 +107,13 @@
         fallback: "HoldMode"
         on_finish: "HoldMode"
         geofencing_violation_fallback: "HoldMode"
-        takeoff_altitude: -1.0 # m (NED)
+        takeoff_altitude: -2.0 # m (NED)
         set_takeoff_altitude_service: "autopilot/set_takeoff"
       LandMode: 
         valid_transitions: ["DisarmMode", "ArmMode", "TakeoffMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode"]
         fallback: "HoldMode"
         on_finish: "DisarmMode"
-        land_speed: 0.2 # m/s
+        land_speed: 0.4 # m/s
         land_detected_treshold: 0.1 # m/s
         countdown_to_disarm: 3.0 # s
       HoldMode: 

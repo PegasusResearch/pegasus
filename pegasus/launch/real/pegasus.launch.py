@@ -46,6 +46,19 @@ def generate_launch_description():
         'drone_params', 
         default_value=os.path.join(get_package_share_directory('pegasus'), 'config', 'pegasus.yaml'),
         description='The directory where the drone parameters such as mass, thrust curve, etc. are defined')
+
+    # Define the parameters to load the iris drone from 
+    realsense_params_file_arg = DeclareLaunchArgument(
+        'realsense_params_yaml',
+        default_value=os.path.join(get_package_share_directory('pegasus'), 'config', 'realsense_d435i.yaml'),
+        description='The file where the realsense parameters are defined')
+
+    # Use intraprocess communications (zero-copy between node images)
+    intra_process_comms = DeclareLaunchArgument(
+        'intra_process_comms',
+        default_value='False',
+        description='Zero-copy image between ROS 2 processes'
+    )
     
     # ----------------------------------------
     # ---- DECLARE THE NODES TO LAUNCH -------
@@ -89,12 +102,22 @@ def generate_launch_description():
     )
 
     # Call the launch file to start the realsense camera
-    realsense_launch_file = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('pegasus'), 'launch', 'real/realsense.launch.py')),
-        launch_arguments={
-            'id': LaunchConfiguration('vehicle_id'),
-            'namespace': LaunchConfiguration('vehicle_ns')
-        }.items(),
+    # Create the realsense node
+    realsense_driver_node = Node(
+        package='realsense2_camera',
+        namespace=[
+            LaunchConfiguration('vehicle_ns'), 
+            LaunchConfiguration('vehicle_id')],
+        executable='realsense2_camera_node',
+        prefix=['stdbuf -o L'],
+        name='camera',
+        output="screen",
+        arguments=['--ros-args', '--log-level', 'info'],
+        emulate_tty=True,
+        parameters=[
+            LaunchConfiguration('realsense_params_yaml'),
+            LaunchConfiguration('intra_process_comms')
+        ]
     )
 
     # Create the node that starts the web video server
@@ -141,11 +164,13 @@ def generate_launch_description():
         mav_connection_arg,
         mavlink_forward_arg,
         drone_params_file_arg,
+        realsense_params_file_arg,
+        intra_process_comms,
         # Launch files
         mavlink_interface_launch_file,
         autopilot_launch_file,
         #mocap_launch_file,
-        #realsense_launch_file,
-        #web_video_server,
+        realsense_driver_node,
+        web_video_server,
         #detector_launch_file
     ])
