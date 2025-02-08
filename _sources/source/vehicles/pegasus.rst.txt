@@ -134,6 +134,16 @@ Configuring the base software
 
       sudo reboot
 
+Installing CUDA development tools
+---------------------------------
+
+1. Install CUDA development packages:
+
+  .. code:: bash
+
+    sudo apt install nvidia-cuda-dev
+
+
 Installing OpenCV with CUDA
 ---------------------------
 

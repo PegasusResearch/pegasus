@@ -73,6 +73,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#flashing-the-jetson-orin-nano">Flashing the Jetson Orin Nano</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#connecting-the-jetson-to-wifi">Connecting the Jetson to Wifi</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#configuring-the-base-software">Configuring the base software</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-cuda-development-tools">Installing CUDA development tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installing-opencv-with-cuda">Installing OpenCV with CUDA</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installing-ros-2">Installing ROS 2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#setting-up-the-gpio-pins">Setting up the GPIO pins</a></li>
@@ -244,6 +245,17 @@ Don’t forget, it you disabled the Ubuntu Firewall, you should enable it again 
 </ol>
 <blockquote>
 <div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>reboot
+</pre></div>
+</div>
+</div></blockquote>
+</section>
+<section id="installing-cuda-development-tools">
+<h2>Installing CUDA development tools<a class="headerlink" href="#installing-cuda-development-tools" title="Permalink to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Install CUDA development packages:</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>nvidia-cuda-dev
 </pre></div>
 </div>
 </div></blockquote>
