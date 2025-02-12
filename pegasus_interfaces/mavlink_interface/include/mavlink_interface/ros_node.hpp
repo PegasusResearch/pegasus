@@ -57,6 +57,7 @@
 #include "pegasus_msgs/msg/sensor_barometer.hpp"
 #include "pegasus_msgs/msg/sensor_gps.hpp"
 #include "pegasus_msgs/msg/sensor_gps_info.hpp"
+#include "pegasus_msgs/msg/sensor_altimeter.hpp"
 
 // Messages for the state of the vehicle (pose, velocity, angular velocity, etc. provided by EKF)
 #include "nav_msgs/msg/odometry.hpp"
@@ -157,6 +158,7 @@ public:
     void on_altitude_callback(const mavsdk::Telemetry::Altitude &altitude);
     void on_raw_gps_callback(const mavsdk::Telemetry::RawGps &gps);
     void on_gps_info_callback(const mavsdk::Telemetry::GpsInfo &gps_info);
+    void on_distance_sensor_callback(const mavsdk::Telemetry::DistanceSensor &altimeter);
 
     /**
      * @ingroup publisherMessageUpdate
@@ -440,6 +442,7 @@ private:
     pegasus_msgs::msg::SensorBarometer baro_msg_;
     pegasus_msgs::msg::SensorGps gps_msg_;
     pegasus_msgs::msg::SensorGpsInfo gps_info_msg_;
+    pegasus_msgs::msg::SensorAltimeter altimeter_msg_;
 
     /**
      * @ingroup messages
@@ -466,6 +469,7 @@ private:
     rclcpp::Publisher<pegasus_msgs::msg::SensorBarometer>::SharedPtr baro_pub_{nullptr};
     rclcpp::Publisher<pegasus_msgs::msg::SensorGps>::SharedPtr gps_pub_{nullptr};
     rclcpp::Publisher<pegasus_msgs::msg::SensorGpsInfo>::SharedPtr gps_info_pub_{nullptr};
+    rclcpp::Publisher<pegasus_msgs::msg::SensorAltimeter>::SharedPtr altimeter_pub_{nullptr};
     
     /**
      * @ingroup publishers

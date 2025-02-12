@@ -1,0 +1,5 @@
+/**:
+  ros__parameters:
+    mocap_emulator:
+      simulator_topic: "simulator/state"
+      mocap_topic: "/mocap/pose_enu"

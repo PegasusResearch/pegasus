@@ -120,7 +120,7 @@ Configuring the base software
 
   .. code:: bash
 
-      sudo apt purge thunderbird libreoffice-* firefox -y && sudo apt autoremove && sudo apt clean
+      sudo apt purge thunderbird libreoffice-* onboard aisleriot gnome-sudoku gnome-mines gnome-mahjongg cheese gnome-calculator gnome-todo shotwell gnome-calendar rhythmbox simple-scan remmina transmission-gtk -y && sudo apt autoremove && sudo apt clean
 
 3. Install Jetson Stats by running the following command:
 
@@ -134,8 +134,45 @@ Configuring the base software
 
       sudo reboot
 
+Installing Ceres 2.0 solver
+---------------------------
+
+.. code:: bash
+
+  # Install dependencies
+  sudo apt-get install cmake libgoogle-glog-dev libgflags-dev libatlas-base-dev libeigen3-dev libsuitesparse-dev
+
+  # Get the latest sable version
+  wget http://ceres-solver.org/ceres-solver-2.2.0.tar.gz
+  tar zxf ceres-solver-2.2.0.tar.gz
+  mkdir ceres-bin
+  cd ceres-bin
+
+  # Export the CUDA architecture 
+  export ARCH=8.7
+  export PTX="sm_87"
+  cmake -D USE_CUDA=ON ../ceres-solver-2.2.0
+  
+  make -j$(nproc)
+  make test
+  
+  # Optionally install Ceres, it can also be exported using CMake which
+  # allows Ceres to be used without requiring installation, see the documentation
+  # for the EXPORT_BUILD_DIR option for more information.  
+  sudo make install
+  
+
 Installing OpenCV with CUDA
 ---------------------------
+
+0.  Download NVidia Video Codev from ``https://developer.nvidia.com/nvidia-video-codec-sdk/download`` and past the folder inside ``user/local``. 
+Use sudo ldconfig
+
+  .. code:: bash
+
+  # Add a symbolink to the library
+  sudo ln -s /usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvcuvid.so /usr/lib/libnvcuvid.s
+  sudo ln -s /usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvidia-encode.so /usr/lib/libnvidia-encode.so
 
 1. Install OpenCV with CUDA support
 
@@ -146,8 +183,8 @@ Installing OpenCV with CUDA
       sudo rm -rf opencv*
 
       # Download the latest version
-      git clone --depth=1 https://github.com/opencv/opencv.git -b 4.10.0
-      git clone --depth=1 https://github.com/opencv/opencv_contrib.git -b 4.10.0
+      git clone --depth=1 https://github.com/opencv/opencv.git -b 4.11.0
+      git clone --depth=1 https://github.com/opencv/opencv_contrib.git -b 4.11.0
 
       # reveal the CUDA location
       cd ~
@@ -167,7 +204,7 @@ Installing OpenCV with CUDA
       # Install some dependencies
       sudo apt-get install -y libswresample-dev libdc1394-dev cmake libjpeg-dev libjpeg8-dev libjpeg-turbo8-dev libpng-dev libtiff-dev libglew-dev libavcodec-dev libavformat-dev libswscale-dev libgtk2.0-dev libgtk-3-dev libcanberra-gtk* libxvidcore-dev libx264-dev libtbb-dev libxine2-dev libv4l-dev v4l-utils qv4l2 libtesseract-dev libpostproc-dev libvorbis-dev libfaac-dev libmp3lame-dev libtheora-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenblas-dev libatlas-base-dev libblas-dev liblapack-dev liblapacke-dev libeigen3-dev gfortran libhdf5-dev libprotobuf-dev protobuf-compiler libgoogle-glog-dev libgflags-dev
 
-      # run cmake
+      # run cmake (without sfm - ceres and CUDA dont go along very well No rule to make target 'cublas', needed by 'lib/libopencv_sfm.so.4.11.0')  # python binding not playing well with sfm disabled - TODO figure out how to have sfm enabled with cuda and ceres...
       cmake -D CMAKE_BUILD_TYPE=RELEASE \
       -D CMAKE_INSTALL_PREFIX=/usr \
       -D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib/modules \
@@ -177,6 +214,7 @@ Installing OpenCV with CUDA
       -D CUDA_ARCH_PTX=${PTX} \
       -D WITH_CUDA=ON \
       -D WITH_CUDNN=ON \
+      -D WITH_NVCUVID=ON \
       -D WITH_CUBLAS=ON \
       -D ENABLE_FAST_MATH=ON \
       -D CUDA_FAST_MATH=ON \
@@ -197,18 +235,22 @@ Installing OpenCV with CUDA
       -D OPENCV_ENABLE_NONFREE=ON \
       -D INSTALL_C_EXAMPLES=OFF \
       -D INSTALL_PYTHON_EXAMPLES=OFF \
+      -D BUILD_opencv_python3=OFF \
+      -DBUILD_opencv_sfm=OFF \
       -D PYTHON3_PACKAGES_PATH=/usr/lib/python3/dist-packages \
       -D OPENCV_GENERATE_PKGCONFIG=ON \
       -D BUILD_EXAMPLES=OFF \
+      -D JPEG_INCLUDE_DIR=/usr/include \
+      -D JPEG_LIBRARY=/usr/lib/aarch64-linux-gnu/libjpeg.a \
       -D CMAKE_CXX_FLAGS="-march=native -mtune=native" \
       -D CMAKE_C_FLAGS="-march=native -mtune=native" ..
     
       # Compile the code
-      make -j 6
+      make -j$(nproc)
 
       # Remove the old opencv installation
       sudo rm -rf /usr/include/opencv4/opencv2
-      sudo apt purge libopencv-*
+      sudo apt purge -y *libopencv*
 
       # Install the compiled library in the system
       sudo make install
@@ -219,6 +261,9 @@ Installing OpenCV with CUDA
       sudo apt-get update
       sudo rm -rf opencv
       sudo rm -rf opencv_contrib
+
+-D CUDA_nvcuvid_LIBRARY=/usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvcuvid.so \
+      -D CUDA_nvidia-encode_LIBRARY=/usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvidia-encode.so \
 
 Installing ROS 2
 ----------------
@@ -372,3 +417,31 @@ Installing Tensorflow
       sudo apt-get install libhdf5-serial-dev hdf5-tools libhdf5-dev zlib1g-dev zip libjpeg8-dev liblapack-dev libblas-dev gfortran
       python3 -m pip install -U testresources setuptools numpy future mock keras_preprocessing keras_applications gast protobuf pybind11 cython pkgconfig packaging h5py
       python3 -m pip install --no-cache $TENSORFLOW_INSTALL
+
+Passwordless SSH
+----------------
+
+To enable passwordless SSH, follow the instructions bellow:
+
+  .. code:: bash
+
+      # Generate the SSH key
+      ssh-keygen -t ed25519 -C "your_email@example.com" -f ~/.ssh/pegasus
+
+      # Copy the SSH key to the remote machine
+      ssh-copy-id -i ~/.ssh/pegasus.pub drone_user@drone_ip
+
+      # Test the connection
+      ssh drone_user@drone_ip
+
+Add the following to the ~/.ssh/config file:
+
+  .. code:: bash
+
+      Host pegasus
+        HostName drone_ip
+        User drone_user
+        IdentityFile ~/.ssh/pegasus
+        AddKeysToAgent yes
+        IdentitiesOnly yes
+

@@ -7,6 +7,7 @@ from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_ros.actions import Node
 
 def generate_launch_description():
     
@@ -15,7 +16,7 @@ def generate_launch_description():
     # --------------------------------
     
     # Set the default vehicle id (note: this is a trick due to the parameter reading limitation in ROS2)
-    default_vehicle_id = 8
+    default_vehicle_id = 1
     vehicle_id = default_vehicle_id
     for arg in sys.argv:
         if arg.startswith('vehicle_id:='):
@@ -26,23 +27,15 @@ def generate_launch_description():
     # ----------------------------------------
 
     # Define the standard mavlink port to forward mavlink data (so that it can also be viewed internally by qgroundcontrol)
-    #udp_local_forward_port = 14550 + vehicle_id
-    #udp_local_forward_adress = "udp://192.168.55.100:" + str(udp_local_forward_port)
-    #desktop_arena = "udp://192.168.1.100:15006"
-    #otg_port = "udp://192.168.55.100:15006"
-    #mavlink_forward_addresses = "[" + desktop_arena + "," + otg_port + "]"
     mavlink_forward_addresses = "['']"
-    mavlink_forward_addresses = "['udp://10.42.0.1:15006']"
-    mavlink_forward_addresses = "['udp://192.168.55.100:15006']"
+    mavlink_forward_addresses = "['udp://192.168.1.232:15001']"
+
 
     # Namespace and ID of the vehicle as parameter received by the launch file
     id_arg = DeclareLaunchArgument('vehicle_id', default_value=str(vehicle_id), description='Drone ID in the network')
     namespace_arg = DeclareLaunchArgument('vehicle_ns', default_value='drone', description='Namespace to append to every topic and node name')
     
     # Define the drone MAVLINK IP and PORT
-    # serial:///dev/ttyACM0:921600
-    # serial:///dev/ttyTHS0:921600
-    # udp://:14550
     mav_connection_arg = DeclareLaunchArgument('connection', default_value='serial:///dev/ttyTHS1:921600', description='The interface used to connect to the vehicle')
 
     # Define the drone MAVLINK forward ips and ports
@@ -53,6 +46,19 @@ def generate_launch_description():
         'drone_params', 
         default_value=os.path.join(get_package_share_directory('pegasus'), 'config', 'pegasus.yaml'),
         description='The directory where the drone parameters such as mass, thrust curve, etc. are defined')
+
+    # Define the parameters to load the iris drone from 
+    realsense_params_file_arg = DeclareLaunchArgument(
+        'realsense_params_yaml',
+        default_value=os.path.join(get_package_share_directory('pegasus'), 'config', 'realsense_d435i.yaml'),
+        description='The file where the realsense parameters are defined')
+
+    # Use intraprocess communications (zero-copy between node images)
+    intra_process_comms = DeclareLaunchArgument(
+        'intra_process_comms',
+        default_value='False',
+        description='Zero-copy image between ROS 2 processes'
+    )
     
     # ----------------------------------------
     # ---- DECLARE THE NODES TO LAUNCH -------
@@ -96,11 +102,55 @@ def generate_launch_description():
     )
 
     # Call the launch file to start the realsense camera
-    realsense_launch_file = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('pegasus'), 'launch', 'realsense.launch.py')),
+    # Create the realsense node
+    realsense_driver_node = Node(
+        package='realsense2_camera',
+        namespace=[
+            LaunchConfiguration('vehicle_ns'), 
+            LaunchConfiguration('vehicle_id')],
+        executable='realsense2_camera_node',
+        prefix=['stdbuf -o L'],
+        name='camera',
+        output="screen",
+        arguments=['--ros-args', '--log-level', 'info'],
+        emulate_tty=True,
+        parameters=[
+            LaunchConfiguration('realsense_params_yaml'),
+            LaunchConfiguration('intra_process_comms')
+        ]
+    )
+
+    # Create the node that starts the web video server
+    web_video_server = Node(
+        package='web_video_server',
+        #namespace=[
+        #    LaunchConfiguration('vehicle_ns'), 
+        #    LaunchConfiguration('vehicle_id')],
+        executable='web_video_server',
+        name='web_video_server',
+        output="screen",
+        emulate_tty=True,
+        parameters=[
+            # Set the default parameters for the web video server
+            {
+                'port': '8080',
+                'address': '0.0.0.0',
+                'server_threads': 1, 
+                'ros_threads': '1',
+                'default_stream_type': 'mjpeg',
+                'verbose': True
+            }
+        ]
+    )
+
+     # Call detector package launch file 
+    detector_launch_file = IncludeLaunchDescription(
+        # Grab the launch file for the mavlink interface
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('target_detectors'), 'launch/aruco_target_detector.launch.py')),
+        # Define custom launch arguments/parameters used for the mavlink interface
         launch_arguments={
-            'id': LaunchConfiguration('vehicle_id'),
-            'namespace': LaunchConfiguration('vehicle_ns')
+            'id': LaunchConfiguration('vehicle_id'), 
+            'namespace': LaunchConfiguration('vehicle_ns'),
         }.items(),
     )
 
@@ -114,9 +164,13 @@ def generate_launch_description():
         mav_connection_arg,
         mavlink_forward_arg,
         drone_params_file_arg,
+        realsense_params_file_arg,
+        intra_process_comms,
         # Launch files
         mavlink_interface_launch_file,
         autopilot_launch_file,
-        mocap_launch_file,
-        #realsense_launch_file
+        #mocap_launch_file,
+        realsense_driver_node,
+        web_video_server,
+        #detector_launch_file
     ])

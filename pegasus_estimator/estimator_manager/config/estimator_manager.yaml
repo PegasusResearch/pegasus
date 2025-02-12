@@ -1,0 +1,21 @@
+/**:
+  ros__parameters:
+    estimator_manager:
+      # The list of state estimators to load into memory
+      estimators: ["OnboardEstimator"]
+      # The main state estimator for use with the autopilot
+      main_estimator: "OnboardEstimator"
+      # ------------------------------------------------------------------
+      # Configurations for each of the estimators to be loaded into memory
+      # ------------------------------------------------------------------
+      OnboardEstimator:
+        check_mocap_enabled: true
+        subscribers:
+          state: "fmu/filter/state"
+          mocap: "mocap"
+      # ---------------------
+      # Topics configurations
+      # ---------------------
+      publishers:
+        status: "estimator/status"
+        state: "estimator/state"

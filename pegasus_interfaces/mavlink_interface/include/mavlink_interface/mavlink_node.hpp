@@ -84,6 +84,7 @@ public:
         double rate_gps;
         double rate_altitude;
         double rate_imu;
+        double rate_distance;
 
         std::function<void(uint8_t)> on_discover_callback{nullptr};        // Callback to be called whenever a new system is discovered, which receives the vehicle id
         std::function<void()> on_initialize_telemetry_callback{nullptr};   // Callback to be called whenever telemetry coming from the vehicle is initialized
@@ -94,7 +95,8 @@ public:
         std::function<void(const mavsdk::Telemetry::Altitude &)> on_altitude_callback{nullptr};                     // Callback to handle ALTITUDE mavlink messages (RAW altimeter data)
         std::function<void(const mavsdk::Telemetry::RawGps &)> on_raw_gps_callback{nullptr};                        // Callback to handle GPS_RAW_INT mavlink messages (GPS data)
         std::function<void(const mavsdk::Telemetry::GpsInfo &)> on_gps_info_callback{nullptr};                      // Callback to handle GPS_RAW_INT mavlink messages (GPS status)
-        
+        std::function<void(const mavsdk::Telemetry::DistanceSensor &)> on_distance_sensor_callback{nullptr};        // Callback to handle DISTANCE_SENSOR mavlink messages (Distance sensor data)
+
         // Callbacks for the filtered state of the vehicle (attitude, position and velocity) provided by EKF2
         std::function<void(const mavsdk::Telemetry::Quaternion &)> on_quaternion_callback{nullptr};                 // Callback to handle ATTITUDE_QUATERNION mavlink messages (Attitude + ang vel estimated by the complementary filter)
         std::function<void(const mavsdk::Telemetry::AngularVelocityBody &)> on_angular_velocity_callback{nullptr};  // Callback to handle ATTITUDE_QUATERNION mavlink messages (Attitude + ang vel estimated by the complementary filter)
