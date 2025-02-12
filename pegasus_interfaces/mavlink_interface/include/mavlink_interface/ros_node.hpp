@@ -71,10 +71,12 @@
 #include "pegasus_msgs/msg/control_attitude.hpp"
 #include "pegasus_msgs/msg/control_velocity.hpp"
 #include "pegasus_msgs/msg/control_acceleration.hpp"
+//#include "pegasus_msgs/msg/control_motors.hpp"
 
 // Services for arming, auto-landing, etc.
 #include "pegasus_msgs/srv/arm.hpp"
 #include "pegasus_msgs/srv/kill_switch.hpp"
+#include "pegasus_msgs/srv/control_motors.hpp"
 #include "pegasus_msgs/srv/land.hpp"
 #include "pegasus_msgs/srv/offboard.hpp"
 #include "pegasus_msgs/srv/position_hold.hpp"
@@ -278,7 +280,7 @@ private:
      * @defgroup subscriberCallbacks
      * This group defines all the ROS subscriber callbacks
      */
-
+    
     /**
      * @ingroup subscriberCallbacks
      * @brief Position subscriber callback. The position of the vehicle should be expressed in the NED reference frame
@@ -376,6 +378,15 @@ private:
     */
     void kill_switch_callback(const pegasus_msgs::srv::KillSwitch::Request::SharedPtr request, const pegasus_msgs::srv::KillSwitch::Response::SharedPtr response);
    
+    /**
+    * @ingroup servicesCallbacks
+    * @brief Control motors service callback. When a service request is reached from the control_motors_service_,
+    * this callback is called and will send a mavlink command for the vehicle to change the value of the specified motor. 
+    * @param request The request to set the motor value at the corresponding index.
+    * @param response The response from this service, of type uint8.
+    */
+    void control_motors_callback(const pegasus_msgs::srv::ControlMotors::Request::SharedPtr request, const pegasus_msgs::srv::ControlMotors::Response::SharedPtr response);
+    
     /**
      * @ingroup servicesCallbacks
      * @brief Autoland service callback. When a service request is reached from the land_service_,
@@ -484,7 +495,7 @@ private:
     rclcpp::Subscription<pegasus_msgs::msg::ControlVelocity>::SharedPtr inertial_velocity_control_sub_{nullptr};
     rclcpp::Subscription<pegasus_msgs::msg::ControlVelocity>::SharedPtr body_velocity_control_sub_{nullptr};
     rclcpp::Subscription<pegasus_msgs::msg::ControlAcceleration>::SharedPtr inertial_acceleration_control_sub_{nullptr};
-
+    
     /**
      * @ingroup subscribers
      * @brief Attitude and thrust subscriber. The attitude should be specified in euler angles in degrees
@@ -553,6 +564,14 @@ private:
      * @brief Service server to set the vehicle into the offboard mode 
      */
     rclcpp::Service<pegasus_msgs::srv::Offboard>::SharedPtr offboard_service_{nullptr};
+
+    /**
+     * @ingroup services
+     * @brief Service server to set the value of the motors
+     * 
+     * This service handles requests to update the motor control values
+     */
+    rclcpp::Service<pegasus_msgs::srv::ControlMotors>::SharedPtr control_motors_service_{nullptr};
 
     /**
      * @ingroup services

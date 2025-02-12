@@ -300,6 +300,14 @@ void ROSNode::init_subscribers_and_services() {
         arm_topic.as_string(), std::bind(&ROSNode::arm_callback, this, std::placeholders::_1, std::placeholders::_2));
     
     // ------------------------------------------------------------------------
+    // Initiate the service to control motors on vehicle
+    // ------------------------------------------------------------------------
+    this->declare_parameter<std::string>("services.control_motors", "control_motors");
+    rclcpp::Parameter control_motors_topic = this->get_parameter("services.control_motors");
+    control_motors_service_ = this->create_service<pegasus_msgs::srv::ControlMotors>(
+        control_motors_topic.as_string(), std::bind(&ROSNode::control_motors_callback, this, std::placeholders::_1, std::placeholders::_2));
+    
+    // ------------------------------------------------------------------------
     // Initiate the service to kill switch the vehicle
     // ------------------------------------------------------------------------
     this->declare_parameter<std::string>("services.kill_switch", "kill_switch");
@@ -415,7 +423,6 @@ void ROSNode::position_callback(const pegasus_msgs::msg::ControlPosition::ConstS
     // Send the position reference thorugh mavlink for the onboard microcontroller
     mavlink_node_->set_position(msg->position[0], msg->position[1], msg->position[2], msg->yaw);
 }
-
 
 /**
  * @ingroup subscriberCallbacks
@@ -861,7 +868,7 @@ void ROSNode::arm_callback(const pegasus_msgs::srv::Arm::Request::SharedPtr requ
  * @param response The response in this service uint8
 */
 void ROSNode::kill_switch_callback(const pegasus_msgs::srv::KillSwitch::Request::SharedPtr request, const pegasus_msgs::srv::KillSwitch::Response::SharedPtr response) {
-    
+
     // Set the response to the kill switch command
     response->success = request->kill == true ? mavlink_node_->kill_switch() : 0;
 }
@@ -903,6 +910,25 @@ void ROSNode::position_hold_callback(const pegasus_msgs::srv::PositionHold::Requ
 
     // Set the response to the result of the offboard command
     response->success = mavlink_node_->position_hold();
+}
+
+/**
+* @ingroup servicesCallbacks
+* @brief Control motors service callback. When a service request is reached from the control_motors_service_,
+* this callback is called and will send a mavlink command for the vehicle to change the value of the specified motor. 
+* @param request The request to set the motor value at the corresponding index.
+* @param response The response from this service, of type uint8.
+*/
+void ROSNode::control_motors_callback(const pegasus_msgs::srv::ControlMotors::Request::SharedPtr request, const pegasus_msgs::srv::ControlMotors::Response::SharedPtr response) {
+    
+    // Retrieve values from the request
+    int32_t index = request->index;  
+    float value = request->value;  
+
+    RCLCPP_INFO(this->get_logger(), "Received control request - Index: %d, Value: %.2f", index, value);
+
+    // Send response
+    response->success = mavlink_node_->set_motors(index, value); 
 }
 
 /**

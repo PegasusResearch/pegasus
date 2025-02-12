@@ -12,6 +12,8 @@
       control:
         # High-level control (position, body velocity and inertial acceleration)
         position: "fmu/in/position"
+        # High-level control (motors)
+        # motors: "fmu/in/motors"
         # High-level velocity control (inertial and body frame)
         inertial_velocity: "fmu/in/velocity/inertial"
         body_velocity: "fmu/in/velocity/body"
@@ -33,6 +35,7 @@
       land: "fmu/land"
       kill_switch: "fmu/kill_switch"
       offboard: "fmu/offboard"
+      control_motors: "fmu/control_motors"
       hold: "fmu/hold"
       set_home: "fmu/set_home"
     publishers:
