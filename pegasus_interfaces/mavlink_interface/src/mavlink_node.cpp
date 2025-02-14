@@ -300,7 +300,6 @@ void MavlinkNode::set_attitude(const float roll, const float pitch, const float 
     offboard_->set_attitude(attitude_);
 }
 
-
 /**
  * @ingroup control_callbacks
  * @brief Method to set the attitude_rate (roll-rate, pitch-rate and yaw-rate) according to Z-Y-X convention

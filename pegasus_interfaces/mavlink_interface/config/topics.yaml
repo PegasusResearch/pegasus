@@ -13,8 +13,6 @@
       control:
         # High-level control (position, body velocity and inertial acceleration)
         position: "fmu/in/position"
-        # High-level control (motors)
-        # motors: "fmu/in/motors"
         # High-level velocity control (inertial and body frame)
         inertial_velocity: "fmu/in/velocity/inertial"
         body_velocity: "fmu/in/velocity/body"
@@ -54,4 +52,3 @@
       filter:
         # Current state of the vehicle
         state: "fmu/filter/state"
-        rpy: "fmu/filter/rpy"

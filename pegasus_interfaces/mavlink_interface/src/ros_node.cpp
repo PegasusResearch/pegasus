@@ -893,7 +893,6 @@ void ROSNode::arm_callback(const pegasus_msgs::srv::Arm::Request::SharedPtr requ
  * @param response The response in this service uint8
 */
 void ROSNode::kill_switch_callback(const pegasus_msgs::srv::KillSwitch::Request::SharedPtr request, const pegasus_msgs::srv::KillSwitch::Response::SharedPtr response) {
-
     // Set the response to the kill switch command
     response->success = request->kill == true ? mavlink_node_->kill_switch() : 0;
 }
@@ -949,8 +948,6 @@ void ROSNode::control_motors_callback(const pegasus_msgs::srv::ControlMotors::Re
     // Retrieve values from the request
     int32_t index = request->index;  
     float value = request->value;  
-
-    RCLCPP_INFO(this->get_logger(), "Received control request - Index: %d, Value: %.2f", index, value);
 
     // Send response
     response->success = mavlink_node_->set_motors(index, value); 

@@ -160,7 +160,7 @@ public:
      * @param yaw The yaw angle in deg
      */
     void set_position(const float x, const float y, const float z, const float yaw);
-     
+
     /**
      * @ingroup control_callbacks
      * @brief Set the inertial velocity (Vx, Vy, Vz) (m/s) and yaw (deg) of the vehicle. The adopted frame is NED
@@ -207,7 +207,6 @@ public:
      */
     uint8_t land();
 
-
     /**
     * @brief Sends a signal to control a specific motor or actuator.
     * 
@@ -217,7 +216,6 @@ public:
     *              The value should be a float, between -1.0 (minimum) and 1.0 (maximum)
     */
     uint8_t set_motors(const int index, const float value);
-
     
     /**
      * @brief Method to make the vehicle switch to the offboard mode. This function is blocking
@@ -371,7 +369,7 @@ private:
      * @brief Message to set the position (X-Y-Z) of the vehicle. The adopted frame is NED
      */
     mavsdk::Offboard::PositionNedYaw position_;
-     
+
     /**
      * @ingroup mavsdk_control_messages
      * @brief Message to set the velocity (Vx, Vy, Vz) (m/s) and yaw (deg) of the vehicle. The adopted frame is NED

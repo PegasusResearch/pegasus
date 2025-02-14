@@ -72,7 +72,6 @@
 #include "pegasus_msgs/msg/control_attitude.hpp"
 #include "pegasus_msgs/msg/control_velocity.hpp"
 #include "pegasus_msgs/msg/control_acceleration.hpp"
-//#include "pegasus_msgs/msg/control_motors.hpp"
 
 // Services for arming, auto-landing, etc.
 #include "pegasus_msgs/srv/arm.hpp"
@@ -282,7 +281,7 @@ private:
      * @defgroup subscriberCallbacks
      * This group defines all the ROS subscriber callbacks
      */
-    
+
     /**
      * @ingroup subscriberCallbacks
      * @brief Position subscriber callback. The position of the vehicle should be expressed in the NED reference frame
@@ -499,7 +498,7 @@ private:
     rclcpp::Subscription<pegasus_msgs::msg::ControlVelocity>::SharedPtr inertial_velocity_control_sub_{nullptr};
     rclcpp::Subscription<pegasus_msgs::msg::ControlVelocity>::SharedPtr body_velocity_control_sub_{nullptr};
     rclcpp::Subscription<pegasus_msgs::msg::ControlAcceleration>::SharedPtr inertial_acceleration_control_sub_{nullptr};
-    
+
     /**
      * @ingroup subscribers
      * @brief Attitude and thrust subscriber. The attitude should be specified in euler angles in degrees
