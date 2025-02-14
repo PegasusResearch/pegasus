@@ -52,3 +52,4 @@
       filter:
         # Current state of the vehicle
         state: "fmu/filter/state"
+        rpy: "fmu/filter/rpy"

@@ -432,6 +432,7 @@ void ROSNode::position_callback(const pegasus_msgs::msg::ControlPosition::ConstS
     mavlink_node_->set_position(msg->position[0], msg->position[1], msg->position[2], msg->yaw);
 }
 
+
 /**
  * @ingroup subscriberCallbacks
  * @brief Inertial velocity subscriber callback. The velocity should be expressed in the NED reference frame
@@ -893,6 +894,7 @@ void ROSNode::arm_callback(const pegasus_msgs::srv::Arm::Request::SharedPtr requ
  * @param response The response in this service uint8
 */
 void ROSNode::kill_switch_callback(const pegasus_msgs::srv::KillSwitch::Request::SharedPtr request, const pegasus_msgs::srv::KillSwitch::Response::SharedPtr response) {
+    
     // Set the response to the kill switch command
     response->success = request->kill == true ? mavlink_node_->kill_switch() : 0;
 }
