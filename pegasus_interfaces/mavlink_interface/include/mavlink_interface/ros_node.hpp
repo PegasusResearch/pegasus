@@ -571,8 +571,6 @@ private:
     /**
      * @ingroup services
      * @brief Service server to set the value of the motors
-     * 
-     * This service handles requests to update the motor control values
      */
     rclcpp::Service<pegasus_msgs::srv::ControlMotors>::SharedPtr control_motors_service_{nullptr};
 
