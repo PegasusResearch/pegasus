@@ -34,6 +34,7 @@
       land: "fmu/land"
       kill_switch: "fmu/kill_switch"
       offboard: "fmu/offboard"
+      control_motors: "fmu/control_motors"
       hold: "fmu/hold"
       set_home: "fmu/set_home"
     publishers:
