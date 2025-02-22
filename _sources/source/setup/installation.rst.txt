@@ -83,8 +83,8 @@ Running Simulations with Pegasus
 
 Running Real Flight with Pegasus
 --------------------------------
-- Setup the Pegasus drone by following the instructions on the :ref:`Pegasus Drone Setup` page.
+- Setup the Pegasus drone by following the instructions on the :ref:`Pegasus Drone` page.
 
-- Setup the Kopis drone by following the instructions on the :ref:`Kopis Drone Setup` page.
+- Setup the Kopis drone by following the instructions on the :ref:`Kopis Drone` page.
 
 

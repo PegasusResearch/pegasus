@@ -132,7 +132,7 @@ ESP Configuration
 
     Check whether your ESP runs with 3.3V or 5V before connecting the FDTI cable
 
-  .. image:: images/esp8266-connection_pinout.jpeg
+  .. image:: /_static/vehicles/kopis/esp8266-connection_pinout.jpeg
 
 2. Install the esptool by running the following command:
 

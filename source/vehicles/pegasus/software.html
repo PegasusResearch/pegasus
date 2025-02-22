@@ -21,7 +21,7 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Kopis Drone" href="../kopis/kopis.html" />
+    <link rel="next" title="Museum" href="museum.html" />
     <link rel="prev" title="Drone Assembly" href="assembly.html" /> 
 </head>
 
@@ -84,6 +84,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#passwordless-ssh">Passwordless SSH</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="museum.html">Museum</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../kopis/kopis.html">Kopis Drone</a></li>
@@ -261,9 +262,11 @@ sudo<span class="w"> </span>make<span class="w"> </span>install
 <p>0.  Download NVidia Video Codev from <code class="docutils literal notranslate"><span class="pre">https://developer.nvidia.com/nvidia-video-codec-sdk/download</span></code> and past the folder inside <code class="docutils literal notranslate"><span class="pre">user/local</span></code>.
 Use sudo ldconfig</p>
 <blockquote>
-<div><p># Add a symbolink to the library
-sudo ln -s /usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvcuvid.so /usr/lib/libnvcuvid.s
-sudo ln -s /usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvidia-encode.so /usr/lib/libnvidia-encode.so</p>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add a symbolink to the library</span>
+sudo<span class="w"> </span>ln<span class="w"> </span>-s<span class="w"> </span>/usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvcuvid.so<span class="w"> </span>/usr/lib/libnvcuvid.s
+sudo<span class="w"> </span>ln<span class="w"> </span>-s<span class="w"> </span>/usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvidia-encode.so<span class="w"> </span>/usr/lib/libnvidia-encode.so
+</pre></div>
+</div>
 </div></blockquote>
 <ol class="arabic simple">
 <li><p>Install OpenCV with CUDA support</p></li>
@@ -552,7 +555,7 @@ ssh<span class="w"> </span>drone_user@drone_ip
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="assembly.html" class="btn btn-neutral float-left" title="Drone Assembly" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../kopis/kopis.html" class="btn btn-neutral float-right" title="Kopis Drone" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="museum.html" class="btn btn-neutral float-right" title="Museum" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
