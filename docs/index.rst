@@ -88,14 +88,14 @@ As the author of this work, I would like to thank the support of the following c
 Not only have you made this project possible, but also crashing drones an enjoyable experience! Checkout their work and contributions in the field of control and robotics.
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 5
    :caption: Getting Started
 
    source/setup/installation
    source/setup/reference_frames
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 5
    :caption: Features
 
    source/features/autopilot
@@ -106,27 +106,26 @@ Not only have you made this project possible, but also crashing drones an enjoya
    source/console/terminal_console
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 5
    :caption: Simulation
 
    source/simulation/gazebo_classic
    source/simulation/pegasus_simulator
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 5
    :caption: Vehicles
 
-   source/vehicles/pegasus
-   source/vehicles/kopis
+   source/vehicles/vehicles
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 5
    :caption: Flight Arena
 
    source/arena/arena
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 5
    :caption: References
 
    source/references/license

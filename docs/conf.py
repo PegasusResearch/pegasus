@@ -16,7 +16,7 @@ import sys
 # -- Project information -----------------------------------------------------
 
 project = "Pegasus"
-copyright = "2024, Marcelo Jacinto"
+copyright = "2025, Marcelo Jacinto"
 author = "Marcelo Jacinto"
 version = "1.0.0"
 
@@ -109,7 +109,8 @@ html_logo = "_static/logo.png"
 html_theme_options = {
     'logo_only': True,
     'display_version': False,
-    'style_nav_header_background': '#000000'
+    'style_nav_header_background': '#000000',
+    'navigation_depth': 4,  # Ensures deep nesting in sidebar
 }
 html_css_files = [
     'custom.css',
