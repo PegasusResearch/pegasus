@@ -71,6 +71,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Drone Assembly</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#bill-of-materials">Bill of Materials</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#wiring-diagram">Wiring Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cad-model">CAD Model</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="software.html">Software Setup</a></li>
@@ -119,26 +120,77 @@
              
   <section id="drone-assembly">
 <h1>Drone Assembly<a class="headerlink" href="#drone-assembly" title="Permalink to this heading"></a></h1>
-<section id="bill-of-materials">
+<a class="reference internal image-reference" href="../../../_images/carbon_fiber_dimensions.png"><img alt="Pegasus top carbon-fiber sheet view" class="align-center" src="../../../_images/carbon_fiber_dimensions.png" style="width: 800px;" /></a>
+<div style="margin-bottom: 20px;"></div><section id="bill-of-materials">
 <h2>Bill of Materials<a class="headerlink" href="#bill-of-materials" title="Permalink to this heading"></a></h2>
-<p>In order to replicate the Pegasus Drone, the following components are required:</p>
+<p>In order to replicate your Pegasus prototype, you will need some electronic components and mad soldering skills 👨🏻‍🔧. For the onboard PC (where the Pegasus GNC code will run) you will need:</p>
 <ul class="simple">
 <li><p>1x <a class="reference external" href="https://developer.nvidia.com/embedded/learn/get-started-jetson-orin-nano-devkit">Nvidia Jetson Orin Nano Developer Kit</a></p></li>
-<li><p>1x 1Tb NVMe SSD PCIe 4.0</p></li>
-<li><p>1x <a class="reference external" href="https://holybro.com/products/kakute-h7-v1-stacks?variant=42833125277885">Kakute H7 v1.3 stack (Microcontroller + 4in1 ESC)</a></p></li>
-<li><p>4x <a class="reference external" href="https://store.tmotor.com/product/v2306-v2-fpv-motor.html">T-motor V2306 V2 2400KV</a></p></li>
-<li><p>1x <a class="reference external" href="https://holybro.com/collections/standard-gps-module/products/micro-m8n-gps">Micro M8N GPS</a></p></li>
-<li><p>1x <a class="reference external" href="https://www.frsky-rc.com/product/xm-plus/">FrSky XM Plus ACCST 16CH Sbus</a></p></li>
+<li><p>1x <a class="reference external" href="https://www.google.com/search?q=1Tb%20NVMe%20SSD%20PCIe%204.0">1Tb NVMe SSD PCIe 4.0</a></p></li>
 <li><p>1x <a class="reference external" href="https://www.intelrealsense.com/depth-camera-d435i/">Realsense d435i</a></p></li>
-<li><p>4x <a class="reference external" href="http://www.dalprop.com">Propellers Dalprop Cyclone T5050</a></p></li>
-<li><p>1x Battery 4S 4300mAh</p></li>
-<li><p>1x Set of jumper dupont wires</p></li>
-<li><p>1x XT60 cable connector</p></li>
+<li><p>1x <a class="reference external" href="https://www.google.com/search?q=USB+3.0+Type+A+to+Type+C+cable">USB 3.1 Type A to Type C</a></p></li>
+</ul>
+<div class="admonition-note admonition">
+<p class="admonition-title">Note</p>
+<p>The USB cable with 0.30m is used to connect the Realsense camera. The cable should support high-speed transfers and have good shielding, otherwise we might get GPS interference. This length should be enough to connect the camera to the Jetson Orin Nano without any extra slack.</p>
+</div>
+<p>We also make use of integrated FPV board, because they already provide drivers for the most common sensors and are easy to setup. In this case we chose the Kakute H7.mini v1.3 (or the Kakute H7 regular), which includes a microcontroller that can run <a class="reference external" href="https://docs.px4.io/main/en/">PX4</a> and a nice 4in1 ESC. The motors and propellers are also important components for the drone.</p>
+<ul class="simple">
+<li><p>1x <a class="reference external" href="https://holybro.com/products/kakute-h7-mini">Kakute H7-mini v1.3 microcontroller</a></p></li>
+<li><p>1x <a class="reference external" href="https://holybro.com/collections/autopilot-peripherals/products/tekko32-f4-metal-4in1-65a-esc-65a">4in1 ESC 65A</a></p></li>
+<li><p>4x <a class="reference external" href="https://www.google.com/search?q=t-motor+V2306+V2+2400KV">T-motor V2306 V2 2400KV</a></p></li>
+<li><p>1x <a class="reference external" href="https://holybro.com/collections/standard-gps-module/products/micro-m8n-gps">Micro M8N GPS</a></p></li>
+<li><p>4x <a class="reference external" href="https://www.google.com/search?q=dalprop+cyclone+5050">Propellers Dalprop Cyclone T5050</a></p></li>
+<li><p>1x <a class="reference external" href="https://www.google.com/search?q=Battery+4S+4300mAh">Battery 4S 4300mAh</a></p></li>
+<li><p>1x <a class="reference external" href="https://www.google.com/search?q=jumper+dupont+wires">Set of jumper dupont wires</a></p></li>
+<li><p>1x <a class="reference external" href="https://www.google.com/search?q=XT60+cable+connector">XT60 cable connector</a></p></li>
+<li><p>15x <a class="reference external" href="https://www.google.com/search?q=50mm+Aluminum+M3+standoffs+spacers">50mm Aluminum M3 standoffs spacers</a></p></li>
+</ul>
+<div class="admonition-note admonition">
+<p class="admonition-title">Note</p>
+<p>You can choose batteries with higher capacity than 4300 mAh, but this will tipically increase the weight of the drone. In addition the operating voltage of a 4S battery (12-16.8V) should be whithin the range of operation of the standard <a class="reference external" href="https://www.google.com/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=&amp;ved=2ahUKEwiOyP6s4deLAxWxQ6QEHS8yHaYQFnoECBcQAQ&amp;url=https%3A%2F%2Fdeveloper.nvidia.com%2Fdownloads%2Fassets%2Fembedded%2Fsecure%2Fjetson%2Forin_nano%2Fdocs%2Fjetson_orin_nano_devkit_carrier_board_specification_sp.pdf&amp;usg=AOvVaw0kftK-aC9T6YmeII0KLDui&amp;opi=89978449">Jetson Orin DC-jack carrier board input (9-20V)</a>, hence it is a good choice for this setup as it does not require extra electronics for voltage conversion (as long as you have a good capacitor soldered in parallel).</p>
+</div>
+<p>You might want to consider buying an altimeter and an optical flow sensor to increase the drone’s stability and precision (if compatible with your selected board). The recommended sensors are:</p>
+<ul class="simple">
+<li><p>1x <a class="reference external" href="https://holybro.com/products/st-vl53l1x-lidar">VL53L1X Lidar from Holybro</a> (works up to 4m)</p></li>
+<li><p>1x <a class="reference external" href="https://holybro.com/products/pmw3901-optical-flow-sensor">PMW3901 Optical Flow Sensor</a></p></li>
+</ul>
+<p>The remote control and receiver are used to control the drone:</p>
+<ul class="simple">
+<li><p>1x <a class="reference external" href="https://www.frsky-rc.com/product/r-xsr/">FrSky R-XSR ACCST D16</a></p></li>
+<li><p>1x <a class="reference external" href="https://www.frsky-rc.com/product/taranis-x9-lite">Taranix X9 Lite RC remote</a></p></li>
+</ul>
+<p>You can choose other remote control and receiver combinations as long as they are compatible with the Kakute H7 mini stack. An example alternative is:</p>
+<ul class="simple">
+<li><p>1x <a class="reference external" href="https://www.spektrumrc.com/aircraft-transmitters/">Spektrum DSMX RC remote</a></p></li>
+<li><p>1x <a class="reference external" href="https://www.spektrumrc.com/aircraft-receivers/">Spektrum receiver</a></p></li>
+</ul>
+<div class="admonition-extra-wifi-antennas admonition">
+<p class="admonition-title">Extra - Wifi Antennas</p>
+<p>You might want to consider buying an additional set of antennas for the Jetson Orin Nano carrier board with 8dBi gain, to increase the range of the drone. This is particularly useful if you are planning to fly the drone outdoors. The connector compatible with the NVIDIA carrier board is of the type <strong>U.FL IPX IPEX MHF4 for RP-SMA</strong>.</p>
+</div>
+<p>Extra tools and materials 🛠️:</p>
+<ul class="simple">
+<li><p>1x <a class="reference external" href="https://www.google.com/search?q=soldering+iron">Soldering iron/station</a></p></li>
+<li><p>1x <a class="reference external" href="https://www.google.com/search?q=soldering+wire">Soldering wire</a></p></li>
+<li><p>1x <a class="reference external" href="https://www.google.com/search?q=3D+printer">3D printer</a></p></li>
+<li><p>1x <a class="reference external" href="https://www.google.com/search?q=heat+shrink+tubes">Heat shrink tubes</a></p></li>
+<li><p>A <strong>ton of zip ties</strong> and <strong>double sided, high-quality M3 tape</strong> to secure the components in place.</p></li>
+<li><p>A <strong>good quality multimeter</strong> to check for shorts and continuity in the circuits.</p></li>
+<li><p>M3 lightweight screws and nuts to secure the motors and other components to the frame.</p></li>
 </ul>
 </section>
 <section id="wiring-diagram">
 <h2>Wiring Diagram<a class="headerlink" href="#wiring-diagram" title="Permalink to this heading"></a></h2>
+<p>The wiring diagram for the Pegasus drone is shown below for the Kakute H7-mini v1.3 board. The diagram shows the connections between the Kakute board, the Jetson Orin Nano, the ESC, the motors, the GPS, the battery, the remote control receiver, and altimeter and an optical flow sensor.</p>
 <a class="reference internal image-reference" href="../../../_images/wiring_diagram.png"><img alt="Wiring diagram" class="align-center" src="../../../_images/wiring_diagram.png" style="width: 600px;" /></a>
+<div class="admonition-kakute-h7-v1-3-regular admonition">
+<p class="admonition-title">Kakute H7 v1.3 (regular)</p>
+<p>The general connection diagram for the regular Kakute H7 v1.3 board is similar to the one shown above. Check the official <a class="reference external" href="https://holybro.com/products/kakute-h7">Holybro website</a> for the pinout of the Kakute H7 (regular size).</p>
+</div>
+</section>
+<section id="cad-model">
+<h2>CAD Model<a class="headerlink" href="#cad-model" title="Permalink to this heading"></a></h2>
 <p>The lastest CAD model for the Pegasus Drone can be found in the <a class="reference external" href="https://github.com/PegasusResearch/pegasus_cad">Pegasus CAD</a> repository under a <a class="reference external" href="https://github.com/PegasusResearch/pegasus_cad/blob/main/LICENSE">Creative Commons Non-Commercial &amp; Non-Military License</a>.</p>
 </section>
 </section>
