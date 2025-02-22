@@ -36,6 +36,13 @@ We also make use of integrated FPV board, because they already provide drivers f
 * 1x `XT60 cable connector <https://www.google.com/search?q=XT60+cable+connector>`_
 * 15x `50mm Aluminum M3 standoffs spacers <https://www.google.com/search?q=50mm+Aluminum+M3+standoffs+spacers>`_
 
+You will also need:
+
+* 2x carbon-fiber sheets (custom cut)
+* 3D printed parts to build the frame of the drone. 
+
+The carbon-fiber sheets should be cut to the dimensions of the drone frame. Check the :ref:`CAD Models` section for more information.
+
 .. admonition:: Note
   
   You can choose batteries with higher capacity than 4300 mAh, but this will tipically increase the weight of the drone. In addition the operating voltage of a 4S battery (12-16.8V) should be whithin the range of operation of the standard `Jetson Orin DC-jack carrier board input (9-20V) <https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&ved=2ahUKEwiOyP6s4deLAxWxQ6QEHS8yHaYQFnoECBcQAQ&url=https%3A%2F%2Fdeveloper.nvidia.com%2Fdownloads%2Fassets%2Fembedded%2Fsecure%2Fjetson%2Forin_nano%2Fdocs%2Fjetson_orin_nano_devkit_carrier_board_specification_sp.pdf&usg=AOvVaw0kftK-aC9T6YmeII0KLDui&opi=89978449>`_, hence it is a good choice for this setup as it does not require extra electronics for voltage conversion (as long as you have a good capacitor soldered in parallel).
@@ -84,7 +91,21 @@ The wiring diagram for the Pegasus drone is shown below for the Kakute H7-mini v
   The general connection diagram for the regular Kakute H7 v1.3 board is similar to the one shown above. Check the official `Holybro website <https://holybro.com/products/kakute-h7>`_ for the pinout of the Kakute H7 (regular size).
 
 
-CAD Model
----------
+CAD Models
+----------
 
-The lastest CAD model for the Pegasus Drone can be found in the `Pegasus CAD <https://github.com/PegasusResearch/pegasus_cad>`_ repository under a `Creative Commons Non-Commercial & Non-Military License <https://github.com/PegasusResearch/pegasus_cad/blob/main/LICENSE>`_. 
+* **Version 2 - Carbon Fiber Frame (2024-2025)**
+
+  .. image:: https://github.com/PegasusResearch/pegasus_cad/blob/main/docs/_static/full_assembly_v2.png?raw=true
+    :width: 400
+    :align: center
+    :alt: Pegasus V2 drone prototype
+
+The latest Pegasus Prototype was developed using carbon fiber sheets and 3D printed parts. The carbon fiber sheets were custom cut to the dimensions of the drone frame.
+
+* **Version 1 - 3D Printed Frame (2023-2024)**
+
+  .. image:: https://github.com/PegasusResearch/pegasus_cad/blob/main/docs/_static/full_assembly.png?raw=true
+    :width: 400
+    :align: center
+    :alt: Pegasus V1 drone prototype

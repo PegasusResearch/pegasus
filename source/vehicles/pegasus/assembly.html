@@ -68,14 +68,11 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../vehicles.html">Vehicles</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="pegasus.html">Pegasus Drone</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Drone Assembly</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#bill-of-materials">Bill of Materials</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#wiring-diagram">Wiring Diagram</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cad-model">CAD Model</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="pegasus.html#history">History</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Drone Assembly</a></li>
+<li class="toctree-l4"><a class="reference internal" href="software.html">Software Setup</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="software.html">Software Setup</a></li>
-<li class="toctree-l3"><a class="reference internal" href="museum.html">Museum</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../kopis/kopis.html">Kopis Drone</a></li>
@@ -146,6 +143,12 @@
 <li><p>1x <a class="reference external" href="https://www.google.com/search?q=XT60+cable+connector">XT60 cable connector</a></p></li>
 <li><p>15x <a class="reference external" href="https://www.google.com/search?q=50mm+Aluminum+M3+standoffs+spacers">50mm Aluminum M3 standoffs spacers</a></p></li>
 </ul>
+<p>You will also need:</p>
+<ul class="simple">
+<li><p>2x carbon-fiber sheets (custom cut)</p></li>
+<li><p>3D printed parts to build the frame of the drone.</p></li>
+</ul>
+<p>The carbon-fiber sheets should be cut to the dimensions of the drone frame. Check the <a class="reference internal" href="#cad-models"><span class="std std-ref">CAD Models</span></a> section for more information.</p>
 <div class="admonition-note admonition">
 <p class="admonition-title">Note</p>
 <p>You can choose batteries with higher capacity than 4300 mAh, but this will tipically increase the weight of the drone. In addition the operating voltage of a 4S battery (12-16.8V) should be whithin the range of operation of the standard <a class="reference external" href="https://www.google.com/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=&amp;ved=2ahUKEwiOyP6s4deLAxWxQ6QEHS8yHaYQFnoECBcQAQ&amp;url=https%3A%2F%2Fdeveloper.nvidia.com%2Fdownloads%2Fassets%2Fembedded%2Fsecure%2Fjetson%2Forin_nano%2Fdocs%2Fjetson_orin_nano_devkit_carrier_board_specification_sp.pdf&amp;usg=AOvVaw0kftK-aC9T6YmeII0KLDui&amp;opi=89978449">Jetson Orin DC-jack carrier board input (9-20V)</a>, hence it is a good choice for this setup as it does not require extra electronics for voltage conversion (as long as you have a good capacitor soldered in parallel).</p>
@@ -189,9 +192,19 @@
 <p>The general connection diagram for the regular Kakute H7 v1.3 board is similar to the one shown above. Check the official <a class="reference external" href="https://holybro.com/products/kakute-h7">Holybro website</a> for the pinout of the Kakute H7 (regular size).</p>
 </div>
 </section>
-<section id="cad-model">
-<h2>CAD Model<a class="headerlink" href="#cad-model" title="Permalink to this heading"></a></h2>
-<p>The lastest CAD model for the Pegasus Drone can be found in the <a class="reference external" href="https://github.com/PegasusResearch/pegasus_cad">Pegasus CAD</a> repository under a <a class="reference external" href="https://github.com/PegasusResearch/pegasus_cad/blob/main/LICENSE">Creative Commons Non-Commercial &amp; Non-Military License</a>.</p>
+<section id="cad-models">
+<h2>CAD Models<a class="headerlink" href="#cad-models" title="Permalink to this heading"></a></h2>
+<ul>
+<li><p><strong>Version 2 - Carbon Fiber Frame (2024-2025)</strong></p>
+<a class="reference internal image-reference" href="https://github.com/PegasusResearch/pegasus_cad/blob/main/docs/_static/full_assembly_v2.png?raw=true"><img alt="Pegasus V2 drone prototype" class="align-center" src="https://github.com/PegasusResearch/pegasus_cad/blob/main/docs/_static/full_assembly_v2.png?raw=true" style="width: 400px;" /></a>
+</li>
+</ul>
+<p>The latest Pegasus Prototype was developed using carbon fiber sheets and 3D printed parts. The carbon fiber sheets were custom cut to the dimensions of the drone frame.</p>
+<ul>
+<li><p><strong>Version 1 - 3D Printed Frame (2023-2024)</strong></p>
+<a class="reference internal image-reference" href="https://github.com/PegasusResearch/pegasus_cad/blob/main/docs/_static/full_assembly.png?raw=true"><img alt="Pegasus V1 drone prototype" class="align-center" src="https://github.com/PegasusResearch/pegasus_cad/blob/main/docs/_static/full_assembly.png?raw=true" style="width: 400px;" /></a>
+</li>
+</ul>
 </section>
 </section>
 
