@@ -142,9 +142,9 @@ Use sudo ldconfig
 
   .. code:: bash
 
-  # Add a symbolink to the library
-  sudo ln -s /usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvcuvid.so /usr/lib/libnvcuvid.s
-  sudo ln -s /usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvidia-encode.so /usr/lib/libnvidia-encode.so
+    # Add a symbolink to the library
+    sudo ln -s /usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvcuvid.so /usr/lib/libnvcuvid.s
+    sudo ln -s /usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvidia-encode.so /usr/lib/libnvidia-encode.so
 
 1. Install OpenCV with CUDA support
 

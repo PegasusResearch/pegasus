@@ -66,7 +66,7 @@ Arena Setup
      - CineWhoop3-11
      - pixracer
      - Quadrotor
-     - ❌
+     - ✔️
      - KakuteH7
      - TBD
    * - 12
@@ -75,7 +75,7 @@ Arena Setup
      - CineWhoop3-12
      - pixracer
      - Quadrotor
-     - ✔️
+     - ❌
      - KakuteH7
      - TBD
 

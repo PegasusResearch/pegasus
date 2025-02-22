@@ -1,12 +1,6 @@
 Drone Assembly
 ==============
 
-The lastest CAD model for the Pegasus Drone can be found in the `Pegasus CAD <https://github.com/PegasusResearch/pegasus_cad>`_ repository under a `Creative Commons Non-Commercial & Non-Military License <https://github.com/PegasusResearch/pegasus_cad/blob/main/LICENSE>`_. 
-
-.. image:: https://github.com/PegasusResearch/pegasus_cad/blob/main/docs/_static/full_assembly.png?raw=true
-  :width: 600
-  :align: center
-  :alt: Pegasus Drone CAD Model
 
 Bill of Materials
 -----------------
@@ -24,3 +18,15 @@ In order to replicate the Pegasus Drone, the following components are required:
 * 1x Battery 4S 4300mAh
 * 1x Set of jumper dupont wires
 * 1x XT60 cable connector
+
+
+Wiring Diagram
+--------------
+
+.. image:: /_static/vehicles/pegasus/wiring_diagram.png
+  :width: 600
+  :align: center
+  :alt: Wiring diagram
+
+
+The lastest CAD model for the Pegasus Drone can be found in the `Pegasus CAD <https://github.com/PegasusResearch/pegasus_cad>`_ repository under a `Creative Commons Non-Commercial & Non-Military License <https://github.com/PegasusResearch/pegasus_cad/blob/main/LICENSE>`_. 
