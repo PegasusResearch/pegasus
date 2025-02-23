@@ -456,6 +456,9 @@ Installing Pegasus GNC
     # Install dependencies for the Realsense ROS 2 package
     sudo apt install -y ros-humble-image-transport ros-humble-diagnostic-updater
 
+    # Install dependencies for the video server
+    sudo apt install -y ros-humble-async-web-server-cpp
+
 2. Clone the Pegasus repository that contains the GNC code and configurations for the Pegasus vehicle built in.
 
   .. code:: bash
@@ -500,7 +503,15 @@ Installing Pegasus GNC
 
     # Add the ROS 2 environment to the bashrc if not already
     echo "source $HOME/pegasus_drone/pegasus/install/setup.bash" >> ~/.bashrc
-    
+
+5. Run the config.bash script that will install services to automatically start the jetson in the maximum power mode and start the Pegasus GNC code at boot.
+
+  .. code:: bash
+
+    # Run the config.bash script
+    cd ~/pegasus_drone/pegasus/src/pegasus_drone/scripts
+    sudo ./config.bash
+
 
 Installing Machine Learning Libraries
 -------------------------------------

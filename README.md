@@ -58,6 +58,14 @@ This simulation framework is an open-source effort, started by me, Marcelo Jacin
 As the author of this work, I would like to thank the support of the following coleagues and friends (in no particular order) during the development and testing of this project.
 [Pedro Trindade](https://scholar.google.com/citations?hl=pt-PT&user=eFG-wQ0AAAAJ), [João Pinto](https://github.com/jschpinto), [Gil Serrano](https://scholar.google.com/citations?hl=pt-PT&user=h_6XghgAAAAJ), [Jose Gomes](https://scholar.google.com/citations?hl=pt-PT&user=PECAagsAAAAJ), [Pedro Santos](https://scholar.google.com/citations?hl=pt-PT&user=HOhIHJAAAAAJ) and Joao Lehodey. Not only have you made this project possible, but also crashing drones an enjoyable experience! Checkout their work and contributions in the field of control and robotics.
 
+I also want to thank the support of:
+
+* Manuel Rufino for assisting me in the soldering job of the drone, 
+* José Tojeiro for being an awesome safety pilot during the first flights and teach me the basics of drone piloting,
+* Alexandre Lopes for being willing to help me during the flight tests of the Pegasus prototype,
+
+and all the other friends, colleagues and family that have supported me during the development of this project.
+
  
 ## Project Sponsors
 The work developed by Marcelo Jacinto and João Pinto was supported by Ph.D. grants funded by Fundação para a Ciência e Tecnologia (FCT).
