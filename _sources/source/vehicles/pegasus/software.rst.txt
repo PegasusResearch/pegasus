@@ -78,7 +78,42 @@ Replace the ``<username>`` with the username you defined during the installation
 
       .. code:: bash
 
-          nmcli device status 
+          nmcli device status
+
+Passwordless SSH
+----------------
+
+To enable passwordless SSH, follow the instructions bellow.
+
+1. Generate an SSH key on your computer and copy it to the remote machine:
+
+  .. code:: bash
+
+      # Generate the SSH key
+      ssh-keygen -t ed25519 -C "your_email@example.com" -f ~/.ssh/pegasus
+
+      # Copy the SSH key to the remote machine
+      ssh-copy-id -i ~/.ssh/pegasus.pub <drone_username>@<drone_ip>
+
+      # Test the connection
+      ssh <drone_user>@<drone_ip>
+
+2. Add the following to your computer ~/.ssh/config file:
+
+  .. code:: bash
+
+      Host <Hostname (example: pegasus)>
+        HostName drone_ip
+        User <drone_user>
+        IdentityFile ~/.ssh/pegasus
+        AddKeysToAgent yes
+        IdentitiesOnly yes
+
+3. Now you should be able to SSH into the Jetson without the need for a password:
+
+  .. code:: bash
+
+      ssh <Hostname>
 
 Removing Pre-installed Software
 -------------------------------
@@ -106,6 +141,12 @@ Removing Pre-installed Software
   .. code:: bash
 
       sudo reboot
+
+5. Run Jetson Stats and set the power mode to MAXN (for maximum performance):
+
+  .. code:: bash
+
+      jtop
 
 
 Installing NVIDIA Video Codec SDK
@@ -223,6 +264,10 @@ For some reason, the OpenCV that comes pre-installed in the Jetson is not compil
       # Compile the code
       make -j$(nproc)
 
+  .. admonition:: Warning
+  
+    This is the time where you should go grab a cup of coffe and wait for the compilation to finish. If the compilation fails due to NVIDIA Video Codec SDK, this is because OpenCV has a bug yet to be fixed regarding the latest version of the NVIDIA SDK. Just go to the file where the compilation is failing and replace the lines that are causing the error with the option provided bellow.
+
 
 2. Install the compiled library in the system
 
@@ -235,6 +280,18 @@ For some reason, the OpenCV that comes pre-installed in the Jetson is not compil
       # Clean the compiled code fromt the build directory
       make clean
       sudo apt-get update
+
+3. Test the installation
+
+  .. code:: bash
+
+    # Open python3 in the terminal
+    python3
+
+    # Run the following code
+    import cv2
+    count = cv2.cuda.getCudaEnabledDeviceCount()
+    print(count)
 
 
 Installing ROS 2
@@ -282,10 +339,10 @@ To setup the serial pins for communication with the microcontroller, follow the 
 
       sudo systemctl stop nvgetty.service
       sudo systemctl disable nvgetty.service
-      sudo usermod -aG dialout marcelo
+      sudo usermod -aG dialout <username>
 
-Disabling GNOME GUI
--------------------
+Disabling GUI
+-------------
 
 For a better performance, it is recommended to disable the GNOME GUI. To do so, follow the instructions bellow:
 
@@ -294,7 +351,9 @@ For a better performance, it is recommended to disable the GNOME GUI. To do so, 
       # Setup the system to boot in text mode
       sudo systemctl set-default multi-user.target
 
-**(Optional):** Alternatively, you can remove the GUI packages altogether by running the following lines:
+.. admonition:: Optional
+
+  Alternatively, you can remove the GUI packages altogether by running the following lines.
 
   .. code:: bash
 
@@ -306,52 +365,151 @@ For a better performance, it is recommended to disable the GNOME GUI. To do so, 
       # Setup the system to boot in text mode
       sudo systemctl set-default multi-user.target
 
+  In practice, we just disable the GUI but keep the packages installed in case we need to use the GUI in the future.
+
+
 Realsense Setup
 ---------------
 
+The next step is to install the realsense library for the Intel RealSense cameras. Follow the instructions bellow.
+
   .. code:: bash
 
-      # Based on https://github.com/IntelRealSense/librealsense/blob/master/scripts/libuvc_installation.sh
+      # Go to the home directory
+      cd ~
 
-      git clone https://github.com/IntelRealSense/librealsense.git -b v2.56.2
-
-      mkdir librealsense_build && cd librealsense_build
-
+      # Install some dependencies
       sudo apt-get install git cmake libssl-dev freeglut3-dev libusb-1.0-0-dev pkg-config libgtk-3-dev unzip -y
 
-      sudo cp ../config/99-realsense-libusb.rules /etc/udev/rules.d/ 
-      sudo cp ../config/99-realsense-d4xx-mipi-dfu.rules /etc/udev/rules.d/
+      # Clone the correct version of the library that matches the ROS 2 version that we are using in Pegasus
+      git clone https://github.com/IntelRealSense/librealsense.git -b v2.56.3
+
+      # Create the build directory where the code will be compiled
+      cd librealsense
+      mkdir librealsense_build && cd librealsense_build
+
+      # Setup the udev rules for the driver to be able to access the camera data
+      sudo cp ../config/99-realsense-libusb.rules /etc/udev/rules.d/
+      sudo udevadm control --reload-rules && udevadm trigger
 
       # Setup the architecture for cuda in the orin nano
       # Check: https://developer.nvidia.com/cuda-gpus#compute
       export ARCH=8.7
 
-      cmake ../ -DFORCE_LIBUVC=true -DCMAKE_BUILD_TYPE=release -DBUILD_WITH_CUDA=true -DBUILD_EXAMPLES=true -DCUDA_ARCHITECTURES="${ARCH}"
-
-      make -j2
+      # Compile the code with CUDA support and python bindings
+      cmake ../ -DBUILD_EXAMPLES=true -DFORCE_RSUSB_BACKEND=true -DBUILD_WITH_CUDA=true -DCMAKE_BUILD_TYPE=release -DBUILD_PYTHON_BINDINGS=bool:true -DPYTHON_EXECUTABLE=/usr/bin/python3
+      make -j$(nproc)
+      
+      # Install the library in the system
       sudo make install
+      sudo ldconfig
 
-      # Install the ROS 2 dependencies
-      sudo apt install ros-humble-image-transport ros-humble-diagnostic-updater
+      # Reboot the PC - The next time you boot, the intel realsense camera should be working
+      sudo reboot
 
-      cd ~
-      mkdir pegasus_external
-      cd pegasus_external
-      mdkir src
-      cd src
-      git clone https://github.com/IntelRealSense/realsense-ros.git -b 4.56.1
-      cd ..
-      colcon build --symlink-install
+      # Test the camera (should still be laggy, but it is ok for now, dont worry)
+      realsense-viewer
 
-      # Add the ROS 2 environment to the bashrc if not already
-      echo "source $HOME/pegasus_external/install/setup.bash" >> ~/.bashrc
 
-Installing Pytorch
-------------------
+Setup a Github SSH Key
+----------------------
+
+To `setup an SSH key for your Github account <https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent>`_, follow the instructions bellow.
+
+1. Generate an SSH key on the Jetson computer:
 
   .. code:: bash
 
-      https://docs.nvidia.com/deeplearning/frameworks/install-pytorch-jetson-platform/index.html
+    # Generate the SSH key
+    ssh-keygen -t ed25519 -C "your_email@example.com" -f ~/.ssh/github
+
+    # Start the ssh agent in the background
+    eval "$(ssh-agent -s)"
+
+    # Add your key to the agent
+    ssh-add ~/.ssh/github
+
+2. Add the following to the jetson ~/.ssh/config file:
+
+  .. code:: bash
+
+    Host github.com
+      HostName github.com
+      User git
+      IdentityFile ~/.ssh/github
+      AddKeysToAgent yes
+      IdentitiesOnly yes
+  
+3. Copy the public SSH key to your github account. To do so, go to your Github account settings and add the public key to the SSH keys section.
+
+
+Installing Pegasus GNC
+----------------------
+
+1. Start by installing some dependencies
+
+  .. code:: bash
+
+    # Install the dependencies for CasADi (IPOPT)
+    sudo apt install -y coinor-libipopt-dev python3-pip
+
+    # Install dependencies for the Realsense ROS 2 package
+    sudo apt install -y ros-humble-image-transport ros-humble-diagnostic-updater
+
+2. Clone the Pegasus repository that contains the GNC code and configurations for the Pegasus vehicle built in.
+
+  .. code:: bash
+
+    # Go to the home directory
+    cd ~
+
+    # Clone the Pegasus repository that contains the GNC code + configurations for the drone itself
+    git clone git@github.com:PegasusResearch/pegasus_drone.git --recursive
+
+
+3. Compile the Pegasus external code
+
+  .. code:: bash
+
+    # Compile the Pegasus external code
+    cd pegasus_drone/pegasus_external
+    colcon build --symlink-install
+
+    # --------------------------------------------------------------------
+    # Run the following command to add the ROS 2 environment to the bashrc
+    # --------------------------------------------------------------------
+
+    # Add the ROS 2 environment to the bashrc if not already
+    echo "source $HOME/pegasus_drone/pegasus_external/install/setup.bash" >> ~/.bashrc
+
+    # Add an alias to the bashrc for automatically source new terminals
+    echo "alias s='source $HOME/.bashrc'" >> ~/.bashrc
+
+    # source your updated bashrc
+    source ~/.bashrc
+
+4. Compile the Pegasus GNC code
+  
+  .. code:: bash
+
+    # Go to the Pegasus GNC code
+    cd ~/pegasus_drone/pegasus
+
+    # Compile the Pegasus GNC code
+    colcon build --symlink-install
+
+    # Add the ROS 2 environment to the bashrc if not already
+    echo "source $HOME/pegasus_drone/pegasus/install/setup.bash" >> ~/.bashrc
+    
+
+Installing Machine Learning Libraries
+-------------------------------------
+
+**1. Installing Pytorch**
+
+  .. code:: bash
+
+      # https://docs.nvidia.com/deeplearning/frameworks/install-pytorch-jetson-platform/index.html
 
       # Install CUSparse for accelerating computations
       wget https://developer.download.nvidia.com/compute/cusparselt/redist/libcusparse_lt/linux-aarch64/libcusparse_lt-linux-aarch64-0.6.3.2-archive.tar.xz
@@ -377,8 +535,7 @@ Installing Pytorch
       sudo apt-get -y install ffmpeg libavutil-dev libavcodec-dev libavformat-dev libavdevice-dev libavfilter-dev libswscale-dev libswresample-dev libswresample-dev libpostproc-dev libjpeg-dev libpng-dev libopenblas-base libopenmpi-dev
       python3 setup.py develop --user
 
-Installing Tensorflow
----------------------
+**2. Installing Tensorflow**
 
   .. code:: bash
 
@@ -389,33 +546,6 @@ Installing Tensorflow
       sudo apt-get install libhdf5-serial-dev hdf5-tools libhdf5-dev zlib1g-dev zip libjpeg8-dev liblapack-dev libblas-dev gfortran
       python3 -m pip install -U testresources setuptools numpy future mock keras_preprocessing keras_applications gast protobuf pybind11 cython pkgconfig packaging h5py
       python3 -m pip install --no-cache $TENSORFLOW_INSTALL
-
-Passwordless SSH
-----------------
-
-To enable passwordless SSH, follow the instructions bellow:
-
-  .. code:: bash
-
-      # Generate the SSH key
-      ssh-keygen -t ed25519 -C "your_email@example.com" -f ~/.ssh/pegasus
-
-      # Copy the SSH key to the remote machine
-      ssh-copy-id -i ~/.ssh/pegasus.pub drone_user@drone_ip
-
-      # Test the connection
-      ssh drone_user@drone_ip
-
-Add the following to the ~/.ssh/config file:
-
-  .. code:: bash
-
-      Host pegasus
-        HostName drone_ip
-        User drone_user
-        IdentityFile ~/.ssh/pegasus
-        AddKeysToAgent yes
-        IdentitiesOnly yes
 
 
 Network Setup

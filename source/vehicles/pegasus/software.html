@@ -69,16 +69,17 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Software Setup</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#flashing-the-jetson-orin-nano">Flashing the Jetson Orin Nano</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#connecting-the-jetson-to-wifi">Connecting the Jetson to Wifi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#passwordless-ssh">Passwordless SSH</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#removing-pre-installed-software">Removing Pre-installed Software</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#installing-nvidia-video-codec-sdk">Installing NVIDIA Video Codec SDK</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#installing-opencv-with-gpu-acceleration">Installing OpenCV with GPU Acceleration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#installing-ros-2">Installing ROS 2</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#setting-up-the-gpio-pins">Setting up the GPIO pins</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#disabling-gnome-gui">Disabling GNOME GUI</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#disabling-gui">Disabling GUI</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#realsense-setup">Realsense Setup</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#installing-pytorch">Installing Pytorch</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#installing-tensorflow">Installing Tensorflow</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#passwordless-ssh">Passwordless SSH</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#setup-a-github-ssh-key">Setup a Github SSH Key</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#installing-pegasus-gnc">Installing Pegasus GNC</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#installing-machine-learning-libraries">Installing Machine Learning Libraries</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#network-setup">Network Setup</a></li>
 </ul>
 </li>
@@ -194,6 +195,46 @@ Don’t forget, it you disabled the Ubuntu Firewall, you should enable it again 
 </div>
 </div></blockquote>
 </section>
+<section id="passwordless-ssh">
+<h2>Passwordless SSH<a class="headerlink" href="#passwordless-ssh" title="Permalink to this heading"></a></h2>
+<p>To enable passwordless SSH, follow the instructions bellow.</p>
+<ol class="arabic simple">
+<li><p>Generate an SSH key on your computer and copy it to the remote machine:</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generate the SSH key</span>
+ssh-keygen<span class="w"> </span>-t<span class="w"> </span>ed25519<span class="w"> </span>-C<span class="w"> </span><span class="s2">&quot;your_email@example.com&quot;</span><span class="w"> </span>-f<span class="w"> </span>~/.ssh/pegasus
+
+<span class="c1"># Copy the SSH key to the remote machine</span>
+ssh-copy-id<span class="w"> </span>-i<span class="w"> </span>~/.ssh/pegasus.pub<span class="w"> </span>&lt;drone_username&gt;@&lt;drone_ip&gt;
+
+<span class="c1"># Test the connection</span>
+ssh<span class="w"> </span>&lt;drone_user&gt;@&lt;drone_ip&gt;
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>Add the following to your computer ~/.ssh/config file:</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Host<span class="w"> </span>&lt;Hostname<span class="w"> </span><span class="o">(</span>example:<span class="w"> </span>pegasus<span class="o">)</span>&gt;
+<span class="w">  </span>HostName<span class="w"> </span>drone_ip
+<span class="w">  </span>User<span class="w"> </span>&lt;drone_user&gt;
+<span class="w">  </span>IdentityFile<span class="w"> </span>~/.ssh/pegasus
+<span class="w">  </span>AddKeysToAgent<span class="w"> </span>yes
+<span class="w">  </span>IdentitiesOnly<span class="w"> </span>yes
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><p>Now you should be able to SSH into the Jetson without the need for a password:</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ssh<span class="w"> </span>&lt;Hostname&gt;
+</pre></div>
+</div>
+</div></blockquote>
+</section>
 <section id="removing-pre-installed-software">
 <h2>Removing Pre-installed Software<a class="headerlink" href="#removing-pre-installed-software" title="Permalink to this heading"></a></h2>
 <ol class="arabic simple">
@@ -225,6 +266,14 @@ Don’t forget, it you disabled the Ubuntu Firewall, you should enable it again 
 </ol>
 <blockquote>
 <div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>reboot
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="5">
+<li><p>Run Jetson Stats and set the power mode to MAXN (for maximum performance):</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jtop
 </pre></div>
 </div>
 </div></blockquote>
@@ -344,6 +393,10 @@ cmake<span class="w"> </span>-D<span class="w"> </span><span class="nv">CMAKE_BU
 make<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="k">)</span>
 </pre></div>
 </div>
+<div class="admonition-warning admonition">
+<p class="admonition-title">Warning</p>
+<p>This is the time where you should go grab a cup of coffe and wait for the compilation to finish. If the compilation fails due to NVIDIA Video Codec SDK, this is because OpenCV has a bug yet to be fixed regarding the latest version of the NVIDIA SDK. Just go to the file where the compilation is failing and replace the lines that are causing the error with the option provided bellow.</p>
+</div>
 </div></blockquote>
 <ol class="arabic simple" start="2">
 <li><p>Install the compiled library in the system</p></li>
@@ -356,6 +409,20 @@ sudo<span class="w"> </span>ldconfig
 <span class="c1"># Clean the compiled code fromt the build directory</span>
 make<span class="w"> </span>clean
 sudo<span class="w"> </span>apt-get<span class="w"> </span>update
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><p>Test the installation</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Open python3 in the terminal</span>
+python3
+
+<span class="c1"># Run the following code</span>
+import<span class="w"> </span>cv2
+<span class="nv">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>cv2.cuda.getCudaEnabledDeviceCount<span class="o">()</span>
+print<span class="o">(</span>count<span class="o">)</span>
 </pre></div>
 </div>
 </div></blockquote>
@@ -404,13 +471,13 @@ sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> <
 <blockquote>
 <div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>systemctl<span class="w"> </span>stop<span class="w"> </span>nvgetty.service
 sudo<span class="w"> </span>systemctl<span class="w"> </span>disable<span class="w"> </span>nvgetty.service
-sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>dialout<span class="w"> </span>marcelo
+sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>dialout<span class="w"> </span>&lt;username&gt;
 </pre></div>
 </div>
 </div></blockquote>
 </section>
-<section id="disabling-gnome-gui">
-<h2>Disabling GNOME GUI<a class="headerlink" href="#disabling-gnome-gui" title="Permalink to this heading"></a></h2>
+<section id="disabling-gui">
+<h2>Disabling GUI<a class="headerlink" href="#disabling-gui" title="Permalink to this heading"></a></h2>
 <p>For a better performance, it is recommended to disable the GNOME GUI. To do so, follow the instructions bellow:</p>
 <blockquote>
 <div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Setup the system to boot in text mode</span>
@@ -418,9 +485,10 @@ sudo<span class="w"> </span>systemctl<span class="w"> </span>set-default<span cl
 </pre></div>
 </div>
 </div></blockquote>
-<p><strong>(Optional):</strong> Alternatively, you can remove the GUI packages altogether by running the following lines:</p>
-<blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Remove the GNOME GUI</span>
+<div class="admonition-optional admonition">
+<p class="admonition-title">Optional</p>
+<p>Alternatively, you can remove the GUI packages altogether by running the following lines.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Remove the GNOME GUI</span>
 sudo<span class="w"> </span>apt-get<span class="w"> </span>purge<span class="w"> </span>gnome-shell<span class="w"> </span>ubuntu-wallpapers-bionic<span class="w"> </span>light-themes<span class="w"> </span>chromium-browser*<span class="w"> </span>libvisionworks<span class="w"> </span>libvisionworks-sfm-dev<span class="w"> </span>-y
 sudo<span class="w"> </span>apt-get<span class="w"> </span>autoremove<span class="w"> </span>-y
 sudo<span class="w"> </span>apt<span class="w"> </span>clean<span class="w"> </span>-y
@@ -429,53 +497,156 @@ sudo<span class="w"> </span>apt<span class="w"> </span>clean<span class="w"> </s
 sudo<span class="w"> </span>systemctl<span class="w"> </span>set-default<span class="w"> </span>multi-user.target
 </pre></div>
 </div>
-</div></blockquote>
+<p>In practice, we just disable the GUI but keep the packages installed in case we need to use the GUI in the future.</p>
+</div>
 </section>
 <section id="realsense-setup">
 <h2>Realsense Setup<a class="headerlink" href="#realsense-setup" title="Permalink to this heading"></a></h2>
+<p>The next step is to install the realsense library for the Intel RealSense cameras. Follow the instructions bellow.</p>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Based on https://github.com/IntelRealSense/librealsense/blob/master/scripts/libuvc_installation.sh</span>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Go to the home directory</span>
+<span class="nb">cd</span><span class="w"> </span>~
 
-git<span class="w"> </span>clone<span class="w"> </span>https://github.com/IntelRealSense/librealsense.git<span class="w"> </span>-b<span class="w"> </span>v2.56.2
-
-mkdir<span class="w"> </span>librealsense_build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>librealsense_build
-
+<span class="c1"># Install some dependencies</span>
 sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>git<span class="w"> </span>cmake<span class="w"> </span>libssl-dev<span class="w"> </span>freeglut3-dev<span class="w"> </span>libusb-1.0-0-dev<span class="w"> </span>pkg-config<span class="w"> </span>libgtk-3-dev<span class="w"> </span>unzip<span class="w"> </span>-y
 
+<span class="c1"># Clone the correct version of the library that matches the ROS 2 version that we are using in Pegasus</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/IntelRealSense/librealsense.git<span class="w"> </span>-b<span class="w"> </span>v2.56.3
+
+<span class="c1"># Create the build directory where the code will be compiled</span>
+<span class="nb">cd</span><span class="w"> </span>librealsense
+mkdir<span class="w"> </span>librealsense_build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>librealsense_build
+
+<span class="c1"># Setup the udev rules for the driver to be able to access the camera data</span>
 sudo<span class="w"> </span>cp<span class="w"> </span>../config/99-realsense-libusb.rules<span class="w"> </span>/etc/udev/rules.d/
-sudo<span class="w"> </span>cp<span class="w"> </span>../config/99-realsense-d4xx-mipi-dfu.rules<span class="w"> </span>/etc/udev/rules.d/
+sudo<span class="w"> </span>udevadm<span class="w"> </span>control<span class="w"> </span>--reload-rules<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>udevadm<span class="w"> </span>trigger
 
 <span class="c1"># Setup the architecture for cuda in the orin nano</span>
 <span class="c1"># Check: https://developer.nvidia.com/cuda-gpus#compute</span>
 <span class="nb">export</span><span class="w"> </span><span class="nv">ARCH</span><span class="o">=</span><span class="m">8</span>.7
 
-cmake<span class="w"> </span>../<span class="w"> </span>-DFORCE_LIBUVC<span class="o">=</span><span class="nb">true</span><span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>release<span class="w"> </span>-DBUILD_WITH_CUDA<span class="o">=</span><span class="nb">true</span><span class="w"> </span>-DBUILD_EXAMPLES<span class="o">=</span><span class="nb">true</span><span class="w"> </span>-DCUDA_ARCHITECTURES<span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">ARCH</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="c1"># Compile the code with CUDA support and python bindings</span>
+cmake<span class="w"> </span>../<span class="w"> </span>-DBUILD_EXAMPLES<span class="o">=</span><span class="nb">true</span><span class="w"> </span>-DFORCE_RSUSB_BACKEND<span class="o">=</span><span class="nb">true</span><span class="w"> </span>-DBUILD_WITH_CUDA<span class="o">=</span><span class="nb">true</span><span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>release<span class="w"> </span>-DBUILD_PYTHON_BINDINGS<span class="o">=</span>bool:true<span class="w"> </span>-DPYTHON_EXECUTABLE<span class="o">=</span>/usr/bin/python3
+make<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="k">)</span>
 
-make<span class="w"> </span>-j2
+<span class="c1"># Install the library in the system</span>
 sudo<span class="w"> </span>make<span class="w"> </span>install
+sudo<span class="w"> </span>ldconfig
 
-<span class="c1"># Install the ROS 2 dependencies</span>
-sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>ros-humble-image-transport<span class="w"> </span>ros-humble-diagnostic-updater
+<span class="c1"># Reboot the PC - The next time you boot, the intel realsense camera should be working</span>
+sudo<span class="w"> </span>reboot
 
-<span class="nb">cd</span><span class="w"> </span>~
-mkdir<span class="w"> </span>pegasus_external
-<span class="nb">cd</span><span class="w"> </span>pegasus_external
-mdkir<span class="w"> </span>src
-<span class="nb">cd</span><span class="w"> </span>src
-git<span class="w"> </span>clone<span class="w"> </span>https://github.com/IntelRealSense/realsense-ros.git<span class="w"> </span>-b<span class="w"> </span><span class="m">4</span>.56.1
-<span class="nb">cd</span><span class="w"> </span>..
-colcon<span class="w"> </span>build<span class="w"> </span>--symlink-install
-
-<span class="c1"># Add the ROS 2 environment to the bashrc if not already</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;source </span><span class="nv">$HOME</span><span class="s2">/pegasus_external/install/setup.bash&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
+<span class="c1"># Test the camera (should still be laggy, but it is ok for now, dont worry)</span>
+realsense-viewer
 </pre></div>
 </div>
 </div></blockquote>
 </section>
-<section id="installing-pytorch">
-<h2>Installing Pytorch<a class="headerlink" href="#installing-pytorch" title="Permalink to this heading"></a></h2>
+<section id="setup-a-github-ssh-key">
+<h2>Setup a Github SSH Key<a class="headerlink" href="#setup-a-github-ssh-key" title="Permalink to this heading"></a></h2>
+<p>To <a class="reference external" href="https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent">setup an SSH key for your Github account</a>, follow the instructions bellow.</p>
+<ol class="arabic simple">
+<li><p>Generate an SSH key on the Jetson computer:</p></li>
+</ol>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>https://docs.nvidia.com/deeplearning/frameworks/install-pytorch-jetson-platform/index.html
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generate the SSH key</span>
+ssh-keygen<span class="w"> </span>-t<span class="w"> </span>ed25519<span class="w"> </span>-C<span class="w"> </span><span class="s2">&quot;your_email@example.com&quot;</span><span class="w"> </span>-f<span class="w"> </span>~/.ssh/github
+
+<span class="c1"># Start the ssh agent in the background</span>
+<span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>ssh-agent<span class="w"> </span>-s<span class="k">)</span><span class="s2">&quot;</span>
+
+<span class="c1"># Add your key to the agent</span>
+ssh-add<span class="w"> </span>~/.ssh/github
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>Add the following to the jetson ~/.ssh/config file:</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Host<span class="w"> </span>github.com
+<span class="w">  </span>HostName<span class="w"> </span>github.com
+<span class="w">  </span>User<span class="w"> </span>git
+<span class="w">  </span>IdentityFile<span class="w"> </span>~/.ssh/github
+<span class="w">  </span>AddKeysToAgent<span class="w"> </span>yes
+<span class="w">  </span>IdentitiesOnly<span class="w"> </span>yes
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><p>Copy the public SSH key to your github account. To do so, go to your Github account settings and add the public key to the SSH keys section.</p></li>
+</ol>
+</section>
+<section id="installing-pegasus-gnc">
+<h2>Installing Pegasus GNC<a class="headerlink" href="#installing-pegasus-gnc" title="Permalink to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Start by installing some dependencies</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install the dependencies for CasADi (IPOPT)</span>
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>coinor-libipopt-dev<span class="w"> </span>python3-pip
+
+<span class="c1"># Install dependencies for the Realsense ROS 2 package</span>
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>ros-humble-image-transport<span class="w"> </span>ros-humble-diagnostic-updater
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>Clone the Pegasus repository that contains the GNC code and configurations for the Pegasus vehicle built in.</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Go to the home directory</span>
+<span class="nb">cd</span><span class="w"> </span>~
+
+<span class="c1"># Clone the Pegasus repository that contains the GNC code + configurations for the drone itself</span>
+git<span class="w"> </span>clone<span class="w"> </span>git@github.com:PegasusResearch/pegasus_drone.git<span class="w"> </span>--recursive
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><p>Compile the Pegasus external code</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compile the Pegasus external code</span>
+<span class="nb">cd</span><span class="w"> </span>pegasus_drone/pegasus_external
+colcon<span class="w"> </span>build<span class="w"> </span>--symlink-install
+
+<span class="c1"># --------------------------------------------------------------------</span>
+<span class="c1"># Run the following command to add the ROS 2 environment to the bashrc</span>
+<span class="c1"># --------------------------------------------------------------------</span>
+
+<span class="c1"># Add the ROS 2 environment to the bashrc if not already</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;source </span><span class="nv">$HOME</span><span class="s2">/pegasus_drone/pegasus_external/install/setup.bash&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
+
+<span class="c1"># Add an alias to the bashrc for automatically source new terminals</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;alias s=&#39;source </span><span class="nv">$HOME</span><span class="s2">/.bashrc&#39;&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
+
+<span class="c1"># source your updated bashrc</span>
+<span class="nb">source</span><span class="w"> </span>~/.bashrc
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="4">
+<li><p>Compile the Pegasus GNC code</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Go to the Pegasus GNC code</span>
+<span class="nb">cd</span><span class="w"> </span>~/pegasus_drone/pegasus
+
+<span class="c1"># Compile the Pegasus GNC code</span>
+colcon<span class="w"> </span>build<span class="w"> </span>--symlink-install
+
+<span class="c1"># Add the ROS 2 environment to the bashrc if not already</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;source </span><span class="nv">$HOME</span><span class="s2">/pegasus_drone/pegasus/install/setup.bash&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
+</pre></div>
+</div>
+</div></blockquote>
+</section>
+<section id="installing-machine-learning-libraries">
+<h2>Installing Machine Learning Libraries<a class="headerlink" href="#installing-machine-learning-libraries" title="Permalink to this heading"></a></h2>
+<p><strong>1. Installing Pytorch</strong></p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># https://docs.nvidia.com/deeplearning/frameworks/install-pytorch-jetson-platform/index.html</span>
 
 <span class="c1"># Install CUSparse for accelerating computations</span>
 wget<span class="w"> </span>https://developer.download.nvidia.com/compute/cusparselt/redist/libcusparse_lt/linux-aarch64/libcusparse_lt-linux-aarch64-0.6.3.2-archive.tar.xz
@@ -503,9 +674,7 @@ python3<span class="w"> </span>setup.py<span class="w"> </span>develop<span clas
 </pre></div>
 </div>
 </div></blockquote>
-</section>
-<section id="installing-tensorflow">
-<h2>Installing Tensorflow<a class="headerlink" href="#installing-tensorflow" title="Permalink to this heading"></a></h2>
+<p><strong>2. Installing Tensorflow</strong></p>
 <blockquote>
 <div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>https://docs.nvidia.com/deeplearning/frameworks/install-tf-jetson-platform/index.html#overview
 <span class="nb">export</span><span class="w"> </span><span class="nv">JP_VERSION</span><span class="o">=</span><span class="m">60</span>
@@ -514,33 +683,6 @@ python3<span class="w"> </span>setup.py<span class="w"> </span>develop<span clas
 sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>libhdf5-serial-dev<span class="w"> </span>hdf5-tools<span class="w"> </span>libhdf5-dev<span class="w"> </span>zlib1g-dev<span class="w"> </span>zip<span class="w"> </span>libjpeg8-dev<span class="w"> </span>liblapack-dev<span class="w"> </span>libblas-dev<span class="w"> </span>gfortran
 python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>testresources<span class="w"> </span>setuptools<span class="w"> </span>numpy<span class="w"> </span>future<span class="w"> </span>mock<span class="w"> </span>keras_preprocessing<span class="w"> </span>keras_applications<span class="w"> </span>gast<span class="w"> </span>protobuf<span class="w"> </span>pybind11<span class="w"> </span>cython<span class="w"> </span>pkgconfig<span class="w"> </span>packaging<span class="w"> </span>h5py
 python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-cache<span class="w"> </span><span class="nv">$TENSORFLOW_INSTALL</span>
-</pre></div>
-</div>
-</div></blockquote>
-</section>
-<section id="passwordless-ssh">
-<h2>Passwordless SSH<a class="headerlink" href="#passwordless-ssh" title="Permalink to this heading"></a></h2>
-<p>To enable passwordless SSH, follow the instructions bellow:</p>
-<blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generate the SSH key</span>
-ssh-keygen<span class="w"> </span>-t<span class="w"> </span>ed25519<span class="w"> </span>-C<span class="w"> </span><span class="s2">&quot;your_email@example.com&quot;</span><span class="w"> </span>-f<span class="w"> </span>~/.ssh/pegasus
-
-<span class="c1"># Copy the SSH key to the remote machine</span>
-ssh-copy-id<span class="w"> </span>-i<span class="w"> </span>~/.ssh/pegasus.pub<span class="w"> </span>drone_user@drone_ip
-
-<span class="c1"># Test the connection</span>
-ssh<span class="w"> </span>drone_user@drone_ip
-</pre></div>
-</div>
-</div></blockquote>
-<p>Add the following to the ~/.ssh/config file:</p>
-<blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Host<span class="w"> </span>pegasus
-<span class="w">  </span>HostName<span class="w"> </span>drone_ip
-<span class="w">  </span>User<span class="w"> </span>drone_user
-<span class="w">  </span>IdentityFile<span class="w"> </span>~/.ssh/pegasus
-<span class="w">  </span>AddKeysToAgent<span class="w"> </span>yes
-<span class="w">  </span>IdentitiesOnly<span class="w"> </span>yes
 </pre></div>
 </div>
 </div></blockquote>
