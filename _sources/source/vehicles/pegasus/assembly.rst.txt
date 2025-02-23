@@ -101,7 +101,23 @@ CAD Models
     :align: center
     :alt: Pegasus V2 drone prototype
 
-The latest Pegasus Prototype was developed using carbon fiber sheets and 3D printed parts. The carbon fiber sheets were custom cut to the dimensions of the drone frame.
+  The latest Pegasus Prototype was developed using carbon fiber sheets and 3D printed parts. The carbon fiber sheets were custom cut to the dimensions of the drone frame. 
+
+  Reference Carbon Fiber Sheets:
+
+    - `Top carbon-fiber sheet <https://github.com/PegasusResearch/pegasus_cad/blob/46951f684281e6f41adee3138cad90bc951046b7/models/version2/carbon%20fiber/Top%20Carbon%20Fiber.stl>`_: 2mm thickness
+    - `Bottom carbon-fiber sheet <https://github.com/PegasusResearch/pegasus_cad/blob/46951f684281e6f41adee3138cad90bc951046b7/models/version2/carbon%20fiber/Bottom%20Carbon%20Fiber.stl>`_: 1.5mm thickness
+
+  These two cost around 400€ total in Portugal in 2024. Check-out `Oxiblack <https://oxyblack.com/>`_ to get yours custom made. The 3D printed parts were designed to secure the electronic components in place.
+
+    - `Slim jetson case (bottom) <https://github.com/PegasusResearch/pegasus_cad/blob/main/models/version2/3d_print/Jetson%20Slim%20Case%20Bottom.stl>`_
+    - `Slim jetson case (top) <https://github.com/PegasusResearch/pegasus_cad/blob/46951f684281e6f41adee3138cad90bc951046b7/models/version2/3d_print/Jetson%20Slim%20Case%20Top.stl>`_
+    - `Realsense camera holder <https://github.com/PegasusResearch/pegasus_cad/blob/46951f684281e6f41adee3138cad90bc951046b7/models/version2/3d_print/Camera%20Holder.stl>`_
+    - `(Optional) Kakute H7-mini adapter <https://github.com/PegasusResearch/pegasus_cad/blob/46951f684281e6f41adee3138cad90bc951046b7/models/version2/3d_print/Kakute%20H7%20mini%20holes%20adapter.stl>`_
+    - `(Optional) Antenna holder <https://github.com/PegasusResearch/pegasus_cad/blob/46951f684281e6f41adee3138cad90bc951046b7/models/version2/3d_print/Antenna%20Holder.stl>`_ 
+    - `(Optional) Motor 3º offset <https://github.com/PegasusResearch/pegasus_cad/blob/46951f684281e6f41adee3138cad90bc951046b7/models/version2/3d_print/Motor%20Tilted%20Holder.stl>`_
+
+  You can also check the full CAD project files `here <https://github.com/PegasusResearch/pegasus_cad/tree/main/models/version2>`_ (free for research purposes only).
 
 * **Version 1 - 3D Printed Frame (2023-2024)**
 
@@ -109,3 +125,5 @@ The latest Pegasus Prototype was developed using carbon fiber sheets and 3D prin
     :width: 400
     :align: center
     :alt: Pegasus V1 drone prototype
+
+  You can check the full CAD project files for the first Pegasus prototype version `here <https://github.com/PegasusResearch/pegasus_cad/tree/main/models/version1>`_ (free for research purposes only).

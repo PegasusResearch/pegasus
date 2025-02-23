@@ -588,6 +588,9 @@ sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> <
 
 <span class="c1"># Install dependencies for the Realsense ROS 2 package</span>
 sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>ros-humble-image-transport<span class="w"> </span>ros-humble-diagnostic-updater
+
+<span class="c1"># Install dependencies for the video server</span>
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>ros-humble-async-web-server-cpp
 </pre></div>
 </div>
 </div></blockquote>
@@ -638,6 +641,16 @@ colcon<span class="w"> </span>build<span class="w"> </span>--symlink-install
 
 <span class="c1"># Add the ROS 2 environment to the bashrc if not already</span>
 <span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;source </span><span class="nv">$HOME</span><span class="s2">/pegasus_drone/pegasus/install/setup.bash&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="5">
+<li><p>Run the config.bash script that will install services to automatically start the jetson in the maximum power mode and start the Pegasus GNC code at boot.</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run the config.bash script</span>
+<span class="nb">cd</span><span class="w"> </span>~/pegasus_drone/pegasus/src/pegasus_drone/scripts
+sudo<span class="w"> </span>./config.bash
 </pre></div>
 </div>
 </div></blockquote>

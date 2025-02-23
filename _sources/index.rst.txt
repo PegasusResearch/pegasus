@@ -85,7 +85,15 @@ As the author of this work, I would like to thank the support of the following c
 
 - `Joao Lehodey`
 
-Not only have you made this project possible, but also crashing drones an enjoyable experience! Checkout their work and contributions in the field of control and robotics.
+Not only have you made this project possible, but also crashing drones an enjoyable experience! Checkout their work and contributions in the field of control and robotics. 
+
+I also want to thank the support of:
+
+- Manuel Rufino for assisting me in the soldering job of the drone, 
+- José Tojeiro for being an awesome safety pilot during the first flights and teach me the basics of drone piloting,
+- Alexandre Lopes for being willing to help me during the flight tests of the Pegasus prototype,
+
+and all the other friends, colleagues and family that have supported me during the development of this project.
 
 .. toctree::
    :maxdepth: 5
