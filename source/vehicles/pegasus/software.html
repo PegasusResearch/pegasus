@@ -69,9 +69,9 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Software Setup</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#flashing-the-jetson-orin-nano">Flashing the Jetson Orin Nano</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#connecting-the-jetson-to-wifi">Connecting the Jetson to Wifi</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#configuring-the-base-software">Configuring the base software</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#installing-ceres-2-0-solver">Installing Ceres 2.0 solver</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#installing-opencv-with-cuda">Installing OpenCV with CUDA</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#removing-pre-installed-software">Removing Pre-installed Software</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#installing-nvidia-video-codec-sdk">Installing NVIDIA Video Codec SDK</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#installing-opencv-with-gpu-acceleration">Installing OpenCV with GPU Acceleration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#installing-ros-2">Installing ROS 2</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#setting-up-the-gpio-pins">Setting up the GPIO pins</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#disabling-gnome-gui">Disabling GNOME GUI</a></li>
@@ -79,6 +79,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#installing-pytorch">Installing Pytorch</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#installing-tensorflow">Installing Tensorflow</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#passwordless-ssh">Passwordless SSH</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#network-setup">Network Setup</a></li>
 </ul>
 </li>
 </ul>
@@ -125,6 +126,7 @@
              
   <section id="software-setup">
 <h1>Software Setup<a class="headerlink" href="#software-setup" title="Permalink to this heading"></a></h1>
+<p>In order to get your Pegasus drone ready to fly, you need to setup the software stack. This includes installing the necessary software packages, setting up the network, and configuring the GPIO pins. It also includes flashing the Kakute H7 microcontroller with PX4.</p>
 <section id="flashing-the-jetson-orin-nano">
 <h2>Flashing the Jetson Orin Nano<a class="headerlink" href="#flashing-the-jetson-orin-nano" title="Permalink to this heading"></a></h2>
 <p>In order to setup the Jetson Orin Nano Developer Kit, follow the instructions bellow.</p>
@@ -145,7 +147,7 @@
 </ol>
 <a class="reference internal image-reference" href="../../../_images/sdk_manager_device.png"><img alt="Nvidia SDK Manager Device selection" class="align-center" src="../../../_images/sdk_manager_device.png" style="width: 600px;" /></a>
 <ol class="arabic simple" start="7">
-<li><p>Select all the modules that can be installed and the latest jetpack version.</p></li>
+<li><p>Select all the modules that can be installed and the latest jetpack version. Setup the <code class="docutils literal notranslate"><span class="pre">Pre-config</span></code> option and set the username (for example <code class="docutils literal notranslate"><span class="pre">pegasus</span></code>) and password, and continue.</p></li>
 </ol>
 <a class="reference internal image-reference" href="../../../_images/sdk_manager_installing.png"><img alt="Nvidia SDK Manager Modules selection" class="align-center" src="../../../_images/sdk_manager_installing.png" style="width: 600px;" /></a>
 <ol class="arabic simple" start="8">
@@ -192,8 +194,8 @@ Don’t forget, it you disabled the Ubuntu Firewall, you should enable it again 
 </div>
 </div></blockquote>
 </section>
-<section id="configuring-the-base-software">
-<h2>Configuring the base software<a class="headerlink" href="#configuring-the-base-software" title="Permalink to this heading"></a></h2>
+<section id="removing-pre-installed-software">
+<h2>Removing Pre-installed Software<a class="headerlink" href="#removing-pre-installed-software" title="Permalink to this heading"></a></h2>
 <ol class="arabic simple">
 <li><p>Install basic software packages by running the following command:</p></li>
 </ol>
@@ -227,50 +229,52 @@ Don’t forget, it you disabled the Ubuntu Firewall, you should enable it again 
 </div>
 </div></blockquote>
 </section>
-<section id="installing-ceres-2-0-solver">
-<h2>Installing Ceres 2.0 solver<a class="headerlink" href="#installing-ceres-2-0-solver" title="Permalink to this heading"></a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install dependencies</span>
-sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>cmake<span class="w"> </span>libgoogle-glog-dev<span class="w"> </span>libgflags-dev<span class="w"> </span>libatlas-base-dev<span class="w"> </span>libeigen3-dev<span class="w"> </span>libsuitesparse-dev
-
-<span class="c1"># Get the latest sable version</span>
-wget<span class="w"> </span>http://ceres-solver.org/ceres-solver-2.2.0.tar.gz
-tar<span class="w"> </span>zxf<span class="w"> </span>ceres-solver-2.2.0.tar.gz
-mkdir<span class="w"> </span>ceres-bin
-<span class="nb">cd</span><span class="w"> </span>ceres-bin
-
-<span class="c1"># Export the CUDA architecture</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">ARCH</span><span class="o">=</span><span class="m">8</span>.7
-<span class="nb">export</span><span class="w"> </span><span class="nv">PTX</span><span class="o">=</span><span class="s2">&quot;sm_87&quot;</span>
-cmake<span class="w"> </span>-D<span class="w"> </span><span class="nv">USE_CUDA</span><span class="o">=</span>ON<span class="w"> </span>../ceres-solver-2.2.0
-
-make<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="k">)</span>
-make<span class="w"> </span><span class="nb">test</span>
-
-<span class="c1"># Optionally install Ceres, it can also be exported using CMake which</span>
-<span class="c1"># allows Ceres to be used without requiring installation, see the documentation</span>
-<span class="c1"># for the EXPORT_BUILD_DIR option for more information.</span>
-sudo<span class="w"> </span>make<span class="w"> </span>install
-</pre></div>
-</div>
-</section>
-<section id="installing-opencv-with-cuda">
-<h2>Installing OpenCV with CUDA<a class="headerlink" href="#installing-opencv-with-cuda" title="Permalink to this heading"></a></h2>
-<p>0.  Download NVidia Video Codev from <code class="docutils literal notranslate"><span class="pre">https://developer.nvidia.com/nvidia-video-codec-sdk/download</span></code> and past the folder inside <code class="docutils literal notranslate"><span class="pre">user/local</span></code>.
-Use sudo ldconfig</p>
+<section id="installing-nvidia-video-codec-sdk">
+<h2>Installing NVIDIA Video Codec SDK<a class="headerlink" href="#installing-nvidia-video-codec-sdk" title="Permalink to this heading"></a></h2>
+<p>To enable video processing with GPU acceleration, you need to install the NVIDIA Video Codec SDK. Follow the instructions bellow:</p>
+<ol class="arabic simple">
+<li><p>Download the latest NVIDIA Video Codec from <code class="docutils literal notranslate"><span class="pre">https://developer.nvidia.com/nvidia-video-codec-sdk/download</span></code>.</p></li>
+</ol>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add a symbolink to the library</span>
-sudo<span class="w"> </span>ln<span class="w"> </span>-s<span class="w"> </span>/usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvcuvid.so<span class="w"> </span>/usr/lib/libnvcuvid.s
-sudo<span class="w"> </span>ln<span class="w"> </span>-s<span class="w"> </span>/usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvidia-encode.so<span class="w"> </span>/usr/lib/libnvidia-encode.so
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download the video codec sdk</span>
+<span class="nb">cd</span><span class="w"> </span>~
+wget<span class="w"> </span>https://developer.nvidia.com/downloads/designworks/video-codec-sdk/secure/13.0.19/video_codec_sdk_13.0.19.zip
+unzip<span class="w"> </span>video_codec_sdk_13.0.19.zip
 </pre></div>
 </div>
 </div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>Copy the library into the cuda library directory</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Copy the library to the cuda directory</span>
+sudo<span class="w"> </span>cp<span class="w"> </span>~/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvcuvid.so<span class="w"> </span>/usr/local/cuda/lib64/libnvcuvid.so
+sudo<span class="w"> </span>cp<span class="w"> </span>~/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvidia-encode.so<span class="w"> </span>/usr/local/cuda/lib64/libnvidia-encode.so
+
+<span class="c1"># Copy the header files to the cuda directory</span>
+sudo<span class="w"> </span>cp<span class="w"> </span>-s<span class="w"> </span>~/Video_Codec_SDK_13.0.19/Interface/cuviddec.h<span class="w"> </span>/usr/local/cuda/include/cuviddec.h
+sudo<span class="w"> </span>cp<span class="w"> </span>-s<span class="w"> </span>~/Video_Codec_SDK_13.0.19/Interface/nvcuvid.h<span class="w"> </span>/usr/local/cuda/include/nvcuvid.h
+sudo<span class="w"> </span>cp<span class="w"> </span>-s<span class="w"> </span>~/Video_Codec_SDK_13.0.19/Interface/nvEncodeAPI.h<span class="w"> </span>/usr/local/cuda/include/nvEncodeAPI.h
+
+<span class="c1"># Update the linking libraries</span>
+sudo<span class="w"> </span>ldconfig
+</pre></div>
+</div>
+</div></blockquote>
+</section>
+<section id="installing-opencv-with-gpu-acceleration">
+<h2>Installing OpenCV with GPU Acceleration<a class="headerlink" href="#installing-opencv-with-gpu-acceleration" title="Permalink to this heading"></a></h2>
+<p>For some reason, the OpenCV that comes pre-installed in the Jetson is not compiled with CUDA support enabled, nor video processing with GPU acceleration. To enable CUDA support, follow the instructions bellow.</p>
 <ol class="arabic simple">
 <li><p>Install OpenCV with CUDA support</p></li>
 </ol>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Remove old versions or previous builds</span>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Remove the old opencv installation</span>
+sudo<span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>/usr/include/opencv4/opencv2
+sudo<span class="w"> </span>apt<span class="w"> </span>purge<span class="w"> </span>-y<span class="w"> </span>*libopencv*
+
+<span class="c1"># Go into the home directory</span>
 <span class="nb">cd</span><span class="w"> </span>~
-sudo<span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>opencv*
 
 <span class="c1"># Download the latest version</span>
 git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="o">=</span><span class="m">1</span><span class="w"> </span>https://github.com/opencv/opencv.git<span class="w"> </span>-b<span class="w"> </span><span class="m">4</span>.11.0
@@ -286,15 +290,18 @@ sudo<span class="w"> </span>ldconfig
 mkdir<span class="w"> </span>build
 <span class="nb">cd</span><span class="w"> </span>build
 
-<span class="c1"># Setup the architecture for cuda in the orin nano</span>
-<span class="c1"># Check: https://developer.nvidia.com/cuda-gpus#compute</span>
+<span class="c1"># Setup the architecture for cuda in the jetson orin nano</span>
+<span class="c1"># Check the version for your board in: https://developer.nvidia.com/cuda-gpus#compute</span>
 <span class="nb">export</span><span class="w"> </span><span class="nv">ARCH</span><span class="o">=</span><span class="m">8</span>.7
 <span class="nb">export</span><span class="w"> </span><span class="nv">PTX</span><span class="o">=</span><span class="s2">&quot;sm_87&quot;</span>
+
+<span class="c1"># Install mathematic libraries</span>
+sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>libopenblas-dev<span class="w"> </span>libopenblas-base<span class="w"> </span>libatlas-base-dev<span class="w"> </span>liblapacke-dev
 
 <span class="c1"># Install some dependencies</span>
 sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>libswresample-dev<span class="w"> </span>libdc1394-dev<span class="w"> </span>cmake<span class="w"> </span>libjpeg-dev<span class="w"> </span>libjpeg8-dev<span class="w"> </span>libjpeg-turbo8-dev<span class="w"> </span>libpng-dev<span class="w"> </span>libtiff-dev<span class="w"> </span>libglew-dev<span class="w"> </span>libavcodec-dev<span class="w"> </span>libavformat-dev<span class="w"> </span>libswscale-dev<span class="w"> </span>libgtk2.0-dev<span class="w"> </span>libgtk-3-dev<span class="w"> </span>libcanberra-gtk*<span class="w"> </span>libxvidcore-dev<span class="w"> </span>libx264-dev<span class="w"> </span>libtbb-dev<span class="w"> </span>libxine2-dev<span class="w"> </span>libv4l-dev<span class="w"> </span>v4l-utils<span class="w"> </span>qv4l2<span class="w"> </span>libtesseract-dev<span class="w"> </span>libpostproc-dev<span class="w"> </span>libvorbis-dev<span class="w"> </span>libfaac-dev<span class="w"> </span>libmp3lame-dev<span class="w"> </span>libtheora-dev<span class="w"> </span>libopencore-amrnb-dev<span class="w"> </span>libopencore-amrwb-dev<span class="w"> </span>libopenblas-dev<span class="w"> </span>libatlas-base-dev<span class="w"> </span>libblas-dev<span class="w"> </span>liblapack-dev<span class="w"> </span>liblapacke-dev<span class="w"> </span>libeigen3-dev<span class="w"> </span>gfortran<span class="w"> </span>libhdf5-dev<span class="w"> </span>libprotobuf-dev<span class="w"> </span>protobuf-compiler<span class="w"> </span>libgoogle-glog-dev<span class="w"> </span>libgflags-dev
 
-<span class="c1"># run cmake (without sfm - ceres and CUDA dont go along very well No rule to make target &#39;cublas&#39;, needed by &#39;lib/libopencv_sfm.so.4.11.0&#39;)  # python binding not playing well with sfm disabled - TODO figure out how to have sfm enabled with cuda and ceres...</span>
+<span class="c1"># run cmake (with as much CUDA acceleration as we can)</span>
 cmake<span class="w"> </span>-D<span class="w"> </span><span class="nv">CMAKE_BUILD_TYPE</span><span class="o">=</span>RELEASE<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">CMAKE_INSTALL_PREFIX</span><span class="o">=</span>/usr<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">OPENCV_EXTRA_MODULES_PATH</span><span class="o">=</span>~/opencv_contrib/modules<span class="w"> </span><span class="se">\</span>
@@ -325,8 +332,6 @@ cmake<span class="w"> </span>-D<span class="w"> </span><span class="nv">CMAKE_BU
 -D<span class="w"> </span><span class="nv">OPENCV_ENABLE_NONFREE</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">INSTALL_C_EXAMPLES</span><span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">INSTALL_PYTHON_EXAMPLES</span><span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
--D<span class="w"> </span><span class="nv">BUILD_opencv_python3</span><span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
--DBUILD_opencv_sfm<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">PYTHON3_PACKAGES_PATH</span><span class="o">=</span>/usr/lib/python3/dist-packages<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">OPENCV_GENERATE_PKGCONFIG</span><span class="o">=</span>ON<span class="w"> </span><span class="se">\</span>
 -D<span class="w"> </span><span class="nv">BUILD_EXAMPLES</span><span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
@@ -337,27 +342,23 @@ cmake<span class="w"> </span>-D<span class="w"> </span><span class="nv">CMAKE_BU
 
 <span class="c1"># Compile the code</span>
 make<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="k">)</span>
-
-<span class="c1"># Remove the old opencv installation</span>
-sudo<span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>/usr/include/opencv4/opencv2
-sudo<span class="w"> </span>apt<span class="w"> </span>purge<span class="w"> </span>-y<span class="w"> </span>*libopencv*
-
-<span class="c1"># Install the compiled library in the system</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>Install the compiled library in the system</p></li>
+</ol>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install the compiled library in the system</span>
 sudo<span class="w"> </span>make<span class="w"> </span>install
 sudo<span class="w"> </span>ldconfig
 
 <span class="c1"># Clean the compiled code fromt the build directory</span>
 make<span class="w"> </span>clean
 sudo<span class="w"> </span>apt-get<span class="w"> </span>update
-sudo<span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>opencv
-sudo<span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>opencv_contrib
 </pre></div>
 </div>
 </div></blockquote>
-<dl class="simple">
-<dt>-D CUDA_nvcuvid_LIBRARY=/usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvcuvid.so </dt><dd><p>-D CUDA_nvidia-encode_LIBRARY=/usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvidia-encode.so </p>
-</dd>
-</dl>
 </section>
 <section id="installing-ros-2">
 <h2>Installing ROS 2<a class="headerlink" href="#installing-ros-2" title="Permalink to this heading"></a></h2>
@@ -543,6 +544,62 @@ ssh<span class="w"> </span>drone_user@drone_ip
 </pre></div>
 </div>
 </div></blockquote>
+</section>
+<section id="network-setup">
+<h2>Network Setup<a class="headerlink" href="#network-setup" title="Permalink to this heading"></a></h2>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">ID, IPs and Mavlink Ports and other information</span><a class="headerlink" href="#id1" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 6%" />
+<col style="width: 18%" />
+<col style="width: 18%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>ID</p></th>
+<th class="head"><p>Station SSID</p></th>
+<th class="head"><p>Station IP</p></th>
+<th class="head"><p>Forward Address</p></th>
+<th class="head"><p>Status</p></th>
+<th class="head"><p>Kakute version</p></th>
+<th class="head"><p>Config File Indoor (Mocap)</p></th>
+<th class="head"><p>Config File Outdoor (GPS)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Personal</p></td>
+<td><p>Quadrotor</p></td>
+<td><p>192.168.1.166</p></td>
+<td><p>192.168.1.232:15000</p></td>
+<td><p>✔️</p></td>
+<td><p>KakuteH7v1.3-mini</p></td>
+<td><p>pegasus.params</p></td>
+<td><p>pegasus.params</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>Quadrotor</p></td>
+<td><p>192.168.1.241</p></td>
+<td><p>192.168.1.232:15001</p></td>
+<td><p>❌</p></td>
+<td><p>KakuteH7v1.3</p></td>
+<td><p>TODO</p></td>
+<td><p>TODO</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>Quadrotor</p></td>
+<td><p>192.168.1.242</p></td>
+<td><p>192.168.1.232:15002</p></td>
+<td><p>❌</p></td>
+<td><p>KakuteH7v1.3</p></td>
+<td><p>TODO</p></td>
+<td><p>TODO</p></td>
+</tr>
+</tbody>
+</table>
 </section>
 </section>
 

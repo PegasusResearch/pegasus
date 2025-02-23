@@ -1,6 +1,8 @@
 Software Setup
 ==============
 
+In order to get your Pegasus drone ready to fly, you need to setup the software stack. This includes installing the necessary software packages, setting up the network, and configuring the GPIO pins. It also includes flashing the Kakute H7 microcontroller with PX4.
+
 Flashing the Jetson Orin Nano
 -----------------------------
 
@@ -24,7 +26,7 @@ In order to setup the Jetson Orin Nano Developer Kit, follow the instructions be
   :align: center
   :alt: Nvidia SDK Manager Device selection
 
-7. Select all the modules that can be installed and the latest jetpack version.
+7. Select all the modules that can be installed and the latest jetpack version. Setup the ``Pre-config`` option and set the username (for example ``pegasus``) and password, and continue.
 
 .. image:: /_static/jetson/sdk_manager_installing.png
   :width: 600
@@ -78,8 +80,8 @@ Replace the ``<username>`` with the username you defined during the installation
 
           nmcli device status 
 
-Configuring the base software
------------------------------
+Removing Pre-installed Software
+-------------------------------
 
 1. Install basic software packages by running the following command:
 
@@ -106,53 +108,53 @@ Configuring the base software
       sudo reboot
 
 
-Installing Ceres 2.0 solver
----------------------------
+Installing NVIDIA Video Codec SDK
+----------------------------------
 
-.. code:: bash
+To enable video processing with GPU acceleration, you need to install the NVIDIA Video Codec SDK. Follow the instructions bellow:
 
-  # Install dependencies
-  sudo apt-get install cmake libgoogle-glog-dev libgflags-dev libatlas-base-dev libeigen3-dev libsuitesparse-dev
-
-  # Get the latest sable version
-  wget http://ceres-solver.org/ceres-solver-2.2.0.tar.gz
-  tar zxf ceres-solver-2.2.0.tar.gz
-  mkdir ceres-bin
-  cd ceres-bin
-
-  # Export the CUDA architecture 
-  export ARCH=8.7
-  export PTX="sm_87"
-  cmake -D USE_CUDA=ON ../ceres-solver-2.2.0
-  
-  make -j$(nproc)
-  make test
-  
-  # Optionally install Ceres, it can also be exported using CMake which
-  # allows Ceres to be used without requiring installation, see the documentation
-  # for the EXPORT_BUILD_DIR option for more information.  
-  sudo make install
-  
-
-Installing OpenCV with CUDA
----------------------------
-
-0.  Download NVidia Video Codev from ``https://developer.nvidia.com/nvidia-video-codec-sdk/download`` and past the folder inside ``user/local``. 
-Use sudo ldconfig
+1. Download the latest NVIDIA Video Codec from ``https://developer.nvidia.com/nvidia-video-codec-sdk/download``.
 
   .. code:: bash
 
-    # Add a symbolink to the library
-    sudo ln -s /usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvcuvid.so /usr/lib/libnvcuvid.s
-    sudo ln -s /usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvidia-encode.so /usr/lib/libnvidia-encode.so
+      # Download the video codec sdk
+      cd ~
+      wget https://developer.nvidia.com/downloads/designworks/video-codec-sdk/secure/13.0.19/video_codec_sdk_13.0.19.zip
+      unzip video_codec_sdk_13.0.19.zip
+
+2. Copy the library into the cuda library directory
+
+  .. code:: bash
+
+      # Copy the library to the cuda directory
+      sudo cp ~/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvcuvid.so /usr/local/cuda/lib64/libnvcuvid.so
+      sudo cp ~/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvidia-encode.so /usr/local/cuda/lib64/libnvidia-encode.so
+
+      # Copy the header files to the cuda directory
+      sudo cp -s ~/Video_Codec_SDK_13.0.19/Interface/cuviddec.h /usr/local/cuda/include/cuviddec.h
+      sudo cp -s ~/Video_Codec_SDK_13.0.19/Interface/nvcuvid.h /usr/local/cuda/include/nvcuvid.h
+      sudo cp -s ~/Video_Codec_SDK_13.0.19/Interface/nvEncodeAPI.h /usr/local/cuda/include/nvEncodeAPI.h
+
+      # Update the linking libraries
+      sudo ldconfig
+
+
+Installing OpenCV with GPU Acceleration
+---------------------------------------
+
+For some reason, the OpenCV that comes pre-installed in the Jetson is not compiled with CUDA support enabled, nor video processing with GPU acceleration. To enable CUDA support, follow the instructions bellow.
+
 
 1. Install OpenCV with CUDA support
 
   .. code:: bash
 
-      # Remove old versions or previous builds
+      # Remove the old opencv installation
+      sudo rm -rf /usr/include/opencv4/opencv2
+      sudo apt purge -y *libopencv*
+
+      # Go into the home directory
       cd ~ 
-      sudo rm -rf opencv*
 
       # Download the latest version
       git clone --depth=1 https://github.com/opencv/opencv.git -b 4.11.0
@@ -168,15 +170,18 @@ Use sudo ldconfig
       mkdir build
       cd build
 
-      # Setup the architecture for cuda in the orin nano
-      # Check: https://developer.nvidia.com/cuda-gpus#compute
+      # Setup the architecture for cuda in the jetson orin nano
+      # Check the version for your board in: https://developer.nvidia.com/cuda-gpus#compute
       export ARCH=8.7
       export PTX="sm_87"
+
+      # Install mathematic libraries
+      sudo apt-get install -y libopenblas-dev libopenblas-base libatlas-base-dev liblapacke-dev
 
       # Install some dependencies
       sudo apt-get install -y libswresample-dev libdc1394-dev cmake libjpeg-dev libjpeg8-dev libjpeg-turbo8-dev libpng-dev libtiff-dev libglew-dev libavcodec-dev libavformat-dev libswscale-dev libgtk2.0-dev libgtk-3-dev libcanberra-gtk* libxvidcore-dev libx264-dev libtbb-dev libxine2-dev libv4l-dev v4l-utils qv4l2 libtesseract-dev libpostproc-dev libvorbis-dev libfaac-dev libmp3lame-dev libtheora-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenblas-dev libatlas-base-dev libblas-dev liblapack-dev liblapacke-dev libeigen3-dev gfortran libhdf5-dev libprotobuf-dev protobuf-compiler libgoogle-glog-dev libgflags-dev
 
-      # run cmake (without sfm - ceres and CUDA dont go along very well No rule to make target 'cublas', needed by 'lib/libopencv_sfm.so.4.11.0')  # python binding not playing well with sfm disabled - TODO figure out how to have sfm enabled with cuda and ceres...
+      # run cmake (with as much CUDA acceleration as we can)
       cmake -D CMAKE_BUILD_TYPE=RELEASE \
       -D CMAKE_INSTALL_PREFIX=/usr \
       -D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib/modules \
@@ -207,8 +212,6 @@ Use sudo ldconfig
       -D OPENCV_ENABLE_NONFREE=ON \
       -D INSTALL_C_EXAMPLES=OFF \
       -D INSTALL_PYTHON_EXAMPLES=OFF \
-      -D BUILD_opencv_python3=OFF \
-      -DBUILD_opencv_sfm=OFF \
       -D PYTHON3_PACKAGES_PATH=/usr/lib/python3/dist-packages \
       -D OPENCV_GENERATE_PKGCONFIG=ON \
       -D BUILD_EXAMPLES=OFF \
@@ -220,9 +223,10 @@ Use sudo ldconfig
       # Compile the code
       make -j$(nproc)
 
-      # Remove the old opencv installation
-      sudo rm -rf /usr/include/opencv4/opencv2
-      sudo apt purge -y *libopencv*
+
+2. Install the compiled library in the system
+
+  .. code:: bash
 
       # Install the compiled library in the system
       sudo make install
@@ -231,11 +235,7 @@ Use sudo ldconfig
       # Clean the compiled code fromt the build directory
       make clean
       sudo apt-get update
-      sudo rm -rf opencv
-      sudo rm -rf opencv_contrib
 
--D CUDA_nvcuvid_LIBRARY=/usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvcuvid.so \
-      -D CUDA_nvidia-encode_LIBRARY=/usr/local/Video_Codec_SDK_13.0.19/Lib/linux/stubs/aarch64/libnvidia-encode.so \
 
 Installing ROS 2
 ----------------
@@ -417,3 +417,43 @@ Add the following to the ~/.ssh/config file:
         AddKeysToAgent yes
         IdentitiesOnly yes
 
+
+Network Setup
+-------------
+
+.. list-table:: ID, IPs and Mavlink Ports and other information
+   :widths: 5 15 15 10 10 10 10 10
+   :header-rows: 1
+    
+   * - ID
+     - Station SSID
+     - Station IP
+     - Forward Address
+     - Status
+     - Kakute version
+     - Config File Indoor (Mocap)
+     - Config File Outdoor (GPS)
+   * - Personal
+     - Quadrotor
+     - 192.168.1.166
+     - 192.168.1.232:15000
+     - ✔️
+     - KakuteH7v1.3-mini
+     - pegasus.params
+     - pegasus.params
+   * - 1
+     - Quadrotor
+     - 192.168.1.241
+     - 192.168.1.232:15001
+     - ❌
+     - KakuteH7v1.3
+     - TODO
+     - TODO
+   * - 2
+     - Quadrotor
+     - 192.168.1.242
+     - 192.168.1.232:15002
+     - ❌
+     - KakuteH7v1.3
+     - TODO
+     - TODO
