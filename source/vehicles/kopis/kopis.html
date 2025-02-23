@@ -48,15 +48,12 @@
               <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../setup/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../setup/project_setup.html">Project Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../setup/reference_frames.html">Standards</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Features</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../features/autopilot.html">Autopilot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../features/modes.html">Modes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../features/controllers.html">Controllers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../features/geofencing.html">Geofencing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../features/trajectory_manager.html">Trajectory Manager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../features/autopilot/main.html">Autopilot</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../console/terminal_console.html">Terminal console</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Simulation</span></p>
@@ -69,11 +66,9 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../vehicles.html">Vehicles</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../pegasus/pegasus.html">Pegasus Drone</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Kopis Drone</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#arena-setup">Arena Setup</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#running-the-kopis-3">Running the Kopis 3”</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="assembly.html">Drone Assembly</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="assembly.html">Drone Assembly</a></li>
+<li class="toctree-l3"><a class="reference internal" href="software.html">Arena Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="software.html#running-the-kopis-3">Running the Kopis 3”</a></li>
 </ul>
 </li>
 </ul>
@@ -118,138 +113,6 @@
 <h1>Kopis Drone<a class="headerlink" href="#kopis-drone" title="Permalink to this heading"></a></h1>
 <p>In this section, we describe the setup of the Kopis Cinewhoop 3” drone. Equipped with either a KakuteH7 or a KakuteH7v2 flight controller and an ESP8266 module for communication with an offboard computer, the Kopis Cinewhoop 3” is a small drone that enables the fast prototyping and testing of control algoritms in dedicated flight arenas such as the <a class="reference internal" href="../../arena/arena.html#taguspark-flight-arena"><span class="std std-ref">Taguspark Flight Arena</span></a>.</p>
 <a class="reference internal image-reference" href="https://holybro.com/cdn/shop/products/30064_2_1800x1800.jpg?v=1647227793"><img alt="Kopis 3 drone (source: Holybro)" class="align-center" src="https://holybro.com/cdn/shop/products/30064_2_1800x1800.jpg?v=1647227793" style="width: 600px;" /></a>
-<section id="arena-setup">
-<h2>Arena Setup<a class="headerlink" href="#arena-setup" title="Permalink to this heading"></a></h2>
-<table class="docutils align-default" id="id1">
-<caption><span class="caption-text">ID, IPs and Mavlink Ports and other information</span><a class="headerlink" href="#id1" title="Permalink to this table"></a></caption>
-<colgroup>
-<col style="width: 6%" />
-<col style="width: 18%" />
-<col style="width: 6%" />
-<col style="width: 18%" />
-<col style="width: 12%" />
-<col style="width: 12%" />
-<col style="width: 6%" />
-<col style="width: 12%" />
-<col style="width: 12%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>ID</p></th>
-<th class="head"><p>IP</p></th>
-<th class="head"><p>Port</p></th>
-<th class="head"><p>AP SSID</p></th>
-<th class="head"><p>AP Password</p></th>
-<th class="head"><p>Station SSID</p></th>
-<th class="head"><p>Status</p></th>
-<th class="head"><p>Kakute version</p></th>
-<th class="head"><p>Config File</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>7</p></td>
-<td><p>192.168.1.247</p></td>
-<td><p>15007</p></td>
-<td><p>CineWhoop3-7</p></td>
-<td><p>pixracer</p></td>
-<td><p>Quadrotor</p></td>
-<td><p>✔️</p></td>
-<td><p>KakuteH7v2</p></td>
-<td><p><a class="reference external" href="https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/Parameters/kopis_7.params">kopis7.params</a></p></td>
-</tr>
-<tr class="row-odd"><td><p>8</p></td>
-<td><p>192.168.1.248</p></td>
-<td><p>15008</p></td>
-<td><p>CineWhoop3-8</p></td>
-<td><p>pixracer</p></td>
-<td><p>Quadrotor</p></td>
-<td><p>✔️</p></td>
-<td><p>KakuteH7v2</p></td>
-<td><p><a class="reference external" href="https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/Parameters/kopis_8.params">kopis8.params</a></p></td>
-</tr>
-<tr class="row-even"><td><p>9</p></td>
-<td><p>192.168.1.249</p></td>
-<td><p>15009</p></td>
-<td><p>CineWhoop3-9</p></td>
-<td><p>pixracer</p></td>
-<td><p>Quadrotor</p></td>
-<td><p>✔️</p></td>
-<td><p>KakuteH7v2</p></td>
-<td><p><a class="reference external" href="https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/Parameters/kopis_9.params">kopis9.params</a></p></td>
-</tr>
-<tr class="row-odd"><td><p>10</p></td>
-<td><p>192.168.1.250</p></td>
-<td><p>15010</p></td>
-<td><p>CineWhoop3-10</p></td>
-<td><p>pixracer</p></td>
-<td><p>Quadrotor</p></td>
-<td><p>✔️</p></td>
-<td><p>KakuteH7v2</p></td>
-<td><p><a class="reference external" href="https://github.com/PegasusResearch/drone_configs/blob/main/Kopis/Parameters/kopis_10.params">kopis10.params</a></p></td>
-</tr>
-<tr class="row-even"><td><p>11</p></td>
-<td><p>192.168.1.251</p></td>
-<td><p>15011</p></td>
-<td><p>CineWhoop3-11</p></td>
-<td><p>pixracer</p></td>
-<td><p>Quadrotor</p></td>
-<td><p>✔️</p></td>
-<td><p>KakuteH7</p></td>
-<td><p>TBD</p></td>
-</tr>
-<tr class="row-odd"><td><p>12</p></td>
-<td><p>192.168.1.252</p></td>
-<td><p>15012</p></td>
-<td><p>CineWhoop3-12</p></td>
-<td><p>pixracer</p></td>
-<td><p>Quadrotor</p></td>
-<td><p>❌</p></td>
-<td><p>KakuteH7</p></td>
-<td><p>TBD</p></td>
-</tr>
-</tbody>
-</table>
-<p>The vehicles are configured to connect to the station network if the Statis SSID is detected. Otherwise, the vehicles will create an AP with the AP SSID and AP Password, according to the table above.</p>
-</section>
-<section id="running-the-kopis-3">
-<h2>Running the Kopis 3”<a class="headerlink" href="#running-the-kopis-3" title="Permalink to this heading"></a></h2>
-<ol class="arabic simple">
-<li><p>Install the Pegasus GNC code by following the instructions on the <a class="reference internal" href="../../setup/installation.html#installation"><span class="std std-ref">Installation</span></a> page.</p></li>
-<li><p>Turn on the Kopis 3” drone by connecting the battery.</p></li>
-<li><p>Make sure your computer is connected to the station network or the AP network generated by the vehicle.</p></li>
-<li><p>Ensure that you can see the vehicle in the Flight Arena desktop computer using the Mocap system.</p></li>
-</ol>
-<blockquote>
-<div><div class="admonition-flight-arena-desktop-computer admonition">
-<p class="admonition-title">Flight arena desktop computer</p>
-<p>The name of the vehicle must follow the standard naming convention, e.g., <code class="docutils literal notranslate"><span class="pre">drone7</span></code>, in order for the GNC code to properly receive and use the pose information. Check the <a class="reference internal" href="../../arena/arena.html#taguspark-flight-arena"><span class="std std-ref">Taguspark Flight Arena</span></a> page for more information.</p>
-</div>
-<p>Run the following command to start the GNC code:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>pegasus<span class="w"> </span>kopis.launch.py<span class="w"> </span>vehicle_id:<span class="o">=</span>&lt;vehicle_id&gt;
-</pre></div>
-</div>
-<div class="admonition-default-vehicle-id-and-namespace admonition">
-<p class="admonition-title">Default vehicle ID and namespace</p>
-<p>If no vehicle_id is provided, the default <code class="docutils literal notranslate"><span class="pre">vehicle_id</span></code> is 7. The default namespace is <code class="docutils literal notranslate"><span class="pre">vehicle_namespace:=drone</span></code>.</p>
-</div>
-</div></blockquote>
-<ol class="arabic simple" start="5">
-<li><p>The vehicle should now be connected to the offboard computer and ready to receive commands.</p></li>
-<li><p>Open the terminal console to control the vehicle</p></li>
-</ol>
-<blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>run<span class="w"> </span>pegasus_console<span class="w"> </span>pegasus_console<span class="w"> </span>-i<span class="w"> </span>&lt;vehicle_id&gt;
-</pre></div>
-</div>
-<div class="admonition-launching-all-kopis-drones-at-the-same-time admonition">
-<p class="admonition-title">Launching all kopis drones at the same time</p>
-<p>You can also launch all the Kopis drones at the same time by running the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ros2<span class="w"> </span>launch<span class="w"> </span>pegasus<span class="w"> </span>all_kopis.launch.py
-</pre></div>
-</div>
-<p>Note that you will still need to open a console for each vehicle to control them individually, or you can write a script to perform automated tasks.</p>
-</div>
-</div></blockquote>
-<p><strong>All the provided vehicles are configured such that they will not arm unless an RC remote is connected. This is a safety feature to prevent the vehicle from taking off unintentionally. All the vehicles are binded to the same RC remote, so you can use the same remote to control all the vehicles.</strong></p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="assembly.html">Drone Assembly</a><ul>
@@ -259,9 +122,10 @@
 <li class="toctree-l2"><a class="reference internal" href="assembly.html#esp-configuration">ESP Configuration</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="software.html">Arena Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="software.html#running-the-kopis-3">Running the Kopis 3”</a></li>
 </ul>
 </div>
-</section>
 </section>
 
 

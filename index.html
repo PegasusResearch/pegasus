@@ -47,15 +47,12 @@
               <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="source/setup/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/setup/project_setup.html">Project Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="source/setup/reference_frames.html">Standards</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Features</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="source/features/autopilot.html">Autopilot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="source/features/modes.html">Modes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="source/features/controllers.html">Controllers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="source/features/geofencing.html">Geofencing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="source/features/trajectory_manager.html">Trajectory Manager</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/features/autopilot/main.html">Autopilot</a></li>
 <li class="toctree-l1"><a class="reference internal" href="source/console/terminal_console.html">Terminal console</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Simulation</span></p>
@@ -204,6 +201,7 @@ be used for commercial purposes or military applications without the explicit co
 <li class="toctree-l2"><a class="reference internal" href="source/setup/installation.html#running-real-flight-with-pegasus">Running Real Flight with Pegasus</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="source/setup/project_setup.html">Project Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="source/setup/reference_frames.html">Standards</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="source/setup/reference_frames.html#reference-frames">Reference Frames</a></li>
 <li class="toctree-l2"><a class="reference internal" href="source/setup/reference_frames.html#conversions-between-frames">Conversions between frames</a></li>
@@ -214,35 +212,47 @@ be used for commercial purposes or military applications without the explicit co
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Features</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="source/features/autopilot.html">Autopilot</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="source/features/autopilot.html#operating-modes">0. Operating Modes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="source/features/autopilot.html#autopilot-interface">1. Autopilot Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="source/features/autopilot.html#explanation">2. Explanation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="source/features/autopilot.html#autopilot-configuration-file">3. Autopilot Configuration File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/features/autopilot/main.html">Autopilot</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="source/features/autopilot/autopilot/autopilot.html">Autopilot</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="source/features/autopilot/autopilot/interface.html">Autopilot Interface</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="source/features/autopilot/autopilot/interface.html#explanation">Explanation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="source/features/autopilot/autopilot/interface.html#autopilot-configuration-file">Autopilot Configuration File</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="source/features/modes.html">Modes</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="source/features/modes.html#mode-interface">0. Mode Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="source/features/modes.html#provided-state-machine-modes">1. Provided State Machine Modes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="source/features/modes.html#adding-custom-modes-to-the-state-machine">2. Adding Custom Modes to the State Machine</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="source/features/controllers.html">Controllers</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="source/features/controllers.html#controller-interface">0. Controller Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="source/features/controllers.html#pid-controller-mathematical-background-and-implementation">1. PID Controller - Mathematical Background and Implementation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="source/features/controllers.html#mellinger-controller-mathematical-background-and-implementation">2. Mellinger Controller - Mathematical Background and Implementation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="source/features/controllers.html#adding-a-custom-controller">3. Adding a Custom Controller</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/features/autopilot/controllers/controllers.html">Controllers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="source/features/autopilot/controllers/interface.html">Controller Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="source/features/autopilot/controllers/pid.html">PID Controller</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="source/features/autopilot/controllers/pid.html#mathematical-background">Mathematical Background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="source/features/autopilot/controllers/pid.html#implementation">Implementation</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="source/features/geofencing.html">Geofencing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="source/features/geofencing.html#definition-of-the-geofencing-interface">0. Definition of the Geofencing Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="source/features/autopilot/controllers/mellinger.html">Mellinger Controller</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="source/features/autopilot/controllers/mellinger.html#mathematical-background">Mathematical Background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="source/features/autopilot/controllers/mellinger.html#implementation">Implementation</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="source/features/trajectory_manager.html">Trajectory Manager</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="source/features/trajectory_manager.html#mathematical-background">0. Mathematical Background</a></li>
-<li class="toctree-l2"><a class="reference internal" href="source/features/trajectory_manager.html#definition-of-the-trajectory-interface">1. Definition of the Trajectory Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="source/features/trajectory_manager.html#provided-trajectories">2. Provided Trajectories</a></li>
-<li class="toctree-l2"><a class="reference internal" href="source/features/trajectory_manager.html#adding-custom-static-trajectories">3. Adding Custom Static Trajectories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="source/features/autopilot/controllers/custom_controller.html">Adding a Custom Controller</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="source/features/autopilot/operation_modes/modes.html">Modes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="source/features/autopilot/operation_modes/interface.html">Mode Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="source/features/autopilot/operation_modes/provided_modes.html">Provided State Machine Modes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="source/features/autopilot/operation_modes/custom_modes.html">Adding Custom Modes to the State Machine</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="source/features/autopilot/geofencing/geofencing.html">Geofencing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="source/features/autopilot/geofencing/geofencing.html#definition-of-the-geofencing-interface">Definition of the Geofencing Interface</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="source/features/autopilot/trajectory_manager/trajectory_manager.html">Trajectory Manager</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="source/features/autopilot/trajectory_manager/mathematical.html">Mathematical Background</a></li>
+<li class="toctree-l3"><a class="reference internal" href="source/features/autopilot/trajectory_manager/interface.html">Trajectory Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="source/features/autopilot/trajectory_manager/trajectories.html">Provided Trajectories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="source/features/autopilot/trajectory_manager/custom_trajectories.html">Adding Custom Static Trajectories</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="source/console/terminal_console.html">Terminal console</a></li>
@@ -266,44 +276,39 @@ be used for commercial purposes or military applications without the explicit co
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="source/vehicles/vehicles.html">Vehicles</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="source/vehicles/pegasus/pegasus.html">Pegasus Drone</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="source/vehicles/pegasus/pegasus.html#history">History</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="source/vehicles/pegasus/assembly.html">Drone Assembly</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="source/vehicles/pegasus/assembly.html#bill-of-materials">Bill of Materials</a></li>
-<li class="toctree-l5"><a class="reference internal" href="source/vehicles/pegasus/assembly.html#wiring-diagram">Wiring Diagram</a></li>
-<li class="toctree-l5"><a class="reference internal" href="source/vehicles/pegasus/assembly.html#cad-models">CAD Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="source/vehicles/pegasus/assembly.html">Drone Assembly</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="source/vehicles/pegasus/assembly.html#bill-of-materials">Bill of Materials</a></li>
+<li class="toctree-l4"><a class="reference internal" href="source/vehicles/pegasus/assembly.html#wiring-diagram">Wiring Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="source/vehicles/pegasus/assembly.html#cad-models">CAD Models</a></li>
 </ul>
 </li>
-<li class="toctree-l4"><a class="reference internal" href="source/vehicles/pegasus/software.html">Software Setup</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="source/vehicles/pegasus/software.html#flashing-the-jetson-orin-nano">Flashing the Jetson Orin Nano</a></li>
-<li class="toctree-l5"><a class="reference internal" href="source/vehicles/pegasus/software.html#connecting-the-jetson-to-wifi">Connecting the Jetson to Wifi</a></li>
-<li class="toctree-l5"><a class="reference internal" href="source/vehicles/pegasus/software.html#configuring-the-base-software">Configuring the base software</a></li>
-<li class="toctree-l5"><a class="reference internal" href="source/vehicles/pegasus/software.html#installing-ceres-2-0-solver">Installing Ceres 2.0 solver</a></li>
-<li class="toctree-l5"><a class="reference internal" href="source/vehicles/pegasus/software.html#installing-opencv-with-cuda">Installing OpenCV with CUDA</a></li>
-<li class="toctree-l5"><a class="reference internal" href="source/vehicles/pegasus/software.html#installing-ros-2">Installing ROS 2</a></li>
-<li class="toctree-l5"><a class="reference internal" href="source/vehicles/pegasus/software.html#setting-up-the-gpio-pins">Setting up the GPIO pins</a></li>
-<li class="toctree-l5"><a class="reference internal" href="source/vehicles/pegasus/software.html#disabling-gnome-gui">Disabling GNOME GUI</a></li>
-<li class="toctree-l5"><a class="reference internal" href="source/vehicles/pegasus/software.html#realsense-setup">Realsense Setup</a></li>
-<li class="toctree-l5"><a class="reference internal" href="source/vehicles/pegasus/software.html#installing-pytorch">Installing Pytorch</a></li>
-<li class="toctree-l5"><a class="reference internal" href="source/vehicles/pegasus/software.html#installing-tensorflow">Installing Tensorflow</a></li>
-<li class="toctree-l5"><a class="reference internal" href="source/vehicles/pegasus/software.html#passwordless-ssh">Passwordless SSH</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="source/vehicles/pegasus/software.html">Software Setup</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="source/vehicles/pegasus/software.html#flashing-the-jetson-orin-nano">Flashing the Jetson Orin Nano</a></li>
+<li class="toctree-l4"><a class="reference internal" href="source/vehicles/pegasus/software.html#connecting-the-jetson-to-wifi">Connecting the Jetson to Wifi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="source/vehicles/pegasus/software.html#configuring-the-base-software">Configuring the base software</a></li>
+<li class="toctree-l4"><a class="reference internal" href="source/vehicles/pegasus/software.html#installing-ceres-2-0-solver">Installing Ceres 2.0 solver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="source/vehicles/pegasus/software.html#installing-opencv-with-cuda">Installing OpenCV with CUDA</a></li>
+<li class="toctree-l4"><a class="reference internal" href="source/vehicles/pegasus/software.html#installing-ros-2">Installing ROS 2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="source/vehicles/pegasus/software.html#setting-up-the-gpio-pins">Setting up the GPIO pins</a></li>
+<li class="toctree-l4"><a class="reference internal" href="source/vehicles/pegasus/software.html#disabling-gnome-gui">Disabling GNOME GUI</a></li>
+<li class="toctree-l4"><a class="reference internal" href="source/vehicles/pegasus/software.html#realsense-setup">Realsense Setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="source/vehicles/pegasus/software.html#installing-pytorch">Installing Pytorch</a></li>
+<li class="toctree-l4"><a class="reference internal" href="source/vehicles/pegasus/software.html#installing-tensorflow">Installing Tensorflow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="source/vehicles/pegasus/software.html#passwordless-ssh">Passwordless SSH</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="source/vehicles/kopis/kopis.html">Kopis Drone</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="source/vehicles/kopis/kopis.html#arena-setup">Arena Setup</a></li>
-<li class="toctree-l3"><a class="reference internal" href="source/vehicles/kopis/kopis.html#running-the-kopis-3">Running the Kopis 3”</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="source/vehicles/kopis/assembly.html">Drone Assembly</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="source/vehicles/kopis/assembly.html#bill-of-materials">Bill of Materials</a></li>
-<li class="toctree-l5"><a class="reference internal" href="source/vehicles/kopis/assembly.html#wiring-diagram">Wiring Diagram</a></li>
-<li class="toctree-l5"><a class="reference internal" href="source/vehicles/kopis/assembly.html#kakute-flight-controller-setup">Kakute Flight Controller Setup</a></li>
-<li class="toctree-l5"><a class="reference internal" href="source/vehicles/kopis/assembly.html#esp-configuration">ESP Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="source/vehicles/kopis/assembly.html">Drone Assembly</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="source/vehicles/kopis/assembly.html#bill-of-materials">Bill of Materials</a></li>
+<li class="toctree-l4"><a class="reference internal" href="source/vehicles/kopis/assembly.html#wiring-diagram">Wiring Diagram</a></li>
+<li class="toctree-l4"><a class="reference internal" href="source/vehicles/kopis/assembly.html#kakute-flight-controller-setup">Kakute Flight Controller Setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="source/vehicles/kopis/assembly.html#esp-configuration">ESP Configuration</a></li>
 </ul>
 </li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="source/vehicles/kopis/software.html">Arena Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="source/vehicles/kopis/software.html#running-the-kopis-3">Running the Kopis 3”</a></li>
 </ul>
 </li>
 </ul>

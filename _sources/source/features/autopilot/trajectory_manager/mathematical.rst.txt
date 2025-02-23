@@ -1,10 +1,5 @@
-Trajectory Manager
-==================
-
-In this section, we explain how the define parametric paths or trajectories to be followed by the vehicle.
-
-0. Mathematical Background
---------------------------
+Mathematical Background
+=======================
 
 Consider an arbitrary path/trajectory parameterized by a parameter :math:`\gamma(t)` given by the Trajectory Manager. Consider the desired position to be given by :math:`p_d(\gamma) \in \mathbb{R}^3`, such that:
 
@@ -30,20 +25,3 @@ Consider an arbitrary path/trajectory parameterized by a parameter :math:`\gamma
                           &= \frac{\partial^3 p_d(\gamma)}{\partial \gamma^3}\dot{\gamma}^3 + 2\frac{\partial^2 p_d(\gamma)}{\partial \gamma^2}\dot{\gamma}\ddot{\gamma} + 
                           \frac{\partial^2 p_d(\gamma)}{\partial \gamma^2} \dot{\gamma}\ddot{\gamma} + \frac{\partial p_d(\gamma)}{\partial \gamma} \dddot{\gamma} \\
                           &= \frac{\partial^3 p_d(\gamma)}{\partial \gamma^3}\dot{\gamma}^3 + 3\frac{\partial^2 p_d(\gamma)}{\partial \gamma^2}\dot{\gamma}\ddot{\gamma} + \frac{\partial p_d(\gamma)}{\partial \gamma} \dddot{\gamma}
-
-1. Definition of the Trajectory Interface
------------------------------------------
-.. literalinclude:: ../../../pegasus_autopilot/static_trajectory_manager/include/static_trajectory_manager/static_trajectory.hpp
-   :language: c++
-   :emphasize-lines: 67-73
-   :lines: 53-180
-   :linenos:
-
-
-2. Provided Trajectories
-------------------------
-TODO
-
-3. Adding Custom Static Trajectories
-------------------------------------
-TODO

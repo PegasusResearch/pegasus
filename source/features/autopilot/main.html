@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Autopilot &mdash; Pegasus  documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
+        <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
+        <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+        <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+        <script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
+window.addEventListener("load", () => mermaid.run());
+</script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Autopilot" href="autopilot/autopilot.html" />
+    <link rel="prev" title="Standards" href="../../setup/reference_frames.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #000000" >
+
+          
+          
+          <a href="../../../index.html">
+            
+              <img src="../../../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../setup/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../setup/project_setup.html">Project Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../setup/reference_frames.html">Standards</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Features</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Autopilot</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autopilot/autopilot.html">Autopilot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="controllers/controllers.html">Controllers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="operation_modes/modes.html">Modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geofencing/geofencing.html">Geofencing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="trajectory_manager/trajectory_manager.html">Trajectory Manager</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../console/terminal_console.html">Terminal console</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../simulation/gazebo_classic.html">Gazebo Classic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../simulation/pegasus_simulator.html">Pegasus Simulator</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Vehicles</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../vehicles/vehicles.html">Vehicles</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Flight Arena</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../arena/arena.html">Taguspark Flight Arena</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../references/license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../references/bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #000000" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Pegasus</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Autopilot</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/source/features/autopilot/main.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="autopilot">
+<h1>Autopilot<a class="headerlink" href="#autopilot" title="Permalink to this heading"></a></h1>
+<p>At the center of the Guidance and Control system is the Autopilot, implemented in C++. This is located inside the <code class="docutils literal notranslate"><span class="pre">pegasus_autopilot/autopilot</span></code> package.
+The Autopilot is responsible for keeping track of the current operating <code class="docutils literal notranslate"><span class="pre">mode</span></code> of the vehicle. It exposes to each operation <code class="docutils literal notranslate"><span class="pre">mode</span></code> the following APIs:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Control</span></code> - Provides the control commands to the vehicle to track a given position, attitude, velocity, etc.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Geofencing</span></code> - Checks if the vehicle is within the geofence and if not, provides the control commands to bring the vehicle back inside the geofence.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Trajectory</span> <span class="pre">Manager</span></code> - Manages desired trajectories for the vehicle to follow.</p></li>
+</ul>
+<p>It also provides each mode with the current <code class="docutils literal notranslate"><span class="pre">state</span></code> of the vehicle, which includes the current position, velocity, attitude, etc.</p>
+<a class="reference internal image-reference" href="../../../_images/autopilot_architecture.png"><img alt="Autopilot Architecture" class="align-center" src="../../../_images/autopilot_architecture.png" style="width: 400px;" /></a>
+<p>The autopilot operation <code class="docutils literal notranslate"><span class="pre">modes</span></code>, <code class="docutils literal notranslate"><span class="pre">controllers</span></code>, <code class="docutils literal notranslate"><span class="pre">geofencing</span></code> and <code class="docutils literal notranslate"><span class="pre">trajectory</span> <span class="pre">manager</span></code> are implemented as ROS 2 plugins. This allows for easy extensibility and customization of the Autopilot, without having
+to modify the base autopilot packages. The Autopilot is responsible for loading the plugins at runtime and managing the communication between them.</p>
+<pre  class="mermaid">
+        classDiagram
+   pegasus &lt;|-- pegasus_interfaces
+   pegasus &lt;|-- pegasus_console
+   pegasus &lt;|-- pegasus_autopilot
+   pegasus &lt;|-- pegasus_api
+   pegasus_autopilot &lt;|-- autopilot_modes
+   pegasus_autopilot &lt;|-- autopilot_controllers
+   pegasus_autopilot &lt;|-- geofencing
+   pegasus_autopilot &lt;|-- trajectory_manager
+   trajectory_manager &lt;|-- static_trajectory_manager
+   static_trajectory_manager &lt;|-- static_trajectories
+   geofencing &lt;|-- box_geofencing
+   pegasus_interfaces &lt;|-- mocap_interface
+   pegasus_interfaces &lt;|-- mavlink_interface
+   class pegasus{
+      &lt;&lt;Meta Package&gt;&gt;
+      VehicleLaunchFiles
+      VehicleConfigurationFiles
+   }
+   class mocap_interface{
+      &lt;&lt;C++ Package&gt;&gt;
+   }
+   class pegasus_interfaces{
+      &lt;&lt;Meta Package&gt;&gt;
+   }
+   class mavlink_interface{
+      &lt;&lt;C++ Package&gt;&gt;
+   }
+   class pegasus_console{
+      &lt;&lt;C++ Package&gt;&gt;
+   }
+   class pegasus_autopilot{
+      &lt;&lt;C++ Package&gt;&gt;
+   }
+   class autopilot_controllers{
+      &lt;&lt;C++ Package&gt;&gt;
+   }
+   class autopilot_modes{
+      &lt;&lt;C++ Package&gt;&gt;
+   }
+   class pegasus_api{
+      &lt;&lt;Python Package&gt;&gt;
+   }
+   class trajectory_manager{
+      &lt;&lt;C++ Package&gt;&gt;
+   }
+    </pre><div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="autopilot/autopilot.html">Autopilot</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="autopilot/interface.html">Autopilot Interface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="autopilot/interface.html#explanation">Explanation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autopilot/interface.html#autopilot-configuration-file">Autopilot Configuration File</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="controllers/controllers.html">Controllers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="controllers/interface.html">Controller Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="controllers/pid.html">PID Controller</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="controllers/pid.html#mathematical-background">Mathematical Background</a></li>
+<li class="toctree-l3"><a class="reference internal" href="controllers/pid.html#implementation">Implementation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="controllers/mellinger.html">Mellinger Controller</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="controllers/mellinger.html#mathematical-background">Mathematical Background</a></li>
+<li class="toctree-l3"><a class="reference internal" href="controllers/mellinger.html#implementation">Implementation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="controllers/custom_controller.html">Adding a Custom Controller</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="operation_modes/modes.html">Modes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="operation_modes/interface.html">Mode Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="operation_modes/provided_modes.html">Provided State Machine Modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="operation_modes/custom_modes.html">Adding Custom Modes to the State Machine</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="geofencing/geofencing.html">Geofencing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="geofencing/geofencing.html#definition-of-the-geofencing-interface">Definition of the Geofencing Interface</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="trajectory_manager/trajectory_manager.html">Trajectory Manager</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="trajectory_manager/mathematical.html">Mathematical Background</a></li>
+<li class="toctree-l2"><a class="reference internal" href="trajectory_manager/interface.html">Trajectory Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="trajectory_manager/trajectories.html">Provided Trajectories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="trajectory_manager/custom_trajectories.html">Adding Custom Static Trajectories</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../../setup/reference_frames.html" class="btn btn-neutral float-left" title="Standards" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autopilot/autopilot.html" class="btn btn-neutral float-right" title="Autopilot" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Marcelo Jacinto.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

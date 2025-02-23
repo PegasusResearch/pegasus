@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PID Controller &mdash; Pegasus  documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"]], "displayMath": [["\\[", "\\]"]]}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Mellinger Controller" href="mellinger.html" />
+    <link rel="prev" title="Controller Interface" href="interface.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #000000" >
+
+          
+          
+          <a href="../../../../index.html">
+            
+              <img src="../../../../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup/project_setup.html">Project Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup/reference_frames.html">Standards</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Features</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../main.html">Autopilot</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../autopilot/autopilot.html">Autopilot</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="controllers.html">Controllers</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="interface.html">Controller Interface</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">PID Controller</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#mathematical-background">Mathematical Background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation">Implementation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mellinger.html">Mellinger Controller</a></li>
+<li class="toctree-l3"><a class="reference internal" href="custom_controller.html">Adding a Custom Controller</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../operation_modes/modes.html">Modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../geofencing/geofencing.html">Geofencing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../trajectory_manager/trajectory_manager.html">Trajectory Manager</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../console/terminal_console.html">Terminal console</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Simulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../simulation/gazebo_classic.html">Gazebo Classic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../simulation/pegasus_simulator.html">Pegasus Simulator</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Vehicles</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../vehicles/vehicles.html">Vehicles</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Flight Arena</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../arena/arena.html">Taguspark Flight Arena</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../references/license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../references/bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #000000" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Pegasus</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../main.html">Autopilot</a></li>
+          <li class="breadcrumb-item"><a href="controllers.html">Controllers</a></li>
+      <li class="breadcrumb-item active">PID Controller</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/source/features/autopilot/controllers/pid.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pid-controller">
+<h1>PID Controller<a class="headerlink" href="#pid-controller" title="Permalink to this heading"></a></h1>
+<p>In this section we detail the mathematical background for the PID controller that is implemented in the Pegasus Autopilot, which sends attitude and total thrust commands for the inner-loops of the vehicle to track.
+This is the same algorithm used in <span id="id1">[<a class="reference internal" href="../../../references/bibliography.html#id2" title="Marcelo Jacinto. Cooperative motion control of aerial and marine vehicles for environmental applications. Master's thesis, Instituto Superior Técnico, October 2021. URL: https://fenix.tecnico.ulisboa.pt/cursos/meec/dissertacao/1972678479054971.">Jac21</a>, <a class="reference internal" href="../../../references/bibliography.html#id3" title="Marcelo Jacinto, Rita Cunha, and António Pascoal. Chemical spill encircling using a quadrotor and autonomous surface vehicles: a distributed cooperative approach. Sensors, 22(6):2178, 2022.">JCP22</a>]</span>.</p>
+<section id="mathematical-background">
+<h2>Mathematical Background<a class="headerlink" href="#mathematical-background" title="Permalink to this heading"></a></h2>
+<p>Consider a multirotor vehicle given by the double-integrator model:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\ddot{p} &amp;= g e_3 \underbrace{- \frac{T}{m}R e_3}_{u} \\
+         &amp;= g e_3 + u\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(u \in \mathbb{R}^3\)</span> is the acceleration input of the system. Consider also the tracking error system:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}e_p &amp;= p_d - p \\
+\dot{e}_p &amp;= e_v = v_d - v\end{split}\]</div>
+<p>The controller can then be given by the Proportional-Derivative (PD) controller with an acceleration feed-forward term</p>
+<div class="math notranslate nohighlight">
+\[u = K_p e_p + K_d e_v + a_d - ge_3,\]</div>
+<p>can render the system globally assymptotically stable (GAS). From the equality</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}u &amp;= - \frac{T}{m}R e_3 \\
+  &amp;= - \frac{T}{m}R_z({\psi_{des}})R_y({\theta_{des}})R_x({\phi_{des}}) e_3 \\
+  &amp; = - \frac{T}{m}R_z({\psi_{des}})r_{3d} \\\end{split}\]</div>
+<p>we can take the total thrust (in Newton) to be given by <span class="math notranslate nohighlight">\(T = m|| u ||\)</span>. Replacing in the previous equations yields</p>
+<div class="math notranslate nohighlight">
+\[r_{3d} = -R_z^\top({\psi_{des}})\frac{u}{||u||}\]</div>
+<p>But we also know that</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}r_{3d} = R_y({\theta_{des}})R_x({\phi_{des}}) e_3 = \begin{bmatrix} \cos(\phi_{des})\sin(\theta_{des}) \\ -\sin(\phi_{des}) \\ \cos(\theta_{des})\cos(\phi_{des}) \end{bmatrix} = \begin{bmatrix} r_{31} \\ r_{32} \\ r_{33} \end{bmatrix}\end{split}\]</div>
+<div class="admonition-reference-frames admonition">
+<p class="admonition-title">Reference Frames</p>
+<p>Reminder that the reference frames are defined as follows:
+- The inertial frame <span class="math notranslate nohighlight">\(\mathcal{I}\)</span> is defined according to the North-East-Down (NED) convention.
+- The body frame: <span class="math notranslate nohighlight">\(\mathcal{B}\)</span> is defined according to the Forward-Right-Down (FRD) convention.</p>
+<p>Therefore, a minus sign appears in the <span class="math notranslate nohighlight">\(r_{3d}\)</span> as the body z-axis is pointing downwards, but the acceleration vector is pointing upwards.</p>
+</div>
+<p>Finally, we can compute the desired roll <span class="math notranslate nohighlight">\(\phi_{des}\)</span>, pitch <span class="math notranslate nohighlight">\(\theta_{des}\)</span> angles as follows</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\phi_{des} &amp;= \arcsin(-r_{32}) \\
+\theta_{des} &amp;= \arctan \left(\frac{r_{31}}{r_{33}}\right)\end{split}\]</div>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Permalink to this heading"></a></h2>
+<p>The corresponding code for computing the desired acceleration is implemented in <code class="docutils literal notranslate"><span class="pre">pegasus_autopilot/autopilot_controllers/src/pid_controller.cpp</span></code>. The code is shown below:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kt">void</span><span class="w"> </span><span class="nf">PIDController::set_position</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="o">&amp;</span><span class="w"> </span><span class="n">position</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="o">&amp;</span><span class="w"> </span><span class="n">velocity</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="o">&amp;</span><span class="w"> </span><span class="n">acceleration</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="o">&amp;</span><span class="w"> </span><span class="n">jerk</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="o">&amp;</span><span class="w"> </span><span class="n">snap</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">yaw</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">yaw_rate</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">dt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="w">    </span><span class="c1">// Ignore jerk, snap and yaw_rate references</span>
+<span class="linenos"> 4</span><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="n">jerk</span><span class="p">;</span>
+<span class="linenos"> 5</span><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="n">snap</span><span class="p">;</span>
+<span class="linenos"> 6</span><span class="w">    </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="n">yaw_rate</span><span class="p">;</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="w">    </span><span class="c1">// Get the current state of the vehicle</span>
+<span class="linenos"> 9</span><span class="w">    </span><span class="n">State</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_vehicle_state</span><span class="p">();</span>
+<span class="linenos">10</span><span class="w">    </span>
+<span class="linenos">11</span><span class="w">    </span><span class="c1">// Compute the position error and velocity error using the path desired position and velocity</span>
+<span class="linenos">12</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">pos_error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">position</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">position</span><span class="p">;</span>
+<span class="linenos">13</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">vel_error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">velocity</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">velocity</span><span class="p">;</span>
+<span class="linenos">14</span>
+<span class="linenos">15</span><span class="w">    </span><span class="c1">// Compute the desired control output acceleration for each controller</span>
+<span class="linenos">16</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">u</span><span class="p">;</span>
+<span class="linenos">17</span><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">g</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">9.81</span><span class="p">);</span>
+<span class="linenos">18</span><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="n">u</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">controllers_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">compute_output</span><span class="p">(</span><span class="n">pos_error</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">vel_error</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">acceleration</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">dt</span><span class="p">);</span><span class="w"> </span><span class="c1">// (acceleration[i] - g[i])* mass_</span>
+<span class="linenos">19</span><span class="w">    </span>
+<span class="linenos">20</span><span class="w">    </span><span class="n">u</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">u</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">9.81</span><span class="p">;</span>
+<span class="linenos">21</span>
+<span class="linenos">22</span><span class="w">    </span><span class="c1">// Convert the acceleration to attitude and thrust</span>
+<span class="linenos">23</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector4d</span><span class="w"> </span><span class="n">attitude_thrust</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_attitude_thrust_from_acceleration</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">mass_</span><span class="p">,</span><span class="w"> </span><span class="n">Pegasus</span><span class="o">::</span><span class="n">Rotations</span><span class="o">::</span><span class="n">deg_to_rad</span><span class="p">(</span><span class="n">yaw</span><span class="p">));</span>
+<span class="linenos">24</span>
+<span class="linenos">25</span><span class="w">    </span><span class="c1">// Set the control output</span>
+<span class="linenos">26</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">attitude_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="p">(</span>
+<span class="linenos">27</span><span class="w">        </span><span class="n">Pegasus</span><span class="o">::</span><span class="n">Rotations</span><span class="o">::</span><span class="n">rad_to_deg</span><span class="p">(</span><span class="n">attitude_thrust</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="w"> </span>
+<span class="linenos">28</span><span class="w">        </span><span class="n">Pegasus</span><span class="o">::</span><span class="n">Rotations</span><span class="o">::</span><span class="n">rad_to_deg</span><span class="p">(</span><span class="n">attitude_thrust</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span><span class="w"> </span>
+<span class="linenos">29</span><span class="w">        </span><span class="n">Pegasus</span><span class="o">::</span><span class="n">Rotations</span><span class="o">::</span><span class="n">rad_to_deg</span><span class="p">(</span><span class="n">attitude_thrust</span><span class="p">[</span><span class="mi">2</span><span class="p">]));</span>
+<span class="linenos">30</span>
+<span class="linenos">31</span><span class="w">    </span><span class="c1">// Send the attitude and thrust to the attitude controller</span>
+<span class="linenos">32</span><span class="w">    </span><span class="n">set_attitude</span><span class="p">(</span><span class="n">attitude_target</span><span class="p">,</span><span class="w"> </span><span class="n">attitude_thrust</span><span class="p">[</span><span class="mi">3</span><span class="p">]);</span>
+<span class="linenos">33</span>
+<span class="linenos">34</span><span class="w">    </span><span class="c1">// Update and publish the PID statistics</span>
+<span class="linenos">35</span><span class="w">    </span><span class="n">update_statistics</span><span class="p">(</span><span class="n">position</span><span class="p">);</span>
+<span class="linenos">36</span><span class="w">    </span><span class="n">statistics_pub_</span><span class="o">-&gt;</span><span class="n">publish</span><span class="p">(</span><span class="n">pid_statistics_msg_</span><span class="p">);</span>
+<span class="linenos">37</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>The code for converting the desired acceleration into a set of desired roll and pitch angles + total thrust is shown below:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector4d</span><span class="w"> </span><span class="nf">PIDController::get_attitude_thrust_from_acceleration</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">mass</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">yaw</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Matrix3d</span><span class="w"> </span><span class="n">RzT</span><span class="p">;</span>
+<span class="linenos"> 4</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">r3d</span><span class="p">;</span>
+<span class="linenos"> 5</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector4d</span><span class="w"> </span><span class="n">attitude_thrust</span><span class="p">;</span>
+<span class="linenos"> 6</span>
+<span class="linenos"> 7</span><span class="w">    </span><span class="cm">/* Compute the normalized thrust and r3d vector */</span>
+<span class="linenos"> 8</span><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mass</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">norm</span><span class="p">();</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="w">    </span><span class="cm">/* Compute the rotation matrix about the Z-axis */</span>
+<span class="linenos">11</span><span class="w">    </span><span class="n">RzT</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">cos</span><span class="p">(</span><span class="n">yaw</span><span class="p">),</span><span class="w"> </span><span class="n">sin</span><span class="p">(</span><span class="n">yaw</span><span class="p">),</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="linenos">12</span><span class="w">          </span><span class="o">-</span><span class="n">sin</span><span class="p">(</span><span class="n">yaw</span><span class="p">),</span><span class="w"> </span><span class="n">cos</span><span class="p">(</span><span class="n">yaw</span><span class="p">),</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="linenos">13</span><span class="w">                </span><span class="mf">0.0</span><span class="p">,</span><span class="w">      </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
+<span class="linenos">14</span>
+<span class="linenos">15</span><span class="w">    </span><span class="cm">/* Compute the normalized rotation */</span>
+<span class="linenos">16</span><span class="w">    </span><span class="n">r3d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">RzT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">u</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">u</span><span class="p">.</span><span class="n">norm</span><span class="p">();</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span><span class="w">    </span><span class="cm">/* Compute the actual attitude and setup the desired thrust to apply to the vehicle */</span>
+<span class="linenos">19</span><span class="w">    </span><span class="n">attitude_thrust</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">asin</span><span class="p">(</span><span class="o">-</span><span class="n">r3d</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span><span class="w"> </span><span class="n">atan2</span><span class="p">(</span><span class="n">r3d</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">r3d</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span><span class="w"> </span><span class="n">yaw</span><span class="p">,</span><span class="w"> </span><span class="n">T</span><span class="p">;</span>
+<span class="linenos">20</span><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">attitude_thrust</span><span class="p">;</span>
+<span class="linenos">21</span><span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition-integral-action admonition">
+<p class="admonition-title">Integral Action</p>
+<p>Since the quadrotor can be viewed as a double integrator, the integral action is not necessary for the system to be stable, and the natural position controller that emerges is a Proportional-Derivative (PD). However, in practice a little bit of integral action can be used to improve the tracking performance of the system and accomodade for model uncertainties (such as the mass).</p>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="interface.html" class="btn btn-neutral float-left" title="Controller Interface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mellinger.html" class="btn btn-neutral float-right" title="Mellinger Controller" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Marcelo Jacinto.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -5,24 +5,24 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Geofencing &mdash; Pegasus  documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
   <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/js/theme.js"></script>
-    <link rel="index" title="Index" href="../../genindex.html" />
-    <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Trajectory Manager" href="trajectory_manager.html" />
-    <link rel="prev" title="Controllers" href="controllers.html" /> 
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Trajectory Manager" href="../trajectory_manager/trajectory_manager.html" />
+    <link rel="prev" title="Adding Custom Modes to the State Machine" href="../operation_modes/custom_modes.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -33,12 +33,12 @@
 
           
           
-          <a href="../../index.html">
+          <a href="../../../../index.html">
             
-              <img src="../../_static/logo.png" class="logo" alt="Logo"/>
+              <img src="../../../../_static/logo.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -47,38 +47,42 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../setup/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../setup/reference_frames.html">Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup/project_setup.html">Project Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup/reference_frames.html">Standards</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Features</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="autopilot.html">Autopilot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modes.html">Modes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="controllers.html">Controllers</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Geofencing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#definition-of-the-geofencing-interface">0. Definition of the Geofencing Interface</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../main.html">Autopilot</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../autopilot/autopilot.html">Autopilot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../controllers/controllers.html">Controllers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../operation_modes/modes.html">Modes</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Geofencing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#definition-of-the-geofencing-interface">Definition of the Geofencing Interface</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="trajectory_manager.html">Trajectory Manager</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../console/terminal_console.html">Terminal console</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../trajectory_manager/trajectory_manager.html">Trajectory Manager</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../console/terminal_console.html">Terminal console</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Simulation</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../simulation/gazebo_classic.html">Gazebo Classic</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../simulation/pegasus_simulator.html">Pegasus Simulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../simulation/gazebo_classic.html">Gazebo Classic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../simulation/pegasus_simulator.html">Pegasus Simulator</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Vehicles</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../vehicles/vehicles.html">Vehicles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vehicles/vehicles.html">Vehicles</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Flight Arena</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../arena/arena.html">Taguspark Flight Arena</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../arena/arena.html">Taguspark Flight Arena</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../references/license.html">License</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../references/bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../references/license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../references/bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -87,17 +91,18 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #000000" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../index.html">Pegasus</a>
+          <a href="../../../../index.html">Pegasus</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../main.html">Autopilot</a></li>
       <li class="breadcrumb-item active">Geofencing</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/source/features/geofencing.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../../../_sources/source/features/autopilot/geofencing/geofencing.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -108,7 +113,7 @@
   <section id="geofencing">
 <h1>Geofencing<a class="headerlink" href="#geofencing" title="Permalink to this heading"></a></h1>
 <section id="definition-of-the-geofencing-interface">
-<h2>0. Definition of the Geofencing Interface<a class="headerlink" href="#definition-of-the-geofencing-interface" title="Permalink to this heading"></a></h2>
+<h2>Definition of the Geofencing Interface<a class="headerlink" href="#definition-of-the-geofencing-interface" title="Permalink to this heading"></a></h2>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">namespace</span><span class="w"> </span><span class="nn">autopilot</span><span class="w"> </span><span class="p">{</span>
 <span class="linenos"> 2</span>
 <span class="linenos"> 3</span><span class="k">class</span><span class="w"> </span><span class="nc">Geofencing</span><span class="w"> </span><span class="p">{</span>
@@ -142,15 +147,15 @@
 <span class="linenos">31</span><span class="w">        </span><span class="n">initialize</span><span class="p">();</span>
 <span class="linenos">32</span><span class="w">    </span><span class="p">}</span>
 <span class="linenos">33</span>
-<span class="linenos">34</span><span class="w">    </span><span class="cm">/** @brief Initialize the custom geofencing object */</span>
-<span class="linenos">35</span><span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="linenos">36</span>
+<span class="hll"><span class="linenos">34</span><span class="w">    </span><span class="cm">/** @brief Initialize the custom geofencing object */</span>
+</span><span class="hll"><span class="linenos">35</span><span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span class="linenos">36</span>
 <span class="linenos">37</span><span class="w">    </span><span class="cm">/** </span>
 <span class="linenos">38</span><span class="cm">     * @brief Checks if a geofencing violation has ocurred.</span>
 <span class="linenos">39</span><span class="cm">     * @return true if a geofencing violation has ocurred, false otherwise</span>
 <span class="linenos">40</span><span class="cm">     */</span>
-<span class="linenos">41</span><span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">check_geofencing_violation</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="linenos">42</span>
+<span class="hll"><span class="linenos">41</span><span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">check_geofencing_violation</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span class="linenos">42</span>
 <span class="linenos">43</span><span class="k">protected</span><span class="o">:</span>
 <span class="linenos">44</span>
 <span class="linenos">45</span><span class="w">    </span><span class="c1">// Node</span>
@@ -172,8 +177,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="controllers.html" class="btn btn-neutral float-left" title="Controllers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="trajectory_manager.html" class="btn btn-neutral float-right" title="Trajectory Manager" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../operation_modes/custom_modes.html" class="btn btn-neutral float-left" title="Adding Custom Modes to the State Machine" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../trajectory_manager/trajectory_manager.html" class="btn btn-neutral float-right" title="Trajectory Manager" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

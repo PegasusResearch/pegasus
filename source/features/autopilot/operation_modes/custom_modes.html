@@ -4,25 +4,25 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modes &mdash; Pegasus  documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  <title>Adding Custom Modes to the State Machine &mdash; Pegasus  documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
   <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/js/theme.js"></script>
-    <link rel="index" title="Index" href="../../genindex.html" />
-    <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Controllers" href="controllers.html" />
-    <link rel="prev" title="Autopilot" href="autopilot.html" /> 
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Geofencing" href="../geofencing/geofencing.html" />
+    <link rel="prev" title="Provided State Machine Modes" href="provided_modes.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -33,12 +33,12 @@
 
           
           
-          <a href="../../index.html">
+          <a href="../../../../index.html">
             
-              <img src="../../_static/logo.png" class="logo" alt="Logo"/>
+              <img src="../../../../_static/logo.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -47,40 +47,44 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../setup/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../setup/reference_frames.html">Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup/project_setup.html">Project Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup/reference_frames.html">Standards</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Features</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="autopilot.html">Autopilot</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Modes</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#mode-interface">0. Mode Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#provided-state-machine-modes">1. Provided State Machine Modes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#adding-custom-modes-to-the-state-machine">2. Adding Custom Modes to the State Machine</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../main.html">Autopilot</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../autopilot/autopilot.html">Autopilot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../controllers/controllers.html">Controllers</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="modes.html">Modes</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="interface.html">Mode Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="provided_modes.html">Provided State Machine Modes</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Adding Custom Modes to the State Machine</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="controllers.html">Controllers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="geofencing.html">Geofencing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="trajectory_manager.html">Trajectory Manager</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../console/terminal_console.html">Terminal console</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../geofencing/geofencing.html">Geofencing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../trajectory_manager/trajectory_manager.html">Trajectory Manager</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../console/terminal_console.html">Terminal console</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Simulation</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../simulation/gazebo_classic.html">Gazebo Classic</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../simulation/pegasus_simulator.html">Pegasus Simulator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../simulation/gazebo_classic.html">Gazebo Classic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../simulation/pegasus_simulator.html">Pegasus Simulator</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Vehicles</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../vehicles/vehicles.html">Vehicles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vehicles/vehicles.html">Vehicles</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Flight Arena</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../arena/arena.html">Taguspark Flight Arena</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../arena/arena.html">Taguspark Flight Arena</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../references/license.html">License</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../references/bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../references/license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../references/bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -89,17 +93,19 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #000000" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../index.html">Pegasus</a>
+          <a href="../../../../index.html">Pegasus</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Modes</li>
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../main.html">Autopilot</a></li>
+          <li class="breadcrumb-item"><a href="modes.html">Modes</a></li>
+      <li class="breadcrumb-item active">Adding Custom Modes to the State Machine</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/source/features/modes.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../../../_sources/source/features/autopilot/operation_modes/custom_modes.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -107,163 +113,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="modes">
-<h1>Modes<a class="headerlink" href="#modes" title="Permalink to this heading"></a></h1>
-<p>An operation <code class="docutils literal notranslate"><span class="pre">mode</span></code> is a state in which the autopilot can be in. The autopilot can be in only one mode at a time.
-In this section we provide an overview on the autopilot operating modes and how to add custom modes to the state machine.</p>
-<p>Depending on the target application, an autopilot <code class="docutils literal notranslate"><span class="pre">mode</span></code> can be used to define a new behaviour for the vehicle to execute,
-or be used to prototype a controller as well. For instance, if you want to prototype a new controller to be used only for following
-a specific trajectory, then it might make sense to implement it as a <code class="docutils literal notranslate"><span class="pre">mode</span></code> rather than a <code class="docutils literal notranslate"><span class="pre">controller</span></code> that is used by all the other available modes.</p>
-<p>This page is structured as follows:</p>
-<ul class="simple">
-<li><p>Section <a class="reference internal" href="#mode-interface"><span class="std std-ref">0. Mode Interface</span></a> introduces the “Mode” class that defines the interface for the autopilot operating modes.</p></li>
-<li><p>Section <a class="reference internal" href="#provided-state-machine-modes"><span class="std std-ref">1. Provided State Machine Modes</span></a> provides an overview of the provided operating modes and where they are implemented.</p></li>
-<li><p>Section <a class="reference internal" href="#adding-custom-modes-to-the-state-machine"><span class="std std-ref">2. Adding Custom Modes to the State Machine</span></a> provides a step-by-step guide on how to add custom operating modes to the state machine.</p></li>
-</ul>
-<section id="mode-interface">
-<h2>0. Mode Interface<a class="headerlink" href="#mode-interface" title="Permalink to this heading"></a></h2>
-<p>The interface for the autopilot operating modes is defined in the autopilot package under the <code class="docutils literal notranslate"><span class="pre">pegasus_autopilot/autopilot/include/autopilot/mode.hpp</span></code> header file.
-The <code class="docutils literal notranslate"><span class="pre">Mode</span></code> class is an abstract class that defines the interface for the autopilot operating modes.</p>
-<p>The autopilot operating modes must inherit from the <code class="docutils literal notranslate"><span class="pre">Mode</span></code> class and implement the methods
-highlighted in yellow (lines 42-47) in the code snippet below:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="k">namespace</span><span class="w"> </span><span class="nn">autopilot</span><span class="w"> </span><span class="p">{</span>
-<span class="linenos"> 2</span>
-<span class="linenos"> 3</span><span class="k">class</span><span class="w"> </span><span class="nc">Mode</span><span class="w"> </span><span class="p">{</span>
-<span class="linenos"> 4</span>
-<span class="linenos"> 5</span><span class="k">public</span><span class="o">:</span>
-<span class="linenos"> 6</span>
-<span class="linenos"> 7</span><span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">SharedPtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Mode</span><span class="o">&gt;</span><span class="p">;</span>
-<span class="linenos"> 8</span><span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">UniquePtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">Mode</span><span class="o">&gt;</span><span class="p">;</span>
-<span class="linenos"> 9</span><span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">WeakPtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">Mode</span><span class="o">&gt;</span><span class="p">;</span>
-<span class="linenos">10</span>
-<span class="linenos">11</span><span class="w">    </span><span class="c1">// Configuration for the operation mode</span>
-<span class="linenos">12</span><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">Config</span><span class="w"> </span><span class="p">{</span>
-<span class="linenos">13</span><span class="w">        </span><span class="n">rclcpp</span><span class="o">::</span><span class="n">Node</span><span class="o">::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">node</span><span class="p">;</span><span class="w">                                           </span><span class="c1">// ROS 2 node ptr (in case the mode needs to create publishers, subscribers, etc.)</span>
-<span class="linenos">14</span><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="n">State</span><span class="p">()</span><span class="o">&gt;</span><span class="w"> </span><span class="n">get_vehicle_state</span><span class="p">;</span><span class="w">                               </span><span class="c1">// Function pointer to get the current state of the vehicle      </span>
-<span class="linenos">15</span><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="n">VehicleStatus</span><span class="p">()</span><span class="o">&gt;</span><span class="w"> </span><span class="n">get_vehicle_status</span><span class="p">;</span><span class="w">                      </span><span class="c1">// Function pointer to get the current status of the vehicle  </span>
-<span class="linenos">16</span><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="n">VehicleConstants</span><span class="p">()</span><span class="o">&gt;</span><span class="w"> </span><span class="n">get_vehicle_constants</span><span class="p">;</span><span class="w">                </span><span class="c1">// Function pointer to get the current dynamical constants of the vehicle    </span>
-<span class="linenos">17</span><span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">()</span><span class="o">&gt;</span><span class="w"> </span><span class="n">signal_mode_finished</span><span class="p">;</span><span class="w">                             </span><span class="c1">// Function pointer to signal that the mode has finished operating</span>
-<span class="linenos">18</span><span class="w">        </span><span class="n">Controller</span><span class="o">::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">controller</span><span class="p">;</span><span class="w">                                       </span><span class="c1">// Controller to be used by the mode</span>
-<span class="linenos">19</span><span class="w">        </span><span class="n">TrajectoryManager</span><span class="o">::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">trajectory_manager</span><span class="p">;</span><span class="w">                        </span><span class="c1">// Trajectory manager that can be used by some modes</span>
-<span class="linenos">20</span><span class="w">    </span><span class="p">};</span>
-<span class="linenos">21</span>
-<span class="linenos">22</span><span class="w">    </span><span class="c1">// Custom constructor like function - as we must have the default constructor for the pluginlib</span>
-<span class="linenos">23</span><span class="w">    </span><span class="kr">inline</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize_mode</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Mode</span><span class="o">::</span><span class="n">Config</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">config</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="linenos">24</span>
-<span class="linenos">25</span><span class="w">        </span><span class="c1">// Initialize the base class</span>
-<span class="linenos">26</span><span class="w">        </span><span class="n">node_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="n">node</span><span class="p">;</span>
-<span class="linenos">27</span><span class="w">        </span><span class="n">get_vehicle_state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="n">get_vehicle_state</span><span class="p">;</span>
-<span class="linenos">28</span><span class="w">        </span><span class="n">get_vehicle_status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="n">get_vehicle_status</span><span class="p">;</span>
-<span class="linenos">29</span><span class="w">        </span><span class="n">get_vehicle_constants</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="n">get_vehicle_constants</span><span class="p">;</span><span class="w">        </span>
-<span class="linenos">30</span><span class="w">        </span><span class="n">signal_mode_finished</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="n">signal_mode_finished</span><span class="p">;</span>
-<span class="linenos">31</span>
-<span class="linenos">32</span><span class="w">        </span><span class="c1">// Initialize the controller</span>
-<span class="linenos">33</span><span class="w">        </span><span class="n">controller_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="n">controller</span><span class="p">;</span>
-<span class="linenos">34</span>
-<span class="linenos">35</span><span class="w">        </span><span class="c1">// Initialize the trajectory manager</span>
-<span class="linenos">36</span><span class="w">        </span><span class="n">trajectory_manager_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="n">trajectory_manager</span><span class="p">;</span>
-<span class="linenos">37</span>
-<span class="linenos">38</span><span class="w">        </span><span class="c1">// Initialize the derived class</span>
-<span class="linenos">39</span><span class="w">        </span><span class="n">initialize</span><span class="p">();</span>
-<span class="linenos">40</span><span class="w">    </span><span class="p">}</span>
-<span class="linenos">41</span>
-<span class="hll"><span class="linenos">42</span><span class="w">    </span><span class="c1">// Methods that can be implemented by derived classes</span>
-</span><span class="hll"><span class="linenos">43</span><span class="w">    </span><span class="c1">// that are executed by the state machine when entering, exiting or updating the mode</span>
-</span><span class="hll"><span class="linenos">44</span><span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">initialize</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-</span><span class="hll"><span class="linenos">45</span><span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">enter</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-</span><span class="hll"><span class="linenos">46</span><span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">exit</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-</span><span class="hll"><span class="linenos">47</span><span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">dt</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-</span><span class="linenos">48</span>
-<span class="linenos">49</span><span class="k">protected</span><span class="o">:</span>
-<span class="linenos">50</span>
-<span class="linenos">51</span><span class="w">    </span><span class="c1">// The ROS 2 node</span>
-<span class="linenos">52</span><span class="w">    </span><span class="n">rclcpp</span><span class="o">::</span><span class="n">Node</span><span class="o">::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">node_</span><span class="p">{</span><span class="k">nullptr</span><span class="p">};</span>
-<span class="linenos">53</span>
-<span class="linenos">54</span><span class="w">    </span><span class="c1">// The controller object that can be used by each mode to track references</span>
-<span class="linenos">55</span><span class="w">    </span><span class="n">Controller</span><span class="o">::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">controller_</span><span class="p">{</span><span class="k">nullptr</span><span class="p">};</span>
-<span class="linenos">56</span>
-<span class="linenos">57</span><span class="w">    </span><span class="c1">// The trajectory manager object that can be used by each mode to generate references to track</span>
-<span class="linenos">58</span><span class="w">    </span><span class="n">TrajectoryManager</span><span class="o">::</span><span class="n">SharedPtr</span><span class="w"> </span><span class="n">trajectory_manager_</span><span class="p">{</span><span class="k">nullptr</span><span class="p">};</span>
-<span class="linenos">59</span>
-<span class="linenos">60</span><span class="w">    </span><span class="c1">// Function pointer which will be instantiated with the function pointers passed in the configuration</span>
-<span class="linenos">61</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="n">State</span><span class="p">()</span><span class="o">&gt;</span><span class="w"> </span><span class="n">get_vehicle_state</span><span class="p">{</span><span class="k">nullptr</span><span class="p">};</span>
-<span class="linenos">62</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="n">VehicleStatus</span><span class="p">()</span><span class="o">&gt;</span><span class="w"> </span><span class="n">get_vehicle_status</span><span class="p">{</span><span class="k">nullptr</span><span class="p">};</span>
-<span class="linenos">63</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="n">VehicleConstants</span><span class="p">()</span><span class="o">&gt;</span><span class="w"> </span><span class="n">get_vehicle_constants</span><span class="p">{</span><span class="k">nullptr</span><span class="p">};</span>
-<span class="linenos">64</span>
-<span class="linenos">65</span><span class="w">    </span><span class="c1">// Function pointer to signal that the mode has finished operating</span>
-<span class="linenos">66</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">()</span><span class="o">&gt;</span><span class="w"> </span><span class="n">signal_mode_finished</span><span class="p">{</span><span class="k">nullptr</span><span class="p">};</span>
-<span class="linenos">67</span><span class="p">};</span>
-<span class="linenos">68</span>
-<span class="linenos">69</span><span class="p">}</span><span class="w"> </span><span class="c1">// namespace autopilot</span>
-</pre></div>
-</div>
-<p>Additionally, the <code class="docutils literal notranslate"><span class="pre">Mode</span></code> class provides methods to get:</p>
-<ol class="arabic simple">
-<li><p>The current <code class="docutils literal notranslate"><span class="pre">State</span></code> of the vehicle can be accessed by calling <code class="docutils literal notranslate"><span class="pre">get_vehicle_state()</span></code> . It returns the following struct:</p></li>
-</ol>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="k">namespace</span><span class="w"> </span><span class="nn">autopilot</span><span class="w"> </span><span class="p">{</span>
-<span class="linenos">2</span><span class="c1">// State of the vehicle</span>
-<span class="linenos">3</span><span class="k">struct</span><span class="w"> </span><span class="nc">State</span><span class="w"> </span><span class="p">{</span>
-<span class="linenos">4</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">position</span><span class="p">{</span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="o">::</span><span class="n">Zero</span><span class="p">()};</span><span class="w">           </span><span class="c1">// Position of the vehicle (FRD) in the world frame NED</span>
-<span class="linenos">5</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">velocity</span><span class="p">{</span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="o">::</span><span class="n">Zero</span><span class="p">()};</span><span class="w">           </span><span class="c1">// Velocity of the vehicle (FRD) with respect to the world frame NED expressed in the world frame NED</span>
-<span class="linenos">6</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Quaterniond</span><span class="w"> </span><span class="n">attitude</span><span class="p">{</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">};</span><span class="w">             </span><span class="c1">// Attitude of the vehicle (FRD) with respect to the world frame NED expressed in the world frame NED</span>
-<span class="linenos">7</span><span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="w"> </span><span class="n">angular_velocity</span><span class="p">{</span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="o">::</span><span class="n">Zero</span><span class="p">()};</span><span class="w">   </span><span class="c1">// Angular velocity of the vehicle (FRD) with respect to the world frame NED expressed in the body frame FRD</span>
-<span class="linenos">8</span><span class="p">};</span>
-</pre></div>
-</div>
-<ol class="arabic simple" start="2">
-<li><p>The <code class="docutils literal notranslate"><span class="pre">Status</span></code> of the vehicle can be accessed by calling <code class="docutils literal notranslate"><span class="pre">get_vehicle_status()</span></code> . It returns the following struct:</p></li>
-</ol>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="k">namespace</span><span class="w"> </span><span class="nn">autopilot</span><span class="w"> </span><span class="p">{</span>
-<span class="linenos">2</span><span class="c1">// Status of the vehicle</span>
-<span class="linenos">3</span><span class="k">struct</span><span class="w"> </span><span class="nc">VehicleStatus</span><span class="w"> </span><span class="p">{</span>
-<span class="linenos">4</span><span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">armed</span><span class="p">{</span><span class="nb">false</span><span class="p">};</span><span class="w">      </span><span class="c1">// Whether the vehicle is armed</span>
-<span class="linenos">5</span><span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">flying</span><span class="p">{</span><span class="nb">false</span><span class="p">};</span><span class="w">     </span><span class="c1">// Whether the vehicle is flying</span>
-<span class="linenos">6</span><span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">offboard</span><span class="p">{</span><span class="nb">false</span><span class="p">};</span><span class="w">   </span><span class="c1">// Whether the vehicle is in offboard mode</span>
-<span class="linenos">7</span><span class="p">};</span>
-</pre></div>
-</div>
-<ol class="arabic simple" start="3">
-<li><p>The <code class="docutils literal notranslate"><span class="pre">Constants</span></code> such as mass or thrust curve can be accessed by calling <code class="docutils literal notranslate"><span class="pre">get_vehicle_constants</span></code> . It returns the following struct:</p></li>
-</ol>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="k">namespace</span><span class="w"> </span><span class="nn">autopilot</span><span class="w"> </span><span class="p">{</span>
-<span class="linenos">2</span><span class="c1">// Dynamical constants of the vehicle</span>
-<span class="linenos">3</span><span class="k">struct</span><span class="w"> </span><span class="nc">VehicleConstants</span><span class="w"> </span><span class="p">{</span>
-<span class="linenos">4</span><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">{</span><span class="mi">0</span><span class="p">};</span><span class="w">                                                                </span><span class="c1">// ID of the vehicle         </span>
-<span class="linenos">5</span><span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">mass</span><span class="p">{</span><span class="mf">0.0</span><span class="p">};</span><span class="w">                                                         </span><span class="c1">// Mass of the vehicle (in Kg)</span>
-<span class="linenos">6</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">thrust_curve_id</span><span class="p">{</span><span class="s">&quot;None&quot;</span><span class="p">};</span><span class="w">                                      </span><span class="c1">// Thrust curve of the vehicle</span>
-<span class="linenos">7</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">thurst_curve_params</span><span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()};</span><span class="w"> </span><span class="c1">// Thrust curve parameters</span>
-<span class="linenos">8</span><span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">thrust_curve_values</span><span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">()};</span><span class="w">           </span><span class="c1">// Thrust curve values associated with the parameters</span>
-</pre></div>
-</div>
-<p>This means that to access these values, you do not need to manually subscribe to the ROS 2 topics. The autopilot
-takes care of that for you. However, if you are required to access other values that are not provided by the <code class="docutils literal notranslate"><span class="pre">Mode</span></code> class, or if you need to publish
-values to the ROS 2 topics, you can do so by using the <code class="docutils literal notranslate"><span class="pre">node_</span></code> shared pointer that is a member of the <code class="docutils literal notranslate"><span class="pre">Mode</span></code> class.</p>
-<p>4. The <code class="docutils literal notranslate"><span class="pre">Mode</span></code> class also provides a shared pointer to a <code class="docutils literal notranslate"><span class="pre">controller_</span></code> object that can be used to access the controller interface. To check
-the available methods in the controller interface, please refer to the <a class="reference internal" href="controllers.html#controllers"><span class="std std-ref">Controllers</span></a> page. This is useful if you want to send control commands to the vehicle
-without having to publish to the ROS 2 topics directly. The autopilot takes care of that for you.</p>
-<p>5. The <code class="docutils literal notranslate"><span class="pre">Mode</span></code> class also provides a shared pointer to a <code class="docutils literal notranslate"><span class="pre">trajectory_manager_</span></code> object that can be used to access the trajectory manager interface. To check
-the available methods in the trajectory manager interface, please refer to the <a class="reference internal" href="trajectory_manager.html#trajectory-manager"><span class="std std-ref">Trajectory Manager</span></a> page. This is useful if your mode needs to follow a trajectory
-and you don’t want to manually subscribe to the ROS 2 topics or hard-code the trajectory in the mode.</p>
-</section>
-<section id="provided-state-machine-modes">
-<h2>1. Provided State Machine Modes<a class="headerlink" href="#provided-state-machine-modes" title="Permalink to this heading"></a></h2>
-<p>The autopilot provides the following operating modes:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">Arm</span></code> - The vehicle is armed and ready to take off.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Disarm</span></code> - The vehicle is on the ground and disarmed.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Takeoff</span></code> - The vehicle takes of to a predefined altitude above the current position.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Land</span></code> - The vehicle lands at the current position.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Hold</span></code> - The vehicle holds its current position.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Follow</span> <span class="pre">Trajectory</span></code> - The vehicle follows the trajectory loaded in the trajectory manager.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Waypoint</span></code> - The vehicle goes to a waypoint.</p></li>
-</ul>
-<p>Since the autopilot modes are implemented as plugins, they are loaded at runtime by the autopilot. The autopilot uses the <code class="docutils literal notranslate"><span class="pre">pluginlib</span></code> package to load the plugins.
-This also allows for the modes to be implemented in different packages, which is useful if you want to keep the autopilot package clean and modular.</p>
-<p>For instance, if you want to check the implementation of the provided base modes, you can find them in the <code class="docutils literal notranslate"><span class="pre">pegasus_autopilot/autopilot_modes</span></code> package.</p>
-</section>
-<section id="adding-custom-modes-to-the-state-machine">
-<h2>2. Adding Custom Modes to the State Machine<a class="headerlink" href="#adding-custom-modes-to-the-state-machine" title="Permalink to this heading"></a></h2>
+  <section id="adding-custom-modes-to-the-state-machine">
+<h1>Adding Custom Modes to the State Machine<a class="headerlink" href="#adding-custom-modes-to-the-state-machine" title="Permalink to this heading"></a></h1>
 <p>In this section we will implement a custom waypoint operating mode. In this mode, we will subscribe to a ROS 2 topic that publishes the desired waypoint
 and drive the vehicle to that waypoint. This is a simple example to show how to implement a custom operating mode. You can implement more complex modes
 by following the same steps.</p>
@@ -657,14 +508,13 @@ touch<span class="w"> </span>launch/custom_modes.launch.py
 </pre></div>
 </div>
 </section>
-</section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="autopilot.html" class="btn btn-neutral float-left" title="Autopilot" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="controllers.html" class="btn btn-neutral float-right" title="Controllers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="provided_modes.html" class="btn btn-neutral float-left" title="Provided State Machine Modes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../geofencing/geofencing.html" class="btn btn-neutral float-right" title="Geofencing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
