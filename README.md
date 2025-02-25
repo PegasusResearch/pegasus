@@ -7,7 +7,7 @@ It is designed to be used with the PX4 flight stack, but open enough to be used 
   <a href="https://youtu.be/_11OCFwf_GE" target="_blank"><img src="docs/_static/formation.gif" alt="Pegasus GNC gif"/></a>
 </p>
 
-This work is part of the **Pegasus Project**, a semi-personal side project started by Marcelo Jacinto with the end-goal of supporting experimental validation of his Ph.D. It provides:
+This work is part of the **Pegasus Project**, a semi-personal side project started by [Marcelo Jacinto](https://scholar.google.com/citations?user=tVPo_z0AAAAJ&hl=en) with the end-goal of supporting experimental validation of his Ph.D. It provides:
 
 - A set of ROS 2 nodes with a modular state machine;
 
@@ -41,7 +41,7 @@ While an article for the Pegasus GNC project is not publicly available yet, if y
 
 ## Main Developer Team
 
-This simulation framework is an open-source effort, started by me, Marcelo Jacinto in January/2023. It is a tool that was created with the original purpose of serving my Ph.D. workplan for the next 4 years, which means that you can expect this repository to be mantained, hopefully at least until 2027.
+This simulation framework is an open-source effort, started by me, [Marcelo Jacinto](https://scholar.google.com/citations?user=tVPo_z0AAAAJ&hl=en) in January/2023. It is a tool that was created with the original purpose of serving my Ph.D. workplan for the next 4 years, which means that you can expect this repository to be mantained, hopefully at least until 2027.
 
 * Project Founder
 	* [Marcelo Jacinto](https://github.com/MarceloJacinto), under the supervision of <u>Prof. Rita Cunha</u> (IST/ISR-Lisbon)
