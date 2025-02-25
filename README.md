@@ -53,10 +53,10 @@ This simulation framework is an open-source effort, started by me, Marcelo Jacin
 * Documentation
   * [Marcelo Jacinto](https://github.com/MarceloJacinto)
   * [João Pinto](https://github.com/jschpinto)
-  * [Pedro Trindade](https://scholar.google.com/citations?hl=pt-PT&user=eFG-wQ0AAAAJ)
+  * [Pedro Trindade](https://scholar.google.com/citations?hl=en&user=eFG-wQ0AAAAJ)
 
 As the author of this work, I would like to thank the support of the following coleagues and friends (in no particular order) during the development and testing of this project.
-[Pedro Trindade](https://scholar.google.com/citations?hl=pt-PT&user=eFG-wQ0AAAAJ), [João Pinto](https://github.com/jschpinto), [Gil Serrano](https://scholar.google.com/citations?hl=pt-PT&user=h_6XghgAAAAJ), [Jose Gomes](https://scholar.google.com/citations?hl=pt-PT&user=PECAagsAAAAJ), [Pedro Santos](https://scholar.google.com/citations?hl=pt-PT&user=HOhIHJAAAAAJ) and Joao Lehodey. Not only have you made this project possible, but also crashing drones an enjoyable experience! Checkout their work and contributions in the field of control and robotics.
+[Pedro Trindade](https://scholar.google.com/citations?hl=en&user=eFG-wQ0AAAAJ), [João Pinto](https://github.com/jschpinto), [Gil Serrano](https://scholar.google.com/citations?hl=en&user=h_6XghgAAAAJ), [Jose Gomes](https://scholar.google.com/citations?hl=en&user=PECAagsAAAAJ), [Pedro Santos](https://scholar.google.com/citations?hl=en&user=HOhIHJAAAAAJ) and Joao Lehodey. Not only have you made this project possible, but also crashing drones an enjoyable experience! Checkout their work and contributions in the field of control and robotics.
 
 I also want to thank the support of:
 
