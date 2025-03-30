@@ -18,7 +18,24 @@ As such, now there are two models available:
 .. image:: https://github.com/PegasusResearch/pegasus_cad/blob/main/docs/_static/full_assembly_v2.png?raw=true
   :width: 600
   :align: center
-  :alt: Pegasus V2 drone prototype
+  :alt: Pegasus V2 drone Prototype
+
+Check the videos below to see the initial outdoor flight tests of the new Pegasus prototype:
+
+  * First outdoor flight tests with camera pipeline:
+  
+    .. youtube:: mLG3x38v5SY
+      :width: 100%
+      :align: center
+      :privacy_mode:
+
+
+  * Initial sensor calibration and outdoor control tests:
+  
+    .. youtube:: dEQMgvO_WxI
+      :width: 100%
+      :align: center
+      :privacy_mode:
 
 * **Version 1 (2023-2024):** This version has a full 3D printed frame without requiring any expensive carbon fiber parts. It was developed to be a low-cost platform for research and education.
 
@@ -26,6 +43,14 @@ As such, now there are two models available:
   :width: 600
   :align: center
   :alt: Pegasus V1 drone prototype
+
+Initial control tunning and indoor tests:
+
+  .. youtube:: \_c8j1vUINuk
+    :width: 100%
+    :align: center
+    :privacy_mode:
+
 
 Follow the steps bellow to assemble your own Pegasus drone 🚁. Get your soldering iron 🛠️ and 3D printer 🖨️ ready for an adventure!
 

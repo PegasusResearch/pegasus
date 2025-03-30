@@ -24,6 +24,23 @@ This work is part of **Project Pegasus**, a semi-personal side project started b
 This project is provided as is, with no warranty or support. It is intended to be used as a reference for other researchers and developers in the field of control and robotics. It may **NOT**
 be used for commercial purposes or military applications without the explicit consent from the project founder.
 
+Check the videos below to see the initial outdoor flight tests of the new Pegasus prototype:
+
+  * First outdoor flight tests with camera pipeline:
+  
+    ..  youtube:: mLG3x38v5SY
+      :width: 100%
+      :align: center
+      :privacy_mode:
+
+
+  * Initial sensor calibration and outdoor control tests:
+  
+    ..  youtube:: dEQMgvO_WxI
+      :width: 100%
+      :align: center
+      :privacy_mode:
+
 Developer Team
 ~~~~~~~~~~~~~~
 
@@ -90,7 +107,7 @@ Not only have you made this project possible, but also crashing drones an enjoya
 I also want to thank the support of:
 
 - Manuel Rufino for assisting me in the soldering job of the drone, 
-- José Tojeiro for being an awesome safety pilot during the first flights and teach me the basics of drone piloting,
+- José Tojeira for being an awesome safety pilot during the first flights and teach me the basics of drone piloting,
 - Alexandre Lopes for being willing to help me during the flight tests of the Pegasus prototype,
 
 and all the other friends, colleagues and family that have supported me during the development of this project.
