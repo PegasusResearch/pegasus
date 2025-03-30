@@ -61,7 +61,7 @@ As the author of this work, I would like to thank the support of the following c
 I also want to thank the support of:
 
 * Manuel Rufino for assisting me in the soldering job of the drone, 
-* José Tojeiro for being an awesome safety pilot during the first flights and teach me the basics of drone piloting,
+* José Tojeira for being an awesome safety pilot during the first flights and teach me the basics of drone piloting,
 * Alexandre Lopes for being willing to help me during the flight tests of the Pegasus prototype,
 
 and all the other friends, colleagues and family that have supported me during the development of this project.
