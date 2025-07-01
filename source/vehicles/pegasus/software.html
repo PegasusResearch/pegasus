@@ -396,7 +396,7 @@ make<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="k">)</s
 </div>
 <div class="admonition-warning admonition">
 <p class="admonition-title">Warning</p>
-<p>This is the time where you should go grab a cup of coffe and wait for the compilation to finish. If the compilation fails due to NVIDIA Video Codec SDK, this is because OpenCV has a bug yet to be fixed regarding the latest version of the NVIDIA SDK. Just go to the file where the compilation is failing and replace the lines that are causing the error with the option provided bellow.</p>
+<p>This is the time where you should go grab a cup of coffe and wait for the compilation to finish. If the compilation fails due to NVIDIA Video Codec SDK, this is because OpenCV has a bug yet to be fixed regarding the latest version of the NVIDIA SDK. Just go to the file where the compilation is failing and replace the lines that are causing the error with the option provided bellow - If the offending file is <code class="docutils literal notranslate"><span class="pre">opencv_contrib/modules/cudacodec/src/NvEncoder.cpp</span></code>, replace the lines 126 and 185 with the pre-compiler if code directly above.</p>
 </div>
 </div></blockquote>
 <ol class="arabic simple" start="2">

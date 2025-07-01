@@ -266,7 +266,9 @@ For some reason, the OpenCV that comes pre-installed in the Jetson is not compil
 
   .. admonition:: Warning
   
-    This is the time where you should go grab a cup of coffe and wait for the compilation to finish. If the compilation fails due to NVIDIA Video Codec SDK, this is because OpenCV has a bug yet to be fixed regarding the latest version of the NVIDIA SDK. Just go to the file where the compilation is failing and replace the lines that are causing the error with the option provided bellow.
+    This is the time where you should go grab a cup of coffe and wait for the compilation to finish. If the compilation fails due to NVIDIA Video Codec SDK, this is because OpenCV has a bug yet to be fixed regarding the latest version of the NVIDIA SDK. Just go to the file where the compilation is failing and replace the lines that are causing the error with the option provided bellow - If the offending file is ``opencv_contrib/modules/cudacodec/src/NvEncoder.cpp``, replace the lines 126 and 185 with the pre-compiler if code directly above.
+        
+
 
 
 2. Install the compiled library in the system
