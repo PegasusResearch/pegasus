@@ -558,6 +558,35 @@ Installing Machine Learning Libraries
       python3 -m pip install -U testresources setuptools numpy future mock keras_preprocessing keras_applications gast protobuf pybind11 cython pkgconfig packaging h5py
       python3 -m pip install --no-cache $TENSORFLOW_INSTALL
 
+Installing NVSlam (for NVIDIA Jetson Orin Nano)
+-----------------------------------------------
+
+NVSlam is a library for visual SLAM (Simultaneous Localization and Mapping) that is optimized for NVIDIA Jetson devices. It provides a high-performance solution for visual SLAM applications.
+
+  .. code:: bash
+    
+      # Go to the home directory
+      cd ~
+
+      # Clone the Isaac ROS common repository and compile it
+      git clone -b release-3.2 https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_common.git isaac_ros_common
+      cd isaac_ros_common
+      colcon build --symlink-install
+
+      # Add the isaac-ros CDN
+      wget -qO - https://isaac.download.nvidia.com/isaac-ros/repos.key | sudo apt-key add -
+      grep -qxF "deb https://isaac.download.nvidia.com/isaac-ros/release-3 $(lsb_release -cs) release-3.0" /etc/apt/sources.list || \
+      echo "deb https://isaac.download.nvidia.com/isaac-ros/release-3 $(lsb_release -cs) release-3.0" | sudo tee -a /etc/apt/sources.list
+      sudo apt-get update
+
+      sudo apt update && sudo apt install curl -y
+      sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+
+      echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+
+      # Install the NVSlam ROS2 package
+      sudo apt-get install -y ros-humble-isaac-ros-visual-slam
+
 
 Network Setup
 -------------

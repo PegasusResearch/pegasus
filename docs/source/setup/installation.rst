@@ -43,6 +43,7 @@ Installing External Dependencies
     .. code:: bash
 
         echo "source ~/pegasus_external/install/setup.bash" >> ~/.bashrc
+        source ~/.bashrc
 
 
 Installing Pegasus
@@ -74,6 +75,7 @@ Installing Pegasus
     .. code:: bash
 
         echo "source ~/pegasus/install/setup.bash" >> ~/.bashrc
+        source ~/.bashrc
 
 Running Simulations with Pegasus
 --------------------------------
