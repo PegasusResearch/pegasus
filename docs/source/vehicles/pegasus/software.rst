@@ -123,6 +123,8 @@ Removing Pre-installed Software
   .. code:: bash
 
       sudo apt update && sudo apt upgrade -y && sudo apt install -y htop tmux nano python3-pip && sudo apt autoremove
+      pip install numpy==1.24.0
+      sudo apt install nvidia-jetpack
 
 2. Remove "garbage" that comes pre-installed by default:
 
