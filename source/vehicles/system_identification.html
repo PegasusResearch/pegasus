@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pegasus Simulator &mdash; Pegasus  documentation</title>
+  <title>System Identification &mdash; Pegasus  documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -21,8 +21,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Vehicles" href="../vehicles/vehicles.html" />
-    <link rel="prev" title="Gazebo Classic" href="gazebo_classic.html" /> 
+    <link rel="next" title="Taguspark Flight Arena" href="../arena/arena.html" />
+    <link rel="prev" title="Arena Setup" href="kopis/software.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -57,14 +57,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../console/terminal_console.html">Terminal console</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Simulation</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="gazebo_classic.html">Gazebo Classic</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Pegasus Simulator</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../simulation/gazebo_classic.html">Gazebo Classic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../simulation/pegasus_simulator.html">Pegasus Simulator</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Vehicles</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../vehicles/vehicles.html">Vehicles</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../vehicles/system_identification.html">System Identification</a></li>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="vehicles.html">Vehicles</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">System Identification</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Flight Arena</span></p>
 <ul>
@@ -90,9 +90,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Pegasus Simulator</li>
+      <li class="breadcrumb-item active">System Identification</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/source/simulation/pegasus_simulator.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/source/vehicles/system_identification.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -100,52 +100,24 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="pegasus-simulator">
-<h1>Pegasus Simulator<a class="headerlink" href="#pegasus-simulator" title="Permalink to this heading"></a></h1>
-<a class="reference internal image-reference" href="https://github.com/PegasusSimulator/PegasusSimulator/blob/main/docs/_static/pegasus_cover.png?raw=true"><img alt="Autopilot Architecture" class="align-center" src="https://github.com/PegasusSimulator/PegasusSimulator/blob/main/docs/_static/pegasus_cover.png?raw=true" style="width: 600px;" /></a>
-<p>To use the Pegasus GNC code with the Pegasus Simulator, start by following the installation instructions in <a class="reference internal" href="../setup/installation.html#installation"><span class="std std-ref">Installation</span></a> page. After this step:</p>
-<p>1. Follow the installation instructions for the Pegasus Simulator in the
-<a class="reference external" href="https://pegasussimulator.github.io/PegasusSimulator/source/setup/installation.html">Pegasus Simulator Documentation</a>. An NVIDIA RTX graphics card is required to run the simulator.</p>
-<blockquote>
-<div><div class="video_wrapper align-center" style="padding-bottom: 56.250000%; padding-top: 30px; position: relative; text-align: center; width: 100%">
-<iframe allowfullscreen="true" src="https://www.youtube.com/embed/YCp5E8nazag" style="border: 0; height: 100%; left: 0; position: absolute; top: 0; width: 100%">
-</iframe></div></div></blockquote>
-<ol class="arabic" start="2">
-<li><p>On the Pegasus workspace, clone the following repository:</p>
-<blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Go to the src folder of the Pegasus workspace</span>
-<span class="nb">cd</span><span class="w"> </span>~/pegasus_ws/src
-
-<span class="c1"># Clone the repository that contains the launch files to launch both the Pegasus GNC code and the Pegasus Simulator in the same environment</span>
-git<span class="w"> </span>clone<span class="w"> </span>git@github.com:PegasusResearch/pegasus_isaac.git
-
-<span class="c1"># Compile the code</span>
-<span class="nb">cd</span><span class="w"> </span>~/pegasus_ws
-colcon<span class="w"> </span>build<span class="w"> </span>--symlink-install
-
-<span class="c1"># Source the workspace</span>
-<span class="nb">source</span><span class="w"> </span>~/pegasus_ws/install/setup.bash
-</pre></div>
-</div>
-</div></blockquote>
-</li>
-<li><p>To run an experiment:</p>
-<blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Launch the Pegasus GNC code and the Pegasus Simulator</span>
-ros2<span class="w"> </span>launch<span class="w"> </span>pegasus_isaac<span class="w"> </span>isaac.launch.py
-</pre></div>
-</div>
-</div></blockquote>
-</li>
-</ol>
-</section>
+  <section id="system-identification">
+<h1>System Identification<a class="headerlink" href="#system-identification" title="Permalink to this heading"></a></h1>
+<p>In this section, we will cover the system identification process that we conduct for our multirotor vehicles.</p>
+<p><span id="id1">[<a class="reference internal" href="../references/bibliography.html#id6" title="João Pinto, Bruno J. Guerreiro, and Rita Cunha. Planning aggressive drone manoeuvres: a geometric backwards integration approach. Journal of Intelligent &amp; Robotic Systems, 111(1):16, Jan 2025. doi:10.1007/s10846-024-02214-z.">PGC25</a>]</span></p>
+<p><strong>Instructions</strong>
+TODO</p>
+<p><strong>System Identification Video</strong>
+TODO</p>
+<div class="video_wrapper align-center" style="padding-bottom: 56.250000%; padding-top: 30px; position: relative; text-align: center; width: 100%">
+<iframe allowfullscreen="true" src="https://www.youtube.com/embed/dEQMgvO_WxI" style="border: 0; height: 100%; left: 0; position: absolute; top: 0; width: 100%">
+</iframe></div></section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="gazebo_classic.html" class="btn btn-neutral float-left" title="Gazebo Classic" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../vehicles/vehicles.html" class="btn btn-neutral float-right" title="Vehicles" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="kopis/software.html" class="btn btn-neutral float-left" title="Arena Setup" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../arena/arena.html" class="btn btn-neutral float-right" title="Taguspark Flight Arena" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
