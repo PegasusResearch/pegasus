@@ -48,7 +48,7 @@ This simulation framework is an open-source effort, started by me, [Marcelo Jaci
 * Architecture
   * [Marcelo Jacinto](https://github.com/MarceloJacinto)
   * [João Pinto](https://github.com/jschpinto)
-* CAD Model
+* CAD Models
   * [Marcelo Jacinto](https://github.com/MarceloJacinto)
   * [Luís Abrantes](https://github.com/abrantessss)
   * [Rodrigo Gomes](https://github.com/rodrigofpgomes)

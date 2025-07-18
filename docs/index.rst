@@ -52,8 +52,10 @@ Developer Team
 - Controllers
    - `Marcelo Jacinto <https://github.com/MarceloJacinto>`__
    - `João Pinto <https://github.com/jschpinto>`__
-- CAD model
+- CAD models
    - `Marcelo Jacinto <https://github.com/MarceloJacinto>`__
+   - `Luís Abrantes <https://github.com/abrantessss>`__
+   - `Rodrigo Gomes <https://github.com/rodrigofpgomes>`__
 - Documentation
    - `Marcelo Jacinto <https://github.com/MarceloJacinto>`__
    - `João Pinto <https://github.com/jschpinto>`__
@@ -139,6 +141,7 @@ and all the other friends, colleagues and family that have supported me during t
    :caption: Vehicles
 
    source/vehicles/vehicles
+   source/vehicles/system_identification
 
 .. toctree::
    :maxdepth: 5
