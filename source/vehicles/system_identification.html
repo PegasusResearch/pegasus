@@ -18,6 +18,8 @@
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"]], "displayMath": [["\\[", "\\]"]]}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -64,7 +66,10 @@
 <p class="caption" role="heading"><span class="caption-text">Vehicles</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="vehicles.html">Vehicles</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">System Identification</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">System Identification</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#thrust-vs-throttle-curve-identification">Thrust vs throttle curve identification</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Flight Arena</span></p>
 <ul>
@@ -102,15 +107,54 @@
              
   <section id="system-identification">
 <h1>System Identification<a class="headerlink" href="#system-identification" title="Permalink to this heading"></a></h1>
-<p>In this section, we will cover the system identification process that we conduct for our multirotor vehicles.</p>
-<p><span id="id1">[<a class="reference internal" href="../references/bibliography.html#id6" title="João Pinto, Bruno J. Guerreiro, and Rita Cunha. Planning aggressive drone manoeuvres: a geometric backwards integration approach. Journal of Intelligent &amp; Robotic Systems, 111(1):16, Jan 2025. doi:10.1007/s10846-024-02214-z.">PGC25</a>]</span></p>
-<p><strong>Instructions</strong>
-TODO</p>
+<p>In this section, we outline the system identification procedure conducted for our multirotor vehicles.</p>
+<section id="thrust-vs-throttle-curve-identification">
+<h2>Thrust vs throttle curve identification<a class="headerlink" href="#thrust-vs-throttle-curve-identification" title="Permalink to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This document is intended for experienced multirotor operators conducting static thrust tests in controlled environments. It assumes familiarity with flight systems, safety protocols, and test equipment.</p>
+</div>
+<p>To control the thrust output of the vehicles, the desired throttle <span class="math notranslate nohighlight">\(T_{in} \in [0,1]\)</span> must be supplied to the autopilot. Accordingly, a function that relates thrust <span class="math notranslate nohighlight">\(T\)</span> to throttle <span class="math notranslate nohighlight">\(T_{in}\)</span> is necessary.</p>
+<p>Experimental data points are obtained <span class="math notranslate nohighlight">\((T_{in},T)\)</span> by measuring the <strong>static thrust</strong>, defined as the thrust produced when airspeed is zero. These measurements are taken from the multirotor’s propellers spinning in free air.</p>
+<p>For accurate data acquisition, a PVC-made vertical pole is mounted on a scale and equipped with discs affixed to its top and bottom. The multirotor is securely attached to the top disc using rope or double-sided adhesive tape. As a general guideline, the pole length is chosen to be at least four times the propeller diameter to minimise ground effect. The scale is positioned on a flat, stable surface to ensure precise thrust measurements, and is calibrated before each measurement session to eliminate drift or zero error.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<ul class="simple">
+<li><p>Have a clear area around the multirotor.</p></li>
+<li><p>Never approach the aircraft while motors are armed or active.</p></li>
+<li><p>Anchor the scale firmly to a stable surface to avoid vibrations or shifts.</p></li>
+<li><p>Secure the multirotor to prevent unintended movement during operation, especially under high thrust.</p></li>
+<li><p>Ensure your power source is stable and fully charged.</p></li>
+<li><p>Secure loose items, tools, or cabling that may become airborne or interfere with propeller movement.</p></li>
+<li><p>Maintain an active RC link with the multirotor at all times during testing.</p></li>
+<li><p>Have a reliable failsafe mechanism in place, such as a KILL switch.</p></li>
+<li><p>Test the failsafe/KILL switch functionality prior to each session.</p></li>
+</ul>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>Command</strong>: KILL the multirotor immediately if any unsafe or undefined test condition arises.</p>
+<ul class="simple">
+<li><p>Unstable or unexpected flight behaviour.</p></li>
+<li><p>Rotor failure or breakage.</p></li>
+<li><p>Loose or detached propellers.</p></li>
+<li><p>Abnormal or erratic noise from motors or airframe.</p></li>
+</ul>
+<blockquote>
+<div><p><strong>Neglecting this command may result in injury or equipment damage.</strong></p>
+</div></blockquote>
+</div>
+<p>To prevent attitude stabilisation control from interfering with measurements, the inner-loop autopilot gains are set to zero. The multirotor is then subjected to a range of throttle inputs, and the scale records the thrust produced by the spinning propellers.</p>
+<p>To capture the nonlinear relationship between throttle input and thrust output, the following model is employed,</p>
+<div class="math notranslate nohighlight">
+\[T = a \arctan\left(b T_{in} + c\right) + d.\]</div>
+<p>This formulation supports straightforward analytical inversion, which is useful for multirotor control. The parameters <span class="math notranslate nohighlight">\(a\)</span>, <cite>b</cite>, <cite>c</cite>, and <cite>d</cite> are determined through curve fitting techniques applied to the experimental dataset <span id="id1">[<a class="reference internal" href="../references/bibliography.html#id6" title="João Pinto, Bruno J. Guerreiro, and Rita Cunha. Planning aggressive drone manoeuvres: a geometric backwards integration approach. Journal of Intelligent &amp; Robotic Systems, 111(1):16, Jan 2025. doi:10.1007/s10846-024-02214-z.">PGC25</a>]</span>.</p>
 <p><strong>System Identification Video</strong>
 TODO</p>
 <div class="video_wrapper align-center" style="padding-bottom: 56.250000%; padding-top: 30px; position: relative; text-align: center; width: 100%">
 <iframe allowfullscreen="true" src="https://www.youtube.com/embed/dEQMgvO_WxI" style="border: 0; height: 100%; left: 0; position: absolute; top: 0; width: 100%">
 </iframe></div></section>
+</section>
 
 
            </div>
