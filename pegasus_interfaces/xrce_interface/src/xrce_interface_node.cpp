@@ -144,9 +144,14 @@ void XRCEInterfaceNode::init_thrust_curve() {
     // Get the singleton factory of thrust curves
     auto thrust_curve_Factory = Pegasus::ThrustCurveFactory::get_instance();
 
+    RCLCPP_WARN_STREAM(this->get_logger(), "Initializing the thrust curve with the following parameters:");
+
     // Get from the ROS parameter server the mass of the vehicle
     this->declare_parameter<double>("dynamics.mass", 0.0);
     rclcpp::Parameter mass = this->get_parameter("dynamics.mass");
+
+    
+    RCLCPP_WARN_STREAM(this->get_logger(), "Vehicle mass set to: " << mass.as_double() << " Kg");
 
     // Get from the ROS parameter server the type of thrust curve to apply to the vehicle
     this->declare_parameter<std::string>("dynamics.thrust_curve.identifier", "None"); 

@@ -4,17 +4,17 @@
       # Topics for receiving/sending data from/to px4
       px4:
         publishers:
-          actuator_setpoints: "/fmu/out/actuator_motors"
-          attitude_setpoints: "/fmu/in/vehicle_attitude_setpoint"
-          thrust_setpoints: "/fmu/in/vehicle_thrust_setpoint"
-          torque_setpoints: "/fmu/in/vehicle_torque_setpoint"
-          offboard_control_mode: "/fmu/in/offboard_control_mode"
-          vehicle_command: "/fmu/in/vehicle_command"
-          mocap: "/fmu/in/vehicle_visual_odometry"
+          actuator_setpoints: "onboard/fmu/out/actuator_motors"
+          attitude_setpoints: "onboard/fmu/in/vehicle_attitude_setpoint"
+          thrust_setpoints: "onboard/fmu/in/vehicle_thrust_setpoint"
+          torque_setpoints: "onboard/fmu/in/vehicle_torque_setpoint"
+          offboard_control_mode: "onboard/fmu/in/offboard_control_mode"
+          vehicle_command: "onboard/fmu/in/vehicle_command"
+          mocap: "onboard/fmu/in/vehicle_visual_odometry"
         subscribers:
-          odometry: "/fmu/out/vehicle_odometry"
-          status: "/fmu/out/vehicle_status"
-          imu: "/fmu/out/sensor_combined"
+          odometry: "onboard/fmu/out/vehicle_odometry"
+          status: "onboard/fmu/out/vehicle_status"
+          imu: "onboard/fmu/out/sensor_combined"
       # Topics for receiving/sending data from/to pegasus
       pegasus:
         publishers:

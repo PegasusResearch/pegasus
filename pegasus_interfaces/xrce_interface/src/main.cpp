@@ -61,8 +61,8 @@ int main(int argc, char ** argv) {
     rclcpp::init(argc, argv);
 
     rclcpp::NodeOptions options;
-    options.allow_undeclared_parameters(true);
-    options.automatically_declare_parameters_from_overrides(true);
+    options.allow_undeclared_parameters(false);
+    options.automatically_declare_parameters_from_overrides(false);
 
     // Create the xrce_interface_node
     auto xrce_interface_node = std::make_shared<XRCEInterfaceNode>("xrce_interface", options);
