@@ -99,20 +99,14 @@ public:
 
 private:
 
+    // Get the paramters and thrust curves from the parameter server
     void init_parameters();
+    void init_thrust_curve();
+
+    // Intialize the ROS 2 publishers, subscribers and services
     void initialize_publishers();
     void intialize_subscribers();
     void initialize_services();
-    void init_thrust_curve();
-
-    /**
-     * @ingroup initFunctions
-     * @brief Method used to initialize the ThrustCurve object used
-     * to translate the thrust curve from Newton (N) to percentage (0-100%) and vice-versa
-     * based on the configurations loaded from ROS parameter server
-     */
-    void init_thrust_curve();
-
 
     void px4_odometry_callback(px4_msgs::msg::VehicleOdometry::ConstSharedPtr odom_msg);
     void px4_status_callback(px4_msgs::msg::VehicleStatus::ConstSharedPtr status_msg);

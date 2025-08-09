@@ -1,7 +1,74 @@
+/*****************************************************************************
+ * 
+ *   Author: Marcelo Jacinto <marcelo.jacinto@tecnico.ulisboa.pt>
+ *   Copyright (c) 2025, Marcelo Jacinto. All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without 
+ * modification, are permitted provided that the following conditions 
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright 
+ * notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright 
+ * notice, this list of conditions and the following disclaimer in 
+ * the documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this 
+ * software must display the following acknowledgement: This product 
+ * includes software developed by Project Pegasus.
+ * 4. Neither the name of the copyright holder nor the names of its 
+ * contributors may be used to endorse or promote products derived 
+ * from this software without specific prior written permission.
+ *
+ * Additional Restrictions:
+ * 4. The Software shall be used for non-commercial purposes only. 
+ * This includes, but is not limited to, academic research, personal 
+ * projects, and non-profit organizations. Any commercial use of the 
+ * Software is strictly prohibited without prior written permission 
+ * from the copyright holders.
+ * 5. The Software shall not be used, directly or indirectly, for 
+ * military purposes, including but not limited to the development 
+ * of weapons, military simulations, or any other military applications. 
+ * Any military use of the Software is strictly prohibited without 
+ * prior written permission from the copyright holders.
+ * 6. The Software may be utilized for academic research purposes, 
+ * with the condition that proper acknowledgment is given in all 
+ * corresponding publications.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ****************************************************************************/
+#include <Eigen/Dense>
 #include "xrce_interface_node.hpp"
+#include "pegasus_utils/frames.hpp"
+#include "pegasus_utils/rotations.hpp"
 
 XRCEInterfaceNode::XRCEInterfaceNode(const std::string & node_name, const rclcpp::NodeOptions & options) : rclcpp::Node(node_name, options) {
 
+    // Initialize the parameters
+    init_parameters();
+
+    // Attemp to initialize the thrustcurve object such that a controller can specify 
+    // to the driver the total thrust to apply to the vehicle in (N) and the conversion is made implicitly
+    // to a percentage of the maximum thrust that the vehicle is capable of outputing [0-100%]
+    try{
+        init_thrust_curve();
+    } catch(const std::runtime_error &error) {
+        RCLCPP_WARN_STREAM(this->get_logger(), error.what());
+        RCLCPP_WARN_STREAM(this->get_logger(), "Could not initilize thrust curve. The xrce driver will only be able to receive the desired thrust in percentage topics");
+    }
+
+    // Initialize the publishers, subscribers and services
+    initialize_publishers();
+    intialize_subscribers();
+    initialize_services();
 }
 
 XRCEInterfaceNode::~XRCEInterfaceNode() {
@@ -53,8 +120,8 @@ void XRCEInterfaceNode::intialize_subscribers() {
 	auto qos = rclcpp::QoS(rclcpp::QoSInitialization(qos_profile.history, 5), qos_profile);
 
     // ---- PX4 Subscribers ----
-    vehicle_odometry_sub_= this->create_subscription<px4_msgs::msg::VehicleOdometry>(this->get_parameter("xrce_interface.px4.subscribers.odometry").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_odometry_callback, this, _1));
-    vehicle_status_sub_= this->create_subscription<px4_msgs::msg::VehicleStatus>(this->get_parameter("xrce_interface.px4.subscribers.status").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_status_callback, this, _1));
+    vehicle_odometry_sub_= this->create_subscription<px4_msgs::msg::VehicleOdometry>(this->get_parameter("xrce_interface.px4.subscribers.odometry").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_odometry_callback, this, std::placeholders::_1));
+    vehicle_status_sub_= this->create_subscription<px4_msgs::msg::VehicleStatus>(this->get_parameter("xrce_interface.px4.subscribers.status").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_status_callback, this, std::placeholders::_1));
 }
 
 void XRCEInterfaceNode::initialize_services() {
@@ -209,7 +276,7 @@ void XRCEInterfaceNode::position_callback(const pegasus_msgs::msg::ControlPositi
 
     // Publish the offboard control mode message with the target position message
 	offboard_control_mode_pub_->publish(offboard_control_mode_msg_);
-    trajectory_setpoint_pub_->publish(trajectory_setpoint_msg_);
+    //trajectory_setpoint_pub_->publish(trajectory_setpoint_msg_);
 }
 
 /**
@@ -308,7 +375,7 @@ void XRCEInterfaceNode::attitude_rate_force_callback(const pegasus_msgs::msg::Co
 
 /**
  * @brief Arming/disarming service callback. When a service request is reached from the arm_service_, 
- * this callback is called and will send a mavlink command for the vehicle to arm/disarm
+ * this callback is called and will send a command for the vehicle to arm/disarm
  * @param request The request for arming (bool = true) or disarming (bool = false)
  * @param response The response in this service uint8
  */
@@ -319,7 +386,7 @@ void XRCEInterfaceNode::arm_callback(const pegasus_msgs::srv::Arm::Request::Shar
 
 /**
  * @brief Kill switch service callback. When a service request is reached from the kill_switch_service_,
- * this callback is called and will send a mavlink command for the vehicle to kill the motors instantly.
+ * this callback is called and will send a command for the vehicle to kill the motors instantly.
  * @param request The request for killing the motors (bool = true)
  * @param response The response in this service uint8
 */
@@ -330,30 +397,30 @@ void XRCEInterfaceNode::kill_switch_callback(const pegasus_msgs::srv::KillSwitch
 
 /**
  * @brief Autoland service callback. When a service request is reached from the land_service_,
- * this callback is called and will send a mavlink command for the vehicle to autoland using the onboard controller
+ * this callback is called and will send a command for the vehicle to autoland using the onboard controller
  * @param request An empty request for landing the vehicle (can be ignored)
  * @param response The response in this service uint8
  */
 void XRCEInterfaceNode::land_callback(const pegasus_msgs::srv::Land::Request::SharedPtr request, const pegasus_msgs::srv::Land::Response::SharedPtr response) {
-    // Check this page for mode values: https://github.com/mavlink/MAVSDK/blob/ce6b7186d837b1ab5e9b23bb9be72aec28899630/src/mavsdk/core/px4_custom_mode.h
+    // Check this page for mode values: https://github.com//MAVSDK/blob/ce6b7186d837b1ab5e9b23bb9be72aec28899630/src/mavsdk/core/px4_custom_mode.h
     // https://discuss.px4.io/t/where-to-find-custom-mode-list-for-mav-cmd-do-set-mode/32756/11
     publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_DO_SET_MODE, 3, 6); // Set Auto (mode) + Land (submode)
 }
 
 /**
  * @brief Offboard service callback. When a service request is reached from the offboard_service_,
- * this callback is called and will send a mavlink command for the vehicle to enter offboard mode
+ * this callback is called and will send a command for the vehicle to enter offboard mode
  * @param request An empty request for entering offboard mode (can be ignored)
  * @param response The response in this service uint8
  */
 void XRCEInterfaceNode::offboard_callback(const pegasus_msgs::srv::Offboard::Request::SharedPtr, const pegasus_msgs::srv::Offboard::Response::SharedPtr response) { 
-    // Check this page for mode values: https://github.com/mavlink/MAVSDK/blob/ce6b7186d837b1ab5e9b23bb9be72aec28899630/src/mavsdk/core/px4_custom_mode.h
+    // Check this page for mode values: https://github.com//MAVSDK/blob/ce6b7186d837b1ab5e9b23bb9be72aec28899630/src/mavsdk/core/px4_custom_mode.h
     publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_DO_SET_MODE, 1, 6);
 }
 
 /**
  * @brief Position hold service callback. When a service request is reached from the position_hold_service_,
- * this callback is called and will send a mavlink command for the vehicle to enter position hold mode
+ * this callback is called and will send a command for the vehicle to enter position hold mode
  * @param request An empty request for entering position hold mode (can be ignored)
  * @param response The response in this service uint8
  */
@@ -364,7 +431,7 @@ void XRCEInterfaceNode::position_hold_callback(const pegasus_msgs::srv::Position
 /**
  * @brief Motion Capture vehicle pose subscriber callback. This callback receives a message with the pose of the vehicle
  * provided by a Motion Capture System (if available) expressed in ENU reference frame, converts to NED and 
- * sends it via mavlink to the vehicle autopilot filter to merge
+ * sends it via  to the vehicle autopilot filter to merge
  * @param msg A message with the pose of the vehicle expressed in ENU
  */
 void XRCEInterfaceNode::mocap_pose_callback(const geometry_msgs::msg::PoseStamped::ConstSharedPtr msg) {
@@ -384,9 +451,9 @@ void XRCEInterfaceNode::mocap_pose_callback(const geometry_msgs::msg::PoseStampe
         Pegasus::Frames::rot_body_to_inertial(
             Eigen::Quaternion<double>(orientation_flu_enu)));
 
-    // Send the mocap measured vehicle pose thorugh mavlink for the onboard microcontroller
+    // Send the mocap measured vehicle pose thorugh  for the onboard microcontroller
     // to fuse in its internal EKF
-    mavlink_node_->update_mocap_telemetry(position_ned, orientation_frd_ned);
+    //mavlink_node_->update_mocap_telemetry(position_ned, orientation_frd_ned);
 }
 
 void XRCEInterfaceNode::publish_vehicle_command(uint16_t command, float param1, float param2) {

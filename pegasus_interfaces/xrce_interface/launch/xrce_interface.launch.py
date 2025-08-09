@@ -15,11 +15,14 @@ def generate_launch_description():
     # ----------------------------------------
 
     # Set the connection port from the argument (limitation from ROS2 launch files)
-    connection_arguments = "udp4 -p 8888"
+    connection_arguments = "udp4 -p 8888 -n drone"
     for arg in sys.argv:
         if arg.startswith('connection:='):
             connection_arguments = str(arg.split(':=')[1])
     
+    environment = os.environ
+    environment["PX4_UXRCE_DDS_NS"] = 'drone'
+
     # Namespace and ID of the vehicle as parameter received by the launch file
     id_arg = DeclareLaunchArgument('vehicle_id', default_value='1', description='Drone ID in the network')
     namespace_arg = DeclareLaunchArgument('vehicle_ns', default_value='drone', description='Namespace to append to every topic and node name')
@@ -80,4 +83,5 @@ def generate_launch_description():
         drone_params_yaml_arg,
         topics_yaml_arg,
         # Launch files
-        microdds_xrce_process])
+        microdds_xrce_process,
+        xrce_interface_node])
