@@ -192,6 +192,22 @@ will use this environment variable to find the necessary files.</p>
 </li>
 </ol>
 </section>
+<section id="standards">
+<h2>Standards<a class="headerlink" href="#standards" title="Permalink to this heading"></a></h2>
+<p>When creating a new sdf world for Gazebo, make sure to follow the standard below for the world name “”simulation_world””.</p>
+<blockquote>
+<div><div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span class="nt">&lt;sdf</span><span class="w"> </span><span class="na">version=</span><span class="s">&quot;1.9&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;world</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;simulation_world&quot;</span><span class="nt">&gt;</span>
+<span class="w">        </span>...
+<span class="w">    </span><span class="nt">&lt;/world&gt;</span>
+<span class="nt">&lt;/sdf&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>To avoid having to change the world name in multiple places, we standardize the world name to be always “simulation_world”.
+This is standard across all the pegasus worlds, because in the launch files we must speficy the world name such that PX4-Autopilot can subscribe to the gz topics correctly, and interface with the simulator.</p>
+</section>
 </section>
 
 
