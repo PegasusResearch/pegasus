@@ -101,3 +101,20 @@ To install PX4-Autopilot, follow the following steps:
 
         Adding this line to the .bashrc file is important as the Pegasus Gazebo package will need to know the location of the PX4-Autopilot directory, and the launch files
         will use this environment variable to find the necessary files.
+
+Standards
+---------
+
+When creating a new sdf world for Gazebo, make sure to follow the standard below for the world name ""simulation_world"".
+
+    .. code:: xml
+
+        <?xml version="1.0"?>
+        <sdf version="1.9">
+            <world name="simulation_world">
+                ...
+            </world>
+        </sdf>
+
+To avoid having to change the world name in multiple places, we standardize the world name to be always "simulation_world".
+This is standard across all the pegasus worlds, because in the launch files we must speficy the world name such that PX4-Autopilot can subscribe to the gz topics correctly, and interface with the simulator.
