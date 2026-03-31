@@ -133,6 +133,7 @@ and all the other friends, colleagues and family that have supported me during t
    :maxdepth: 5
    :caption: Simulation
 
+   source/simulation/gazebo
    source/simulation/gazebo_classic
    source/simulation/pegasus_simulator
 
