@@ -44,13 +44,13 @@ def generate_launch_description():
     # Define which file to use for the drone parameters
     drone_params_file_arg = DeclareLaunchArgument(
         'drone_params', 
-        default_value=os.path.join(get_package_share_directory('pegasus'), 'config', 'pegasus.yaml'),
+        default_value=os.path.join(get_package_share_directory('pegasus'), 'config/real', 'pegasus.yaml'),
         description='The directory where the drone parameters such as mass, thrust curve, etc. are defined')
 
     # Define the parameters to load the iris drone from 
     realsense_params_file_arg = DeclareLaunchArgument(
         'realsense_params_yaml',
-        default_value=os.path.join(get_package_share_directory('pegasus'), 'config', 'realsense_d435i.yaml'),
+        default_value=os.path.join(get_package_share_directory('pegasus'), 'config/real', 'realsense_d435i.yaml'),
         description='The file where the realsense parameters are defined')
 
     # Use intraprocess communications (zero-copy between node images)
