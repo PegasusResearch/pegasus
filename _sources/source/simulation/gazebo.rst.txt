@@ -42,7 +42,7 @@ Follow the installation steps provided in the official Gazebo Jetty documentatio
         sudo ufw allow in proto udp from 224.0.0.0/4  
 
         # Install ROS 2 Jazzy packages for Gazebo
-        sudo apt install ros-jazzy-ros-gz  
+        sudo apt install ros-jazzy-ros-gz ros-jazzy-ros-gz-image
         sudo ldconfig
 
 
