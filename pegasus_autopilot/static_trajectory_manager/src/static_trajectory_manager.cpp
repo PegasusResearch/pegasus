@@ -52,6 +52,28 @@
 
 namespace autopilot {
 
+StaticTrajectoryManager::~StaticTrajectoryManager() {
+
+    // Destroy any instantiated trajectories first, as they may come from the
+    // same libraries loaded by trajectory factories.
+    trajectories_.clear();
+    trajectory_max_values_.clear();
+
+    // Unload the trajectory factories plugins - clear the map to destroy all trajectory factory objects
+    // before the trajectory_loader_ is destroyed
+    trajectory_factories_.clear();
+
+    // Release callback and node references held in the config
+    trajectory_config_.add_trajectory_to_manager = nullptr;
+    trajectory_config_.node.reset();
+
+    // Release the reset service before tearing down plugins
+    reset_trajectory_service_.reset();
+
+    // Destroy the trajectory loader
+    trajectory_loader_.reset();
+}
+
 void StaticTrajectoryManager::initialize() {
 
     // Read the trajectory Factories to load from the parameter server
@@ -59,7 +81,7 @@ void StaticTrajectoryManager::initialize() {
     rclcpp::Parameter trajectories = node_->get_parameter("autopilot.StaticTrajectoryManager.trajectories");
 
     // Load the base class that defines the interface for all the static trajectories
-    pluginlib::ClassLoader<autopilot::StaticTrajectoryFactory> trajectory_loader("autopilot", "autopilot::StaticTrajectoryFactory");
+    trajectory_loader_ = std::make_unique<pluginlib::ClassLoader<autopilot::StaticTrajectoryFactory>>("autopilot", "autopilot::StaticTrajectoryFactory");
 
     // Setup the configurations for the trajectory factories
     trajectory_config_.node = node_;
@@ -75,7 +97,7 @@ void StaticTrajectoryManager::initialize() {
         try {
 
             // Load the trajectory factory
-            trajectory_factories_[trajectory] = autopilot::StaticTrajectoryFactory::UniquePtr(trajectory_loader.createUnmanagedInstance("autopilot::" + trajectory));
+            trajectory_factories_[trajectory] = autopilot::StaticTrajectoryFactory::UniquePtr(trajectory_loader_->createUnmanagedInstance("autopilot::" + trajectory));
 
             // Initialize the trajectory manager
             trajectory_factories_[trajectory]->initialize_factory(trajectory_config_);

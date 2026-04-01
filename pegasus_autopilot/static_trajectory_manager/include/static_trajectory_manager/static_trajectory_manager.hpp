@@ -77,6 +77,8 @@ public:
     using UniquePtr = std::unique_ptr<StaticTrajectoryManager>;
     using WeakPtr = std::weak_ptr<StaticTrajectoryManager>;
 
+    ~StaticTrajectoryManager();
+
     virtual void initialize() override;
 
     /**
@@ -230,6 +232,9 @@ protected:
 
     // Callback to handle a trajectory reset request
     void reset_callback(const pegasus_msgs::srv::ResetPath::Request::SharedPtr request, const pegasus_msgs::srv::ResetPath::Response::SharedPtr response);
+
+    // Class loaders for the trajectory factory plugins
+    std::unique_ptr<pluginlib::ClassLoader<autopilot::StaticTrajectoryFactory>> trajectory_loader_;
 
     // Static trajectories that can be loaded into the trajectory manager
     std::map<std::string, StaticTrajectoryFactory::UniquePtr> trajectory_factories_;

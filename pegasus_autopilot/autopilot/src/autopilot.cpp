@@ -52,6 +52,50 @@ namespace autopilot {
 
 Autopilot::Autopilot() : Node("pegasus_autopilot") {}
 
+Autopilot::~Autopilot() {
+
+    // Reset the timer
+    if (timer_) {
+        timer_->cancel();
+        timer_.reset();
+    }
+    
+    // Unload the operating modes plugins - clear the map to destroy all mode objects
+    // before the mode_loader_ is destroyed
+    operating_modes_.clear();
+
+    // Release plugin SharedPtr references cached in mode_config_.
+    // These references are independent from operating_modes_ and must be released
+    // before resetting controller/trajectory_manager loaders.
+    mode_config_.controller.reset();
+    mode_config_.trajectory_manager.reset();
+    mode_config_.get_vehicle_state = nullptr;
+    mode_config_.get_vehicle_status = nullptr;
+    mode_config_.get_vehicle_constants = nullptr;
+    mode_config_.signal_mode_finished = nullptr;
+
+    // Unload the geofencing plugin
+    geofencing_.reset();
+
+    // Unload the trajectory manager plugin
+    trajectory_manager_.reset();
+
+    // Unload the controller plugin
+    controller_.reset();
+
+    // Reset the configurations for the plugins
+    controller_config_.node.reset();
+    mode_config_.node.reset();
+    geofencing_config_.node.reset();
+    trajectory_manager_config_.node.reset();
+
+    // Destroy the class loaders (must be done after clearing plugin objects)
+    mode_loader_.reset();
+    geofencing_loader_.reset();
+    trajectory_manager_loader_.reset();
+    controller_loader_.reset();   
+}
+
 void Autopilot::initialize() {
     
     // Initialize the ROS2 interface
