@@ -4,7 +4,7 @@
     # Low-level configurations
     # ----------------------------------------------------------------------------------------------------------
     dynamics:
-      mass: 1.500 #Kg
+      mass: 1.650 #Kg
       thrust_curve:
         # Formula T(N) = a * input^2 + b*input + c
         # with input = [0.0, 1.0], hence we need to scale by 100.0
@@ -20,7 +20,7 @@
       # ----------------------------------------------------------------------------------------------------------
       # Definition of the controller that will perform the tracking of references of the different operation modes
       # ----------------------------------------------------------------------------------------------------------
-      controller: "PIDController"
+      controller: "MellingerController"
       # Configurations needed by the PX4 controller
       OnboardController:
         publishers:
@@ -37,9 +37,9 @@
           pid_debug_topic: "autopilot/statistics/pid"
         # Gains for position PIDs on [x, y, z]
         gains:
-          kp: [8.0, 8.0, 8.0]   # Proportional gain
-          kd: [3.0, 3.0, 3.0]   # Derivative gain
-          ki: [0.2, 0.2, 0.1]   # Integral gain
+          kp: [4.0, 4.0, 4.0]   # Proportional gain
+          kd: [3.9, 3.9, 3.9]   # Derivative gain
+          ki: [0.0, 0.0, 0.1]   # Integral gain
           min_output: [-20.0, -20.0, -20.0] # Minimum output of each PID
           max_output: [ 20.0,  20.0,  20.0]
       MellingerController:
@@ -48,8 +48,8 @@
           control_attitude_rate: "fmu/in/force/attitude_rate"
           debug_topic: "autopilot/statistics/mellinger"
         gains:
-          kp: [5.0, 5.0, 3.3]    # Proportional gain
-          kd: [4.0, 4.0, 5.0]    # Derivative gain
+          kp: [4.0, 4.0, 4.0]    # Proportional gain
+          kd: [3.9, 3.9, 3.9]    # Derivative gain
           ki: [0.0, 0.0, 0.0]    # Integral gain
           kr: [6.5, 6.5, 6.5]    # Attitude error gain
           min_output: [-100.0, -100.0, -100.0]  # Minimum output of each PID
