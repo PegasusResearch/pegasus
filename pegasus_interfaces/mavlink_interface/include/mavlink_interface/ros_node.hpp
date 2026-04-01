@@ -432,6 +432,8 @@ private:
      */
 
     int vehicle_id_{0};
+    std::string vehicle_ns_{""};
+    std::string imu_frame_id_{"base_link/imu_sensor"};
 
     /**
      * @ingroup messages

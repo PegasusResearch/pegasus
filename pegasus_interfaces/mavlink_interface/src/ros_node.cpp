@@ -125,6 +125,10 @@ void ROSNode::init_parameters() {
     this->declare_parameter<int>("vehicle_id", 1);
     vehicle_id_ = this->get_parameter("vehicle_id").as_int();
 
+    // Get the ROS vehicle id and namespace (use to get the vehicle from the mocap system)
+    this->declare_parameter<std::string>("vehicle_ns", "drone");
+    vehicle_ns_ = this->get_parameter("vehicle_ns").as_string();
+
     // Log the rates
     RCLCPP_INFO_STREAM(this->get_logger(), "Telemetry rate - attitude: " << mavlink_config_.rate_attitude);
     RCLCPP_INFO_STREAM(this->get_logger(), "Telemetry rate - position: " << mavlink_config_.rate_position);
@@ -181,8 +185,15 @@ void ROSNode::init_publishers() {
     // Initialize the publisher for sensors data (IMU, barometer and gps)
     // ------------------------------------------------------------------------
     this->declare_parameter<std::string>("publishers.sensors.imu", "sensors/imu");
+    this->declare_parameter<std::string>("publishers.sensors.imu_frame_id", "base_link/imu_sensor");
     rclcpp::Parameter imu_vel_accel_topic = this->get_parameter("publishers.sensors.imu");
+    rclcpp::Parameter imu_frame_id = this->get_parameter("publishers.sensors.imu_frame_id");
+    imu_frame_id_ = imu_frame_id.as_string();
     imu_pub_ = this->create_publisher<sensor_msgs::msg::Imu>(imu_vel_accel_topic.as_string(), rclcpp::SensorDataQoS());
+    
+    // Set the IMU frame id to be the vehicle namespace + vehicle id + imu frame id (e.g. drone1/base_link/imu_sensor) 
+    // Since this field is static and cannot be changed in the callback, we set it here for performance reasons after initializing the publisher and reading the parameters
+    imu_msg_.header.frame_id = vehicle_ns_ + std::to_string(vehicle_id_) + "/" + imu_frame_id_;
 
     this->declare_parameter<std::string>("publishers.sensors.barometer", "sensors/barometer");
     rclcpp::Parameter barometer_topic = this->get_parameter("publishers.sensors.barometer");
@@ -287,15 +298,10 @@ void ROSNode::init_subscribers_and_services() {
     // ------------------------------------------------------------------------
     // Subscribe to data comming from the motion capture system (MOCAP)
     // ------------------------------------------------------------------------
-
-    // Get the ROS vehicle id and namespace (use to get the vehicle from the mocap system)
-    this->declare_parameter<std::string>("vehicle_ns", "drone");
-    rclcpp::Parameter vehicle_ns = this->get_parameter("vehicle_ns");
-
     this->declare_parameter<std::string>("subscribers.external_sensors.mocap_enu", "/mocap/pose_enu");
     rclcpp::Parameter mocap_topic = this->get_parameter("subscribers.external_sensors.mocap_enu");
     mocap_pose_enu_sub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(
-        mocap_topic.as_string() + "/" + vehicle_ns.as_string() + std::to_string(vehicle_id_), 
+        mocap_topic.as_string() + "/" + vehicle_ns_ + std::to_string(vehicle_id_), 
         rclcpp::SensorDataQoS(), std::bind(&ROSNode::mocap_pose_callback, this, std::placeholders::_1));
 
 
@@ -680,11 +686,21 @@ void ROSNode::on_quaternion_callback(const mavsdk::Telemetry::Quaternion &quat) 
     filter_state_rpy_msg_.pitch = Pegasus::Rotations::rad_to_deg(euler_angles(1));
     filter_state_rpy_msg_.yaw = Pegasus::Rotations::rad_to_deg(euler_angles(2));
 
+    // Fill in the IMU message with the current orientation
+    imu_msg_.header.stamp = filter_state_msg_.header.stamp;
+    imu_msg_.orientation.w = quat.w;
+    imu_msg_.orientation.x = quat.x;
+    imu_msg_.orientation.y = quat.y;
+    imu_msg_.orientation.z = quat.z;
+
     // Publish the updated message
     filter_state_pub_->publish(filter_state_msg_);
 
     // Publish the euler angles
     filter_state_rpy_pub_->publish(filter_state_rpy_msg_);
+
+    // Publish the updated IMU message with the current orientation
+    imu_pub_->publish(imu_msg_);
 }
 
 /**
