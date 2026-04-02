@@ -10,6 +10,7 @@
           torque_setpoints: "px4/fmu/in/vehicle_torque_setpoint"
           offboard_control_mode: "px4/fmu/in/offboard_control_mode"
           vehicle_command: "px4/fmu/in/vehicle_command"
+          # External data to feed into PX4
           mocap: "px4/fmu/in/vehicle_visual_odometry"
         subscribers:
           # Get the onboard vehicle status

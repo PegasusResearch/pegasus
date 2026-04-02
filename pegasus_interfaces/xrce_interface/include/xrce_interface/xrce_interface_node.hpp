@@ -249,6 +249,7 @@ private:
      */
     px4_msgs::msg::OffboardControlMode offboard_control_mode_msg_;
     px4_msgs::msg::TrajectorySetpoint trajectory_setpoint_msg_;
+    px4_msgs::msg::VehicleOdometry mocap_odometry_msg_;
 
     /**
      * @brief Pegasus Messages
@@ -260,11 +261,6 @@ private:
     pegasus_msgs::msg::RPY filter_state_rpy_msg_;
     pegasus_msgs::msg::Status status_msg_;
     pegasus_msgs::msg::VehicleConstants vehicle_constants_msg_;
-
-    /**
-     * @brief PX4 Messages
-     */
-    px4_msgs::msg::VehicleOdometry mocap_odometry_msg_;
 
     /**
      * @brief Pegasus Publishers

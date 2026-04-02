@@ -45,6 +45,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
+#include <limits>
 #include <Eigen/Dense>
 #include "xrce_interface_node.hpp"
 #include "pegasus_utils/frames.hpp"
@@ -148,6 +149,9 @@ void XRCEInterfaceNode::intialize_subscribers() {
     this->declare_parameter<std::string>("xrce_interface.px4.subscribers.attitude", "vehicle_attitude");
     this->declare_parameter<std::string>("xrce_interface.px4.subscribers.gps", "vehicle_gps");
 
+    // Mocap data subscriber
+    this->declare_parameter<std::string>("xrce_interface.pegasus.subscribers.external_sensors.mocap_enu", "mocap");
+
     // Defining the compatible ROS 2 predefined QoS for PX4 topics
     rmw_qos_profile_t qos_profile = rmw_qos_profile_sensor_data;
 	auto qos = rclcpp::QoS(rclcpp::QoSInitialization(qos_profile.history, 5), qos_profile);
@@ -158,6 +162,11 @@ void XRCEInterfaceNode::intialize_subscribers() {
     vehicle_imu_px4_sub_ = this->create_subscription<px4_msgs::msg::SensorCombined>(this->get_parameter("xrce_interface.px4.subscribers.imu").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_imu_callback, this, std::placeholders::_1));
     vehicle_attitude_px4_sub_ = this->create_subscription<px4_msgs::msg::VehicleAttitude>(this->get_parameter("xrce_interface.px4.subscribers.attitude").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_attitude_callback, this, std::placeholders::_1));
     vehicle_gps_px4_sub_ = this->create_subscription<px4_msgs::msg::SensorGps>(this->get_parameter("xrce_interface.px4.subscribers.gps").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_gps_callback, this, std::placeholders::_1));
+
+    // Mocap subscriber
+    mocap_pose_enu_sub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(
+        this->get_parameter("xrce_interface.pegasus.subscribers.external_sensors.mocap_enu").as_string()  + "/" + vehicle_ns_ + std::to_string(vehicle_id_),
+        rclcpp::SensorDataQoS(), std::bind(&XRCEInterfaceNode::mocap_pose_callback, this, std::placeholders::_1));
 }
 
 void XRCEInterfaceNode::initialize_services() {
@@ -573,14 +582,48 @@ void XRCEInterfaceNode::mocap_pose_callback(const geometry_msgs::msg::PoseStampe
     orientation_flu_enu.y() = msg->pose.orientation.y;
     orientation_flu_enu.z() = msg->pose.orientation.z;
     orientation_flu_enu.w() = msg->pose.orientation.w;
+    Eigen::Quaterniond orientation_frd_ned = Pegasus::Frames::rot_body_to_inertial(Eigen::Quaternion<double>(orientation_flu_enu));
 
-    Eigen::Vector3d orientation_frd_ned = Pegasus::Rotations::quaternion_to_euler(
-        Pegasus::Frames::rot_body_to_inertial(
-            Eigen::Quaternion<double>(orientation_flu_enu)));
+    // Send the mocap measured vehicle pose thorugh  for the onboard microcontroller to fuse in its internal EKF
+    mocap_odometry_msg_.timestamp = (int) this->get_clock()->now().nanoseconds() / 1000;
+    mocap_odometry_msg_.pose_frame = px4_msgs::msg::VehicleOdometry::POSE_FRAME_NED;
 
-    // Send the mocap measured vehicle pose thorugh  for the onboard microcontroller
-    // to fuse in its internal EKF
-    //mavlink_node_->update_mocap_telemetry(position_ned, orientation_frd_ned);
+    // Set the position in NED
+    mocap_odometry_msg_.position[0] = static_cast<float>(position_ned(0));
+    mocap_odometry_msg_.position[1] = static_cast<float>(position_ned(1));
+    mocap_odometry_msg_.position[2] = static_cast<float>(position_ned(2));
+    
+    // Set the attitude of F.R.D frame relative to NED frame, expressed as a quaternion
+    mocap_odometry_msg_.q[0] = static_cast<float>(orientation_frd_ned.w());
+    mocap_odometry_msg_.q[1] = static_cast<float>(orientation_frd_ned.x());
+    mocap_odometry_msg_.q[2] = static_cast<float>(orientation_frd_ned.y());
+    mocap_odometry_msg_.q[3] = static_cast<float>(orientation_frd_ned.z());
+
+    // Set an unknwon velocity since the motion capture system only provides the pose of the vehicle and not its velocity
+    mocap_odometry_msg_.velocity_frame = px4_msgs::msg::VehicleOdometry::VELOCITY_FRAME_UNKNOWN;
+    mocap_odometry_msg_.velocity[0] = NAN;
+    mocap_odometry_msg_.velocity[1] = NAN;
+    mocap_odometry_msg_.velocity[2] = NAN;
+
+    // Set an unknown angular velocity since the motion capture system only provides the pose of the vehicle and not its angular velocity
+    mocap_odometry_msg_.angular_velocity[0] = NAN;
+    mocap_odometry_msg_.angular_velocity[1] = NAN;
+    mocap_odometry_msg_.angular_velocity[2] = NAN;
+
+    mocap_odometry_msg_.position_variance[0] = NAN;
+    mocap_odometry_msg_.position_variance[1] = NAN;
+    mocap_odometry_msg_.position_variance[2] = NAN;
+
+    mocap_odometry_msg_.orientation_variance[0] = NAN;
+    mocap_odometry_msg_.orientation_variance[1] = NAN;
+    mocap_odometry_msg_.orientation_variance[2] = NAN;
+
+    mocap_odometry_msg_.velocity_variance[0] = NAN;
+    mocap_odometry_msg_.velocity_variance[1] = NAN;
+    mocap_odometry_msg_.velocity_variance[2] = NAN;
+
+    // Publish the mocap odometry message according to the PX4 API
+    mocap_odometry_px4_pub_->publish(mocap_odometry_msg_);
 }
 
 void XRCEInterfaceNode::publish_vehicle_command(uint16_t command, float param1, float param2) {
