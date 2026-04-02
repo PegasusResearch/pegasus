@@ -145,10 +145,12 @@ void XRCEInterfaceNode::intialize_subscribers() {
     // Declare the parameters for the topics to subscribe to
     this->declare_parameter<std::string>("xrce_interface.px4.subscribers.status", "vehicle_status");
     this->declare_parameter<std::string>("xrce_interface.px4.subscribers.battery", "battery_status");
+    this->declare_parameter<std::string>("xrce_interface.px4.subscribers.health", "failsafe_flags");
     this->declare_parameter<std::string>("xrce_interface.px4.subscribers.odometry", "vehicle_odometry");
     this->declare_parameter<std::string>("xrce_interface.px4.subscribers.imu", "vehicle_imu");
     this->declare_parameter<std::string>("xrce_interface.px4.subscribers.attitude", "vehicle_attitude");
     this->declare_parameter<std::string>("xrce_interface.px4.subscribers.gps", "vehicle_gps");
+    this->declare_parameter<std::string>("xrce_interface.px4.subscribers.sensors_health", "estimator_status_flags");
 
     // Mocap data subscriber
     this->declare_parameter<std::string>("xrce_interface.pegasus.subscribers.external_sensors.mocap_enu", "mocap");
@@ -160,7 +162,9 @@ void XRCEInterfaceNode::intialize_subscribers() {
     // ---- PX4 Subscribers ----
     vehicle_status_px4_sub_= this->create_subscription<px4_msgs::msg::VehicleStatus>(this->get_parameter("xrce_interface.px4.subscribers.status").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_status_callback, this, std::placeholders::_1));
     battery_status_px4_sub_ = this->create_subscription<px4_msgs::msg::BatteryStatus>(this->get_parameter("xrce_interface.px4.subscribers.battery").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_battery_callback, this, std::placeholders::_1));
-    
+    failsafe_flags_px4_sub_ = this->create_subscription<px4_msgs::msg::FailsafeFlags>(this->get_parameter("xrce_interface.px4.subscribers.health").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_failsafe_callback, this, std::placeholders::_1));
+    estimator_status_flags_px4_sub_ = this->create_subscription<px4_msgs::msg::EstimatorStatusFlags>(this->get_parameter("xrce_interface.px4.subscribers.sensors_health").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_estimator_status_callback, this, std::placeholders::_1));
+
     vehicle_odometry_px4_sub_= this->create_subscription<px4_msgs::msg::VehicleOdometry>(this->get_parameter("xrce_interface.px4.subscribers.odometry").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_odometry_callback, this, std::placeholders::_1));
     vehicle_imu_px4_sub_ = this->create_subscription<px4_msgs::msg::SensorCombined>(this->get_parameter("xrce_interface.px4.subscribers.imu").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_imu_callback, this, std::placeholders::_1));
     vehicle_attitude_px4_sub_ = this->create_subscription<px4_msgs::msg::VehicleAttitude>(this->get_parameter("xrce_interface.px4.subscribers.attitude").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_attitude_callback, this, std::placeholders::_1));
@@ -409,6 +413,37 @@ void XRCEInterfaceNode::px4_battery_callback(px4_msgs::msg::BatteryStatus::Const
     status_pub_->publish(status_msg_);
 }
 
+void XRCEInterfaceNode::px4_failsafe_callback(px4_msgs::msg::FailsafeFlags::ConstSharedPtr failsafe_msg) {
+
+    // Update the health status of the vehicle with the failsafe flags received from the PX4 autopilot
+    status_msg_.header.stamp = rclcpp::Clock().now();
+    status_msg_.header.frame_id = "base_link_ned";
+    
+    status_msg_.health.global_position_ok = !failsafe_msg->global_position_invalid;
+    status_msg_.health.local_position_ok = !failsafe_msg->local_position_invalid;
+    status_msg_.health.home_position_ok = !failsafe_msg->home_position_invalid;
+
+    status_msg_.rc_status.available = !failsafe_msg->manual_control_signal_lost;
+    status_msg_.rc_status.signal_strength = 0;
+
+    // Publish the status message according to the Pegasus API
+    status_pub_->publish(status_msg_);
+}
+
+void XRCEInterfaceNode::px4_estimator_status_callback(px4_msgs::msg::EstimatorStatusFlags::ConstSharedPtr msg) {
+
+    // Update the health status of the vehicle with the estimator status flags received from the PX4 autopilot
+    status_msg_.header.stamp = rclcpp::Clock().now();
+    status_msg_.header.frame_id = "base_link_ned";
+    
+    status_msg_.health.accelerometer_calibrated = msg->cs_mag && !msg->fs_bad_mag_x && !msg->fs_bad_mag_y && !msg->fs_bad_mag_z && !msg->cs_mag_fault;
+    status_msg_.health.magnetometer_calibrated = !msg->fs_bad_acc_vertical && !msg->fs_bad_acc_clipping;
+
+    // Publish the status message according to the Pegasus API
+    status_pub_->publish(status_msg_);
+}
+
+
 /**
  * @brief Position subscriber callback. The position of the vehicle should be expressed in the NED reference frame
  * @param msg A message with the desired position for the vehicle in NED
@@ -540,6 +575,7 @@ void XRCEInterfaceNode::attitude_rate_force_callback(const pegasus_msgs::msg::Co
  * @param response The response in this service uint8
  */
 void XRCEInterfaceNode::arm_callback(const pegasus_msgs::srv::Arm::Request::SharedPtr request, const pegasus_msgs::srv::Arm::Response::SharedPtr response) {
+    RCLCPP_INFO_STREAM(this->get_logger(), "Received request to " << (request->arm ? "ARM" : "DISARM") << " the vehicle");
     publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_COMPONENT_ARM_DISARM, 1.0);
     response->success = true;
 }
@@ -551,6 +587,7 @@ void XRCEInterfaceNode::arm_callback(const pegasus_msgs::srv::Arm::Request::Shar
  * @param response The response in this service uint8
 */
 void XRCEInterfaceNode::kill_switch_callback(const pegasus_msgs::srv::KillSwitch::Request::SharedPtr request, const pegasus_msgs::srv::KillSwitch::Response::SharedPtr response) {
+    RCLCPP_INFO_STREAM(this->get_logger(), "Received request to activate kill switch");
     publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_COMPONENT_ARM_DISARM, 0.0);
     response->success = true;
 }
@@ -564,6 +601,8 @@ void XRCEInterfaceNode::kill_switch_callback(const pegasus_msgs::srv::KillSwitch
 void XRCEInterfaceNode::land_callback(const pegasus_msgs::srv::Land::Request::SharedPtr request, const pegasus_msgs::srv::Land::Response::SharedPtr response) {
     // Check this page for mode values: https://github.com//MAVSDK/blob/ce6b7186d837b1ab5e9b23bb9be72aec28899630/src/mavsdk/core/px4_custom_mode.h
     // https://discuss.px4.io/t/where-to-find-custom-mode-list-for-mav-cmd-do-set-mode/32756/11
+    
+    RCLCPP_INFO_STREAM(this->get_logger(), "Received request to initiate autoland");
     publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_DO_SET_MODE, 3, 6); // Set Auto (mode) + Land (submode)
 }
 
@@ -575,6 +614,8 @@ void XRCEInterfaceNode::land_callback(const pegasus_msgs::srv::Land::Request::Sh
  */
 void XRCEInterfaceNode::offboard_callback(const pegasus_msgs::srv::Offboard::Request::SharedPtr, const pegasus_msgs::srv::Offboard::Response::SharedPtr response) { 
     // Check this page for mode values: https://github.com//MAVSDK/blob/ce6b7186d837b1ab5e9b23bb9be72aec28899630/src/mavsdk/core/px4_custom_mode.h
+    
+    RCLCPP_INFO_STREAM(this->get_logger(), "Received request to initiate offboard mode");
     publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_DO_SET_MODE, 1, 6);
 }
 
@@ -585,6 +626,7 @@ void XRCEInterfaceNode::offboard_callback(const pegasus_msgs::srv::Offboard::Req
  * @param response The response in this service uint8
  */
 void XRCEInterfaceNode::position_hold_callback(const pegasus_msgs::srv::PositionHold::Request::SharedPtr, const pegasus_msgs::srv::PositionHold::Response::SharedPtr response) {
+    RCLCPP_INFO_STREAM(this->get_logger(), "Received request to initiate position hold mode");
     publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_DO_SET_MODE, 3, 3); // Set Auto (mode) + Hold/Loiter (submode)
 }
 
@@ -656,9 +698,9 @@ void XRCEInterfaceNode::publish_vehicle_command(uint16_t command, float param1, 
 	msg.param1 = param1;
 	msg.param2 = param2;
 	msg.command = command;
-	msg.target_system = 1;
+	msg.target_system = vehicle_id_;
 	msg.target_component = 1;
-	msg.source_system = 1;
+	msg.source_system = vehicle_id_;
 	msg.source_component = 1;
 	msg.from_external = true;
 	msg.timestamp = this->get_clock()->now().nanoseconds() / 1000;
