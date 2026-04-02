@@ -14,7 +14,8 @@
           mocap: "px4/fmu/in/vehicle_visual_odometry"
         subscribers:
           # Get the onboard vehicle status
-          status: "px4/fmu/out/vehicle_status"
+          status: "px4/fmu/out/vehicle_status_v1"
+          battery: "px4/fmu/out/battery_status"
           # Get the vehicle state
           odometry: "px4/fmu/out/vehicle_odometry"
           # Get the IMU sensor data

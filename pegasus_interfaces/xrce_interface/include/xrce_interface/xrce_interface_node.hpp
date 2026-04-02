@@ -57,6 +57,7 @@
 #include <px4_msgs/msg/vehicle_attitude_setpoint.hpp>
 #include <px4_msgs/msg/vehicle_command.hpp>
 #include <px4_msgs/msg/vehicle_status.hpp>
+#include <px4_msgs/msg/battery_status.hpp>
 #include <px4_msgs/msg/actuator_motors.hpp>
 #include <px4_msgs/msg/vehicle_attitude_setpoint.hpp>
 #include <px4_msgs/msg/vehicle_thrust_setpoint.hpp>
@@ -110,11 +111,13 @@ private:
     void initialize_services();
 
     void px4_odometry_callback(px4_msgs::msg::VehicleOdometry::ConstSharedPtr odom_msg);
-    void px4_status_callback(px4_msgs::msg::VehicleStatus::ConstSharedPtr status_msg);
     void px4_command_pose_callback(geometry_msgs::msg::PoseStamped::ConstSharedPtr pose_msg);
     void px4_imu_callback(px4_msgs::msg::SensorCombined::ConstSharedPtr imu_msg);
     void px4_attitude_callback(px4_msgs::msg::VehicleAttitude::ConstSharedPtr attitude_msg);
     void px4_gps_callback(px4_msgs::msg::SensorGps::ConstSharedPtr gps_msg);
+
+    void px4_status_callback(px4_msgs::msg::VehicleStatus::ConstSharedPtr status_msg);
+    void px4_battery_callback(px4_msgs::msg::BatteryStatus::ConstSharedPtr battery_msg);
 
     /**
      * @brief Position subscriber callback. The position of the vehicle should be expressed in the NED reference frame
@@ -235,6 +238,7 @@ private:
      */
     // PX4 Status
     rclcpp::Subscription<px4_msgs::msg::VehicleStatus>::SharedPtr vehicle_status_px4_sub_;
+    rclcpp::Subscription<px4_msgs::msg::BatteryStatus>::SharedPtr battery_status_px4_sub_;
     rclcpp::Subscription<rcl_interfaces::msg::ParameterEvent>::SharedPtr parameter_event_px4_sub_;
     // PX4 filter output
     rclcpp::Subscription<px4_msgs::msg::VehicleOdometry>::SharedPtr vehicle_odometry_px4_sub_;

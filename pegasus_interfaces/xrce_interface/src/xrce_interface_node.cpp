@@ -144,6 +144,7 @@ void XRCEInterfaceNode::intialize_subscribers() {
 
     // Declare the parameters for the topics to subscribe to
     this->declare_parameter<std::string>("xrce_interface.px4.subscribers.status", "vehicle_status");
+    this->declare_parameter<std::string>("xrce_interface.px4.subscribers.battery", "battery_status");
     this->declare_parameter<std::string>("xrce_interface.px4.subscribers.odometry", "vehicle_odometry");
     this->declare_parameter<std::string>("xrce_interface.px4.subscribers.imu", "vehicle_imu");
     this->declare_parameter<std::string>("xrce_interface.px4.subscribers.attitude", "vehicle_attitude");
@@ -158,6 +159,8 @@ void XRCEInterfaceNode::intialize_subscribers() {
 
     // ---- PX4 Subscribers ----
     vehicle_status_px4_sub_= this->create_subscription<px4_msgs::msg::VehicleStatus>(this->get_parameter("xrce_interface.px4.subscribers.status").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_status_callback, this, std::placeholders::_1));
+    battery_status_px4_sub_ = this->create_subscription<px4_msgs::msg::BatteryStatus>(this->get_parameter("xrce_interface.px4.subscribers.battery").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_battery_callback, this, std::placeholders::_1));
+    
     vehicle_odometry_px4_sub_= this->create_subscription<px4_msgs::msg::VehicleOdometry>(this->get_parameter("xrce_interface.px4.subscribers.odometry").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_odometry_callback, this, std::placeholders::_1));
     vehicle_imu_px4_sub_ = this->create_subscription<px4_msgs::msg::SensorCombined>(this->get_parameter("xrce_interface.px4.subscribers.imu").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_imu_callback, this, std::placeholders::_1));
     vehicle_attitude_px4_sub_ = this->create_subscription<px4_msgs::msg::VehicleAttitude>(this->get_parameter("xrce_interface.px4.subscribers.attitude").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_attitude_callback, this, std::placeholders::_1));
@@ -362,19 +365,21 @@ void XRCEInterfaceNode::px4_status_callback(px4_msgs::msg::VehicleStatus::ConstS
 
     // Set the status message with the status data received from the PX4 autopilot
     status_msg_.header.stamp = rclcpp::Clock().now();
-    status_msg_.header.frame_id = "map";
+    status_msg_.header.frame_id = "base_link_ned";
 
+    // Base flight information
     status_msg_.system_id = msg->system_id;
-    status_msg_.armed = (msg->arming_state == 2) ? true : false;
-    status_msg_.landed_state = (msg->takeoff_time == 0) ? status_msg_.ON_GROUND : status_msg_.IN_AIR;
+    status_msg_.armed = (msg->arming_state == px4_msgs::msg::VehicleStatus::ARMING_STATE_ARMED) ? true : false;
+    status_msg_.landed_state = (msg->takeoff_time > 0) ? status_msg_.IN_AIR : status_msg_.ON_GROUND;
     status_msg_.flight_mode = (PX4_modes.find(msg->nav_state) != PX4_modes.end()) ? PX4_modes.at(msg->nav_state) : status_msg_.UNKOWN;
 
     // Update the landed state with taking off or landing if that is the case
     if(msg->nav_state == px4_msgs::msg::VehicleStatus::NAVIGATION_STATE_AUTO_TAKEOFF) {
         status_msg_.landed_state = status_msg_.TAKING_OFF;
     } else if(msg->nav_state == px4_msgs::msg::VehicleStatus::NAVIGATION_STATE_AUTO_LAND) {
-        status_msg_.landed_state = status_msg_.LANDING;
-    
+        status_msg_.landed_state = status_msg_.LANDING;    
+    }
+
     // Get the health of the vehicle
     status_msg_.health.is_armable = msg->pre_flight_checks_pass;
     status_msg_.health.accelerometer_calibrated = true;
@@ -382,7 +387,26 @@ void XRCEInterfaceNode::px4_status_callback(px4_msgs::msg::VehicleStatus::ConstS
 
     // Publish the status message according to the Pegasus API
     status_pub_->publish(status_msg_);
+
+    // Also publish the message with the vehicle constants
+    // TODO: improve this later on
+    vehicle_constants_pub_->publish(vehicle_constants_msg_);
 }
+
+void XRCEInterfaceNode::px4_battery_callback(px4_msgs::msg::BatteryStatus::ConstSharedPtr battery_msg) {
+
+    // Update the battery status
+    status_msg_.header.stamp = rclcpp::Clock().now();
+    status_msg_.header.frame_id = "base_link_ned";
+    status_msg_.battery.id = battery_msg->id;
+    status_msg_.battery.temperature = battery_msg->temperature;
+    status_msg_.battery.voltage = battery_msg->ocv_estimate_filtered;
+    status_msg_.battery.percentage = battery_msg->remaining * 100.0; // Convert from [0-1] to percentage
+    status_msg_.battery.current = battery_msg->current_a;
+    status_msg_.battery.amps_hour_consumed = battery_msg->discharged_mah;
+
+    // Publish the status message according to the Pegasus API
+    status_pub_->publish(status_msg_);
 }
 
 /**
