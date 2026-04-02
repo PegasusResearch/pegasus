@@ -222,8 +222,9 @@ private:
     /**
      * @brief PX4 Publishers
      */
-    rclcpp::Publisher<px4_msgs::msg::ActuatorMotors>::SharedPtr actuator_motors_pub_;
+    rclcpp::Publisher<px4_msgs::msg::TrajectorySetpoint>::SharedPtr trajectory_setpoint_pub_;
     rclcpp::Publisher<px4_msgs::msg::VehicleAttitudeSetpoint>::SharedPtr attitude_setpoint_pub_;
+    rclcpp::Publisher<px4_msgs::msg::ActuatorMotors>::SharedPtr actuator_motors_pub_;
     rclcpp::Publisher<px4_msgs::msg::VehicleThrustSetpoint>::SharedPtr thrust_setpoint_pub_;
     rclcpp::Publisher<px4_msgs::msg::VehicleTorqueSetpoint>::SharedPtr torque_setpoint_pub_;
     rclcpp::Publisher<px4_msgs::msg::OffboardControlMode>::SharedPtr offboard_control_mode_pub_;
@@ -259,7 +260,10 @@ private:
      * @brief PX4 Messages
      */
     px4_msgs::msg::OffboardControlMode offboard_control_mode_msg_;
+    
     px4_msgs::msg::TrajectorySetpoint trajectory_setpoint_msg_;
+    px4_msgs::msg::VehicleAttitudeSetpoint attitude_setpoint_msg_;
+
     px4_msgs::msg::VehicleOdometry mocap_odometry_msg_;
 
     /**
@@ -283,6 +287,14 @@ private:
     rclcpp::Publisher<pegasus_msgs::msg::RPY>::SharedPtr filter_state_rpy_pub_{nullptr};
     rclcpp::Publisher<pegasus_msgs::msg::Status>::SharedPtr status_pub_{nullptr};
     rclcpp::Publisher<pegasus_msgs::msg::VehicleConstants>::SharedPtr vehicle_constants_pub_{nullptr};
+
+    /**
+     * @brief Pegasus Subscribers
+     * 
+     */
+    rclcpp::Subscription<pegasus_msgs::msg::ControlPosition>::SharedPtr control_position_sub_{nullptr};
+    rclcpp::Subscription<pegasus_msgs::msg::ControlAttitude>::SharedPtr control_attitude_force_sub_{nullptr};
+    rclcpp::Subscription<pegasus_msgs::msg::ControlAttitude>::SharedPtr control_attitude_thrust_sub_{nullptr};
 
     /**
      * @brief Pegasus services

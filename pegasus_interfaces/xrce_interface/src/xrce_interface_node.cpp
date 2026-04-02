@@ -96,6 +96,7 @@ void XRCEInterfaceNode::initialize_publishers() {
     this->declare_parameter<std::string>("xrce_interface.px4.publishers.thrust_setpoints", "thrust_setpoints");
     this->declare_parameter<std::string>("xrce_interface.px4.publishers.torque_setpoints", "torque_setpoints");
     this->declare_parameter<std::string>("xrce_interface.px4.publishers.offboard_control_mode", "offboard_control_mode");
+    this->declare_parameter<std::string>("xrce_interface.px4.publishers.position_setpoints", "trajectory_setpoints");
     this->declare_parameter<std::string>("xrce_interface.px4.publishers.vehicle_command", "vehicle_command");
     this->declare_parameter<std::string>("xrce_interface.px4.publishers.mocap", "mocap_odometry");
     this->declare_parameter<std::string>("xrce_interface.pegasus.publishers.status", "status");
@@ -112,6 +113,7 @@ void XRCEInterfaceNode::initialize_publishers() {
     thrust_setpoint_pub_ = this->create_publisher<px4_msgs::msg::VehicleThrustSetpoint>(this->get_parameter("xrce_interface.px4.publishers.thrust_setpoints").as_string(), 10);
     torque_setpoint_pub_ = this->create_publisher<px4_msgs::msg::VehicleTorqueSetpoint>(this->get_parameter("xrce_interface.px4.publishers.torque_setpoints").as_string(), 10);
     offboard_control_mode_pub_ = this->create_publisher<px4_msgs::msg::OffboardControlMode>(this->get_parameter("xrce_interface.px4.publishers.offboard_control_mode").as_string(), 10);
+    trajectory_setpoint_pub_ = this->create_publisher<px4_msgs::msg::TrajectorySetpoint>(this->get_parameter("xrce_interface.px4.publishers.position_setpoints").as_string(), 10);
     vehicle_command_pub_ = this->create_publisher<px4_msgs::msg::VehicleCommand>(this->get_parameter("xrce_interface.px4.publishers.vehicle_command").as_string(), 10);
 
     // Mocap pose publisher for the PX4 estimator
@@ -152,6 +154,11 @@ void XRCEInterfaceNode::intialize_subscribers() {
     this->declare_parameter<std::string>("xrce_interface.px4.subscribers.gps", "vehicle_gps");
     this->declare_parameter<std::string>("xrce_interface.px4.subscribers.sensors_health", "estimator_status_flags");
 
+    // Declare parameter topics for control of the vehicle from the Pegasus side
+    this->declare_parameter<std::string>("xrce_interface.pegasus.subscribers.position", "control/position");
+    this->declare_parameter<std::string>("xrce_interface.pegasus.subscribers.force.attitude", "control/force/attitude");
+    this->declare_parameter<std::string>("xrce_interface.pegasus.subscribers.thrust.attitude", "control/thrust/attitude");
+
     // Mocap data subscriber
     this->declare_parameter<std::string>("xrce_interface.pegasus.subscribers.external_sensors.mocap_enu", "mocap");
 
@@ -169,6 +176,11 @@ void XRCEInterfaceNode::intialize_subscribers() {
     vehicle_imu_px4_sub_ = this->create_subscription<px4_msgs::msg::SensorCombined>(this->get_parameter("xrce_interface.px4.subscribers.imu").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_imu_callback, this, std::placeholders::_1));
     vehicle_attitude_px4_sub_ = this->create_subscription<px4_msgs::msg::VehicleAttitude>(this->get_parameter("xrce_interface.px4.subscribers.attitude").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_attitude_callback, this, std::placeholders::_1));
     vehicle_gps_px4_sub_ = this->create_subscription<px4_msgs::msg::SensorGps>(this->get_parameter("xrce_interface.px4.subscribers.gps").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_gps_callback, this, std::placeholders::_1));
+
+    // --- Pegasus Subscribers ---
+    control_position_sub_ = this->create_subscription<pegasus_msgs::msg::ControlPosition>(this->get_parameter("xrce_interface.pegasus.subscribers.position").as_string(), rclcpp::SensorDataQoS(), std::bind(&XRCEInterfaceNode::position_callback, this, std::placeholders::_1));
+    control_attitude_force_sub_ = this->create_subscription<pegasus_msgs::msg::ControlAttitude>(this->get_parameter("xrce_interface.pegasus.subscribers.force.attitude").as_string(), rclcpp::SensorDataQoS(), std::bind(&XRCEInterfaceNode::attitude_force_callback, this, std::placeholders::_1));
+    control_attitude_thrust_sub_ = this->create_subscription<pegasus_msgs::msg::ControlAttitude>(this->get_parameter("xrce_interface.pegasus.subscribers.thrust.attitude").as_string(), rclcpp::SensorDataQoS(), std::bind(&XRCEInterfaceNode::attitude_thrust_callback, this, std::placeholders::_1));
 
     // Mocap subscriber
     mocap_pose_enu_sub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(
@@ -462,12 +474,51 @@ void XRCEInterfaceNode::position_callback(const pegasus_msgs::msg::ControlPositi
 
     // Set the position trajectory message
     trajectory_setpoint_msg_.position = {static_cast<float>(msg->position[0]), static_cast<float>(msg->position[1]), static_cast<float>(msg->position[2])};
-	trajectory_setpoint_msg_.yaw = -3.14; // [-PI:PI]
+	trajectory_setpoint_msg_.yaw = Pegasus::Rotations::wrapTopi(Pegasus::Rotations::deg_to_rad(msg->yaw)); // [-PI:PI]
 	trajectory_setpoint_msg_.timestamp = offboard_control_mode_msg_.timestamp;
 
     // Publish the offboard control mode message with the target position message
 	offboard_control_mode_pub_->publish(offboard_control_mode_msg_);
-    //trajectory_setpoint_pub_->publish(trajectory_setpoint_msg_);
+    trajectory_setpoint_pub_->publish(trajectory_setpoint_msg_);
+}
+
+/**
+ * @brief Attitude and thrust subscriber callback. The attitude should be specified in euler angles in degrees
+ * according to the Z-Y-X convention in the body frame of f.r.d convention. The total force along
+ * the body Z-axis should be given in Newton (N)
+ * @param msg A message with the desired attitude and force to apply to the vehicle
+ */
+void XRCEInterfaceNode::attitude_force_callback(const pegasus_msgs::msg::ControlAttitude::ConstSharedPtr msg) {
+
+    // Set the offboard mode for attitude control
+    offboard_control_mode_msg_.position = false;
+    offboard_control_mode_msg_.velocity = false;
+    offboard_control_mode_msg_.acceleration = false;
+    offboard_control_mode_msg_.attitude = true;
+    offboard_control_mode_msg_.body_rate = false;
+    offboard_control_mode_msg_.thrust_and_torque = false;
+    offboard_control_mode_msg_.direct_actuator = false;
+	offboard_control_mode_msg_.timestamp = this->get_clock()->now().nanoseconds() / 1000;
+
+    // Get the desired attitude in euler angles (Z-Y-X convention) and convert it to a quaternion
+    Eigen::Vector3d attitude_euler_rad(Pegasus::Rotations::deg_to_rad(msg->attitude[0]), Pegasus::Rotations::deg_to_rad(msg->attitude[1]), Pegasus::Rotations::deg_to_rad(msg->attitude[2]));
+    Eigen::Quaterniond attitude_quaternion = Pegasus::Rotations::euler_to_quaternion(attitude_euler_rad);
+
+    // Populate the attitude setpoint message with the desired attitude and thrust
+    attitude_setpoint_msg_.q_d[0] = attitude_quaternion.w();
+    attitude_setpoint_msg_.q_d[1] = attitude_quaternion.x();
+    attitude_setpoint_msg_.q_d[2] = attitude_quaternion.y();
+    attitude_setpoint_msg_.q_d[3] = attitude_quaternion.z();
+
+    // Convert the force received in the message in Newton (N) to a percentage from [0-100]%
+    attitude_setpoint_msg_.thrust_body[0] = 0.0; // No thrust along the body X-axis
+    attitude_setpoint_msg_.thrust_body[1] = 0.0; // No thrust along the body Y-axis
+    attitude_setpoint_msg_.thrust_body[2] = static_cast<float>(thrust_curve_->force_to_percentage(msg->thrust) / 100.0); // Convert from percentage to [0-1] for the PX4 autopilot
+    attitude_setpoint_msg_.timestamp = offboard_control_mode_msg_.timestamp;
+
+    // Publish the offboard control mode message with the target position message
+	offboard_control_mode_pub_->publish(offboard_control_mode_msg_);
+    attitude_setpoint_pub_->publish(attitude_setpoint_msg_);
 }
 
 /**
@@ -488,57 +539,24 @@ void XRCEInterfaceNode::attitude_thrust_callback(const pegasus_msgs::msg::Contro
     offboard_control_mode_msg_.direct_actuator = false;
 	offboard_control_mode_msg_.timestamp = this->get_clock()->now().nanoseconds() / 1000;
 
-    // Publish the offboard control mode message with the target position message
-	offboard_control_mode_pub_->publish(offboard_control_mode_msg_);
-}
+    // Get the desired attitude in euler angles (Z-Y-X convention) and convert it to a quaternion
+    Eigen::Vector3d attitude_euler_rad(Pegasus::Rotations::deg_to_rad(msg->attitude[0]), Pegasus::Rotations::deg_to_rad(msg->attitude[1]), Pegasus::Rotations::deg_to_rad(msg->attitude[2]));
+    Eigen::Quaterniond attitude_quaternion = Pegasus::Rotations::euler_to_quaternion(attitude_euler_rad);
 
-/**
- * @brief Attitude rate and thrust subscriber callback. The attitude-rate should be specified in euler angles in degrees-per-second
- * according to the Z-Y-X convention in the body frame of f.r.d convention. The thrust should be normalized
- * between 0-100 %
- * @param msg A message with the desired attitude-rate and thrust to apply to the vehicle
- */
-void XRCEInterfaceNode::attitude_rate_thrust_callback(const pegasus_msgs::msg::ControlAttitude::ConstSharedPtr msg) {
-    
-    // Set the offboard mode for attitude control
-    offboard_control_mode_msg_.position = false;
-    offboard_control_mode_msg_.velocity = false;
-    offboard_control_mode_msg_.acceleration = false;
-    offboard_control_mode_msg_.attitude = false;
-    offboard_control_mode_msg_.body_rate = true;
-    offboard_control_mode_msg_.thrust_and_torque = false;
-    offboard_control_mode_msg_.direct_actuator = false;
-	offboard_control_mode_msg_.timestamp = this->get_clock()->now().nanoseconds() / 1000;
+    // Populate the attitude setpoint message with the desired attitude and thrust
+    attitude_setpoint_msg_.q_d[0] = attitude_quaternion.w();
+    attitude_setpoint_msg_.q_d[1] = attitude_quaternion.x();
+    attitude_setpoint_msg_.q_d[2] = attitude_quaternion.y();
+    attitude_setpoint_msg_.q_d[3] = attitude_quaternion.z();
+
+    attitude_setpoint_msg_.thrust_body[0] = 0.0; // No thrust along the body X-axis
+    attitude_setpoint_msg_.thrust_body[1] = 0.0; // No thrust along the body Y-axis
+    attitude_setpoint_msg_.thrust_body[2] = static_cast<float>(msg->thrust / 100.0); // Convert from percentage to [0-1] for the PX4 autopilot
+    attitude_setpoint_msg_.timestamp = offboard_control_mode_msg_.timestamp;
 
     // Publish the offboard control mode message with the target position message
 	offboard_control_mode_pub_->publish(offboard_control_mode_msg_);
-}
-
-/**
- * @brief Attitude and thrust subscriber callback. The attitude should be specified in euler angles in degrees
- * according to the Z-Y-X convention in the body frame of f.r.d convention. The total force along
- * the body Z-axis should be given in Newton (N)
- * @param msg A message with the desired attitude and force to apply to the vehicle
- */
-void XRCEInterfaceNode::attitude_force_callback(const pegasus_msgs::msg::ControlAttitude::ConstSharedPtr msg) {
-
-    // Convert the force received in the message in Newton (N) to a percentage from [0-100]%
-    double thrust = thrust_curve_->force_to_percentage(msg->thrust);
-
-    // Send the attitude-rate and thrust reference thorugh XRCE for the onboard microcontroller
-    
-    // Set the offboard mode for attitude control
-    offboard_control_mode_msg_.position = false;
-    offboard_control_mode_msg_.velocity = false;
-    offboard_control_mode_msg_.acceleration = false;
-    offboard_control_mode_msg_.attitude = true;
-    offboard_control_mode_msg_.body_rate = false;
-    offboard_control_mode_msg_.thrust_and_torque = false;
-    offboard_control_mode_msg_.direct_actuator = false;
-	offboard_control_mode_msg_.timestamp = this->get_clock()->now().nanoseconds() / 1000;
-
-    // Publish the offboard control mode message with the target position message
-	offboard_control_mode_pub_->publish(offboard_control_mode_msg_);
+    attitude_setpoint_pub_->publish(attitude_setpoint_msg_);
 }
 
 /**
@@ -554,6 +572,28 @@ void XRCEInterfaceNode::attitude_rate_force_callback(const pegasus_msgs::msg::Co
 
     // Send the attitude-rate and thrust reference thorugh XRCE for the onboard microcontroller
 
+    // Set the offboard mode for attitude control
+    offboard_control_mode_msg_.position = false;
+    offboard_control_mode_msg_.velocity = false;
+    offboard_control_mode_msg_.acceleration = false;
+    offboard_control_mode_msg_.attitude = false;
+    offboard_control_mode_msg_.body_rate = true;
+    offboard_control_mode_msg_.thrust_and_torque = false;
+    offboard_control_mode_msg_.direct_actuator = false;
+	offboard_control_mode_msg_.timestamp = this->get_clock()->now().nanoseconds() / 1000;
+
+    // Publish the offboard control mode message with the target position message
+	offboard_control_mode_pub_->publish(offboard_control_mode_msg_);
+}
+
+/**
+ * @brief Attitude rate and thrust subscriber callback. The attitude-rate should be specified in euler angles in degrees-per-second
+ * according to the Z-Y-X convention in the body frame of f.r.d convention. The thrust should be normalized
+ * between 0-100 %
+ * @param msg A message with the desired attitude-rate and thrust to apply to the vehicle
+ */
+void XRCEInterfaceNode::attitude_rate_thrust_callback(const pegasus_msgs::msg::ControlAttitude::ConstSharedPtr msg) {
+    
     // Set the offboard mode for attitude control
     offboard_control_mode_msg_.position = false;
     offboard_control_mode_msg_.velocity = false;
@@ -587,6 +627,9 @@ void XRCEInterfaceNode::arm_callback(const pegasus_msgs::srv::Arm::Request::Shar
  * @param response The response in this service uint8
 */
 void XRCEInterfaceNode::kill_switch_callback(const pegasus_msgs::srv::KillSwitch::Request::SharedPtr request, const pegasus_msgs::srv::KillSwitch::Response::SharedPtr response) {
+
+    (void) request; // To avoid unused parameter warning
+    
     RCLCPP_INFO_STREAM(this->get_logger(), "Received request to activate kill switch");
     publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_COMPONENT_ARM_DISARM, 0.0);
     response->success = true;
@@ -601,9 +644,12 @@ void XRCEInterfaceNode::kill_switch_callback(const pegasus_msgs::srv::KillSwitch
 void XRCEInterfaceNode::land_callback(const pegasus_msgs::srv::Land::Request::SharedPtr request, const pegasus_msgs::srv::Land::Response::SharedPtr response) {
     // Check this page for mode values: https://github.com//MAVSDK/blob/ce6b7186d837b1ab5e9b23bb9be72aec28899630/src/mavsdk/core/px4_custom_mode.h
     // https://discuss.px4.io/t/where-to-find-custom-mode-list-for-mav-cmd-do-set-mode/32756/11
+
+    (void) request; // To avoid unused parameter warning
     
     RCLCPP_INFO_STREAM(this->get_logger(), "Received request to initiate autoland");
     publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_DO_SET_MODE, 3, 6); // Set Auto (mode) + Land (submode)
+    response->success = true;
 }
 
 /**
@@ -617,6 +663,7 @@ void XRCEInterfaceNode::offboard_callback(const pegasus_msgs::srv::Offboard::Req
     
     RCLCPP_INFO_STREAM(this->get_logger(), "Received request to initiate offboard mode");
     publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_DO_SET_MODE, 1, 6);
+    response->success = true;
 }
 
 /**
@@ -628,6 +675,7 @@ void XRCEInterfaceNode::offboard_callback(const pegasus_msgs::srv::Offboard::Req
 void XRCEInterfaceNode::position_hold_callback(const pegasus_msgs::srv::PositionHold::Request::SharedPtr, const pegasus_msgs::srv::PositionHold::Response::SharedPtr response) {
     RCLCPP_INFO_STREAM(this->get_logger(), "Received request to initiate position hold mode");
     publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_DO_SET_MODE, 3, 3); // Set Auto (mode) + Hold/Loiter (submode)
+    response->success = true;
 }
 
 /**

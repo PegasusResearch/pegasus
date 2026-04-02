@@ -4,10 +4,11 @@
       # Topics for receiving/sending data from/to px4
       px4:
         publishers:
-          actuator_setpoints: "px4/fmu/in/actuator_motors"
+          position_setpoints: "/px4/fmu/in/trajectory_setpoint"
           attitude_setpoints: "px4/fmu/in/vehicle_attitude_setpoint"
           thrust_setpoints: "px4/fmu/in/vehicle_thrust_setpoint"
           torque_setpoints: "px4/fmu/in/vehicle_torque_setpoint"
+          actuator_setpoints: "px4/fmu/in/actuator_motors"
           offboard_control_mode: "px4/fmu/in/offboard_control_mode"
           vehicle_command: "px4/fmu/in/vehicle_command"
           # External data to feed into PX4
