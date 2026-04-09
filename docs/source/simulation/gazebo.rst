@@ -4,9 +4,9 @@ Gazebo Jetty
 In this section, we will explain how to install and setup Gazebo Jetty and PX4-Autopilot for performing simulations with pegasus.
 This was tested on Ubuntu 24.04.
 
-.. image:: https://img.shields.io/badge/PX4--Autopilot-1.14.3-brightgreen.svg
+.. image:: https://img.shields.io/badge/PX4--Autopilot-1.16.1-brightgreen.svg
    :target: https://github.com/PX4/PX4-Autopilot
-   :alt: PX4-Autopilot 1.14.3
+   :alt: PX4-Autopilot 1.16.1
 
 .. image:: https://img.shields.io/badge/Ubuntu-24.04LTS-brightgreen.svg
    :target: https://releases.ubuntu.com/24.04/
