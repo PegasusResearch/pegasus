@@ -43,7 +43,7 @@ def generate_launch_description():
     # Define which file to use for the drone parameters
     drone_params_file_arg = DeclareLaunchArgument(
         'drone_params', 
-        default_value=os.path.join(get_package_share_directory('pegasus'), 'config', 'snapdragon5.yaml'),
+        default_value=os.path.join(get_package_share_directory('pegasus'), 'config/real', 'snapdragon5.yaml'),
         description='The directory where the drone parameters such as mass, thrust curve, etc. are defined')
     
     # ----------------------------------------

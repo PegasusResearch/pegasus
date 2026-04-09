@@ -5,15 +5,15 @@ Installation
    :target: https://github.com/PX4/PX4-Autopilot
    :alt: PX4-Autopilot 1.14.3
 
-.. image:: https://img.shields.io/badge/Ubuntu-22.04LTS-brightgreen.svg
-   :target: https://releases.ubuntu.com/22.04/
-   :alt: Ubuntu 22.04
+.. image:: https://img.shields.io/badge/Ubuntu-24.04LTS-brightgreen.svg
+   :target: https://releases.ubuntu.com/24.04/
+   :alt: Ubuntu 24.04
 
-.. image:: https://img.shields.io/badge/ROS-Humble-brightgreen.svg
-    :target: https://docs.ros.org/en/humble/index.html
-    :alt: ROS 2 Humble
+.. image:: https://img.shields.io/badge/ROS-Jazzy-brightgreen.svg
+    :target: https://docs.ros.org/en/jazzy/index.html
+    :alt: ROS 2 Jazzy
 
-Start by installing ROS 2 Humble by following the instructions on the `ROS 2 Humble Documentation <https://docs.ros.org/en/humble/index.html>`__. Only after you have installed ROS 2, you can proceed with the installation of Pegasus.
+Start by installing ROS 2 Jazzy by following the instructions on the `ROS 2 Jazzy Documentation <https://docs.ros.org/en/jazzy/index.html>`__. Only after you have installed ROS 2, you can proceed with the installation of Pegasus.
 
 Installing External Dependencies
 --------------------------------
@@ -26,7 +26,7 @@ Installing External Dependencies
         cd ~/pegasus_external
 
         # Install the dependencies for CasADi (IPOPT)
-        sudo apt install coinor-libipopt-dev python3-pip
+        sudo apt install coinor-libipopt-dev python3-pip ros-jazzy-async-web-server-cpp ros-jazzy-cv-bridge ros-jazzy-diagnostic-updater ros-jazzy-message-filters
 
 2. Clone the `Pegasus External <https://github.com/PegasusResearch/pegasus_external>`__:
 

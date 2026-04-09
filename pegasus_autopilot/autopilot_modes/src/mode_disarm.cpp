@@ -49,7 +49,14 @@
 
 namespace autopilot {
 
-DisarmMode::~DisarmMode() {}
+DisarmMode::~DisarmMode() {
+
+    // Reset the service clients
+    disarm_client_.reset();
+
+    // Reset the subnode used for the service clients
+    sub_node_.reset();
+}
 
 void DisarmMode::initialize() {
 
@@ -69,7 +76,7 @@ void DisarmMode::initialize() {
         .start_parameter_event_publisher(false)
         .arguments({"--ros-args", "-r", "__node:=" + sub_node_name, "--"});
     sub_node_ = rclcpp::Node::make_shared("_", options);
-    disarm_client_ = sub_node_->create_client<pegasus_msgs::srv::KillSwitch>(node_->get_parameter("autopilot.DisarmMode.disarm_service").as_string(), rmw_qos_profile_system_default);
+    disarm_client_ = sub_node_->create_client<pegasus_msgs::srv::KillSwitch>(node_->get_parameter("autopilot.DisarmMode.disarm_service").as_string(), rclcpp::SystemDefaultsQoS());
 
     // Log that the DisarmMode has been initialized successfully
     RCLCPP_INFO(this->node_->get_logger(), "DisarmMode initialized");

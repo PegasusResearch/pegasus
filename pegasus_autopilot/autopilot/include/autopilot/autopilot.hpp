@@ -82,7 +82,7 @@ class Autopilot : public rclcpp::Node {
 public:
 
     Autopilot();
-    ~Autopilot() {}
+    ~Autopilot();
 
     // Function that executes periodically the control loop of each operation mode
     virtual void update();
@@ -142,6 +142,12 @@ private:
     // ROS 2 timer to handle the control modes, update the controllers and publish the control commands
     rclcpp::TimerBase::SharedPtr timer_;
 
+    // Class loaders for the plugins
+    std::unique_ptr<pluginlib::ClassLoader<autopilot::Mode>> mode_loader_;
+    std::unique_ptr<pluginlib::ClassLoader<autopilot::Controller>> controller_loader_;
+    std::unique_ptr<pluginlib::ClassLoader<autopilot::Geofencing>> geofencing_loader_;
+    std::unique_ptr<pluginlib::ClassLoader<autopilot::TrajectoryManager>> trajectory_manager_loader_;
+
     // Modes of operation of the autopilot
     std::map<std::string, autopilot::Mode::UniquePtr> operating_modes_;
     std::map<std::string, std::vector<std::string>> valid_transitions_;
@@ -178,12 +184,6 @@ private:
 
     // Auxiliar flag to check if the operating mode has finished
     bool mode_finished_{false};
-
-    // Class loaders for the plugins
-    std::unique_ptr<pluginlib::ClassLoader<autopilot::Mode>> mode_loader_;
-    std::unique_ptr<pluginlib::ClassLoader<autopilot::Controller>> controller_loader_;
-    std::unique_ptr<pluginlib::ClassLoader<autopilot::Geofencing>> geofencing_loader_;
-    std::unique_ptr<pluginlib::ClassLoader<autopilot::TrajectoryManager>> trajectory_manager_loader_;
 };
 
 } // namespace autopilot

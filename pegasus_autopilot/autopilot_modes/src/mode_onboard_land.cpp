@@ -51,7 +51,13 @@
 
 namespace autopilot {
 
-OnboardLandMode::~OnboardLandMode() {}
+OnboardLandMode::~OnboardLandMode() {
+    // Reset the service clients
+    land_client_.reset();
+
+    // Reset the subnode used for the service clients
+    sub_node_.reset();
+}
 
 void OnboardLandMode::initialize() {
     // Initialize the ROS 2 service clients
@@ -66,7 +72,7 @@ void OnboardLandMode::initialize() {
 
     sub_node_ = rclcpp::Node::make_shared("_", options);
 
-    land_client_ = sub_node_->create_client<pegasus_msgs::srv::Land>(node_->get_parameter("autopilot.OnboardLandMode.land_service").as_string(), rmw_qos_profile_system_default);
+    land_client_ = sub_node_->create_client<pegasus_msgs::srv::Land>(node_->get_parameter("autopilot.OnboardLandMode.land_service").as_string(), rclcpp::SystemDefaultsQoS());
    
     // Log that the ArmMode has been initialized successfully 
     RCLCPP_INFO(this->node_->get_logger(), "OnboardLandMode initialized");

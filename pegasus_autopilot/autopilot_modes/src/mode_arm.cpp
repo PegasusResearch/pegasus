@@ -51,7 +51,15 @@
 
 namespace autopilot {
 
-ArmMode::~ArmMode() {}
+ArmMode::~ArmMode() {
+
+    // Reset the service clients
+    arm_client_.reset();
+    offboard_client_.reset();
+
+    // Reset the subnode used for the service clients
+    sub_node_.reset();
+}
 
 void ArmMode::initialize() {
 
@@ -76,8 +84,8 @@ void ArmMode::initialize() {
 
     sub_node_ = rclcpp::Node::make_shared("_", options);
 
-    arm_client_ = sub_node_->create_client<pegasus_msgs::srv::Arm>(node_->get_parameter("autopilot.ArmMode.arm_service").as_string(), rmw_qos_profile_system_default);
-    offboard_client_ = sub_node_->create_client<pegasus_msgs::srv::Offboard>(node_->get_parameter("autopilot.ArmMode.offboard_service").as_string(), rmw_qos_profile_system_default);
+    arm_client_ = sub_node_->create_client<pegasus_msgs::srv::Arm>(node_->get_parameter("autopilot.ArmMode.arm_service").as_string(), rclcpp::SystemDefaultsQoS());
+    offboard_client_ = sub_node_->create_client<pegasus_msgs::srv::Offboard>(node_->get_parameter("autopilot.ArmMode.offboard_service").as_string(), rclcpp::SystemDefaultsQoS());
 
     // Log that the ArmMode has been initialized successfully 
     RCLCPP_INFO(this->node_->get_logger(), "ArmMode initialized");

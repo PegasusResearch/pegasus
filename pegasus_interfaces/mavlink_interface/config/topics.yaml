@@ -36,7 +36,6 @@
       offboard: "fmu/offboard"
       control_motors: "fmu/control_motors"
       hold: "fmu/hold"
-      set_home: "fmu/set_home"
     publishers:
       # Current status of the vehicle (battery, operation mode, etc.)
       status: "fmu/status"
@@ -44,6 +43,7 @@
       # Sensor data received from micro-controller
       sensors:
         imu: "fmu/sensors/imu"
+        imu_frame_id: "base_link/imu"            # It will then become drone1/base_link/imu_sensor
         barometer: "fmu/sensors/barometer"
         gps: "fmu/sensors/gps"
         gps_info: "fmu/sensors/gps_info"
