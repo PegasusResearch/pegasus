@@ -13,6 +13,8 @@ from ament_index_python import get_package_share_directory
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
+from launch_ros.actions import Node
+
 def generate_launch_description():
 
     return LaunchDescription([
@@ -69,5 +71,52 @@ def generate_launch_description():
                 'namespace': LaunchConfiguration('vehicle_ns'),
                 'autopilot_yaml': LaunchConfiguration('drone_params'),
             }.items(),
+        ),
+
+        # Launch Rosbridge to make the ROS topics available in via websocket to the GCS (ground control station)
+        Node(
+            package="rosbridge_server",
+            executable="rosbridge_websocket",
+            name="rosbridge_websocket",
+            output="screen",
+            parameters=[
+                {
+                    # Network
+                    "port": 9090,
+                    "address": "0.0.0.0",
+    
+                    # Authentication (set to True and supply credentials if needed)
+                    "authenticate": False,
+    
+                    # Performance
+                    "max_message_size": 10_000_000,   # 10 MB – raise for images
+                    "send_action_goals_in_new_thread": True,
+    
+                    # Fragmentation (useful for large messages over slow links)
+                    "fragment_timeout": 600,
+                    "delay_between_messages": 0.0,
+                    "max_burst_size": 0,              # 0 = unlimited burst
+    
+                    # Logging verbosity: 0 = all, 1 = some, 2 = none
+                    "topics_glob": "[*]",             # allow every topic
+                    "services_glob": "[*]",
+                    "params_glob": "[*]",
+                }
+            ],
+        ),
+
+        Node(
+            package="rosapi",
+            executable="rosapi_node",
+            name="rosapi",
+            output="screen",
+        ),
+
+        # Launch the web video server to stream the camera feed to the GCS (ground control station)
+        Node(
+            package="web_video_server",
+            executable="web_video_server",
+            name="web_video_server",
+            parameters=[{"port": 8080, "address": "0.0.0.0"}],
         )
     ])
