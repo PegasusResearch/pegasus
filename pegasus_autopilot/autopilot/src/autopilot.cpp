@@ -147,6 +147,10 @@ void Autopilot::initialize_controller() {
         // Load the controller and initialize it
         controller_ = controller_loader_->createSharedInstance("autopilot::" + controller_name.as_string());
         controller_->initialize_controller(controller_config_);
+        
+        // Update the controller name in the status message
+        status_msg_.controller = controller_name.as_string();
+
     } catch (const std::exception & e) {
         RCLCPP_ERROR_STREAM(this->get_logger(), "Exception while loading controller: " << e.what() << ". Controller: " << controller_name.as_string());
         std::exit(EXIT_FAILURE);

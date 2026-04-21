@@ -44,4 +44,9 @@
   <class type="autopilot::WaypointMode" base_class_type="autopilot::Mode">
       <description>Waypoint operation mode.</description>
   </class>
+
+  <!-- Manual -->
+  <class type="autopilot::ManualMode" base_class_type="autopilot::Mode">
+      <description>Manual operation mode.</description>
+  </class>
 </library>
