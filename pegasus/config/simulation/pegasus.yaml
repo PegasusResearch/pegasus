@@ -135,8 +135,8 @@
         fallback: "HoldMode"
         geofencing_violation_fallback: "HoldMode"
         set_waypoint_service: "autopilot/set_smooth_waypoint"
-        target_speed: 1.5     # Max speed in m/s
-        speed_profile_k: 1.1  # Smoothing parameter >= 1
+        max_speed: 2.0         # Max speed in m/s
+        max_acceleration: 1.2  # Max acceleration in m/s^2
       FollowTrajectoryMode: 
         valid_transitions: ["OnboardLandMode", "LandMode", "HoldMode", "WaypointMode", "PassThroughMode", "ManualMode", "SmoothWaypointMode"]
         fallback: "HoldMode"

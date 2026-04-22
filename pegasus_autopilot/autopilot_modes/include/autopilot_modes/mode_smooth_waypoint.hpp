@@ -47,10 +47,54 @@
  ****************************************************************************/
 #pragma once
 
+#include <algorithm>
+#include <cmath>
 #include <autopilot/mode.hpp>
 #include "pegasus_msgs/srv/waypoint.hpp"
 
 namespace autopilot {
+
+class SmoothTrajectory {
+
+public:
+
+    struct State {
+        Eigen::Vector3d position{Eigen::Vector3d::Zero()};
+        Eigen::Vector3d velocity{Eigen::Vector3d::Zero()};
+        Eigen::Vector3d acceleration{Eigen::Vector3d::Zero()};
+    };
+
+    SmoothTrajectory() = default;
+    SmoothTrajectory(double v_max, double a_max);
+
+    void set_limits(double v_max, double a_max);
+    double plan(const Eigen::Vector3d & start_pos, const Eigen::Vector3d & target_pos);
+    State get_state(double t) const;
+    double duration() const;
+
+protected:
+
+    double velocity(double t) const;
+    double distance(double t) const;
+
+protected:
+
+    double v_max_{0.0};
+    double a_max_{0.0};
+
+    Eigen::Vector3d start_pos_{Eigen::Vector3d::Zero()};
+    Eigen::Vector3d target_pos_{Eigen::Vector3d::Zero()};
+    Eigen::Vector3d direction_{Eigen::Vector3d::Zero()};
+
+    double distance_total_{0.0};
+    double t_ramp_{0.0};
+    double t1_{0.0};
+    double t2_{0.0};
+    double tf_{0.0};
+    double v_peak_{0.0};
+    double dist_ramp_{0.0};
+};
+
 
 class SmoothWaypointMode : public autopilot::Mode {
 
@@ -65,20 +109,10 @@ public:
 
 protected:
 
-    // The waypoint service callback
-    void waypoint_callback(const pegasus_msgs::srv::Waypoint::Request::SharedPtr request, const pegasus_msgs::srv::Waypoint::Response::SharedPtr response);
-
     void set_trajectory_parameters();
 
-    // Auxiliary function to compute the desired position, velocity, acceleration and jerk at a given gamma value
-    Eigen::Vector3d desired_position(double gamma) const;
-    Eigen::Vector3d desired_velocity(double gamma) const;
-    Eigen::Vector3d desired_acceleration(double gamma) const;
-    Eigen::Vector3d desired_jerk(double gamma) const;
-
-    double gamma_dot(double gamma) const;
-    double gamma_ddot(double gamma) const;
-    double gamma_dddot(double gamma) const;
+    // The waypoint service callback
+    void waypoint_callback(const pegasus_msgs::srv::Waypoint::Request::SharedPtr request, const pegasus_msgs::srv::Waypoint::Response::SharedPtr response);
 
     // Check if the waypoint is already set
     bool waypoint_set_{false};
@@ -86,20 +120,14 @@ protected:
     // The target position and attitude waypoint to be at
     Eigen::Vector3d target_pos_{Eigen::Vector3d::Zero()};
     double target_yaw_{0.0f};
-    double target_speed_{0.0f}; // The target max speed in m/s
 
     // The start position and attitude to use as the start of the trajectory
     Eigen::Vector3d start_pos_{Eigen::Vector3d::Zero()};
 
-    // The slope of the line between the initial position of the vehicle and the target position
-    Eigen::Vector3d trajectory_slope_{Eigen::Vector3d::Zero()};
-
-    // Virtual target that integrates from zero to 1 over the trajectory duration
-    double gamma_{0.0f};
-
-    // Speed profile parameters
-    double gamma_dot_max_{0.0f};
-    double k_{1.0f};  
+    // Trajectory planner and time cursor.
+    SmoothTrajectory trajectory_{};
+    double t_{0.0};
+    double T_max_{0.0};
 
     // The waypoint service server that sets the position and attitude waypoints at a given target
     rclcpp::Service<pegasus_msgs::srv::Waypoint>::SharedPtr waypoint_service_{nullptr};

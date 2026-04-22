@@ -50,6 +50,151 @@
 
 namespace autopilot {
 
+SmoothTrajectory::SmoothTrajectory(double v_max, double a_max) {
+    this->set_limits(v_max, a_max);
+}
+
+void SmoothTrajectory::set_limits(double v_max, double a_max) {
+    this->v_max_ = std::max(0.0, v_max);
+    this->a_max_ = std::max(1e-6, a_max);
+}
+
+double SmoothTrajectory::plan(const Eigen::Vector3d & start_pos, const Eigen::Vector3d & target_pos) {
+
+    this->start_pos_ = start_pos;
+    this->target_pos_ = target_pos;
+
+    const Eigen::Vector3d delta = target_pos - start_pos;
+    this->distance_total_ = delta.norm();
+
+    // Safety check to avoid division by zero and invalid trajectories. 
+    // If the distance is negligible or the max velocity is zero, we set 
+    // all trajectory parameters to zero and return a duration of zero.
+    if (this->distance_total_ < 1e-9 || this->v_max_ <= 0.0) {
+        this->direction_.setZero();
+        this->t_ramp_ = 0.0;
+        this->t1_ = 0.0;
+        this->t2_ = 0.0;
+        this->tf_ = 0.0;
+        this->v_peak_ = 0.0;
+        this->dist_ramp_ = 0.0;
+        return this->tf_;
+    }
+
+    // Compute the unit direction vector from start to target
+    this->direction_ = delta / this->distance_total_;
+
+    const double t_ramp_max = (M_PI * this->v_max_) / (2.0 * this->a_max_);
+    const double dist_ramp_max = 0.5 * this->v_max_ * t_ramp_max;
+
+    // Determine the peak velocity based on the total distance and the maximum acceleration. 
+    // If the distance is large enough to allow reaching the maximum velocity, we use it. 
+    // Otherwise, we compute a lower peak velocity that allows us to reach the target within 
+    // the given distance while respecting the acceleration limits.
+    if (this->distance_total_ >= 2.0 * dist_ramp_max) {
+        this->v_peak_ = this->v_max_;
+    } else {
+        this->v_peak_ = std::sqrt((2.0 * this->a_max_ * this->distance_total_) / M_PI);
+    }
+
+    // Compute the time to ramp up to the peak velocity and the distance covered during the ramp phase.
+    this->t_ramp_ = (M_PI * this->v_peak_) / (2.0 * this->a_max_);
+    this->dist_ramp_ = 0.5 * this->v_peak_ * this->t_ramp_;
+
+    if (this->distance_total_ >= 2.0 * this->dist_ramp_) {
+        const double cruise_dist = this->distance_total_ - 2.0 * this->dist_ramp_;
+        this->t1_ = this->t_ramp_;
+        this->t2_ = this->t1_ + cruise_dist / this->v_peak_;
+        this->tf_ = this->t2_ + this->t_ramp_;
+    } else {
+        this->t1_ = this->t_ramp_;
+        this->t2_ = this->t1_;
+        this->tf_ = 2.0 * this->t_ramp_;
+    }
+
+    return this->tf_;
+}
+
+double SmoothTrajectory::velocity(double t) const {
+    const double tc = std::clamp(t, 0.0, this->tf_);
+
+    // Safety check to avoid invalid trajectories.
+    if (this->tf_ <= 0.0) {
+        return 0.0;
+    }
+
+    // Check if we are in the acceleration phase
+    if (tc < this->t1_) {
+        return (this->v_peak_ / 2.0) * (1.0 - std::cos(M_PI * tc / this->t_ramp_));
+    }
+
+    // Check if we are in the constant velocity phase
+    if (tc < this->t2_) {
+        return this->v_peak_;
+    }
+
+    // Check if we are in the deceleration phase
+    const double tau = tc - this->t2_;
+    return (this->v_peak_ / 2.0) * (1.0 + std::cos(M_PI * tau / this->t_ramp_));
+}
+
+double SmoothTrajectory::distance(double t) const {
+    const double tc = std::clamp(t, 0.0, this->tf_);
+
+    if (this->tf_ <= 0.0) {
+        return 0.0;
+    }
+
+    const auto S = [this](double x) {
+        return (this->v_peak_ / 2.0) * (x - (this->t_ramp_ / M_PI) * std::sin(M_PI * x / this->t_ramp_));
+    };
+
+    if (tc < this->t1_) {
+        return S(tc);
+    }
+
+    if (tc < this->t2_) {
+        return this->dist_ramp_ + this->v_peak_ * (tc - this->t1_);
+    }
+
+    const double tau = tc - this->t2_;
+    return this->dist_ramp_ + this->v_peak_ * (this->t2_ - this->t1_) + (S(this->t_ramp_) - S(this->t_ramp_ - tau));
+}
+
+SmoothTrajectory::State SmoothTrajectory::get_state(double t) const {
+    State state;
+
+    if (this->distance_total_ < 1e-9 || this->tf_ <= 0.0) {
+        state.position = this->start_pos_;
+        return state;
+    }
+
+    const double tc = std::clamp(t, 0.0, this->tf_);
+    const double v = this->velocity(tc);
+    const double dist = this->distance(tc);
+    const double gamma = dist / this->distance_total_;
+
+    state.position = this->start_pos_ + gamma * (this->target_pos_ - this->start_pos_);
+    state.velocity = v * this->direction_;
+
+    double acc_scalar = 0.0;
+    if (tc < this->t1_) {
+        acc_scalar = (this->v_peak_ * M_PI / (2.0 * this->t_ramp_)) * std::sin(M_PI * tc / this->t_ramp_);
+    } else if (tc < this->t2_) {
+        acc_scalar = 0.0;
+    } else {
+        const double tau = tc - this->t2_;
+        acc_scalar = -(this->v_peak_ * M_PI / (2.0 * this->t_ramp_)) * std::sin(M_PI * tau / this->t_ramp_);
+    }
+
+    state.acceleration = acc_scalar * this->direction_;
+    return state;
+}
+
+double SmoothTrajectory::duration() const {
+    return this->tf_;
+}
+
 SmoothWaypointMode::~SmoothWaypointMode() {
     // Terminate the waypoint service
     this->waypoint_service_.reset();
@@ -59,18 +204,21 @@ void SmoothWaypointMode::initialize() {
 
     // Create the waypoint service server
     node_->declare_parameter<std::string>("autopilot.SmoothWaypointMode.set_waypoint_service", "set_smooth_waypoint"); 
-    node_->declare_parameter<double>("autopilot.SmoothWaypointMode.target_speed", 1.5);
-    node_->declare_parameter<double>("autopilot.SmoothWaypointMode.speed_profile_k", 1.0); // This value should be >= 1 to have a speed profile that starts and ends at zero, and has a maximum in the middle of the trajectory
+    node_->declare_parameter<double>("autopilot.SmoothWaypointMode.max_speed", 1.5);
+    node_->declare_parameter<double>("autopilot.SmoothWaypointMode.max_acceleration", 2.0);
 
     // Set the class members from parameters (avoid local shadowing).
-    this->target_speed_ = node_->get_parameter("autopilot.SmoothWaypointMode.target_speed").as_double();
-    this->k_ = node_->get_parameter("autopilot.SmoothWaypointMode.speed_profile_k").as_double();
+    double max_speed = node_->get_parameter("autopilot.SmoothWaypointMode.max_speed").as_double();
+    double max_acceleration = node_->get_parameter("autopilot.SmoothWaypointMode.max_acceleration").as_double();
+
+    // Set the max speed and acceleration for the trajectory planner
+    trajectory_ = SmoothTrajectory(max_speed, max_acceleration);
 
     // Create the service server for setting the waypoint
     this->waypoint_service_ = this->node_->create_service<pegasus_msgs::srv::Waypoint>(node_->get_parameter("autopilot.SmoothWaypointMode.set_waypoint_service").as_string(), std::bind(&SmoothWaypointMode::waypoint_callback, this, std::placeholders::_1, std::placeholders::_2));    
     
     // Log the initialization of the mode
-    RCLCPP_INFO(this->node_->get_logger(), "SmoothWaypointMode initialized with target speed %f m/s, speed profile gain %f, and service server '%s'", this->target_speed_, this->k_, node_->get_parameter("autopilot.SmoothWaypointMode.set_waypoint_service").as_string().c_str());
+    RCLCPP_INFO(this->node_->get_logger(), "SmoothWaypointMode initialized with max speed %f m/s, max acceleration %f m/s^2 and service server '%s'", max_speed, max_acceleration, node_->get_parameter("autopilot.SmoothWaypointMode.set_waypoint_service").as_string().c_str());
 }
 
 bool SmoothWaypointMode::enter() {
@@ -93,28 +241,14 @@ bool SmoothWaypointMode::enter() {
 
 void SmoothWaypointMode::set_trajectory_parameters() {
 
-    // Get the current position to use as the start position for the trajectory
+    // Get the current vehicle position
     this->start_pos_ = this->get_vehicle_state().position;
-    this->trajectory_slope_ = (this->target_pos_ - this->start_pos_);
 
-    // this->start_yaw_ = Pegasus::Rotations::rad_to_deg(Pegasus::Rotations::yaw_from_quaternion(this->get_vehicle_state().attitude));
+    // Plan the trajectory from the current position to the target position and get the trajectory duration
+    this->T_max_ = this->trajectory_.plan(this->start_pos_, this->target_pos_);
+    this->t_ = 0.0;
 
-    // Compute how the max target speed translates to the max gamma_dot value
-    double trajectory_length = this->trajectory_slope_.norm();
-
-    // Check if we are already at the target position - if so, set gamma_dot_max to zero to avoid numerical issues with the speed profile
-    if (trajectory_length > 0.01) {
-        this->gamma_dot_max_ = this->target_speed_ / trajectory_length;
-    } else {
-        RCLCPP_WARN(this->node_->get_logger(), "Start and target positions are the same - setting gamma_dot_max to zero.");
-        this->gamma_dot_max_ = 0.0;
-    }
-
-    // Initialize gamma with a very small gamma value to avoid numerical issues with the speed profile at gamma = 0
-    this->gamma_ = 1/trajectory_length * 1E-4;
-
-    // LOG the trajectory parameters
-    RCLCPP_INFO(this->node_->get_logger(), "Trajectory slope: (%f, %f, %f), trajectory length: %f, gamma_dot_max: %f", this->trajectory_slope_[0], this->trajectory_slope_[1], this->trajectory_slope_[2], trajectory_length, this->gamma_dot_max_);
+    RCLCPP_INFO(this->node_->get_logger(), "Trajectory planned for waypoint with duration %f seconds", this->T_max_);
 }   
 
 bool SmoothWaypointMode::exit() {
@@ -124,22 +258,15 @@ bool SmoothWaypointMode::exit() {
 }
 
 void SmoothWaypointMode::update(double dt) {
+    
+    // Update the trajectory time and saturate the trajectory time to the maximum trajectory duration to avoid invalid states
+    this->t_ = std::min(this->t_ + dt, this->T_max_);
 
-    // Integrate the virtual target along the path line 
-    gamma_ += (gamma_dot(gamma_)*dt) + (0.5*gamma_ddot(gamma_)*std::pow(dt,2));
-
-    // Saturate gamma to be between 0 and 1
-    gamma_ = std::min(std::max(0.0, gamma_), 1.0);
-
-    RCLCPP_INFO(this->node_->get_logger(), "Gamma: %f, Gamma_dot: %f, Gamma_ddot: %f", gamma_, gamma_dot(gamma_), gamma_ddot(gamma_));
-
-    // Get the desired position, velocity, acceleration and jerk at the current gamma value
-    Eigen::Vector3d pos = desired_position(gamma_);
-    Eigen::Vector3d vel = desired_velocity(gamma_);
-    Eigen::Vector3d acc = desired_acceleration(gamma_);
+    // Get the desired state from the trajectory planner
+    const SmoothTrajectory::State state = this->trajectory_.get_state(this->t_);
 
     // Set the controller to track the target position and attitude
-    this->controller_->set_position(pos, vel, acc, this->target_yaw_, 0.0, dt);
+    this->controller_->set_position(state.position, state.velocity, state.acceleration, this->target_yaw_, 0.0, dt);
 }
 
 void SmoothWaypointMode::waypoint_callback(const pegasus_msgs::srv::Waypoint::Request::SharedPtr request, const pegasus_msgs::srv::Waypoint::Response::SharedPtr response) {
@@ -159,35 +286,6 @@ void SmoothWaypointMode::waypoint_callback(const pegasus_msgs::srv::Waypoint::Re
 
     // Set the trajectory to be followed by the controller (to start at the current position)
     this->set_trajectory_parameters();
-}
-
-double SmoothWaypointMode::gamma_dot(double gamma) const {
-    // Define a speed profile that starts and ends at zero, and has a maximum in the middle of the trajectory
-    return gamma_dot_max_ * std::pow(std::sin(M_PI * gamma), k_);
-}
-
-double SmoothWaypointMode::gamma_ddot(double gamma) const {
-    return gamma_dot_max_*k_*M_PI*std::cos(M_PI*gamma)*std::pow(std::sin(M_PI*gamma), k_-1);
-}
-
-double SmoothWaypointMode::gamma_dddot(double gamma) const {
-    return -std::pow(M_PI,2)*gamma_dot_max_*k_*std::pow(std::sin(M_PI*gamma),k_-2)*(std::pow(std::sin(M_PI*gamma),2) + (1-k_)*std::pow(std::cos(M_PI*gamma),2));
-}
-
-Eigen::Vector3d SmoothWaypointMode::desired_position(double gamma) const {
-    return start_pos_ + gamma*trajectory_slope_;
-}
-
-Eigen::Vector3d SmoothWaypointMode::desired_velocity(double gamma) const {
-    return gamma_dot(gamma) * trajectory_slope_;
-}
-
-Eigen::Vector3d SmoothWaypointMode::desired_acceleration(double gamma) const {
-    return gamma_ddot(gamma) * trajectory_slope_;
-}
-
-Eigen::Vector3d SmoothWaypointMode::desired_jerk(double gamma) const {
-    return gamma_dddot(gamma) * trajectory_slope_;
 }
 
 } // namespace autopilot
