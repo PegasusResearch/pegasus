@@ -59,31 +59,63 @@ void SmoothWaypointMode::initialize() {
 
     // Create the waypoint service server
     node_->declare_parameter<std::string>("autopilot.SmoothWaypointMode.set_waypoint_service", "set_smooth_waypoint"); 
-    this->waypoint_service_ = this->node_->create_service<pegasus_msgs::srv::Waypoint>(node_->get_parameter("autopilot.SmoothWaypointMode.set_waypoint_service").as_string(), std::bind(&SmoothWaypointMode::waypoint_callback, this, std::placeholders::_1, std::placeholders::_2));
-    RCLCPP_INFO(this->node_->get_logger(), "SmoothWaypointMode initialized");
+    node_->declare_parameter<double>("autopilot.SmoothWaypointMode.target_speed", 1.5);
+    node_->declare_parameter<double>("autopilot.SmoothWaypointMode.speed_profile_k", 1.0); // This value should be >= 1 to have a speed profile that starts and ends at zero, and has a maximum in the middle of the trajectory
+
+    // Set the class members from parameters (avoid local shadowing).
+    this->target_speed_ = node_->get_parameter("autopilot.SmoothWaypointMode.target_speed").as_double();
+    this->k_ = node_->get_parameter("autopilot.SmoothWaypointMode.speed_profile_k").as_double();
+
+    // Create the service server for setting the waypoint
+    this->waypoint_service_ = this->node_->create_service<pegasus_msgs::srv::Waypoint>(node_->get_parameter("autopilot.SmoothWaypointMode.set_waypoint_service").as_string(), std::bind(&SmoothWaypointMode::waypoint_callback, this, std::placeholders::_1, std::placeholders::_2));    
+    
+    // Log the initialization of the mode
+    RCLCPP_INFO(this->node_->get_logger(), "SmoothWaypointMode initialized with target speed %f m/s, speed profile gain %f, and service server '%s'", this->target_speed_, this->k_, node_->get_parameter("autopilot.SmoothWaypointMode.set_waypoint_service").as_string().c_str());
 }
 
 bool SmoothWaypointMode::enter() {
 
     // Check if the waypoint was already set - if not, then do not enter the waypoint mode
     if (!this->waypoint_set_) {
-        RCLCPP_ERROR(this->node_->get_logger(), "Waypoint not set - cannot enter waypoint mode.");
+        RCLCPP_ERROR(this->node_->get_logger(), "Waypoint not set - cannot enter SmoothWaypoint mode.");
         return false;
     }
 
-    // Get the current position to use as the start position for the trajectory
-    this->start_pos_ = this->get_vehicle_state().position;
-    this->start_yaw_ = Pegasus::Rotations::rad_to_deg(Pegasus::Rotations::yaw_from_quaternion(this->get_vehicle_state().attitude));
-
-    // Compute the slope of the trajectory to use for the virtual target
-    trajectory_slope_ = (this->target_pos_ - this->start_pos_);
-
+    // Set the trajectory to be followed by the controller (to start at the current position)
+    this->set_trajectory_parameters();
+    
     // Reset the waypoint flag (to make sure we do not enter twice in this mode without setting a new waypoint)
     this->waypoint_set_ = false;
 
     // Return true to indicate that the mode has been entered successfully
     return true;
 }
+
+void SmoothWaypointMode::set_trajectory_parameters() {
+
+    // Get the current position to use as the start position for the trajectory
+    this->start_pos_ = this->get_vehicle_state().position;
+    this->trajectory_slope_ = (this->target_pos_ - this->start_pos_);
+
+    // this->start_yaw_ = Pegasus::Rotations::rad_to_deg(Pegasus::Rotations::yaw_from_quaternion(this->get_vehicle_state().attitude));
+
+    // Compute how the max target speed translates to the max gamma_dot value
+    double trajectory_length = this->trajectory_slope_.norm();
+
+    // Check if we are already at the target position - if so, set gamma_dot_max to zero to avoid numerical issues with the speed profile
+    if (trajectory_length > 0.01) {
+        this->gamma_dot_max_ = this->target_speed_ / trajectory_length;
+    } else {
+        RCLCPP_WARN(this->node_->get_logger(), "Start and target positions are the same - setting gamma_dot_max to zero.");
+        this->gamma_dot_max_ = 0.0;
+    }
+
+    // Initialize gamma with a very small gamma value to avoid numerical issues with the speed profile at gamma = 0
+    this->gamma_ = 1/trajectory_length * 1E-4;
+
+    // LOG the trajectory parameters
+    RCLCPP_INFO(this->node_->get_logger(), "Trajectory slope: (%f, %f, %f), trajectory length: %f, gamma_dot_max: %f", this->trajectory_slope_[0], this->trajectory_slope_[1], this->trajectory_slope_[2], trajectory_length, this->gamma_dot_max_);
+}   
 
 bool SmoothWaypointMode::exit() {
     
@@ -94,19 +126,20 @@ bool SmoothWaypointMode::exit() {
 void SmoothWaypointMode::update(double dt) {
 
     // Integrate the virtual target along the path line 
-    gamma_ += (gamma_dot(gamma_)*dt) + (0.5*gamma_ddot(gamma_)*std::pow(dt, 2)) + ((1.0/6.0)*gamma_dddot(gamma_)*std::pow(dt, 3));
+    gamma_ += (gamma_dot(gamma_)*dt) + (0.5*gamma_ddot(gamma_)*std::pow(dt,2));
 
     // Saturate gamma to be between 0 and 1
     gamma_ = std::min(std::max(0.0, gamma_), 1.0);
 
+    RCLCPP_INFO(this->node_->get_logger(), "Gamma: %f, Gamma_dot: %f, Gamma_ddot: %f", gamma_, gamma_dot(gamma_), gamma_ddot(gamma_));
+
     // Get the desired position, velocity, acceleration and jerk at the current gamma value
-    Eigen::Vector3d desired_pos = desired_position(gamma_);
-    Eigen::Vector3d desired_vel = desired_velocity(gamma_);
-    Eigen::Vector3d desired_acc = desired_acceleration(gamma_);
-    Eigen::Vector3d desired_jerk = desired_jerk(gamma_);
+    Eigen::Vector3d pos = desired_position(gamma_);
+    Eigen::Vector3d vel = desired_velocity(gamma_);
+    Eigen::Vector3d acc = desired_acceleration(gamma_);
 
     // Set the controller to track the target position and attitude
-    this->controller_->set_position(desired_pos, desired_vel, desired_acc, desired_jerk, this->target_yaw_, 0.0, dt);
+    this->controller_->set_position(pos, this->target_yaw_, 0.0, dt);
 }
 
 void SmoothWaypointMode::waypoint_callback(const pegasus_msgs::srv::Waypoint::Request::SharedPtr request, const pegasus_msgs::srv::Waypoint::Response::SharedPtr response) {
@@ -123,6 +156,9 @@ void SmoothWaypointMode::waypoint_callback(const pegasus_msgs::srv::Waypoint::Re
     // Return true to indicate that the waypoint has been set successfully
     response->success = true;
     RCLCPP_WARN(this->node_->get_logger(), "Waypoint set to (%f, %f, %f) with yaw %f", this->target_pos_[0], this->target_pos_[1], this->target_pos_[2], this->target_yaw_);
+
+    // Set the trajectory to be followed by the controller (to start at the current position)
+    this->set_trajectory_parameters();
 }
 
 double SmoothWaypointMode::gamma_dot(double gamma) const {
@@ -139,19 +175,19 @@ double SmoothWaypointMode::gamma_dddot(double gamma) const {
 }
 
 Eigen::Vector3d SmoothWaypointMode::desired_position(double gamma) const {
-    return start_pos_ + trajectory_slope_ * gamma;
+    return start_pos_ + gamma*trajectory_slope_;
 }
 
 Eigen::Vector3d SmoothWaypointMode::desired_velocity(double gamma) const {
-    return trajectory_slope_ * gamma_dot(gamma);
+    return gamma_dot(gamma) * trajectory_slope_;
 }
 
 Eigen::Vector3d SmoothWaypointMode::desired_acceleration(double gamma) const {
-    return trajectory_slope_ * gamma_ddot(gamma);
+    return gamma_ddot(gamma) * trajectory_slope_;
 }
 
 Eigen::Vector3d SmoothWaypointMode::desired_jerk(double gamma) const {
-    return trajectory_slope_ * gamma_dddot(gamma);
+    return gamma_dddot(gamma) * trajectory_slope_;
 }
 
 } // namespace autopilot

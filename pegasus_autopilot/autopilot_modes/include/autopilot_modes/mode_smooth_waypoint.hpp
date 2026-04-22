@@ -68,6 +68,8 @@ protected:
     // The waypoint service callback
     void waypoint_callback(const pegasus_msgs::srv::Waypoint::Request::SharedPtr request, const pegasus_msgs::srv::Waypoint::Response::SharedPtr response);
 
+    void set_trajectory_parameters();
+
     // Auxiliary function to compute the desired position, velocity, acceleration and jerk at a given gamma value
     Eigen::Vector3d desired_position(double gamma) const;
     Eigen::Vector3d desired_velocity(double gamma) const;
@@ -84,11 +86,10 @@ protected:
     // The target position and attitude waypoint to be at
     Eigen::Vector3d target_pos_{Eigen::Vector3d::Zero()};
     double target_yaw_{0.0f};
-    double target_speed_{0.5f}; // The target max speed in m/s
+    double target_speed_{0.0f}; // The target max speed in m/s
 
     // The start position and attitude to use as the start of the trajectory
     Eigen::Vector3d start_pos_{Eigen::Vector3d::Zero()};
-    double start_yaw_{0.0f};
 
     // The slope of the line between the initial position of the vehicle and the target position
     Eigen::Vector3d trajectory_slope_{Eigen::Vector3d::Zero()};
@@ -98,7 +99,7 @@ protected:
 
     // Speed profile parameters
     double gamma_dot_max_{0.0f};
-    double k_{0.3f};  
+    double k_{1.0f};  
 
     // The waypoint service server that sets the position and attitude waypoints at a given target
     rclcpp::Service<pegasus_msgs::srv::Waypoint>::SharedPtr waypoint_service_{nullptr};
