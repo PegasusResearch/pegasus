@@ -139,7 +139,7 @@ void SmoothWaypointMode::update(double dt) {
     Eigen::Vector3d acc = desired_acceleration(gamma_);
 
     // Set the controller to track the target position and attitude
-    this->controller_->set_position(pos, this->target_yaw_, 0.0, dt);
+    this->controller_->set_position(pos, vel, acc, this->target_yaw_, 0.0, dt);
 }
 
 void SmoothWaypointMode::waypoint_callback(const pegasus_msgs::srv::Waypoint::Request::SharedPtr request, const pegasus_msgs::srv::Waypoint::Response::SharedPtr response) {
