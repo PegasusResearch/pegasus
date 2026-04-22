@@ -16,7 +16,7 @@
     # ----------------------------------------------------------------------------------------------------------
     autopilot:
       # Update rate
-      rate: 50.0 # Hz
+      rate: 33.0 # Hz
       # ----------------------------------------------------------------------------------------------------------
       # Definition of the controller that will perform the tracking of references of the different operation modes
       # ----------------------------------------------------------------------------------------------------------
@@ -48,13 +48,18 @@
           control_attitude_rate: "fmu/in/force/attitude_rate"
           debug_topic: "autopilot/statistics/mellinger"
         gains:
-          kp: [5.5, 5.5, 5.5]    # Proportional gain
-          kd: [4.3, 4.3, 4.5]    # Derivative gain
+          kp: [5.2, 5.2, 5.5]    # Proportional gain
+          kd: [5.1, 5.1, 5.1]    # Derivative gain
           ki: [0.01, 0.01, 0.1]  # Integral gain
-          kr: [8.0, 8.0, 8.0]    # Attitude error gain
+          kr: [5.5, 5.5, 5.5]    # Attitude error gain
+
+          # kp: [7.5, 7.5, 8.5]    # Proportional gain
+          # kd: [6.5, 6.5, 6.5]    # Derivative gain
+          # ki: [0.01, 0.01, 0.1]  # Integral gain
+          # kr: [6.5, 6.5, 6.5]    # Attitude error gain
           min_output: [-50.0, -50.0, -50.0]  # Minimum output of each PID
           max_output: [ 50.0,  50.0,  50.0]  # Maximum output of each PID
-          max_pos_error: [2.0, 2.0, 5.0]     # Saturation for the max absolute error (in meters) in the x, y and z directions
+          max_pos_error: [3.0, 3.0, 5.0]     # Saturation for the max absolute error (in meters) in the x, y and z directions
       # ----------------------------------------------------------------------------------------------------------
       # Definition of the geofencing mechanism that will keep the vehicle in safe places
       # ----------------------------------------------------------------------------------------------------------
@@ -134,7 +139,7 @@
         fallback: "HoldMode"
         geofencing_violation_fallback: "HoldMode"
         set_waypoint_service: "autopilot/set_smooth_waypoint"
-        max_speed: 2.0         # Max speed in m/s
+        max_speed: 2.5         # Max speed in m/s
         max_acceleration: 1.2  # Max acceleration in m/s^2
       FollowTrajectoryMode: 
         valid_transitions: ["OnboardLandMode", "LandMode", "HoldMode", "WaypointMode", "PassThroughMode", "ManualMode", "SmoothWaypointMode"]
