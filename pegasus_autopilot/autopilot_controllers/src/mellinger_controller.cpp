@@ -62,6 +62,7 @@ void MellingerController::initialize() {
     node_->declare_parameter<std::vector<double>>("autopilot.MellingerController.gains.kr", std::vector<double>());
     node_->declare_parameter<std::vector<double>>("autopilot.MellingerController.gains.min_output", std::vector<double>());
     node_->declare_parameter<std::vector<double>>("autopilot.MellingerController.gains.max_output", std::vector<double>());
+    node_->declare_parameter<std::vector<double>>("autopilot.MellingerController.gains.max_pos_error", std::vector<double>());
 
     auto kp = node_->get_parameter("autopilot.MellingerController.gains.kp").as_double_array();
     auto kd = node_->get_parameter("autopilot.MellingerController.gains.kd").as_double_array();
@@ -69,9 +70,10 @@ void MellingerController::initialize() {
     auto kr = node_->get_parameter("autopilot.MellingerController.gains.kr").as_double_array();
     auto min_output = node_->get_parameter("autopilot.MellingerController.gains.min_output").as_double_array();
     auto max_output = node_->get_parameter("autopilot.MellingerController.gains.max_output").as_double_array();
+    auto max_pos_error = node_->get_parameter("autopilot.MellingerController.gains.max_pos_error").as_double_array();
 
     // Safety check on the gains (make sure they are there)
-    if(kp.size() != 3 || kd.size() != 3 || ki.size() != 3 || kr.size() != 3 || min_output.size() != 3 || max_output.size() != 3) {
+    if(kp.size() != 3 || kd.size() != 3 || ki.size() != 3 || kr.size() != 3 || min_output.size() != 3 || max_output.size() != 3 || max_pos_error.size() != 3) {
         RCLCPP_ERROR_STREAM(node_->get_logger(), "Could not read MellingerController position controller gains correctly.");
         throw std::runtime_error("Gains vector was empty");
     }
@@ -83,6 +85,7 @@ void MellingerController::initialize() {
     RCLCPP_INFO_STREAM(node_->get_logger(), "MellingerController gains: kr = [" << kr[0] << ", " << kr[1] << ", " << kr[2] << "]");
     RCLCPP_INFO_STREAM(node_->get_logger(), "MellingerController min_output = [" << min_output[0] << ", " << min_output[1] << ", " << min_output[2] << "]");
     RCLCPP_INFO_STREAM(node_->get_logger(), "MellingerController max_output = [" << max_output[0] << ", " << max_output[1] << ", " << max_output[2] << "]");
+    RCLCPP_INFO_STREAM(node_->get_logger(), "MellingerController max_pos_error = [" << max_pos_error[0] << ", " << max_pos_error[1] << ", " << max_pos_error[2] << "]");
 
     // Initialize the attitude rate gains
     kr_ = Eigen::Matrix3d::Identity();
@@ -95,6 +98,9 @@ void MellingerController::initialize() {
     // Get the mass of the vehicle (used to get the thrust from the acceleration)
     VehicleConstants vehicle_constansts = get_vehicle_constants();
     mass_ = vehicle_constansts.mass;
+
+    // Initialize the maximum position error for safety
+    for(unsigned int i=0; i < 3; i++) max_pos_error_[i] = max_pos_error[i];
 
     // Initialize the ROS 2 subscribers to the control topics
     node_->declare_parameter<std::string>("autopilot.MellingerController.publishers.control_attitude", "control_attitude");
@@ -131,6 +137,11 @@ void MellingerController::set_position(const Eigen::Vector3d& position, const Ei
     // Compute the position error and velocity error using the path desired position and velocity
     Eigen::Vector3d pos_error = position - state.position;
     Eigen::Vector3d vel_error = velocity - state.velocity;
+
+    // Saturate the position error for safety between -max_pos_error_ and max_pos_error_
+    for(unsigned int i=0; i < 3; i++) {
+        pos_error[i] = std::min(std::max(-max_pos_error_[i], pos_error[i]), max_pos_error_[i]);
+    }
 
     Eigen::Vector3d external_force = Eigen::Vector3d(0.0, 0.0, 0.0);
     external_force[0] = acceleration[0];

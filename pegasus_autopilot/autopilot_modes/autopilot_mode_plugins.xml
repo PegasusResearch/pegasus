@@ -35,6 +35,11 @@
       <description>Pass Through operation mode.</description>
   </class>
 
+  <!-- Smooth Waypoint -->
+  <class type="autopilot::SmoothWaypointMode" base_class_type="autopilot::Mode">
+      <description>Smooth waypoint operation mode.</description>
+  </class>
+
   <!-- Take Off -->
   <class type="autopilot::TakeoffMode" base_class_type="autopilot::Mode">
       <description>Take Off operation mode.</description>

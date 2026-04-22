@@ -104,6 +104,9 @@ protected:
     // Gains for the attitude controller
     Eigen::Matrix3d kr_;
 
+    // Maximum position error for safety (saturations on the position error to avoid extreme control actions)
+    std::array<double, 3> max_pos_error_;
+
     // ROS2 messages
     pegasus_msgs::msg::ControlAttitude attitude_msg_;
     pegasus_msgs::msg::ControlAttitude attitude_rate_msg_;

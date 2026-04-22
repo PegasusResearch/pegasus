@@ -13,7 +13,8 @@ from ament_index_python import get_package_share_directory
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
-from launch_ros.actions import Node
+from launch_ros.actions import ComposableNodeContainer, Node
+from launch_ros.descriptions import ComposableNode
 
 def generate_launch_description():
 
@@ -71,6 +72,46 @@ def generate_launch_description():
                 'namespace': LaunchConfiguration('vehicle_ns'),
                 'autopilot_yaml': LaunchConfiguration('drone_params'),
             }.items(),
+        ),
+
+        # Hardware monitor
+        ComposableNodeContainer(
+            name="pegasus_hardware_monitor_container",
+            namespace=[
+                LaunchConfiguration('vehicle_ns'), 
+                LaunchConfiguration('vehicle_id')],
+            package="rclcpp_components",
+            executable="component_container_mt",
+            composable_node_descriptions=[
+                ComposableNode(
+                    package="pegasus_hardware_monitor",
+                    plugin="hardware_monitor::WifiMonitor",
+                    name="wifi_monitor",
+                    namespace=[
+                        LaunchConfiguration('vehicle_ns'), 
+                        LaunchConfiguration('vehicle_id')],
+                    parameters=[
+                        {
+                            "interface": "wlp18s0",
+                            "publish_rate": 0.5,
+                        }
+                    ],
+                ),
+                ComposableNode(
+                    package="pegasus_hardware_monitor",
+                    plugin="hardware_monitor::SysMonitor",
+                    name="sys_monitor",
+                    namespace=[
+                        LaunchConfiguration('vehicle_ns'), 
+                        LaunchConfiguration('vehicle_id')],
+                    parameters=[
+                        {
+                            "publish_rate": 0.5,
+                        }
+                    ],
+                ),
+            ],
+            output="screen",
         ),
 
         # Launch Rosbridge to make the ROS topics available in via websocket to the GCS (ground control station)

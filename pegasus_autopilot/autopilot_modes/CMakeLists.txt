@@ -74,6 +74,7 @@ add_library(${PROJECT_NAME}
   src/mode_manual.cpp
   src/mode_onboard_land.cpp
   src/mode_pass_through.cpp
+  src/mode_smooth_waypoint.cpp
   src/mode_takeoff.cpp
   src/mode_waypoint.cpp
 )

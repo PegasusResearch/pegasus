@@ -48,12 +48,14 @@
           control_attitude_rate: "fmu/in/force/attitude_rate"
           debug_topic: "autopilot/statistics/mellinger"
         gains:
-          kp: [4.0, 4.0, 4.0]    # Proportional gain
-          kd: [3.9, 3.9, 3.9]    # Derivative gain
-          ki: [0.0, 0.0, 0.0]    # Integral gain
-          kr: [8.0, 8.0, 8.0]    # Attitude error gain
+          kp: [3.8, 3.8, 4.0]    # Proportional gain
+          kd: [3.6, 3.6, 3.8]    # Derivative gain
+          ki: [0.01, 0.01, 0.1]    # Integral gain
+          #kr: [7.3, 7.3, 7.3]    # Attitude error gain
+          kr: [5.0, 5.0, 5.0]
           min_output: [-50.0, -50.0, -50.0]  # Minimum output of each PID
           max_output: [ 50.0,  50.0,  50.0]  # Maximum output of each PID
+          max_pos_error: [2.0, 2.0, 5.0]     # Saturation for the max absolute error (in meters) in the x, y and z directions
       # ----------------------------------------------------------------------------------------------------------
       # Definition of the geofencing mechanism that will keep the vehicle in safe places
       # ----------------------------------------------------------------------------------------------------------
@@ -112,7 +114,7 @@
         valid_transitions: ["DisarmMode", "ArmMode", "TakeoffMode", "HoldMode", "WaypointMode", "FollowTrajectoryMode", "PassThroughMode", "ManualMode"]
         fallback: "HoldMode"
         on_finish: "DisarmMode"
-        land_speed: 0.2 # m/s
+        land_speed: 0.5 # m/s
         land_detected_treshold: 0.1 # m/s
         countdown_to_disarm: 3.0 # s
       OnboardLandMode: 

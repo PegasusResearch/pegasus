@@ -58,7 +58,7 @@ param set-default MC_ROLLRATE_FF 0.0010
 param set-default MC_ROLLRATE_I 0.12500
 param set-default MC_ROLLRATE_K 1.000
 param set-default MC_ROLLRATE_MAX 220.0
-param set-default MC_ROLLRATE_P	0.270
+param set-default MC_ROLLRATE_P	0.350
 param set-default MC_ROLL_P	8.50
 
 param set-default MC_PITCHRATE_D 0.0010
@@ -66,7 +66,7 @@ param set-default MC_PITCHRATE_FF 0.00100
 param set-default MC_PITCHRATE_I 0.125
 param set-default MC_PITCHRATE_K 1.000
 param set-default MC_PITCHRATE_MAX 220.0
-param set-default MC_PITCHRATE_P 0.270
+param set-default MC_PITCHRATE_P 0.350
 param set-default MC_PITCH_P 8.65
 
 param set-default MC_YAWRATE_D 0.00233
