@@ -47,6 +47,7 @@
  ****************************************************************************/
 #include "pegasus_utils/rotations.hpp"
 #include "autopilot_modes/mode_manual.hpp"
+#include <algorithm>
 
 namespace autopilot {
 
@@ -57,6 +58,27 @@ void ManualMode::initialize() {
     // Declare and get the manual command topic parameter
     node_->declare_parameter<std::string>("autopilot.ManualMode.subscribers.manual_command", "manual_command");
     manual_command_topic_ = node_->get_parameter("autopilot.ManualMode.subscribers.manual_command").as_string();
+
+    // smoothing / physical limits parameters
+    node_->declare_parameter<double>("autopilot.ManualMode.max_acceleration", 2.0);
+    node_->declare_parameter<double>("autopilot.ManualMode.max_jerk", 10.0);
+    node_->declare_parameter<double>("autopilot.ManualMode.accel_gain", 5.0);
+
+    // Yaw smoothing parameters
+    node_->declare_parameter<double>("autopilot.ManualMode.max_yaw_acceleration", 30.0);
+    node_->declare_parameter<double>("autopilot.ManualMode.max_yaw_jerk", 100.0);
+    node_->declare_parameter<double>("autopilot.ManualMode.yaw_accel_gain", 10.0);
+
+    this->max_acceleration_ = node_->get_parameter("autopilot.ManualMode.max_acceleration").as_double();
+    this->max_jerk_ = node_->get_parameter("autopilot.ManualMode.max_jerk").as_double();
+    this->accel_gain_ = node_->get_parameter("autopilot.ManualMode.accel_gain").as_double();
+
+    this->max_yaw_acceleration_ = node_->get_parameter("autopilot.ManualMode.max_yaw_acceleration").as_double();
+    this->max_yaw_jerk_ = node_->get_parameter("autopilot.ManualMode.max_yaw_jerk").as_double();
+    this->yaw_accel_gain_ = node_->get_parameter("autopilot.ManualMode.yaw_accel_gain").as_double();
+
+    RCLCPP_INFO(node_->get_logger(), "ManualMode initialized with max_acceleration: %f, max_jerk: %f, accel_gain: %f", this->max_acceleration_, this->max_jerk_, this->accel_gain_);
+    RCLCPP_INFO(node_->get_logger(), "ManualMode initialized with max_yaw_acceleration: %f, max_yaw_jerk: %f, yaw_accel_gain: %f", this->max_yaw_acceleration_, this->max_yaw_jerk_, this->yaw_accel_gain_);
 }
 
 bool ManualMode::enter() {
@@ -70,6 +92,7 @@ bool ManualMode::enter() {
             this->target_vel.x() = msg->twist.linear.x;
             this->target_vel.y() = msg->twist.linear.y;
             this->target_vel.z() = msg->twist.linear.z;
+            // The incoming message provides per-axis target speeds; accept them directly
             this->target_yaw_rate = Pegasus::Rotations::rad_to_deg(msg->twist.angular.z);
             this->inertial_frame_command = msg->header.frame_id == "map";  // Check if the command is in the inertial frame
 
@@ -123,7 +146,7 @@ void ManualMode::update(double dt) {
     this->update_target_position(dt);
     
     // Set the controller to track the target position and yaw
-    this->controller_->set_position(this->target_pos, this->target_vel, this->target_yaw, this->target_yaw_rate, dt);
+    this->controller_->set_position(this->target_pos, this->v_curr, this->a_curr, this->target_yaw, this->yaw_rate_curr, dt);
 }
 
 void ManualMode::update_target_position(double dt) {
@@ -147,9 +170,48 @@ void ManualMode::update_target_position(double dt) {
         this->target_vel = Rz * this->target_vel;
     }
 
-    // Given the current state and the target velocity and yaw rate, we can compute the target position and yaw to track
-    this->target_pos += this->target_vel * dt;
-    this->target_yaw = Pegasus::Rotations::rad_to_deg(yaw_rad) + this->target_yaw_rate * dt;
+    if (dt <= 0.0) return;
+
+    // 1. Determine Target Velocity (already clamped in callback)
+    Eigen::Vector3d v_target = this->target_vel;
+
+    // 2. Velocity error
+    Eigen::Vector3d v_err = v_target - this->v_curr;
+
+    // 3. Desired acceleration (P controller) and clamp
+    Eigen::Vector3d a_target = v_err * this->accel_gain_;
+    for (int i = 0; i < 3; ++i) a_target[i] = std::clamp(a_target[i], -this->max_acceleration_, this->max_acceleration_);
+
+    // 4. Jerk limiting
+    Eigen::Vector3d a_err = a_target - this->a_curr;
+    Eigen::Vector3d j_cmd;
+    for (int i = 0; i < 3; ++i) {
+        double j = a_err[i] / dt;
+        j = std::clamp(j, -this->max_jerk_, this->max_jerk_);
+        j_cmd[i] = j;
+    }
+
+    // 5. Integrate
+    this->a_curr += j_cmd * dt;
+    this->v_curr += this->a_curr * dt;
+
+    // 6. Integrate position
+    this->target_pos += this->v_curr * dt;
+
+    // Yaw smoothing (target_yaw_rate is in degrees/sec)
+    double v_target_yaw = this->target_yaw_rate;
+    double v_err_yaw = v_target_yaw - this->yaw_rate_curr;
+    double a_target_yaw = v_err_yaw * this->yaw_accel_gain_;
+    a_target_yaw = std::clamp(a_target_yaw, -this->max_yaw_acceleration_, this->max_yaw_acceleration_);
+
+    double j_cmd_yaw = (a_target_yaw - this->yaw_accel_curr) / dt;
+    j_cmd_yaw = std::clamp(j_cmd_yaw, -this->max_yaw_jerk_, this->max_yaw_jerk_);
+
+    this->yaw_accel_curr += j_cmd_yaw * dt;
+    this->yaw_rate_curr += this->yaw_accel_curr * dt;
+
+    // Integrate yaw angle (degrees)
+    this->target_yaw += this->yaw_rate_curr * dt;
 }
 
 

@@ -76,6 +76,23 @@ protected:
     double target_yaw_rate{0.0};
     double target_yaw{0.0};
 
+    // Smoothing / physical limits (keyboard-style controller)
+    double max_acceleration_{0.0};
+    double max_jerk_{0.0};
+    double accel_gain_{0.0};
+
+    double max_yaw_acceleration_{0.0}; // degrees/s^2
+    double max_yaw_jerk_{0.0};         // degrees/s^3
+    double yaw_accel_gain_{0.0};
+
+    // Internal smoothed states
+    Eigen::Vector3d v_curr{0.0, 0.0, 0.0};
+    Eigen::Vector3d a_curr{0.0, 0.0, 0.0};
+
+    // Yaw smoothing states (degrees)
+    double yaw_rate_curr{0.0};
+    double yaw_accel_curr{0.0};
+
     // Whether the manual command is in the inertial frame or the body-attached frame
     bool inertial_frame_command{false};
 
