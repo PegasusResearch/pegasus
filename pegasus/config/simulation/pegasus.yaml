@@ -52,7 +52,6 @@
           kd: [5.1, 5.1, 5.1]    # Derivative gain
           ki: [0.01, 0.01, 0.1]  # Integral gain
           kr: [5.5, 5.5, 5.5]    # Attitude error gain
-
           # kp: [7.5, 7.5, 8.5]    # Proportional gain
           # kd: [6.5, 6.5, 6.5]    # Derivative gain
           # ki: [0.01, 0.01, 0.1]  # Integral gain
@@ -141,6 +140,8 @@
         set_waypoint_service: "autopilot/set_smooth_waypoint"
         max_speed: 2.5         # Max speed in m/s
         max_acceleration: 1.2  # Max acceleration in m/s^2
+        max_yaw_rate: 1.5
+        max_yaw_acceleration: 2.5
       FollowTrajectoryMode: 
         valid_transitions: ["OnboardLandMode", "LandMode", "HoldMode", "WaypointMode", "PassThroughMode", "ManualMode", "SmoothWaypointMode"]
         fallback: "HoldMode"

@@ -195,6 +195,42 @@ double SmoothTrajectory::duration() const {
     return this->tf_;
 }
 
+SmoothYawTrajectory::SmoothYawTrajectory(double omega_max, double d_omega_max)
+: smooth_trajectory_(omega_max, d_omega_max) {
+}
+
+void SmoothYawTrajectory::set_limits(double omega_max, double d_omega_max) {
+    this->smooth_trajectory_.set_limits(omega_max, d_omega_max);
+}
+
+double SmoothYawTrajectory::plan(double yaw_start, double yaw_target) {
+    this->yaw_start_ = Pegasus::Rotations::wrapTopi(yaw_start);
+
+    // Plan the shortest angular displacement in [-pi, pi].
+    const double yaw_delta = Pegasus::Rotations::wrapTopi(yaw_target - this->yaw_start_);
+    this->yaw_sign_ = (std::abs(yaw_delta) > 1e-9) ? ((yaw_delta > 0.0) ? 1.0 : -1.0) : 1.0;
+
+    const Eigen::Vector3d start_yaw_state(0.0, 0.0, 0.0);
+    const Eigen::Vector3d target_yaw_state(std::abs(yaw_delta), 0.0, 0.0);
+
+    this->tf_ = this->smooth_trajectory_.plan(start_yaw_state, target_yaw_state);
+    return this->tf_;
+}
+
+SmoothYawTrajectory::State SmoothYawTrajectory::get_state(double t) const {
+    const SmoothTrajectory::State state = this->smooth_trajectory_.get_state(t);
+
+    State yaw_state;
+    yaw_state.yaw = Pegasus::Rotations::wrapTopi(this->yaw_start_ + this->yaw_sign_ * state.position.x());
+    yaw_state.yaw_rate = this->yaw_sign_ * state.velocity.x();
+    yaw_state.yaw_acceleration = this->yaw_sign_ * state.acceleration.x();
+    return yaw_state;
+}
+
+double SmoothYawTrajectory::duration() const {
+    return this->tf_;
+}
+
 SmoothWaypointMode::~SmoothWaypointMode() {
     // Terminate the waypoint service
     this->waypoint_service_.reset();
@@ -206,19 +242,24 @@ void SmoothWaypointMode::initialize() {
     node_->declare_parameter<std::string>("autopilot.SmoothWaypointMode.set_waypoint_service", "set_smooth_waypoint"); 
     node_->declare_parameter<double>("autopilot.SmoothWaypointMode.max_speed", 1.5);
     node_->declare_parameter<double>("autopilot.SmoothWaypointMode.max_acceleration", 2.0);
+    node_->declare_parameter<double>("autopilot.SmoothWaypointMode.max_yaw_rate", 1.5);
+    node_->declare_parameter<double>("autopilot.SmoothWaypointMode.max_yaw_acceleration", 2.0);
 
     // Set the class members from parameters (avoid local shadowing).
     double max_speed = node_->get_parameter("autopilot.SmoothWaypointMode.max_speed").as_double();
     double max_acceleration = node_->get_parameter("autopilot.SmoothWaypointMode.max_acceleration").as_double();
+    this->max_yaw_rate_ = node_->get_parameter("autopilot.SmoothWaypointMode.max_yaw_rate").as_double();
+    this->max_yaw_acceleration_ = node_->get_parameter("autopilot.SmoothWaypointMode.max_yaw_acceleration").as_double();
 
     // Set the max speed and acceleration for the trajectory planner
     trajectory_ = SmoothTrajectory(max_speed, max_acceleration);
+    yaw_trajectory_ = SmoothYawTrajectory(this->max_yaw_rate_, this->max_yaw_acceleration_);
 
     // Create the service server for setting the waypoint
     this->waypoint_service_ = this->node_->create_service<pegasus_msgs::srv::Waypoint>(node_->get_parameter("autopilot.SmoothWaypointMode.set_waypoint_service").as_string(), std::bind(&SmoothWaypointMode::waypoint_callback, this, std::placeholders::_1, std::placeholders::_2));    
     
     // Log the initialization of the mode
-    RCLCPP_INFO(this->node_->get_logger(), "SmoothWaypointMode initialized with max speed %f m/s, max acceleration %f m/s^2 and service server '%s'", max_speed, max_acceleration, node_->get_parameter("autopilot.SmoothWaypointMode.set_waypoint_service").as_string().c_str());
+    RCLCPP_INFO(this->node_->get_logger(), "SmoothWaypointMode initialized with max speed %f m/s, max acceleration %f m/s^2, max yaw rate %f rad/s, max yaw acceleration %f rad/s^2 and service server '%s'", max_speed, max_acceleration, this->max_yaw_rate_, this->max_yaw_acceleration_, node_->get_parameter("autopilot.SmoothWaypointMode.set_waypoint_service").as_string().c_str());
 }
 
 bool SmoothWaypointMode::enter() {
@@ -243,13 +284,15 @@ void SmoothWaypointMode::set_trajectory_parameters() {
 
     // Get the current vehicle position
     this->start_pos_ = this->get_vehicle_state().position;
+    this->start_yaw_ = Pegasus::Rotations::yaw_from_quaternion(this->get_vehicle_state().attitude);
 
     // Plan the trajectory from the current position to the target position and get the trajectory duration
     this->T_max_ = this->trajectory_.plan(this->start_pos_, this->target_pos_);
+    this->T_yaw_max_ = this->yaw_trajectory_.plan(this->start_yaw_, this->target_yaw_);
     this->t_ = 0.0;
 
-    RCLCPP_INFO(this->node_->get_logger(), "Trajectory planned for waypoint with duration %f seconds", this->T_max_);
-}   
+    RCLCPP_INFO(this->node_->get_logger(), "Trajectory planned with position duration %f seconds and yaw duration %f seconds", this->T_max_, this->T_yaw_max_);
+}
 
 bool SmoothWaypointMode::exit() {
     
@@ -260,13 +303,15 @@ bool SmoothWaypointMode::exit() {
 void SmoothWaypointMode::update(double dt) {
     
     // Update the trajectory time and saturate the trajectory time to the maximum trajectory duration to avoid invalid states
-    this->t_ = std::min(this->t_ + dt, this->T_max_);
+    const double total_duration = std::max(this->T_max_, this->T_yaw_max_);
+    this->t_ = std::min(this->t_ + std::max(0.0, dt), total_duration);
 
     // Get the desired state from the trajectory planner
     const SmoothTrajectory::State state = this->trajectory_.get_state(this->t_);
+    const SmoothYawTrajectory::State yaw_state = this->yaw_trajectory_.get_state(this->t_);
 
     // Set the controller to track the target position and attitude
-    this->controller_->set_position(state.position, state.velocity, state.acceleration, this->target_yaw_, 0.0, dt);
+    this->controller_->set_position(state.position, state.velocity, state.acceleration, Pegasus::Rotations::rad_to_deg(yaw_state.yaw), Pegasus::Rotations::rad_to_deg(yaw_state.yaw_rate), dt);
 }
 
 void SmoothWaypointMode::waypoint_callback(const pegasus_msgs::srv::Waypoint::Request::SharedPtr request, const pegasus_msgs::srv::Waypoint::Response::SharedPtr response) {
@@ -275,14 +320,14 @@ void SmoothWaypointMode::waypoint_callback(const pegasus_msgs::srv::Waypoint::Re
     this->target_pos_[0] = request->position[0];
     this->target_pos_[1] = request->position[1];
     this->target_pos_[2] = request->position[2];
-    this->target_yaw_ = request->yaw;
+    this->target_yaw_ = Pegasus::Rotations::deg_to_rad(request->yaw);
 
     // Set the waypoint flag
     this->waypoint_set_ = true;
 
     // Return true to indicate that the waypoint has been set successfully
     response->success = true;
-    RCLCPP_WARN(this->node_->get_logger(), "Waypoint set to (%f, %f, %f) with yaw %f", this->target_pos_[0], this->target_pos_[1], this->target_pos_[2], this->target_yaw_);
+    RCLCPP_WARN(this->node_->get_logger(), "Waypoint set to (%f, %f, %f) with yaw %f", this->target_pos_[0], this->target_pos_[1], this->target_pos_[2], request->yaw);
 
     // Set the trajectory to be followed by the controller (to start at the current position)
     this->set_trajectory_parameters();

@@ -54,6 +54,7 @@
 
 namespace autopilot {
 
+// Auxiliar class to set a trajectory that accelerates and de-accelerates to a given waypoint, respecting maximum speed and acceleration constraints.
 class SmoothTrajectory {
 
 public:
@@ -95,7 +96,34 @@ protected:
     double dist_ramp_{0.0};
 };
 
+class SmoothYawTrajectory {
 
+public:
+
+    struct State {
+        double yaw{0.0};
+        double yaw_rate{0.0};
+        double yaw_acceleration{0.0};
+    };
+
+    SmoothYawTrajectory() = default;
+    SmoothYawTrajectory(double omega_max, double d_omega_max);
+
+    void set_limits(double omega_max, double d_omega_max);
+    double plan(double yaw_start, double yaw_target);
+    State get_state(double t) const;
+    double duration() const;
+
+
+private:
+
+    SmoothTrajectory smooth_trajectory_{};
+    double yaw_start_{0.0};
+    double yaw_sign_{1.0};
+    double tf_{0.0};
+};
+
+// The actual mode class that uses the SmoothTrajectory to generate references to track to reach a given waypoint
 class SmoothWaypointMode : public autopilot::Mode {
 
 public:
@@ -123,11 +151,16 @@ protected:
 
     // The start position and attitude to use as the start of the trajectory
     Eigen::Vector3d start_pos_{Eigen::Vector3d::Zero()};
+    double start_yaw_{0.0};
 
     // Trajectory planner and time cursor.
     SmoothTrajectory trajectory_{};
+    SmoothYawTrajectory yaw_trajectory_{};
     double t_{0.0};
     double T_max_{0.0};
+    double T_yaw_max_{0.0};
+    double max_yaw_rate_{1.0};
+    double max_yaw_acceleration_{2.0};
 
     // The waypoint service server that sets the position and attitude waypoints at a given target
     rclcpp::Service<pegasus_msgs::srv::Waypoint>::SharedPtr waypoint_service_{nullptr};
