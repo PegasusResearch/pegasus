@@ -154,8 +154,8 @@
         max_acceleration: 1.2       # Max acceleration in m/s^2
         max_jerk: 10.0              # Max jerk in m/s^3
         accel_gain: 2.0             # Tracking gain for the low-pass filter
-        max_yaw_acceleration: 90.0  # Max acceleration in deg/s^2
-        max_yaw_jerk: 400.0         # Max jerk in deg/s^3 
+        max_yaw_acceleration: 100.0  # Max acceleration in deg/s^2
+        max_yaw_jerk: 450.0         # Max jerk in deg/s^3 
         yaw_accel_gain: 5.0
         subscribers:
           manual_command: "autopilot/manual"
