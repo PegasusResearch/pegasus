@@ -147,6 +147,7 @@
         fallback: "HoldMode"
         geofencing_violation_fallback: "HoldMode"
         on_finish: "HoldMode"
+        position_error_threshold: 1.5
       ManualMode:
         valid_transitions: ["LandMode", "HoldMode", "WaypointMode", "PassThroughMode", "FollowTrajectoryMode", "SmoothWaypointMode"]
         fallback: "HoldMode"

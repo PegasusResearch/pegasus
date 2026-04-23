@@ -53,7 +53,11 @@ namespace autopilot {
 FollowTrajectoryMode::~FollowTrajectoryMode() {}
 
 void FollowTrajectoryMode::initialize() {
-    RCLCPP_INFO(this->node_->get_logger(), "FollowTrajectoryMode initialized");
+
+    this->node_->declare_parameter<double>("autopilot.FollowTrajectoryMode.position_error_threshold", 1.0);
+    this->position_error_threshold_ = node_->get_parameter("autopilot.FollowTrajectoryMode.position_error_threshold").as_double();
+
+    RCLCPP_INFO(this->node_->get_logger(), "FollowTrajectoryMode initialized with position_error_threshold: %f", this->position_error_threshold_);
 }
 
 bool FollowTrajectoryMode::enter() {
@@ -129,10 +133,41 @@ void FollowTrajectoryMode::update_reference(double dt) {
     desired_yaw_rate_ = Pegasus::Rotations::rad_to_deg(trajectory_manager_->d_yaw(gamma_));
 
     // Integrate the virtual target position over time
-    d3_gamma_ = trajectory_manager_->d2_vd(gamma_);
-    d2_gamma_ = trajectory_manager_->d_vd(gamma_);
-    d_gamma_ = trajectory_manager_->vd(gamma_);
-    gamma_ += d_gamma_ * dt;
+    integrate_gamma(dt);
+}
+
+void FollowTrajectoryMode::integrate_gamma(double dt) {
+
+    // Get the difference between the current position and the desired position
+    State curr_state = get_vehicle_state();
+
+    // Compute the position error norm
+    double pos_error_norm = (desired_position_ - curr_state.position).norm();
+
+    // When integrating the virtual target, check if it is very far away from the path. If so, wait until the vehicle gets closer to the path before
+    // increasing the speed of the virtual target to its nominal speed.
+    if (pos_error_norm < this->position_error_threshold_) {
+        
+        // This is an approximation. Since we are modulating the speed of the virtual target, we would also need to modulate the acceleration and jerk of the virtual target.
+        // However, in close to the path, and in the tracking regime, d_gamma_ -> vd, and we can assumte that the acceleration and jerk of the virtual target are not too different from the nominal acceleration and jerk 
+        d3_gamma_ = trajectory_manager_->d2_vd(gamma_);
+        d2_gamma_ = trajectory_manager_->d_vd(gamma_);
+
+        // Make the speed of the virtual target depend on the position error, to have a smooth transition from an initial position
+        // far away from the path and converging to the nominal speed of the trajectory when we get closer to the path.
+        d_gamma_ = std::exp(1 + (std::pow(this->position_error_threshold_,2)/(std::pow(pos_error_norm,2) - std::pow(this->position_error_threshold_,2)))) * trajectory_manager_->vd(gamma_);
+        
+        // Integrate the virtual target position over time
+        gamma_ += d_gamma_ * dt;
+    
+    // If the position error is large
+    } else {
+        
+        // Set the velocity and acceleration of the virtual target to zero
+        d_gamma_ = 0.0;
+        d2_gamma_ = 0.0;
+        d3_gamma_ = 0.0;
+    }
 
     // Saturate gamma to be between 0 and the max value of the trajectory
     gamma_ = std::max(0.0, std::min(gamma_, trajectory_manager_->max_gamma()));
@@ -145,8 +180,6 @@ void FollowTrajectoryMode::update_reference(double dt) {
         d2_gamma_ = 0.0;
         d3_gamma_ = 0.0;
     }
-
-    RCLCPP_INFO_STREAM(node_->get_logger(), "Updated trajectory reference: gamma = " << gamma_ << ", desired position = [" << desired_position_.transpose() << "], desired velocity = [" << desired_velocity_.transpose() << "], desired acceleration = [" << desired_acceleration_.transpose() << "], desired jerk = [" << desired_jerk_.transpose() << "], desired yaw = " << desired_yaw_ << ", desired yaw rate = " << desired_yaw_rate_);
 }
 
 bool FollowTrajectoryMode::check_finished() {

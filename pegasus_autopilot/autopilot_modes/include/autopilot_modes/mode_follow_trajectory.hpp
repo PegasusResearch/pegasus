@@ -68,6 +68,8 @@ protected:
     void update_reference(double dt);
     bool check_finished();
 
+    void integrate_gamma(double dt);
+
     // Set the progression speed of the parametric variable
     double gamma_{0.0};
     double d_gamma_{0.0};
@@ -82,6 +84,8 @@ protected:
 
     double desired_yaw_{0.0};
     double desired_yaw_rate_{0.0};
+
+    double position_error_threshold_{0.0}; // meters
     
 };
 }
