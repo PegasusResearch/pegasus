@@ -133,26 +133,47 @@ void FollowTrajectoryMode::update_reference(double dt) {
     d2_gamma_ = trajectory_manager_->d_vd(gamma_);
     d_gamma_ = trajectory_manager_->vd(gamma_);
     gamma_ += d_gamma_ * dt;
+
+    // Saturate gamma to be between 0 and the max value of the trajectory
+    gamma_ = std::max(0.0, std::min(gamma_, trajectory_manager_->max_gamma()));
+
+    // Since some speed profiles are "constant speed", we need to check if we have reached 
+    // the end of the trajectory and set the speed to zero if we have reached the end of the
+    // trajectory to avoid overshooting the final position
+    if (gamma_ >= trajectory_manager_->max_gamma()) {
+        d_gamma_ = 0.0;
+        d2_gamma_ = 0.0;
+        d3_gamma_ = 0.0;
+    }
+
+    RCLCPP_INFO_STREAM(node_->get_logger(), "Updated trajectory reference: gamma = " << gamma_ << ", desired position = [" << desired_position_.transpose() << "], desired velocity = [" << desired_velocity_.transpose() << "], desired acceleration = [" << desired_acceleration_.transpose() << "], desired jerk = [" << desired_jerk_.transpose() << "], desired yaw = " << desired_yaw_ << ", desired yaw rate = " << desired_yaw_rate_);
 }
 
 bool FollowTrajectoryMode::check_finished() {
 
-    // Check if the virtual target is already at the end of the trajectory
-    if(gamma_ < trajectory_manager_->max_gamma()) return false;
+    // Get the max gamma value for the trajectory
+    double max_gamma = trajectory_manager_->max_gamma();
 
-    // Check if the vehicle is close to the final position already
-    Eigen::Vector3d position = get_vehicle_state().position;
+    // Check if the virtual target is not yet at the end of the trajectory
+    if(gamma_ < max_gamma) return false;
 
-    // Compute the position error
-    Eigen::Vector3d pos_error = desired_position_ - position;
+    // If gamma is already at the end of the trajectory, check if the vehicle is close enough to the final position to consider the trajectory following mission finished
+    if(gamma_ >= max_gamma) {
 
-    // If the position error is too big, return false
-    if (pos_error.norm() > 0.1) return false;
+         // Check if the vehicle is close to the final position already
+        Eigen::Vector3d position = get_vehicle_state().position;
 
-    // Otherwise, return true
-    RCLCPP_INFO_STREAM(node_->get_logger(), "Trajectory Tracking mission finished.");
-    signal_mode_finished();
-    return true;
+        // Compute the position error
+        Eigen::Vector3d pos_error = desired_position_ - position;
+
+        // If the position error is small, then we can consider the trajectory following mission finished and signal the state machine to change to the next mode
+        if (pos_error.norm() < 0.1) {
+            RCLCPP_INFO_STREAM(node_->get_logger(), "Trajectory Tracking mission finished.");
+            signal_mode_finished(); 
+            return true;
+        }
+    }
+    return false;
 }
 
 bool FollowTrajectoryMode::exit() {
