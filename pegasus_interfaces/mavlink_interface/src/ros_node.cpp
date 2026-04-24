@@ -320,6 +320,30 @@ void ROSNode::init_subscribers_and_services() {
     rclcpp::Parameter control_motors_topic = this->get_parameter("services.control_motors");
     control_motors_service_ = this->create_service<pegasus_msgs::srv::ControlMotors>(
         control_motors_topic.as_string(), std::bind(&ROSNode::control_motors_callback, this, std::placeholders::_1, std::placeholders::_2));
+
+    // ------------------------------------------------------------------------
+    // Initiate the service to get a floating-point PX4 parameter (e.g. MC_YAWRATE_D)
+    // ------------------------------------------------------------------------
+    this->declare_parameter<std::string>("services.get_mavlink_param", "get_mavlink_param");
+    rclcpp::Parameter get_mavlink_param_topic = this->get_parameter("services.get_mavlink_param");
+    get_mavlink_param_service_ = this->create_service<pegasus_msgs::srv::GetMavlinkParam>(
+        get_mavlink_param_topic.as_string(), std::bind(&ROSNode::get_mavlink_param_callback, this, std::placeholders::_1, std::placeholders::_2));
+
+    // ------------------------------------------------------------------------
+    // Initiate the service to set a floating-point PX4 parameter (e.g. MC_YAWRATE_D)
+    // ------------------------------------------------------------------------
+    this->declare_parameter<std::string>("services.set_mavlink_param", "set_mavlink_param");
+    rclcpp::Parameter set_mavlink_param_topic = this->get_parameter("services.set_mavlink_param");
+    set_mavlink_param_service_ = this->create_service<pegasus_msgs::srv::SetMavlinkParam>(
+        set_mavlink_param_topic.as_string(), std::bind(&ROSNode::set_mavlink_param_callback, this, std::placeholders::_1, std::placeholders::_2));
+
+    // ------------------------------------------------------------------------
+    // Initiate the service to set an integer PX4 parameter (e.g. EKF2_HGT_REF)
+    // ------------------------------------------------------------------------
+    this->declare_parameter<std::string>("services.set_mavlink_param_int", "set_mavlink_param_int");
+    rclcpp::Parameter set_mavlink_param_int_topic = this->get_parameter("services.set_mavlink_param_int");
+    set_mavlink_param_int_service_ = this->create_service<pegasus_msgs::srv::SetMavlinkParamInt>(
+        set_mavlink_param_int_topic.as_string(), std::bind(&ROSNode::set_mavlink_param_int_callback, this, std::placeholders::_1, std::placeholders::_2));
     
     // ------------------------------------------------------------------------
     // Initiate the service to kill switch the vehicle
@@ -969,6 +993,41 @@ void ROSNode::control_motors_callback(const pegasus_msgs::srv::ControlMotors::Re
 
     // Send response
     response->success = mavlink_node_->set_motors(index, value); 
+}
+
+/**
+ * @ingroup servicesCallbacks
+ * @brief Read a floating-point PX4 parameter from the connected vehicle through MAVLink.
+ * @param request Parameter name to query.
+ * @param response MAVSDK result code and current value.
+ */
+void ROSNode::get_mavlink_param_callback(const pegasus_msgs::srv::GetMavlinkParam::Request::SharedPtr request, const pegasus_msgs::srv::GetMavlinkParam::Response::SharedPtr response) {
+
+    const auto [success, value] = mavlink_node_->get_parameter(request->parameter_name);
+    response->success = success;
+    response->value = value;
+}
+
+/**
+ * @ingroup servicesCallbacks
+ * @brief Set a floating-point PX4 parameter in the connected vehicle through MAVLink.
+ * @param request Parameter name and desired value.
+ * @param response MAVSDK result code.
+ */
+void ROSNode::set_mavlink_param_callback(const pegasus_msgs::srv::SetMavlinkParam::Request::SharedPtr request, const pegasus_msgs::srv::SetMavlinkParam::Response::SharedPtr response) {
+
+    response->success = mavlink_node_->set_parameter_float(request->parameter_name, static_cast<float>(request->value));
+}
+
+/**
+ * @ingroup servicesCallbacks
+ * @brief Set an integer PX4 parameter in the connected vehicle through MAVLink.
+ * @param request Parameter name and desired integer value.
+ * @param response MAVSDK result code.
+ */
+void ROSNode::set_mavlink_param_int_callback(const pegasus_msgs::srv::SetMavlinkParamInt::Request::SharedPtr request, const pegasus_msgs::srv::SetMavlinkParamInt::Response::SharedPtr response) {
+
+    response->success = mavlink_node_->set_parameter_int(request->parameter_name, request->value);
 }
 
 /**

@@ -49,11 +49,13 @@
 
 #include <chrono>
 #include <atomic>
+#include <utility>
 #include <Eigen/Core>
 #include <mavsdk/mavsdk.h>
 #include <mavsdk/plugins/action/action.h>
 #include <mavsdk/plugins/offboard/offboard.h>
 #include <mavsdk/plugins/telemetry/telemetry.h>
+#include <mavsdk/plugins/param/param.h>
 //#include <mavsdk/plugins/mavlink_passthrough/mavlink_passthrough.h>
 #include <mavsdk/plugins/mocap/mocap.h>
 
@@ -216,6 +218,29 @@ public:
     *              The value should be a float, between -1.0 (minimum) and 1.0 (maximum)
     */
     uint8_t set_motors(const int index, const float value);
+
+    /**
+     * @brief Set a floating point PX4 parameter through MAVLink.
+     * @param parameter_name Name of the parameter (e.g. MC_YAWRATE_D)
+     * @param value Desired value for the parameter
+     * @return MAVSDK Param result code encoded in uint8_t
+     */
+    uint8_t set_parameter_float(const std::string &parameter_name, const float value);
+
+    /**
+     * @brief Set an integer PX4 parameter through MAVLink.
+     * @param parameter_name Name of the parameter (e.g. EKF2_HGT_REF)
+     * @param value Desired integer value for the parameter
+     * @return MAVSDK Param result code encoded in uint8_t
+     */
+    uint8_t set_parameter_int(const std::string &parameter_name, const int32_t value);
+
+    /**
+     * @brief Get a floating point PX4 parameter through MAVLink.
+     * @param parameter_name Name of the parameter (e.g. MC_YAWRATE_D)
+     * @return Pair with MAVSDK Param result code and parameter value
+     */
+    std::pair<uint8_t, float> get_parameter(const std::string &parameter_name);
     
     /**
      * @brief Method to make the vehicle switch to the offboard mode. This function is blocking
@@ -279,6 +304,13 @@ private:
 
     /**
      * @ingroup system_initializations
+     * @brief Method that is called by new_mavlink_system_callback whenever a new system is detected to initialize
+     * the MAVSDK param submodule and allow reading/writing PX4 parameters.
+     */
+    void initialize_parameters();
+
+    /**
+     * @ingroup system_initializations
      * @brief Method that is called by new_mavlink_system_callback whenever a new system is detected to initialize the
      * mavlink passthrough submodule and allow for sending and receiving mavlink messages to and from the vehicle.
      */
@@ -339,6 +371,7 @@ private:
     std::unique_ptr<mavsdk::Action> action_{nullptr};
     std::unique_ptr<mavsdk::Offboard> offboard_{nullptr};
     std::unique_ptr<mavsdk::Telemetry> telemetry_{nullptr};
+    std::shared_ptr<mavsdk::Param> param_{nullptr};
     //std::unique_ptr<mavsdk::MavlinkPassthrough> mavlink_passthrough_{nullptr};
     std::unique_ptr<mavsdk::Mocap> mocap_{nullptr};    
 

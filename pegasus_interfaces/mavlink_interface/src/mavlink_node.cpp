@@ -46,6 +46,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
 #include "mavlink_node.hpp"
+#include <future>
+
+namespace {
+constexpr auto k_param_request_timeout = std::chrono::milliseconds(500);
+}
 
 /**
  * @brief Construct a new Mavlink Node object
@@ -123,6 +128,9 @@ void MavlinkNode::new_mavlink_system_callback() {
         // Enable simple actions such as arming and landing
         this->initialize_actions();
 
+        // Enable getting and setting PX4 parameters through MAVLink
+        this->initialize_parameters();
+
         // Enable the mavlink pass-through to send and receive mavlink messages
         //this->initialize_mavlink_passthrough();
 
@@ -195,6 +203,17 @@ void MavlinkNode::initialize_actions() {
 
     // Initialize the mavsdk actions module to arm/disarm the vehicle and to auto-land the vehicle
     action_ = std::make_unique<mavsdk::Action>(this->system_);
+}
+
+/**
+ * @ingroup system_initializations
+ * @brief Method that is called by new_mavlink_system_callback whenever a new system is detected to initialize
+ * the MAVSDK param submodule and allow reading/writing PX4 parameters.
+ */
+void MavlinkNode::initialize_parameters() {
+
+    // Initialize the mavsdk param module to get and set PX4 parameters (controller gains, etc.)
+    param_ = std::make_shared<mavsdk::Param>(this->system_);
 }
 
 /**
@@ -426,6 +445,95 @@ uint8_t MavlinkNode::kill_switch() {
 */
 uint8_t MavlinkNode::set_motors(const int32_t index, const float value) {
     return static_cast<uint8_t>(action_->set_actuator(index, value));
+}
+
+/**
+ * @brief Set a floating point PX4 parameter through MAVLink.
+ * @param parameter_name Name of the parameter to set (e.g. MC_YAWRATE_D)
+ * @param value Desired parameter value
+ * @return MAVSDK Param result code encoded in uint8_t
+ */
+uint8_t MavlinkNode::set_parameter_float(const std::string &parameter_name, const float value) {
+
+    if (!param_) {
+        return static_cast<uint8_t>(mavsdk::Param::Result::NoSystem);
+    }
+
+    // MAVSDK Param API is blocking in this version. Run it in a worker and bound the wait time.
+    auto param = param_;
+    std::packaged_task<mavsdk::Param::Result()> task([param, parameter_name, value]() {
+        return param->set_param_float(parameter_name, value);
+    });
+    auto future = task.get_future();
+    std::thread(std::move(task)).detach();
+
+    if (future.wait_for(k_param_request_timeout) != std::future_status::ready) {
+        return static_cast<uint8_t>(mavsdk::Param::Result::Timeout);
+    }
+
+    return static_cast<uint8_t>(future.get());
+}
+
+/**
+ * @brief Set an integer PX4 parameter through MAVLink.
+ * @param parameter_name Name of the parameter to set (e.g. EKF2_HGT_REF)
+ * @param value Desired parameter value
+ * @return MAVSDK Param result code encoded in uint8_t
+ */
+uint8_t MavlinkNode::set_parameter_int(const std::string &parameter_name, const int32_t value) {
+
+    if (!param_) {
+        return static_cast<uint8_t>(mavsdk::Param::Result::NoSystem);
+    }
+
+    // MAVSDK Param API is blocking in this version. Run it in a worker and bound the wait time.
+    auto param = param_;
+    std::packaged_task<mavsdk::Param::Result()> task([param, parameter_name, value]() {
+        return param->set_param_int(parameter_name, value);
+    });
+    auto future = task.get_future();
+    std::thread(std::move(task)).detach();
+
+    if (future.wait_for(k_param_request_timeout) != std::future_status::ready) {
+        return static_cast<uint8_t>(mavsdk::Param::Result::Timeout);
+    }
+
+    return static_cast<uint8_t>(future.get());
+}
+
+/**
+ * @brief Get a floating point PX4 parameter through MAVLink.
+ * @param parameter_name Name of the parameter to read (e.g. MC_YAWRATE_D)
+ * @return Pair with MAVSDK Param result code and parameter value
+ */
+std::pair<uint8_t, float> MavlinkNode::get_parameter(const std::string &parameter_name) {
+
+    if (!param_) {
+        return {static_cast<uint8_t>(mavsdk::Param::Result::NoSystem), 0.0f};
+    }
+
+    // MAVSDK Param API is blocking in this version. Run it in a worker and bound the wait time.
+    auto param = param_;
+    std::packaged_task<std::pair<mavsdk::Param::Result, float>()> task([param, parameter_name]() {
+        const auto [float_result, float_value] = param->get_param_float(parameter_name);
+
+        // If parameter is int-typed in PX4, retry as int and convert to float for the ROS response.
+        if (float_result == mavsdk::Param::Result::WrongType) {
+            const auto [int_result, int_value] = param->get_param_int(parameter_name);
+            return std::make_pair(int_result, static_cast<float>(int_value));
+        }
+
+        return std::make_pair(float_result, float_value);
+    });
+    auto future = task.get_future();
+    std::thread(std::move(task)).detach();
+
+    if (future.wait_for(k_param_request_timeout) != std::future_status::ready) {
+        return {static_cast<uint8_t>(mavsdk::Param::Result::Timeout), 0.0f};
+    }
+
+    const auto [result, value] = future.get();
+    return {static_cast<uint8_t>(result), value};
 }
 
 /**

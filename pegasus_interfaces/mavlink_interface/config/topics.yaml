@@ -35,6 +35,9 @@
       kill_switch: "fmu/kill_switch"
       offboard: "fmu/offboard"
       control_motors: "fmu/control_motors"
+      get_mavlink_param: "fmu/get_mavlink_param"
+      set_mavlink_param: "fmu/set_mavlink_param"
+      set_mavlink_param_int: "fmu/set_mavlink_param_int"
       hold: "fmu/hold"
     publishers:
       # Current status of the vehicle (battery, operation mode, etc.)

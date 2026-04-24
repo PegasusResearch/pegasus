@@ -77,9 +77,12 @@
 #include "pegasus_msgs/srv/arm.hpp"
 #include "pegasus_msgs/srv/kill_switch.hpp"
 #include "pegasus_msgs/srv/control_motors.hpp"
+#include "pegasus_msgs/srv/get_mavlink_param.hpp"
 #include "pegasus_msgs/srv/land.hpp"
 #include "pegasus_msgs/srv/offboard.hpp"
 #include "pegasus_msgs/srv/position_hold.hpp"
+#include "pegasus_msgs/srv/set_mavlink_param.hpp"
+#include "pegasus_msgs/srv/set_mavlink_param_int.hpp"
 //#include "pegasus_msgs/srv/set_home_position.hpp"
 
 // Messages for the mocap fusion and visual odometry
@@ -417,6 +420,30 @@ private:
 
     /**
      * @ingroup servicesCallbacks
+     * @brief Service callback to read a PX4 parameter value (float) from the connected vehicle.
+     * @param request Parameter name to query.
+     * @param response Result code and parameter value.
+     */
+    void get_mavlink_param_callback(const pegasus_msgs::srv::GetMavlinkParam::Request::SharedPtr request, const pegasus_msgs::srv::GetMavlinkParam::Response::SharedPtr response);
+
+    /**
+     * @ingroup servicesCallbacks
+     * @brief Service callback to set a PX4 parameter value (float) in the connected vehicle.
+     * @param request Parameter name and desired value.
+     * @param response Result code.
+     */
+    void set_mavlink_param_callback(const pegasus_msgs::srv::SetMavlinkParam::Request::SharedPtr request, const pegasus_msgs::srv::SetMavlinkParam::Response::SharedPtr response);
+
+    /**
+     * @ingroup servicesCallbacks
+     * @brief Service callback to set an integer PX4 parameter value in the connected vehicle.
+     * @param request Parameter name and desired integer value.
+     * @param response Result code.
+     */
+    void set_mavlink_param_int_callback(const pegasus_msgs::srv::SetMavlinkParamInt::Request::SharedPtr request, const pegasus_msgs::srv::SetMavlinkParamInt::Response::SharedPtr response);
+
+    /**
+     * @ingroup servicesCallbacks
      * @brief Set the home position callback. When a service request is reached from the set_home_position_service_,
      * this callback is called and will send a mavlink command for the vehicle to set the home position to the specified latitude, longitude and altitude
      * 
@@ -575,6 +602,24 @@ private:
      * @brief Service server to set the value of the motors
      */
     rclcpp::Service<pegasus_msgs::srv::ControlMotors>::SharedPtr control_motors_service_{nullptr};
+
+    /**
+     * @ingroup services
+     * @brief Service server to get a floating-point PX4 parameter through MAVLink.
+     */
+    rclcpp::Service<pegasus_msgs::srv::GetMavlinkParam>::SharedPtr get_mavlink_param_service_{nullptr};
+
+    /**
+     * @ingroup services
+     * @brief Service server to set a floating-point PX4 parameter through MAVLink.
+     */
+    rclcpp::Service<pegasus_msgs::srv::SetMavlinkParam>::SharedPtr set_mavlink_param_service_{nullptr};
+
+    /**
+     * @ingroup services
+     * @brief Service server to set an integer PX4 parameter through MAVLink.
+     */
+    rclcpp::Service<pegasus_msgs::srv::SetMavlinkParamInt>::SharedPtr set_mavlink_param_int_service_{nullptr};
 
     /**
      * @ingroup services
