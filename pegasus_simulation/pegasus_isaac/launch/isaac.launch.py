@@ -16,7 +16,7 @@ def generate_launch_description():
     config_dir = DeclareLaunchArgument('config_dir', default_value=files_path, description='The directory where the configuration files are stored')
     config_arg = DeclareLaunchArgument('config', default_value='isaac_px4.py', description='The configuration to be launched by Isaac Sim')
 
-    world = DeclareLaunchArgument('world', default_value='Curved Gridroom', description='The world to be launched by Isaac Sim')
+    world = DeclareLaunchArgument('world', default_value='Box Room', description='The world to be launched by Isaac Sim')
 
     config_file = PathJoinSubstitution([LaunchConfiguration('config_dir'), LaunchConfiguration('config')])
 

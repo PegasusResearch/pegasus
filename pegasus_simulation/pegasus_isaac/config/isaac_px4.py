@@ -24,7 +24,7 @@ from omni.isaac.core.world import World
 
 # Import the Pegasus API for simulating drones
 from pegasus.simulator.params import ROBOTS, SIMULATION_ENVIRONMENTS
-from pegasus.simulator.logic.state import State
+from pegasus.simulator.logic.graphical_sensors.monocular_camera import MonocularCamera
 from pegasus.simulator.logic.backends.px4_mavlink_backend import PX4MavlinkBackend, PX4MavlinkBackendConfig
 from pegasus.simulator.logic.backends.ros2_backend import ROS2Backend
 from pegasus.simulator.logic.vehicles.multirotor import Multirotor, MultirotorConfig
@@ -65,13 +65,27 @@ class PegasusApp:
             "vehicle_id": 0,
             "px4_autolaunch": True,
             "px4_dir": self.pg.px4_path,
-            "px4_vehicle_model": self.pg.px4_default_airframe # CHANGE this line to 'iris' if using PX4 version bellow v1.14
+            "px4_vehicle_model": self.pg.px4_default_airframe
         })
+
         config_multirotor.backends = [PX4MavlinkBackend(mavlink_config), ROS2Backend(vehicle_id=1, config={"namespace": 'drone'})]
+
+        config_multirotor.backends = [
+            PX4MavlinkBackend(mavlink_config),
+            ROS2Backend(vehicle_id=1, 
+                config={
+                    "namespace": 'drone', 
+                    "pub_sensors": False,
+                    "pub_graphical_sensors": True,
+                    "pub_state": False,
+                    "pub_tf": False,
+                    "sub_control": False,})]
+        
+        config_multirotor.graphical_sensors = [MonocularCamera("camera", config={"update_rate": 30.0, "depth": True, "resolution": (640, 480)})]
 
         Multirotor(
             "/World/quadrotor",
-            ROBOTS['Iris'],
+            ROBOTS['Pegasus'],
             0,
             [0.0, 0.0, 0.07],
             Rotation.from_euler("XYZ", [0.0, 0.0, 0.0], degrees=True).as_quat(),
