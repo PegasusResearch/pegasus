@@ -45,7 +45,6 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************/
-#include <limits>
 #include <Eigen/Dense>
 #include "xrce_interface_node.hpp"
 #include "pegasus_utils/frames.hpp"
@@ -86,6 +85,7 @@ void XRCEInterfaceNode::init_parameters() {
 
     this->declare_parameter<std::string>("vehicle_ns", "drone");
     vehicle_ns_ = this->get_parameter("vehicle_ns").as_string();
+
 }
 
 void XRCEInterfaceNode::initialize_publishers() {
@@ -93,6 +93,7 @@ void XRCEInterfaceNode::initialize_publishers() {
     // Declare the parameters for the topics to publish on
     this->declare_parameter<std::string>("xrce_interface.px4.publishers.actuator_setpoints", "actuator_setpoints");
     this->declare_parameter<std::string>("xrce_interface.px4.publishers.attitude_setpoints", "attitude_setpoints");
+    this->declare_parameter<std::string>("xrce_interface.px4.publishers.attitude_rate_setpoints", "attitude_rate_setpoints");
     this->declare_parameter<std::string>("xrce_interface.px4.publishers.thrust_setpoints", "thrust_setpoints");
     this->declare_parameter<std::string>("xrce_interface.px4.publishers.torque_setpoints", "torque_setpoints");
     this->declare_parameter<std::string>("xrce_interface.px4.publishers.offboard_control_mode", "offboard_control_mode");
@@ -102,14 +103,17 @@ void XRCEInterfaceNode::initialize_publishers() {
     this->declare_parameter<std::string>("xrce_interface.pegasus.publishers.status", "status");
     this->declare_parameter<std::string>("xrce_interface.pegasus.publishers.vehicle_constants", "vehicle_constants");
     this->declare_parameter<std::string>("xrce_interface.pegasus.publishers.sensors.imu", "sensors/imu");
+    this->declare_parameter<std::string>("xrce_interface.pegasus.publishers.sensors.barometer", "sensors/barometer");
     this->declare_parameter<std::string>("xrce_interface.pegasus.publishers.sensors.gps", "sensors/gps");
     this->declare_parameter<std::string>("xrce_interface.pegasus.publishers.sensors.gps_info", "sensors/gps_info");
+    this->declare_parameter<std::string>("xrce_interface.pegasus.publishers.sensors.altimeter", "sensors/altimeter");
     this->declare_parameter<std::string>("xrce_interface.pegasus.publishers.filter.state", "filter/state");
     this->declare_parameter<std::string>("xrce_interface.pegasus.publishers.filter.rpy", "filter/rpy");
 
     // ----- PX4 Publishers -----
     actuator_motors_pub_ = this->create_publisher<px4_msgs::msg::ActuatorMotors>(this->get_parameter("xrce_interface.px4.publishers.actuator_setpoints").as_string(), 10);
     attitude_setpoint_pub_ = this->create_publisher<px4_msgs::msg::VehicleAttitudeSetpoint>(this->get_parameter("xrce_interface.px4.publishers.attitude_setpoints").as_string(), 10);  
+    attitude_rate_setpoint_pub_ = this->create_publisher<px4_msgs::msg::VehicleRatesSetpoint>(this->get_parameter("xrce_interface.px4.publishers.attitude_rate_setpoints").as_string(), 10);
     thrust_setpoint_pub_ = this->create_publisher<px4_msgs::msg::VehicleThrustSetpoint>(this->get_parameter("xrce_interface.px4.publishers.thrust_setpoints").as_string(), 10);
     torque_setpoint_pub_ = this->create_publisher<px4_msgs::msg::VehicleTorqueSetpoint>(this->get_parameter("xrce_interface.px4.publishers.torque_setpoints").as_string(), 10);
     offboard_control_mode_pub_ = this->create_publisher<px4_msgs::msg::OffboardControlMode>(this->get_parameter("xrce_interface.px4.publishers.offboard_control_mode").as_string(), 10);
@@ -131,8 +135,10 @@ void XRCEInterfaceNode::initialize_publishers() {
     // Initialize the publisher for sensors data (IMU and gps)
     // ------------------------------------------------------------------------
     imu_pub_ = this->create_publisher<sensor_msgs::msg::Imu>(this->get_parameter("xrce_interface.pegasus.publishers.sensors.imu").as_string(), rclcpp::SensorDataQoS());
+    baro_pub_ = this->create_publisher<pegasus_msgs::msg::SensorBarometer>(this->get_parameter("xrce_interface.pegasus.publishers.sensors.barometer").as_string(), rclcpp::SensorDataQoS());
     gps_pub_ = this->create_publisher<pegasus_msgs::msg::SensorGps>(this->get_parameter("xrce_interface.pegasus.publishers.sensors.gps").as_string(), rclcpp::SensorDataQoS());
     gps_info_pub_ = this->create_publisher<pegasus_msgs::msg::SensorGpsInfo>(this->get_parameter("xrce_interface.pegasus.publishers.sensors.gps_info").as_string(), rclcpp::SensorDataQoS());
+    altimeter_pub_ = this->create_publisher<pegasus_msgs::msg::SensorAltimeter>(this->get_parameter("xrce_interface.pegasus.publishers.sensors.altimeter").as_string(), rclcpp::SensorDataQoS());
 
     // ------------------------------------------------------------------------
     // Initialize the publisher for the current state of the vehicle 
@@ -140,6 +146,16 @@ void XRCEInterfaceNode::initialize_publishers() {
     // ------------------------------------------------------------------------
     filter_state_pub_ = this->create_publisher<nav_msgs::msg::Odometry>(this->get_parameter("xrce_interface.pegasus.publishers.filter.state").as_string(), rclcpp::SensorDataQoS());
     filter_state_rpy_pub_ = this->create_publisher<pegasus_msgs::msg::RPY>(this->get_parameter("xrce_interface.pegasus.publishers.filter.rpy").as_string(), rclcpp::SensorDataQoS());
+}
+
+void XRCEInterfaceNode::clear_trajectory_setpoint() {
+
+    trajectory_setpoint_msg_.position = {NAN, NAN, NAN};
+    trajectory_setpoint_msg_.velocity = {NAN, NAN, NAN};
+    trajectory_setpoint_msg_.acceleration = {NAN, NAN, NAN};
+    trajectory_setpoint_msg_.jerk = {NAN, NAN, NAN};
+    trajectory_setpoint_msg_.yaw = NAN;
+    trajectory_setpoint_msg_.yawspeed = NAN;
 }
 
 void XRCEInterfaceNode::intialize_subscribers() {
@@ -151,13 +167,21 @@ void XRCEInterfaceNode::intialize_subscribers() {
     this->declare_parameter<std::string>("xrce_interface.px4.subscribers.odometry", "vehicle_odometry");
     this->declare_parameter<std::string>("xrce_interface.px4.subscribers.imu", "vehicle_imu");
     this->declare_parameter<std::string>("xrce_interface.px4.subscribers.attitude", "vehicle_attitude");
+    this->declare_parameter<std::string>("xrce_interface.px4.subscribers.air_data", "vehicle_air_data");
+    this->declare_parameter<std::string>("xrce_interface.px4.subscribers.distance_sensor", "distance_sensor");
     this->declare_parameter<std::string>("xrce_interface.px4.subscribers.gps", "vehicle_gps");
+    this->declare_parameter<std::string>("xrce_interface.px4.subscribers.rc_channels", "rc_channels");
     this->declare_parameter<std::string>("xrce_interface.px4.subscribers.sensors_health", "estimator_status_flags");
 
     // Declare parameter topics for control of the vehicle from the Pegasus side
     this->declare_parameter<std::string>("xrce_interface.pegasus.subscribers.position", "control/position");
+    this->declare_parameter<std::string>("xrce_interface.pegasus.subscribers.inertial_velocity", "control/velocity/inertial");
+    this->declare_parameter<std::string>("xrce_interface.pegasus.subscribers.body_velocity", "control/velocity/body");
+    this->declare_parameter<std::string>("xrce_interface.pegasus.subscribers.inertial_acceleration", "control/inertial_acceleration");
     this->declare_parameter<std::string>("xrce_interface.pegasus.subscribers.force.attitude", "control/force/attitude");
+    this->declare_parameter<std::string>("xrce_interface.pegasus.subscribers.force.attitude_rate", "control/force/attitude_rate");
     this->declare_parameter<std::string>("xrce_interface.pegasus.subscribers.thrust.attitude", "control/thrust/attitude");
+    this->declare_parameter<std::string>("xrce_interface.pegasus.subscribers.thrust.attitude_rate", "control/thrust/attitude_rate");
 
     // Mocap data subscriber
     this->declare_parameter<std::string>("xrce_interface.pegasus.subscribers.external_sensors.mocap_enu", "mocap");
@@ -175,14 +199,25 @@ void XRCEInterfaceNode::intialize_subscribers() {
     vehicle_odometry_px4_sub_= this->create_subscription<px4_msgs::msg::VehicleOdometry>(this->get_parameter("xrce_interface.px4.subscribers.odometry").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_odometry_callback, this, std::placeholders::_1));
     vehicle_imu_px4_sub_ = this->create_subscription<px4_msgs::msg::SensorCombined>(this->get_parameter("xrce_interface.px4.subscribers.imu").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_imu_callback, this, std::placeholders::_1));
     vehicle_attitude_px4_sub_ = this->create_subscription<px4_msgs::msg::VehicleAttitude>(this->get_parameter("xrce_interface.px4.subscribers.attitude").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_attitude_callback, this, std::placeholders::_1));
+    vehicle_air_data_px4_sub_ = this->create_subscription<px4_msgs::msg::VehicleAirData>(this->get_parameter("xrce_interface.px4.subscribers.air_data").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_air_data_callback, this, std::placeholders::_1));
+    distance_sensor_px4_sub_ = this->create_subscription<px4_msgs::msg::DistanceSensor>(this->get_parameter("xrce_interface.px4.subscribers.distance_sensor").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_distance_sensor_callback, this, std::placeholders::_1));
     vehicle_gps_px4_sub_ = this->create_subscription<px4_msgs::msg::SensorGps>(this->get_parameter("xrce_interface.px4.subscribers.gps").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_gps_callback, this, std::placeholders::_1));
+    rc_channels_px4_sub_ = this->create_subscription<px4_msgs::msg::RcChannels>(this->get_parameter("xrce_interface.px4.subscribers.rc_channels").as_string(), qos, std::bind(&XRCEInterfaceNode::px4_rc_channels_callback, this, std::placeholders::_1));
 
     // --- Pegasus Subscribers ---
     control_position_sub_ = this->create_subscription<pegasus_msgs::msg::ControlPosition>(this->get_parameter("xrce_interface.pegasus.subscribers.position").as_string(), rclcpp::SensorDataQoS(), std::bind(&XRCEInterfaceNode::position_callback, this, std::placeholders::_1));
-    control_attitude_force_sub_ = this->create_subscription<pegasus_msgs::msg::ControlAttitude>(this->get_parameter("xrce_interface.pegasus.subscribers.force.attitude").as_string(), rclcpp::SensorDataQoS(), std::bind(&XRCEInterfaceNode::attitude_force_callback, this, std::placeholders::_1));
+    control_inertial_velocity_sub_ = this->create_subscription<pegasus_msgs::msg::ControlVelocity>(this->get_parameter("xrce_interface.pegasus.subscribers.inertial_velocity").as_string(), rclcpp::SensorDataQoS(), std::bind(&XRCEInterfaceNode::inertial_velocity_callback, this, std::placeholders::_1));
+    control_body_velocity_sub_ = this->create_subscription<pegasus_msgs::msg::ControlVelocity>(this->get_parameter("xrce_interface.pegasus.subscribers.body_velocity").as_string(), rclcpp::SensorDataQoS(), std::bind(&XRCEInterfaceNode::body_velocity_callback, this, std::placeholders::_1));
+    control_inertial_acceleration_sub_ = this->create_subscription<pegasus_msgs::msg::ControlAcceleration>(this->get_parameter("xrce_interface.pegasus.subscribers.inertial_acceleration").as_string(), rclcpp::SensorDataQoS(), std::bind(&XRCEInterfaceNode::inertial_acceleration_callback, this, std::placeholders::_1));
     control_attitude_thrust_sub_ = this->create_subscription<pegasus_msgs::msg::ControlAttitude>(this->get_parameter("xrce_interface.pegasus.subscribers.thrust.attitude").as_string(), rclcpp::SensorDataQoS(), std::bind(&XRCEInterfaceNode::attitude_thrust_callback, this, std::placeholders::_1));
+    control_attitude_rate_thrust_sub_ = this->create_subscription<pegasus_msgs::msg::ControlAttitude>(this->get_parameter("xrce_interface.pegasus.subscribers.thrust.attitude_rate").as_string(), rclcpp::SensorDataQoS(), std::bind(&XRCEInterfaceNode::attitude_rate_thrust_callback, this, std::placeholders::_1));
 
-    // Mocap subscriber
+    if (thrust_curve_) {
+        control_attitude_force_sub_ = this->create_subscription<pegasus_msgs::msg::ControlAttitude>(this->get_parameter("xrce_interface.pegasus.subscribers.force.attitude").as_string(), rclcpp::SensorDataQoS(), std::bind(&XRCEInterfaceNode::attitude_force_callback, this, std::placeholders::_1));
+        control_attitude_rate_force_sub_ = this->create_subscription<pegasus_msgs::msg::ControlAttitude>(this->get_parameter("xrce_interface.pegasus.subscribers.force.attitude_rate").as_string(), rclcpp::SensorDataQoS(), std::bind(&XRCEInterfaceNode::attitude_rate_force_callback, this, std::placeholders::_1));
+    }
+
+     // Mocap subscriber
     mocap_pose_enu_sub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(
         this->get_parameter("xrce_interface.pegasus.subscribers.external_sensors.mocap_enu").as_string()  + "/" + vehicle_ns_ + std::to_string(vehicle_id_),
         rclcpp::SensorDataQoS(), std::bind(&XRCEInterfaceNode::mocap_pose_callback, this, std::placeholders::_1));
@@ -192,15 +227,19 @@ void XRCEInterfaceNode::initialize_services() {
 
     //Declare the parameters for the services to offer
     this->declare_parameter<std::string>("xrce_interface.pegasus.services.arm", "arm");
+    this->declare_parameter<std::string>("xrce_interface.pegasus.services.control_motors", "control_motors");
     this->declare_parameter<std::string>("xrce_interface.pegasus.services.kill_switch", "kill_switch");
     this->declare_parameter<std::string>("xrce_interface.pegasus.services.land", "land");
+    this->declare_parameter<std::string>("xrce_interface.pegasus.services.reboot", "reboot");
     this->declare_parameter<std::string>("xrce_interface.pegasus.services.offboard", "offboard");
-    this->declare_parameter<std::string>("xrce_interface.pegasus.services.hold", "position_hold");
+    this->declare_parameter<std::string>("xrce_interface.pegasus.services.hold", "hold");
 
     // Pegasus services to interface with PX4
     arm_service_ = this->create_service<pegasus_msgs::srv::Arm>(this->get_parameter("xrce_interface.pegasus.services.arm").as_string(), std::bind(&XRCEInterfaceNode::arm_callback, this, std::placeholders::_1, std::placeholders::_2));
+    control_motors_service_ = this->create_service<pegasus_msgs::srv::ControlMotors>(this->get_parameter("xrce_interface.pegasus.services.control_motors").as_string(), std::bind(&XRCEInterfaceNode::control_motors_callback, this, std::placeholders::_1, std::placeholders::_2));
     kill_switch_service_ = this->create_service<pegasus_msgs::srv::KillSwitch>(this->get_parameter("xrce_interface.pegasus.services.kill_switch").as_string(), std::bind(&XRCEInterfaceNode::kill_switch_callback, this, std::placeholders::_1, std::placeholders::_2));
     land_service_ = this->create_service<pegasus_msgs::srv::Land>(this->get_parameter("xrce_interface.pegasus.services.land").as_string(), std::bind(&XRCEInterfaceNode::land_callback, this, std::placeholders::_1, std::placeholders::_2));
+    reboot_service_ = this->create_service<pegasus_msgs::srv::Reboot>(this->get_parameter("xrce_interface.pegasus.services.reboot").as_string(), std::bind(&XRCEInterfaceNode::reboot_callback, this, std::placeholders::_1, std::placeholders::_2));
     offboard_service_ = this->create_service<pegasus_msgs::srv::Offboard>(this->get_parameter("xrce_interface.pegasus.services.offboard").as_string(), std::bind(&XRCEInterfaceNode::offboard_callback, this, std::placeholders::_1, std::placeholders::_2));
     position_hold_service_ = this->create_service<pegasus_msgs::srv::PositionHold>(this->get_parameter("xrce_interface.pegasus.services.hold").as_string(), std::bind(&XRCEInterfaceNode::position_hold_callback, this, std::placeholders::_1, std::placeholders::_2));
 }
@@ -236,6 +275,7 @@ void XRCEInterfaceNode::init_thrust_curve() {
     rclcpp::Parameter thrust_curve_parameters = this->get_parameter("dynamics.thrust_curve.parameters");
 
     // Set the message with the parameters of the drone, namely the mass and the thrust curve
+    vehicle_constants_msg_.id = vehicle_id_;
     vehicle_constants_msg_.mass = mass.as_double();
     vehicle_constants_msg_.thrust_curve.identifier = thrust_curve_id.as_string();
     vehicle_constants_msg_.thrust_curve.parameters = thrust_curve_parameter_names.as_string_array();
@@ -290,6 +330,44 @@ void XRCEInterfaceNode::px4_attitude_callback(px4_msgs::msg::VehicleAttitude::Co
     imu_pub_->publish(imu_msg_);
 }
 
+void XRCEInterfaceNode::px4_air_data_callback(px4_msgs::msg::VehicleAirData::ConstSharedPtr air_data_msg) {
+
+    baro_msg_.header.stamp = rclcpp::Clock().now();
+    baro_msg_.header.frame_id = "base_link_ned";
+
+    baro_msg_.altitude_monotonic = air_data_msg->baro_alt_meter;
+    baro_msg_.altitude_amsl = air_data_msg->baro_alt_meter;
+    baro_msg_.altitude_local = NAN;
+    baro_msg_.altitude_relative_home = NAN;
+    baro_msg_.altitude_relative_terrain = NAN;
+    baro_msg_.bottom_clearance = NAN;
+
+    baro_pub_->publish(baro_msg_);
+}
+
+void XRCEInterfaceNode::px4_distance_sensor_callback(px4_msgs::msg::DistanceSensor::ConstSharedPtr distance_sensor_msg) {
+
+    altimeter_msg_.header.stamp = rclcpp::Clock().now();
+    altimeter_msg_.header.frame_id = "base_link_ned";
+
+    altimeter_msg_.distance = distance_sensor_msg->current_distance;
+    altimeter_msg_.min_distance = distance_sensor_msg->min_distance;
+    altimeter_msg_.max_distance = distance_sensor_msg->max_distance;
+
+    Eigen::Quaterniond sensor_orientation(
+        distance_sensor_msg->q[0],
+        distance_sensor_msg->q[1],
+        distance_sensor_msg->q[2],
+        distance_sensor_msg->q[3]);
+    Eigen::Vector3d sensor_rpy = Pegasus::Rotations::quaternion_to_euler(sensor_orientation);
+
+    altimeter_msg_.roll = Pegasus::Rotations::rad_to_deg(sensor_rpy(0));
+    altimeter_msg_.pitch = Pegasus::Rotations::rad_to_deg(sensor_rpy(1));
+    altimeter_msg_.yaw = Pegasus::Rotations::rad_to_deg(sensor_rpy(2));
+
+    altimeter_pub_->publish(altimeter_msg_);
+}
+
 void XRCEInterfaceNode::px4_gps_callback(px4_msgs::msg::SensorGps::ConstSharedPtr gps_msg) {
 
     gps_msg_.header.stamp = rclcpp::Clock().now();
@@ -324,6 +402,16 @@ void XRCEInterfaceNode::px4_gps_callback(px4_msgs::msg::SensorGps::ConstSharedPt
     gps_info_pub_->publish(gps_info_msg_);
 }
 
+void XRCEInterfaceNode::px4_rc_channels_callback(px4_msgs::msg::RcChannels::ConstSharedPtr rc_channels_msg) {
+
+    status_msg_.header.stamp = rclcpp::Clock().now();
+    status_msg_.header.frame_id = "base_link_ned";
+    status_msg_.rc_status.available = !rc_channels_msg->signal_lost && rc_channels_msg->channel_count > 0;
+    status_msg_.rc_status.signal_strength = static_cast<double>(rc_channels_msg->rssi);
+
+    status_pub_->publish(status_msg_);
+}
+
 void XRCEInterfaceNode::px4_odometry_callback(px4_msgs::msg::VehicleOdometry::ConstSharedPtr odom_msg) {
 
     // Set the filter state message with the odometry data received from the PX4 autopilot
@@ -344,9 +432,9 @@ void XRCEInterfaceNode::px4_odometry_callback(px4_msgs::msg::VehicleOdometry::Co
     filter_state_msg_.twist.twist.linear.y = odom_msg->velocity[1];
     filter_state_msg_.twist.twist.linear.z = odom_msg->velocity[2];
 
-    filter_state_msg_.twist.twist.angular.x = odom_msg->angular_velocity[0];
-    filter_state_msg_.twist.twist.angular.y = odom_msg->angular_velocity[1];
-    filter_state_msg_.twist.twist.angular.z = odom_msg->angular_velocity[2];
+    filter_state_msg_.twist.twist.angular.x = Pegasus::Rotations::rad_to_deg(odom_msg->angular_velocity[0]);
+    filter_state_msg_.twist.twist.angular.y = Pegasus::Rotations::rad_to_deg(odom_msg->angular_velocity[1]);
+    filter_state_msg_.twist.twist.angular.z = Pegasus::Rotations::rad_to_deg(odom_msg->angular_velocity[2]);
 
     // Create the Eigen quaternion object and convert the angle to roll, pitch and yaw (using Z-Y-X convention)
     Eigen::Vector3d euler_angles = Pegasus::Rotations::quaternion_to_euler(Eigen::Quaterniond(odom_msg->q[0], odom_msg->q[1], odom_msg->q[2], odom_msg->q[3]));
@@ -448,8 +536,8 @@ void XRCEInterfaceNode::px4_estimator_status_callback(px4_msgs::msg::EstimatorSt
     status_msg_.header.stamp = rclcpp::Clock().now();
     status_msg_.header.frame_id = "base_link_ned";
     
-    status_msg_.health.accelerometer_calibrated = msg->cs_mag && !msg->fs_bad_mag_x && !msg->fs_bad_mag_y && !msg->fs_bad_mag_z && !msg->cs_mag_fault;
-    status_msg_.health.magnetometer_calibrated = !msg->fs_bad_acc_vertical && !msg->fs_bad_acc_clipping;
+    status_msg_.health.accelerometer_calibrated = !msg->fs_bad_acc_vertical && !msg->fs_bad_acc_clipping;
+    status_msg_.health.magnetometer_calibrated = msg->cs_mag && !msg->fs_bad_mag_x && !msg->fs_bad_mag_y && !msg->fs_bad_mag_z && !msg->cs_mag_fault;
 
     // Publish the status message according to the Pegasus API
     status_pub_->publish(status_msg_);
@@ -472,6 +560,8 @@ void XRCEInterfaceNode::position_callback(const pegasus_msgs::msg::ControlPositi
     offboard_control_mode_msg_.direct_actuator = false;
 	offboard_control_mode_msg_.timestamp = this->get_clock()->now().nanoseconds() / 1000;
 
+    clear_trajectory_setpoint();
+
     // Set the position trajectory message
     trajectory_setpoint_msg_.position = {static_cast<float>(msg->position[0]), static_cast<float>(msg->position[1]), static_cast<float>(msg->position[2])};
 	trajectory_setpoint_msg_.yaw = Pegasus::Rotations::wrapTopi(Pegasus::Rotations::deg_to_rad(msg->yaw)); // [-PI:PI]
@@ -479,6 +569,73 @@ void XRCEInterfaceNode::position_callback(const pegasus_msgs::msg::ControlPositi
 
     // Publish the offboard control mode message with the target position message
 	offboard_control_mode_pub_->publish(offboard_control_mode_msg_);
+    trajectory_setpoint_pub_->publish(trajectory_setpoint_msg_);
+}
+
+void XRCEInterfaceNode::inertial_velocity_callback(const pegasus_msgs::msg::ControlVelocity::ConstSharedPtr msg) {
+
+    offboard_control_mode_msg_.position = false;
+    offboard_control_mode_msg_.velocity = true;
+    offboard_control_mode_msg_.acceleration = false;
+    offboard_control_mode_msg_.attitude = false;
+    offboard_control_mode_msg_.body_rate = false;
+    offboard_control_mode_msg_.thrust_and_torque = false;
+    offboard_control_mode_msg_.direct_actuator = false;
+    offboard_control_mode_msg_.timestamp = this->get_clock()->now().nanoseconds() / 1000;
+
+    clear_trajectory_setpoint();
+    trajectory_setpoint_msg_.velocity = {static_cast<float>(msg->velocity[0]), static_cast<float>(msg->velocity[1]), static_cast<float>(msg->velocity[2])};
+    trajectory_setpoint_msg_.yaw = Pegasus::Rotations::wrapTopi(Pegasus::Rotations::deg_to_rad(msg->yaw));
+    trajectory_setpoint_msg_.timestamp = offboard_control_mode_msg_.timestamp;
+
+    offboard_control_mode_pub_->publish(offboard_control_mode_msg_);
+    trajectory_setpoint_pub_->publish(trajectory_setpoint_msg_);
+}
+
+void XRCEInterfaceNode::body_velocity_callback(const pegasus_msgs::msg::ControlVelocity::ConstSharedPtr msg) {
+
+    offboard_control_mode_msg_.position = false;
+    offboard_control_mode_msg_.velocity = true;
+    offboard_control_mode_msg_.acceleration = false;
+    offboard_control_mode_msg_.attitude = false;
+    offboard_control_mode_msg_.body_rate = false;
+    offboard_control_mode_msg_.thrust_and_torque = false;
+    offboard_control_mode_msg_.direct_actuator = false;
+    offboard_control_mode_msg_.timestamp = this->get_clock()->now().nanoseconds() / 1000;
+
+    Eigen::Quaterniond attitude_ned(
+        filter_state_msg_.pose.pose.orientation.w,
+        filter_state_msg_.pose.pose.orientation.x,
+        filter_state_msg_.pose.pose.orientation.y,
+        filter_state_msg_.pose.pose.orientation.z);
+    Eigen::Vector3d body_velocity(msg->velocity[0], msg->velocity[1], msg->velocity[2]);
+    Eigen::Vector3d velocity_ned = Pegasus::Frames::transform_vect_between_arbitrary_ref(body_velocity, attitude_ned);
+
+    clear_trajectory_setpoint();
+    trajectory_setpoint_msg_.velocity = {static_cast<float>(velocity_ned(0)), static_cast<float>(velocity_ned(1)), static_cast<float>(velocity_ned(2))};
+    trajectory_setpoint_msg_.yawspeed = Pegasus::Rotations::deg_to_rad(msg->yaw);
+    trajectory_setpoint_msg_.timestamp = offboard_control_mode_msg_.timestamp;
+
+    offboard_control_mode_pub_->publish(offboard_control_mode_msg_);
+    trajectory_setpoint_pub_->publish(trajectory_setpoint_msg_);
+}
+
+void XRCEInterfaceNode::inertial_acceleration_callback(const pegasus_msgs::msg::ControlAcceleration::ConstSharedPtr msg) {
+
+    offboard_control_mode_msg_.position = false;
+    offboard_control_mode_msg_.velocity = false;
+    offboard_control_mode_msg_.acceleration = true;
+    offboard_control_mode_msg_.attitude = false;
+    offboard_control_mode_msg_.body_rate = false;
+    offboard_control_mode_msg_.thrust_and_torque = false;
+    offboard_control_mode_msg_.direct_actuator = false;
+    offboard_control_mode_msg_.timestamp = this->get_clock()->now().nanoseconds() / 1000;
+
+    clear_trajectory_setpoint();
+    trajectory_setpoint_msg_.acceleration = {static_cast<float>(msg->acceleration[0]), static_cast<float>(msg->acceleration[1]), static_cast<float>(msg->acceleration[2])};
+    trajectory_setpoint_msg_.timestamp = offboard_control_mode_msg_.timestamp;
+
+    offboard_control_mode_pub_->publish(offboard_control_mode_msg_);
     trajectory_setpoint_pub_->publish(trajectory_setpoint_msg_);
 }
 
@@ -513,7 +670,8 @@ void XRCEInterfaceNode::attitude_force_callback(const pegasus_msgs::msg::Control
     // Convert the force received in the message in Newton (N) to a percentage from [0-100]%
     attitude_setpoint_msg_.thrust_body[0] = 0.0; // No thrust along the body X-axis
     attitude_setpoint_msg_.thrust_body[1] = 0.0; // No thrust along the body Y-axis
-    attitude_setpoint_msg_.thrust_body[2] = static_cast<float>(thrust_curve_->force_to_percentage(msg->thrust) / 100.0); // Convert from percentage to [0-1] for the PX4 autopilot
+    attitude_setpoint_msg_.thrust_body[2] = -static_cast<float>(thrust_curve_->force_to_percentage(msg->thrust) / 100.0); // Convert from percentage to [0-1] for the PX4 autopilot
+    attitude_setpoint_msg_.yaw_sp_move_rate = 0.0;
     attitude_setpoint_msg_.timestamp = offboard_control_mode_msg_.timestamp;
 
     // Publish the offboard control mode message with the target position message
@@ -551,7 +709,8 @@ void XRCEInterfaceNode::attitude_thrust_callback(const pegasus_msgs::msg::Contro
 
     attitude_setpoint_msg_.thrust_body[0] = 0.0; // No thrust along the body X-axis
     attitude_setpoint_msg_.thrust_body[1] = 0.0; // No thrust along the body Y-axis
-    attitude_setpoint_msg_.thrust_body[2] = static_cast<float>(msg->thrust / 100.0); // Convert from percentage to [0-1] for the PX4 autopilot
+    attitude_setpoint_msg_.thrust_body[2] = -static_cast<float>(msg->thrust / 100.0); // Convert from percentage to [0-1] for the PX4 autopilot
+    attitude_setpoint_msg_.yaw_sp_move_rate = 0.0;
     attitude_setpoint_msg_.timestamp = offboard_control_mode_msg_.timestamp;
 
     // Publish the offboard control mode message with the target position message
@@ -570,9 +729,7 @@ void XRCEInterfaceNode::attitude_rate_force_callback(const pegasus_msgs::msg::Co
     // Convert the force received in the message in Newton (N) to a percentage from [0-100]%
     double thrust = thrust_curve_->force_to_percentage(msg->thrust);
 
-    // Send the attitude-rate and thrust reference thorugh XRCE for the onboard microcontroller
-
-    // Set the offboard mode for attitude control
+    // Set the offboard mode for attitude-rate control
     offboard_control_mode_msg_.position = false;
     offboard_control_mode_msg_.velocity = false;
     offboard_control_mode_msg_.acceleration = false;
@@ -582,8 +739,17 @@ void XRCEInterfaceNode::attitude_rate_force_callback(const pegasus_msgs::msg::Co
     offboard_control_mode_msg_.direct_actuator = false;
 	offboard_control_mode_msg_.timestamp = this->get_clock()->now().nanoseconds() / 1000;
 
-    // Publish the offboard control mode message with the target position message
+    vehicle_rates_setpoint_msg_.roll = Pegasus::Rotations::deg_to_rad(msg->attitude[0]);
+    vehicle_rates_setpoint_msg_.pitch = Pegasus::Rotations::deg_to_rad(msg->attitude[1]);
+    vehicle_rates_setpoint_msg_.yaw = Pegasus::Rotations::deg_to_rad(msg->attitude[2]);
+    vehicle_rates_setpoint_msg_.thrust_body[0] = 0.0;
+    vehicle_rates_setpoint_msg_.thrust_body[1] = 0.0;
+    vehicle_rates_setpoint_msg_.thrust_body[2] = -static_cast<float>(thrust / 100.0);
+    vehicle_rates_setpoint_msg_.reset_integral = false;
+    vehicle_rates_setpoint_msg_.timestamp = offboard_control_mode_msg_.timestamp;
+
 	offboard_control_mode_pub_->publish(offboard_control_mode_msg_);
+    attitude_rate_setpoint_pub_->publish(vehicle_rates_setpoint_msg_);
 }
 
 /**
@@ -604,8 +770,17 @@ void XRCEInterfaceNode::attitude_rate_thrust_callback(const pegasus_msgs::msg::C
     offboard_control_mode_msg_.direct_actuator = false;
 	offboard_control_mode_msg_.timestamp = this->get_clock()->now().nanoseconds() / 1000;
 
-    // Publish the offboard control mode message with the target position message
+    vehicle_rates_setpoint_msg_.roll = Pegasus::Rotations::deg_to_rad(msg->attitude[0]);
+    vehicle_rates_setpoint_msg_.pitch = Pegasus::Rotations::deg_to_rad(msg->attitude[1]);
+    vehicle_rates_setpoint_msg_.yaw = Pegasus::Rotations::deg_to_rad(msg->attitude[2]);
+    vehicle_rates_setpoint_msg_.thrust_body[0] = 0.0;
+    vehicle_rates_setpoint_msg_.thrust_body[1] = 0.0;
+    vehicle_rates_setpoint_msg_.thrust_body[2] = -static_cast<float>(msg->thrust / 100.0);
+    vehicle_rates_setpoint_msg_.reset_integral = false;
+    vehicle_rates_setpoint_msg_.timestamp = offboard_control_mode_msg_.timestamp;
+
 	offboard_control_mode_pub_->publish(offboard_control_mode_msg_);
+    attitude_rate_setpoint_pub_->publish(vehicle_rates_setpoint_msg_);
 }
 
 /**
@@ -616,8 +791,39 @@ void XRCEInterfaceNode::attitude_rate_thrust_callback(const pegasus_msgs::msg::C
  */
 void XRCEInterfaceNode::arm_callback(const pegasus_msgs::srv::Arm::Request::SharedPtr request, const pegasus_msgs::srv::Arm::Response::SharedPtr response) {
     RCLCPP_INFO_STREAM(this->get_logger(), "Received request to " << (request->arm ? "ARM" : "DISARM") << " the vehicle");
-    publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_COMPONENT_ARM_DISARM, 1.0);
-    response->success = true;
+    publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_COMPONENT_ARM_DISARM, request->arm ? 1.0f : 0.0f);
+    response->success = pegasus_msgs::srv::Arm::Response::SUCCESS;
+}
+
+void XRCEInterfaceNode::control_motors_callback(const pegasus_msgs::srv::ControlMotors::Request::SharedPtr request, const pegasus_msgs::srv::ControlMotors::Response::SharedPtr response) {
+
+    if (request->index >= actuator_motors_msg_.NUM_CONTROLS) {
+        response->success = 0;
+        return;
+    }
+
+    offboard_control_mode_msg_.position = false;
+    offboard_control_mode_msg_.velocity = false;
+    offboard_control_mode_msg_.acceleration = false;
+    offboard_control_mode_msg_.attitude = false;
+    offboard_control_mode_msg_.body_rate = false;
+    offboard_control_mode_msg_.thrust_and_torque = false;
+    offboard_control_mode_msg_.direct_actuator = true;
+    offboard_control_mode_msg_.timestamp = this->get_clock()->now().nanoseconds() / 1000;
+
+    for (float & control : actuator_motors_msg_.control) {
+        control = NAN;
+    }
+
+    actuator_motors_msg_.control[request->index] = static_cast<float>(request->value);
+    actuator_motors_msg_.reversible_flags = 0;
+    actuator_motors_msg_.timestamp = offboard_control_mode_msg_.timestamp;
+    actuator_motors_msg_.timestamp_sample = offboard_control_mode_msg_.timestamp;
+
+    offboard_control_mode_pub_->publish(offboard_control_mode_msg_);
+    actuator_motors_pub_->publish(actuator_motors_msg_);
+
+    response->success = 1;
 }
 
 /**
@@ -628,11 +834,14 @@ void XRCEInterfaceNode::arm_callback(const pegasus_msgs::srv::Arm::Request::Shar
 */
 void XRCEInterfaceNode::kill_switch_callback(const pegasus_msgs::srv::KillSwitch::Request::SharedPtr request, const pegasus_msgs::srv::KillSwitch::Response::SharedPtr response) {
 
-    (void) request; // To avoid unused parameter warning
-    
+    if (!request->kill) {
+        response->success = pegasus_msgs::srv::KillSwitch::Response::UNKNOWN;
+        return;
+    }
+
     RCLCPP_INFO_STREAM(this->get_logger(), "Received request to activate kill switch");
-    publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_COMPONENT_ARM_DISARM, 0.0);
-    response->success = true;
+    publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_DO_FLIGHTTERMINATION, 1.0);
+    response->success = pegasus_msgs::srv::KillSwitch::Response::SUCCESS;
 }
 
 /**
@@ -649,7 +858,16 @@ void XRCEInterfaceNode::land_callback(const pegasus_msgs::srv::Land::Request::Sh
     
     RCLCPP_INFO_STREAM(this->get_logger(), "Received request to initiate autoland");
     publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_DO_SET_MODE, 3, 6); // Set Auto (mode) + Land (submode)
-    response->success = true;
+    response->success = pegasus_msgs::srv::Land::Response::SUCCESS;
+}
+
+void XRCEInterfaceNode::reboot_callback(const pegasus_msgs::srv::Reboot::Request::SharedPtr request, const pegasus_msgs::srv::Reboot::Response::SharedPtr response) {
+
+    (void) request;
+
+    RCLCPP_INFO_STREAM(this->get_logger(), "Received request to reboot PX4");
+    publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_PREFLIGHT_REBOOT_SHUTDOWN, 1.0);
+    response->success = pegasus_msgs::srv::Reboot::Response::SUCCESS;
 }
 
 /**
@@ -663,7 +881,7 @@ void XRCEInterfaceNode::offboard_callback(const pegasus_msgs::srv::Offboard::Req
     
     RCLCPP_INFO_STREAM(this->get_logger(), "Received request to initiate offboard mode");
     publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_DO_SET_MODE, 1, 6);
-    response->success = true;
+    response->success = pegasus_msgs::srv::Offboard::Response::SUCCESS;
 }
 
 /**
@@ -675,7 +893,7 @@ void XRCEInterfaceNode::offboard_callback(const pegasus_msgs::srv::Offboard::Req
 void XRCEInterfaceNode::position_hold_callback(const pegasus_msgs::srv::PositionHold::Request::SharedPtr, const pegasus_msgs::srv::PositionHold::Response::SharedPtr response) {
     RCLCPP_INFO_STREAM(this->get_logger(), "Received request to initiate position hold mode");
     publish_vehicle_command(px4_msgs::msg::VehicleCommand::VEHICLE_CMD_DO_SET_MODE, 3, 3); // Set Auto (mode) + Hold/Loiter (submode)
-    response->success = true;
+    response->success = pegasus_msgs::srv::PositionHold::Response::SUCCESS;
 }
 
 /**
@@ -740,11 +958,16 @@ void XRCEInterfaceNode::mocap_pose_callback(const geometry_msgs::msg::PoseStampe
     mocap_odometry_px4_pub_->publish(mocap_odometry_msg_);
 }
 
-void XRCEInterfaceNode::publish_vehicle_command(uint16_t command, float param1, float param2) {
+void XRCEInterfaceNode::publish_vehicle_command(uint16_t command, float param1, float param2, float param3, float param4, float param5, float param6, float param7) {
 
 	px4_msgs::msg::VehicleCommand msg;
 	msg.param1 = param1;
 	msg.param2 = param2;
+	msg.param3 = param3;
+	msg.param4 = param4;
+	msg.param5 = param5;
+	msg.param6 = param6;
+	msg.param7 = param7;
 	msg.command = command;
 	msg.target_system = vehicle_id_;
 	msg.target_component = 1;

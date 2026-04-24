@@ -67,8 +67,10 @@ int main(int argc, char ** argv) {
     // Create the xrce_interface_node
     auto xrce_interface_node = std::make_shared<XRCEInterfaceNode>("xrce_interface", options);
 
-    // Spin the node until shutdown
-    rclcpp::spin(xrce_interface_node);
+    // Use a multithreaded executor because some service callbacks wait for DDS responses.
+    rclcpp::executors::MultiThreadedExecutor executor;
+    executor.add_node(xrce_interface_node);
+    executor.spin();
     rclcpp::shutdown();
     return 0;
 }

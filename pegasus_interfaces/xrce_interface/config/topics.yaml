@@ -4,8 +4,9 @@
       # Topics for receiving/sending data from/to px4
       px4:
         publishers:
-          position_setpoints: "/px4/fmu/in/trajectory_setpoint"
+          position_setpoints: "px4/fmu/in/trajectory_setpoint"
           attitude_setpoints: "px4/fmu/in/vehicle_attitude_setpoint"
+          attitude_rate_setpoints: "px4/fmu/in/vehicle_rates_setpoint"
           thrust_setpoints: "px4/fmu/in/vehicle_thrust_setpoint"
           torque_setpoints: "px4/fmu/in/vehicle_torque_setpoint"
           actuator_setpoints: "px4/fmu/in/actuator_motors"
@@ -24,8 +25,11 @@
           # Get the IMU sensor data
           imu: "px4/fmu/out/sensor_combined"
           attitude: "px4/fmu/out/vehicle_attitude"
+          air_data: "px4/fmu/out/vehicle_air_data"
+          distance_sensor: "px4/fmu/out/distance_sensor"
           # Get the GPS data
           gps: "px4/fmu/out/vehicle_gps_position"
+          rc_channels: "px4/fmu/out/rc_channels"
       # Topics for receiving/sending data from/to pegasus
       pegasus:
         publishers:
@@ -35,8 +39,10 @@
           # Sensor data received from micro-controller
           sensors:
             imu: "fmu/sensors/imu"
+            barometer: "fmu/sensors/barometer"
             gps: "fmu/sensors/gps"
             gps_info: "fmu/sensors/gps_info"
+            altimeter: "fmu/sensors/altimeter"
           # Data received from the micro-controller internal EKF
           filter:
             # Current state of the vehicle
@@ -63,7 +69,9 @@
             mocap_enu: "/mocap/pose_enu"
         services:
           arm: "fmu/arm"
+          control_motors: "fmu/control_motors"
           land: "fmu/land"
+          reboot: "fmu/reboot"
           kill_switch: "fmu/kill_switch"
           offboard: "fmu/offboard"
           hold: "fmu/hold"

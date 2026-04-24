@@ -47,6 +47,9 @@
  ****************************************************************************/
 #pragma once
 
+#include <chrono>
+#include <string>
+
 #include "rclcpp/rclcpp.hpp"
 #include "thrust_curves/thrust_curves.hpp"
 
@@ -65,13 +68,19 @@
 #include <px4_msgs/msg/vehicle_thrust_setpoint.hpp>
 #include <px4_msgs/msg/vehicle_torque_setpoint.hpp>
 #include <px4_msgs/msg/trajectory_setpoint.hpp>
+#include <px4_msgs/msg/vehicle_rates_setpoint.hpp>
 #include <px4_msgs/msg/sensor_combined.hpp>
 #include <px4_msgs/msg/sensor_gps.hpp>
+#include <px4_msgs/msg/vehicle_air_data.hpp>
+#include <px4_msgs/msg/distance_sensor.hpp>
+#include <px4_msgs/msg/rc_channels.hpp>
 
 // Messages for the sensor data (IMU, GPS, etc.)
 #include "sensor_msgs/msg/imu.hpp"
+#include "pegasus_msgs/msg/sensor_barometer.hpp"
 #include "pegasus_msgs/msg/sensor_gps.hpp"
 #include "pegasus_msgs/msg/sensor_gps_info.hpp"
+#include "pegasus_msgs/msg/sensor_altimeter.hpp"
 
 // Messages for the state of the vehicle (pose, velocity, angular velocity, etc. provided by EKF)
 #include "nav_msgs/msg/odometry.hpp"
@@ -83,14 +92,18 @@
 
 // Messages for the control commands (position, attitude, etc.)
 #include "pegasus_msgs/msg/control_position.hpp"
+#include "pegasus_msgs/msg/control_velocity.hpp"
+#include "pegasus_msgs/msg/control_acceleration.hpp"
 #include "pegasus_msgs/msg/control_attitude.hpp"
 
 // Services for arming, auto-landing, etc.
 #include "pegasus_msgs/srv/arm.hpp"
+#include "pegasus_msgs/srv/control_motors.hpp"
 #include "pegasus_msgs/srv/kill_switch.hpp"
 #include "pegasus_msgs/srv/land.hpp"
 #include "pegasus_msgs/srv/offboard.hpp"
 #include "pegasus_msgs/srv/position_hold.hpp"
+#include "pegasus_msgs/srv/reboot.hpp"
 
 // Messages for the mocap fusion and visual odometry
 #include "geometry_msgs/msg/pose_stamped.hpp"
@@ -106,18 +119,20 @@ private:
     // Get the paramters and thrust curves from the parameter server
     void init_parameters();
     void init_thrust_curve();
-
     // Intialize the ROS 2 publishers, subscribers and services
     void initialize_publishers();
     void intialize_subscribers();
     void initialize_services();
 
+    void clear_trajectory_setpoint();
+
     void px4_odometry_callback(px4_msgs::msg::VehicleOdometry::ConstSharedPtr odom_msg);
-    void px4_command_pose_callback(geometry_msgs::msg::PoseStamped::ConstSharedPtr pose_msg);
     void px4_imu_callback(px4_msgs::msg::SensorCombined::ConstSharedPtr imu_msg);
     void px4_attitude_callback(px4_msgs::msg::VehicleAttitude::ConstSharedPtr attitude_msg);
+    void px4_air_data_callback(px4_msgs::msg::VehicleAirData::ConstSharedPtr air_data_msg);
+    void px4_distance_sensor_callback(px4_msgs::msg::DistanceSensor::ConstSharedPtr distance_sensor_msg);
     void px4_gps_callback(px4_msgs::msg::SensorGps::ConstSharedPtr gps_msg);
-
+    void px4_rc_channels_callback(px4_msgs::msg::RcChannels::ConstSharedPtr rc_channels_msg);
     void px4_status_callback(px4_msgs::msg::VehicleStatus::ConstSharedPtr status_msg);
     void px4_battery_callback(px4_msgs::msg::BatteryStatus::ConstSharedPtr battery_msg);
     void px4_failsafe_callback(px4_msgs::msg::FailsafeFlags::ConstSharedPtr failsafe_msg);
@@ -128,6 +143,24 @@ private:
      * @param msg A message with the desired position for the vehicle in NED
      */
     void position_callback(const pegasus_msgs::msg::ControlPosition::ConstSharedPtr msg);
+
+    /**
+     * @brief Inertial velocity subscriber callback. The velocity of the vehicle should be expressed in the NED reference frame
+     * @param msg A message with the desired velocity for the vehicle in NED
+     */
+    void inertial_velocity_callback(const pegasus_msgs::msg::ControlVelocity::ConstSharedPtr msg);
+
+    /**
+     * @brief Body velocity subscriber callback. The velocity of the vehicle should be expressed in the body frame of f.r.d convention
+     * @param msg A message with the desired velocity for the vehicle in the body frame
+     */
+    void body_velocity_callback(const pegasus_msgs::msg::ControlVelocity::ConstSharedPtr msg);
+
+    /**
+     * @brief Inertial acceleration subscriber callback. The acceleration of the vehicle should be expressed in the NED reference frame
+     * @param msg A message with the desired acceleration for the vehicle in NED
+     */
+    void inertial_acceleration_callback(const pegasus_msgs::msg::ControlAcceleration::ConstSharedPtr msg);
     
     /**
      * @brief Attitude and thrust subscriber callback. The attitude should be specified in euler angles in degrees
@@ -178,6 +211,14 @@ private:
     void arm_callback(const pegasus_msgs::srv::Arm::Request::SharedPtr request, const pegasus_msgs::srv::Arm::Response::SharedPtr response);
 
     /**
+     * @brief Control motors service callback. When a service request is reached from the control_motors_service_,
+     * this callback is called and will send a command for the vehicle to change the value of the specified motor.
+     * @param request The request to set the motor value at the corresponding index.
+     * @param response The response from this service, of type uint8.
+    */
+    void control_motors_callback(const pegasus_msgs::srv::ControlMotors::Request::SharedPtr request, const pegasus_msgs::srv::ControlMotors::Response::SharedPtr response);
+
+    /**
      * @brief Kill switch service callback. When a service request is reached from the kill_switch_service_,
      * this callback is called and will send a mavlink command for the vehicle to kill the motors instantly.
      * @param request The request for killing the motors (bool = true)
@@ -193,6 +234,13 @@ private:
      */
     void land_callback(const pegasus_msgs::srv::Land::Request::SharedPtr request, const pegasus_msgs::srv::Land::Response::SharedPtr response);
 
+    /**
+     * @brief Reboot service callback. When a service request is reached from the reboot_service_,
+     * this callback is called and will send a command for the vehicle to reboot.
+     * @param request An empty request for rebooting the vehicle (can be ignored)
+     * @param response The response in this service uint8
+     */
+    void reboot_callback(const pegasus_msgs::srv::Reboot::Request::SharedPtr request, const pegasus_msgs::srv::Reboot::Response::SharedPtr response);
     /**
      * @brief Offboard service callback. When a service request is reached from the offboard_service_,
      * this callback is called and will send a mavlink command for the vehicle to enter offboard mode
@@ -213,9 +261,15 @@ private:
      * @brief Auxiliary function to send individual commands to PX4 
      * @param command The command to be executed
      */
-    void publish_vehicle_command(uint16_t command, float param1=0.0, float param2=0.0);
-
-
+    void publish_vehicle_command(
+        uint16_t command,
+        float param1=0.0,
+        float param2=0.0,
+        float param3=0.0,
+        float param4=0.0,
+        float param5=0.0,
+        float param6=0.0,
+        float param7=0.0);
     int vehicle_id_{0};
     std::string vehicle_ns_{""};
 
@@ -224,6 +278,7 @@ private:
      */
     rclcpp::Publisher<px4_msgs::msg::TrajectorySetpoint>::SharedPtr trajectory_setpoint_pub_;
     rclcpp::Publisher<px4_msgs::msg::VehicleAttitudeSetpoint>::SharedPtr attitude_setpoint_pub_;
+    rclcpp::Publisher<px4_msgs::msg::VehicleRatesSetpoint>::SharedPtr attitude_rate_setpoint_pub_;
     rclcpp::Publisher<px4_msgs::msg::ActuatorMotors>::SharedPtr actuator_motors_pub_;
     rclcpp::Publisher<px4_msgs::msg::VehicleThrustSetpoint>::SharedPtr thrust_setpoint_pub_;
     rclcpp::Publisher<px4_msgs::msg::VehicleTorqueSetpoint>::SharedPtr torque_setpoint_pub_;
@@ -246,8 +301,9 @@ private:
     rclcpp::Subscription<px4_msgs::msg::BatteryStatus>::SharedPtr battery_status_px4_sub_;
     rclcpp::Subscription<px4_msgs::msg::FailsafeFlags>::SharedPtr failsafe_flags_px4_sub_;
     rclcpp::Subscription<px4_msgs::msg::EstimatorStatusFlags>::SharedPtr estimator_status_flags_px4_sub_;
-
-    rclcpp::Subscription<rcl_interfaces::msg::ParameterEvent>::SharedPtr parameter_event_px4_sub_;
+    rclcpp::Subscription<px4_msgs::msg::VehicleAirData>::SharedPtr vehicle_air_data_px4_sub_;
+    rclcpp::Subscription<px4_msgs::msg::DistanceSensor>::SharedPtr distance_sensor_px4_sub_;
+    rclcpp::Subscription<px4_msgs::msg::RcChannels>::SharedPtr rc_channels_px4_sub_;
     // PX4 filter output
     rclcpp::Subscription<px4_msgs::msg::VehicleOdometry>::SharedPtr vehicle_odometry_px4_sub_;
     // IMU PX4 subscriber
@@ -263,6 +319,8 @@ private:
     
     px4_msgs::msg::TrajectorySetpoint trajectory_setpoint_msg_;
     px4_msgs::msg::VehicleAttitudeSetpoint attitude_setpoint_msg_;
+    px4_msgs::msg::VehicleRatesSetpoint vehicle_rates_setpoint_msg_;
+    px4_msgs::msg::ActuatorMotors actuator_motors_msg_;
 
     px4_msgs::msg::VehicleOdometry mocap_odometry_msg_;
 
@@ -270,8 +328,10 @@ private:
      * @brief Pegasus Messages
      */
     sensor_msgs::msg::Imu imu_msg_;
+    pegasus_msgs::msg::SensorBarometer baro_msg_;
     pegasus_msgs::msg::SensorGps gps_msg_;
     pegasus_msgs::msg::SensorGpsInfo gps_info_msg_;
+    pegasus_msgs::msg::SensorAltimeter altimeter_msg_;
     nav_msgs::msg::Odometry filter_state_msg_;
     pegasus_msgs::msg::RPY filter_state_rpy_msg_;
     pegasus_msgs::msg::Status status_msg_;
@@ -281,8 +341,10 @@ private:
      * @brief Pegasus Publishers
      */
     rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_{nullptr};
+    rclcpp::Publisher<pegasus_msgs::msg::SensorBarometer>::SharedPtr baro_pub_{nullptr};
     rclcpp::Publisher<pegasus_msgs::msg::SensorGps>::SharedPtr gps_pub_{nullptr};
     rclcpp::Publisher<pegasus_msgs::msg::SensorGpsInfo>::SharedPtr gps_info_pub_{nullptr};
+    rclcpp::Publisher<pegasus_msgs::msg::SensorAltimeter>::SharedPtr altimeter_pub_{nullptr};
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr filter_state_pub_{nullptr};
     rclcpp::Publisher<pegasus_msgs::msg::RPY>::SharedPtr filter_state_rpy_pub_{nullptr};
     rclcpp::Publisher<pegasus_msgs::msg::Status>::SharedPtr status_pub_{nullptr};
@@ -293,17 +355,24 @@ private:
      * 
      */
     rclcpp::Subscription<pegasus_msgs::msg::ControlPosition>::SharedPtr control_position_sub_{nullptr};
+    rclcpp::Subscription<pegasus_msgs::msg::ControlVelocity>::SharedPtr control_inertial_velocity_sub_{nullptr};
+    rclcpp::Subscription<pegasus_msgs::msg::ControlVelocity>::SharedPtr control_body_velocity_sub_{nullptr};
+    rclcpp::Subscription<pegasus_msgs::msg::ControlAcceleration>::SharedPtr control_inertial_acceleration_sub_{nullptr};
     rclcpp::Subscription<pegasus_msgs::msg::ControlAttitude>::SharedPtr control_attitude_force_sub_{nullptr};
+    rclcpp::Subscription<pegasus_msgs::msg::ControlAttitude>::SharedPtr control_attitude_rate_force_sub_{nullptr};
     rclcpp::Subscription<pegasus_msgs::msg::ControlAttitude>::SharedPtr control_attitude_thrust_sub_{nullptr};
+    rclcpp::Subscription<pegasus_msgs::msg::ControlAttitude>::SharedPtr control_attitude_rate_thrust_sub_{nullptr};
 
     /**
      * @brief Pegasus services
      */
     rclcpp::Service<pegasus_msgs::srv::Arm>::SharedPtr arm_service_{nullptr};
+    rclcpp::Service<pegasus_msgs::srv::ControlMotors>::SharedPtr control_motors_service_{nullptr};
     rclcpp::Service<pegasus_msgs::srv::KillSwitch>::SharedPtr kill_switch_service_{nullptr};
     rclcpp::Service<pegasus_msgs::srv::Land>::SharedPtr land_service_{nullptr};
     rclcpp::Service<pegasus_msgs::srv::Offboard>::SharedPtr offboard_service_{nullptr};
     rclcpp::Service<pegasus_msgs::srv::PositionHold>::SharedPtr position_hold_service_{nullptr};
+    rclcpp::Service<pegasus_msgs::srv::Reboot>::SharedPtr reboot_service_{nullptr};
 
     /**
      * @brief Thrust curve object used to set the conversion from thrust in Newton (N) to percentage
