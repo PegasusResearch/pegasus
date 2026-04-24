@@ -110,6 +110,19 @@ def generate_launch_description():
                         }
                     ],
                 ),
+                ComposableNode(
+                    package="pegasus_hardware_monitor",
+                    plugin="hardware_monitor::BagNode",
+                    name="bag_node",
+                    namespace=[
+                        LaunchConfiguration('vehicle_ns'), 
+                        LaunchConfiguration('vehicle_id')],
+                    parameters=[
+                        {
+                            "bag_directory": os.getenv("HOME") + "/bags",
+                        }
+                    ],
+                ),
             ],
             output="screen",
         ),
