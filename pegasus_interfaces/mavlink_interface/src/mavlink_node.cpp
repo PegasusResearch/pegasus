@@ -544,6 +544,13 @@ uint8_t MavlinkNode::land() {
 }
 
 /**
+ * @brief Method to reboot the vehicle components using MAVSDK Action.
+ */
+uint8_t MavlinkNode::reboot() {
+    return static_cast<uint8_t>(action_->reboot());
+}
+
+/**
  * @brief Method to make the vehicle switch to the offboard mode. This function is blocking
  * until we have a result from the vehicle
  */

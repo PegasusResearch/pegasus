@@ -32,6 +32,7 @@
     services:
       arm: "fmu/arm"
       land: "fmu/land"
+      reboot: "fmu/reboot"
       kill_switch: "fmu/kill_switch"
       offboard: "fmu/offboard"
       control_motors: "fmu/control_motors"

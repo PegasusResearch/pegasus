@@ -81,6 +81,7 @@
 #include "pegasus_msgs/srv/land.hpp"
 #include "pegasus_msgs/srv/offboard.hpp"
 #include "pegasus_msgs/srv/position_hold.hpp"
+#include "pegasus_msgs/srv/reboot.hpp"
 #include "pegasus_msgs/srv/set_mavlink_param.hpp"
 #include "pegasus_msgs/srv/set_mavlink_param_int.hpp"
 //#include "pegasus_msgs/srv/set_home_position.hpp"
@@ -402,6 +403,15 @@ private:
 
     /**
      * @ingroup servicesCallbacks
+     * @brief Reboot service callback. When a service request is reached from the reboot_service_,
+     * this callback is called and will send a mavlink command for the vehicle to reboot.
+     * @param request An empty request for rebooting the vehicle (can be ignored)
+     * @param response The response in this service uint8
+     */
+    void reboot_callback(const pegasus_msgs::srv::Reboot::Request::SharedPtr request, const pegasus_msgs::srv::Reboot::Response::SharedPtr response);
+
+    /**
+     * @ingroup servicesCallbacks
      * @brief Offboard service callback. When a service request is reached from the offboard_service_,
      * this callback is called and will send a mavlink command for the vehicle to enter offboard mode
      * @param request An empty request for entering offboard mode (can be ignored)
@@ -590,6 +600,12 @@ private:
      * microcontroller embeded control algorithm
      */
     rclcpp::Service<pegasus_msgs::srv::Land>::SharedPtr land_service_{nullptr};
+
+    /**
+     * @ingroup services
+     * @brief Service server to reboot the vehicle through MAVSDK Action.
+     */
+    rclcpp::Service<pegasus_msgs::srv::Reboot>::SharedPtr reboot_service_{nullptr};
 
     /**
      * @ingroup services

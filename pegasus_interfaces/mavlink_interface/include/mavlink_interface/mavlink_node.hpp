@@ -210,6 +210,11 @@ public:
     uint8_t land();
 
     /**
+     * @brief Method to reboot the vehicle components through MAVSDK Action.
+     */
+    uint8_t reboot();
+
+    /**
     * @brief Sends a signal to control a specific motor or actuator.
     * 
     * @param index Specifies the index of the motor/actuator, "Actuactor Set", to control.

@@ -361,6 +361,14 @@ void ROSNode::init_subscribers_and_services() {
     land_service_ = this->create_service<pegasus_msgs::srv::Land>(
         land_topic.as_string(), std::bind(&ROSNode::land_callback, this, std::placeholders::_1, std::placeholders::_2));
 
+    // ------------------------------------------------------------------------
+    // Initiate the service to reboot the vehicle
+    // ------------------------------------------------------------------------
+    this->declare_parameter<std::string>("services.reboot", "reboot");
+    rclcpp::Parameter reboot_topic = this->get_parameter("services.reboot");
+    reboot_service_ = this->create_service<pegasus_msgs::srv::Reboot>(
+        reboot_topic.as_string(), std::bind(&ROSNode::reboot_callback, this, std::placeholders::_1, std::placeholders::_2));
+
 
     // ------------------------------------------------------------------------
     // Initiate the service to set the vehicle mode
@@ -954,6 +962,25 @@ void ROSNode::land_callback(const pegasus_msgs::srv::Land::Request::SharedPtr, c
 
 /**
  * @ingroup servicesCallbacks
+ * @brief Reboot service callback. When a service request is reached from the reboot_service_,
+ * this callback is called and will send a mavlink command for the vehicle to reboot.
+ * @param request An empty request for rebooting the vehicle (can be ignored)
+ * @param response The response in this service uint8
+ */
+void ROSNode::reboot_callback(const pegasus_msgs::srv::Reboot::Request::SharedPtr, const pegasus_msgs::srv::Reboot::Response::SharedPtr response) {
+
+    // Set the response to the reboot command
+    response->success = mavlink_node_->reboot();
+
+    if (response->success == pegasus_msgs::srv::Reboot::Response::SUCCESS) {
+        RCLCPP_INFO(this->get_logger(), "Reboot command accepted by MAVSDK/PX4.");
+    } else {
+        RCLCPP_INFO(this->get_logger(), "Reboot command failed with result code: %u", response->success);
+    }
+}
+
+/**
+ * @ingroup servicesCallbacks
  * @brief Offboard service callback. When a service request is reached from the offboard_service_,
  * this callback is called and will send a mavlink command for the vehicle to enter offboard mode
  * @param request An empty request for entering offboard mode (can be ignored)
@@ -1006,6 +1033,7 @@ void ROSNode::get_mavlink_param_callback(const pegasus_msgs::srv::GetMavlinkPara
     const auto [success, value] = mavlink_node_->get_parameter(request->parameter_name);
     response->success = success;
     response->value = value;
+    RCLCPP_INFO(this->get_logger(), "Get param '%s': value=%.4f, success=%d", request->parameter_name.c_str(), value, success);
 }
 
 /**
@@ -1017,6 +1045,7 @@ void ROSNode::get_mavlink_param_callback(const pegasus_msgs::srv::GetMavlinkPara
 void ROSNode::set_mavlink_param_callback(const pegasus_msgs::srv::SetMavlinkParam::Request::SharedPtr request, const pegasus_msgs::srv::SetMavlinkParam::Response::SharedPtr response) {
 
     response->success = mavlink_node_->set_parameter_float(request->parameter_name, static_cast<float>(request->value));
+    RCLCPP_INFO(this->get_logger(), "Set param '%s': value=%.4f, success=%d", request->parameter_name.c_str(), request->value, response->success);
 }
 
 /**
@@ -1028,6 +1057,7 @@ void ROSNode::set_mavlink_param_callback(const pegasus_msgs::srv::SetMavlinkPara
 void ROSNode::set_mavlink_param_int_callback(const pegasus_msgs::srv::SetMavlinkParamInt::Request::SharedPtr request, const pegasus_msgs::srv::SetMavlinkParamInt::Response::SharedPtr response) {
 
     response->success = mavlink_node_->set_parameter_int(request->parameter_name, request->value);
+    RCLCPP_INFO(this->get_logger(), "Set param '%s': value=%d, success=%d", request->parameter_name.c_str(), request->value, response->success);
 }
 
 /**
